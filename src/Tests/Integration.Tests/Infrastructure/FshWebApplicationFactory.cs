@@ -188,6 +188,9 @@ public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, I
             services.RemoveAll<IMailService>();
             services.AddSingleton<IMailService, NoOpMailService>();
 
+            // A test-only endpoint that requires two permissions, for RequirePermissionAllOfTests.
+            services.AddSingleton<IStartupFilter, TestPermissionEndpointStartupFilter>();
+
             // Detailed errors in tests instead of generic "An unexpected error occurred"
             var existingHandlers = services.Where(d =>
                 d.ServiceType == typeof(Microsoft.AspNetCore.Diagnostics.IExceptionHandler)).ToList();
