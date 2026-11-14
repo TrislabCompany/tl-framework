@@ -1,6 +1,6 @@
 ---
 name: add-integration-event
-description: Publish a cross-module integration event via the Outbox and handle it idempotently in another module. Use when one module must react to something that happened in another. See .agents/rules/eventing.md.
+description: Publish a cross-module integration event via the Outbox and handle it idempotently in another module. Use when one module must react to something that happened in another. See .claude/rules/eventing.md.
 argument-hint: [SourceModule] [EventName] [ConsumerModule]
 ---
 
@@ -8,7 +8,7 @@ argument-hint: [SourceModule] [EventName] [ConsumerModule]
 
 Cross-module communication goes through **integration events + the Outbox** (transactional, crash-safe) —
 never a direct in-process call into another module's runtime, and never `IEventBus.PublishAsync` from a
-handler. Full model: `.agents/rules/eventing.md`.
+handler. Full model: `.claude/rules/eventing.md`.
 
 ## Step 1 — Define the event (source module's Contracts)
 
@@ -84,6 +84,14 @@ builder.Services.AddIntegrationEventHandlers(typeof({Consumer}Module).Assembly);
 - The in-memory bus runs handlers **synchronously in the publisher's scope** — keep the handler lean; a throw surfaces to the originating request.
 - If the handler reads a **tenant-filtered** DbContext from a background path (open-generic handler, Hangfire job), restore Finbuckle context first via `IMultiTenantContextSetter` (see `WebhookFanoutHandler`).
 - **Module load order:** the consumer must load before the publisher if it must react (`Order` in `[assembly: FshModule]`) — e.g. Notifications (750) before Chat (800).
+
+## Verify
+
+```bash
+dotnet build src/App.slnx                       # 0 warnings (TreatWarningsAsErrors)
+dotnet test src/Tests/Architecture.Tests        # boundaries, validators, tenant isolation
+dotnet test src/Tests/{X}.Tests                 # the module's own tests
+```
 
 ## Checklist
 

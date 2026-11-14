@@ -34,7 +34,7 @@ The module already calls `PermissionConstants.Register({X}Permissions.All)` in `
 .RequirePermission({X}Permissions.{Resources}.Create);
 ```
 
-⚠️ `RequiredPermissionAttribute` implements `IRequiredPermissionMetadata`. **Never let a second/duplicate of that interface exist** — it silently disables **all** `.RequirePermission()` gates app-wide. (See `.agents/rules/modules/identity.md`.)
+⚠️ `RequiredPermissionAttribute` implements `IRequiredPermissionMetadata`. **Never let a second/duplicate of that interface exist** — it silently disables **all** `.RequirePermission()` gates app-wide. (See `.claude/rules/modules/identity.md`.)
 
 ## Step 3 — (admin only) mirror it
 
@@ -62,6 +62,14 @@ So `RouteGuard` passes on first paint, add the new permission to the test seed s
 ## Dashboard
 
 No mirror, no `RouteGuard`. The JWT carries only role names — the app fetches the permission list from `GET /api/v1/identity/permissions` at hydration and the server enforces access; a missing permission yields a 403 the UI surfaces. Routes aren't permission-gated; to hide a nav entry, set `perm`/`anyPerm` on the item in `src/components/layout/nav-data.ts`. Permission-gated specs mock `GET /identity/permissions` with the grants they need (shell mocks stub it to `[]`).
+
+## Verify
+
+```bash
+dotnet build src/App.slnx                       # 0 warnings (TreatWarningsAsErrors)
+dotnet test src/Tests/Architecture.Tests        # boundaries, validators, tenant isolation
+dotnet test src/Tests/{X}.Tests                 # the module's own tests
+```
 
 ## Checklist
 

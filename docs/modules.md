@@ -1,6 +1,6 @@
 # Modules
 
-The modules of the API, what each does, and how to add or delete one. `.agents/rules/modules/` has the detail of each module, written for coding agents and just as useful to people.
+The modules of the API, what each does, and how to add or delete one. `.claude/rules/modules/` has the detail of each module, written for coding agents and just as useful to people.
 
 ## 1. The modules
 
@@ -19,7 +19,7 @@ Each module is a folder in `src/Modules/` with two projects: `Modules.<Name>`, i
 | Tickets | Sample: support tickets with comments | Sample |
 | Chat | Sample: direct messages, channels, threads, reactions, mentions | Sample |
 
-The building blocks in `src/BuildingBlocks` are not modules: every module depends on them, so change them rarely and with care (`.agents/rules/buildingblocks-protection.md`).
+The building blocks in `src/BuildingBlocks` are not modules: every module depends on them, so change them rarely and with care (`.claude/rules/buildingblocks-protection.md`).
 
 ## 2. Add a module
 
@@ -56,4 +56,4 @@ Deleting a module leaves its tables in an existing database: a later migration i
 | Tenant isolation | Every entity of a module's `DbContext` is filtered by tenant, or marked global with `IGlobalEntity` |
 | Hosts | `App.Api` doesn't reach into a module's features or data |
 
-Read `.agents/rules/architecture.md` before you change a rule; it explains why each one is there.
+Read `.claude/rules/architecture.md` before you change a rule; it explains why each one is there.

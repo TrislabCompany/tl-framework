@@ -1,6 +1,7 @@
 ---
 name: query-patterns
 description: Implement read queries — paginated lists, search/filter/sort, and single-entity fetches — the FSH way (DbContext LINQ + PagedResponse). Use when adding GET endpoints. See also add-feature.
+user-invocable: false
 ---
 
 # Query Patterns

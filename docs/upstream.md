@@ -28,6 +28,8 @@ A security fix goes first: an upstream commit that fixes a vulnerability, a CVE 
 | Upstream path | Here |
 | --- | --- |
 | `src/FSH.Starter.slnx` | `src/App.slnx` |
+| `.agents/rules/` | `.claude/rules/`, each file with `paths:` front matter (keep it when porting a rule change) |
+| `.agents/workflows/` | `code-reviewer` and `architecture-guard` are subagents in `.claude/agents/`; `migration-helper` is `.agents/skills/create-migration/reference.md`; `feature-scaffolder` and `module-creator` are sections of `add-full-slice` and `add-module` |
 | `src/Host/FSH.Starter.Api`, `FSH.Starter.AppHost`, `FSH.Starter.DbMigrator`, `FSH.Starter.Migrations.PostgreSQL` | `src/Host/App.Api`, `App.AppHost`, `App.DbMigrator`, `App.Migrations.PostgreSQL` |
 | `deploy/`, `src/Tools/` (the `fsh` CLI), `templates/`, `.template.config/`, `superpowers/`, `docs/superpowers/`, `GEMINI.md`, `README-template.md`, `CONTRIBUTING.md`, `SECURITY.md` | Removed: a commit that touches only these is Not applicable |
 | `src/BuildingBlocks/Storage`, `Jobs` (Hangfire), `Mailing`; Identity's `IdentityDbInitializer`; both hosts' `Program.cs`; `appsettings*.json`; `Directory.Packages.props`; the clients' `vite.config.ts`, `env.ts`, `docker/` and Dockerfiles; the integration test factories | Changed for the platform: expect conflicts, and keep our behaviour ([architecture.md](architecture.md), [configuration.md](configuration.md)) |

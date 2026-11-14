@@ -1,13 +1,14 @@
 ---
 name: testing-guide
-description: Write tests for an FSH feature — xUnit + Shouldly + NSubstitute + AutoFixture, with naming and AAA conventions. Use when adding unit/handler/validator/entity tests. Full rules in .agents/rules/testing.md + integration-testing.md.
+description: Write tests for an FSH feature — xUnit + Shouldly + NSubstitute + AutoFixture, with naming and AAA conventions. Use when adding unit/handler/validator/entity tests. Full rules in .claude/rules/testing.md + integration-testing.md.
+user-invocable: false
 ---
 
 # Testing Guide
 
 Stack: **xUnit** + **Shouldly** (`.ShouldBe`) + **NSubstitute** (`Substitute.For<>`) + **AutoFixture**
 (`new Fixture()`). **Not** Moq, **not** FluentAssertions. Detailed conventions + integration-test gotchas
-live in `.agents/rules/testing.md` and `.agents/rules/integration-testing.md`.
+live in `.claude/rules/testing.md` and `.claude/rules/integration-testing.md`.
 
 ## Conventions
 
@@ -95,7 +96,7 @@ Don't weaken these to make a change pass — fix the code.
 
 `Integration.Tests` runs over real Postgres/Redis/rustfs via Testcontainers — **Docker required**. Set the
 Finbuckle tenant context inline, rewire `IStorageService` post-registration for rustfs, force long-polling
-for SignalR. All detailed in `.agents/rules/integration-testing.md`.
+for SignalR. All detailed in `.claude/rules/integration-testing.md`.
 
 ## Run
 
