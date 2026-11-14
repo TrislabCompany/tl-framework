@@ -1,14 +1,14 @@
 ---
 name: add-feature
 description: Add a vertical-slice feature (command/query + handler + validator + endpoint) to an existing FSH module. Use when adding an API endpoint or business operation to a module that already exists.
-argument-hint: [ModuleName] [Area] [FeatureName]
+argument-hint: "[ModuleName] [Area] [FeatureName]"
 ---
 
 # Add Feature
 
 A feature is a vertical slice **split across two projects**: the request/response types live in the
 module's `.Contracts` project (public API); the handler, validator, and endpoint live in the runtime
-project. Full conventions: `.agents/rules/api-conventions.md`.
+project. Full conventions: `.claude/rules/api-conventions.md`.
 
 ## Layout (real)
 

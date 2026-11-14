@@ -1,7 +1,7 @@
 ---
 name: add-full-slice
 description: Build a capability end-to-end — backend vertical slice (Contracts→handler→validator→endpoint) AND the React page wired to it. Use when delivering a user-facing feature across API + UI. Composes add-feature + add-react-page.
-argument-hint: [ModuleName] [admin|dashboard] [FeatureName]
+argument-hint: "[ModuleName] [admin|dashboard] [FeatureName]"
 ---
 
 # Add Full Slice (backend → frontend)
@@ -9,6 +9,14 @@ argument-hint: [ModuleName] [admin|dashboard] [FeatureName]
 The kit's accelerator: deliver a feature from database to UI in one pass. This skill **composes**
 `add-feature` (backend) and `add-react-page` (frontend) — follow each for the detailed code; this file is
 the order of operations and the **contract** that keeps the two halves in sync.
+
+## Clarify first
+
+1. Module: an existing one? If not, follow `add-module` first.
+2. Operation: a command (changes state) or a query (reads)?
+3. A new entity? Then `add-entity` and `create-migration` come before step 1.
+4. UI surface: none, `admin` or `dashboard`? With none, follow `add-feature` alone.
+5. Request fields, response shape and permission.
 
 ## Order of operations
 
@@ -40,6 +48,8 @@ dotnet build src/App.slnx && dotnet test src/Tests/{X}.Tests
 cd clients/{app} && npm run lint && npm run test:e2e
 # optional manual check: dotnet run --project src/Host/App.AppHost  (brings up API + both apps)
 ```
+
+Then run the `code-reviewer` and `architecture-guard` subagents (`.claude/agents/`) before the commit.
 
 ## Checklist
 

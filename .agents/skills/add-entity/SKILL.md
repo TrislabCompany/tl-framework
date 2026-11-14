@@ -1,13 +1,13 @@
 ---
 name: add-entity
 description: Add a domain entity/aggregate with EF configuration and a migration to an existing FSH module. Use when adding a new database-backed entity. Pairs with add-feature and create-migration.
-argument-hint: [ModuleName] [EntityName]
+argument-hint: "[ModuleName] [EntityName]"
 ---
 
 # Add Entity
 
 Rich domain model: `sealed` aggregate, private EF ctor, static factory, behavior via methods, domain
-events. DB conventions: `.agents/rules/database.md`.
+events. DB conventions: `.claude/rules/database.md`.
 
 ## Entity — `AggregateRoot<Guid>` (or `BaseEntity<Guid>`)
 
@@ -115,6 +115,14 @@ dotnet ef migrations add Add{Entity} \
   --project src/Host/App.Migrations.PostgreSQL \
   --startup-project src/Host/App.Api \
   --context {X}DbContext
+```
+
+## Verify
+
+```bash
+dotnet build src/App.slnx                       # 0 warnings (TreatWarningsAsErrors)
+dotnet test src/Tests/Architecture.Tests        # boundaries, validators, tenant isolation
+dotnet test src/Tests/{X}.Tests                 # the module's own tests
 ```
 
 ## Checklist

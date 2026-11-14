@@ -1,13 +1,17 @@
 ---
 name: add-module
 description: Create a new module (bounded context) — runtime + Contracts projects, IModule, DbContext, permissions, migrations, and the four registration sites. Use when adding a distinct business domain. For a feature in an existing module, use add-feature.
-argument-hint: [ModuleName]
+argument-hint: "[ModuleName]"
 ---
 
 # Add Module
 
 High-ceremony. The part people get wrong is **registration — a module must be wired in FOUR places**
-(see Step 6). Architecture rules: `.agents/rules/architecture.md`.
+(see Step 6). Architecture rules: `.claude/rules/architecture.md`.
+
+## Is it really a new module?
+
+A new module has its own domain entities and is a distinct bounded context. An operation in an existing domain is a feature: use `add-feature` or `add-full-slice` instead.
 
 ## Projects
 
@@ -121,7 +125,10 @@ Miss the Mediator marker → handlers silently undiscovered. Miss the assembly e
 dotnet build src/App.slnx                  # 0 warnings
 dotnet test src/Tests/Architecture.Tests           # boundary + tenant-isolation rules must pass
 dotnet test src/App.slnx
+dotnet run --project src/Host/App.DbMigrator -- list-pending   # the new context shows up
 ```
+
+Then call one endpoint and confirm its handler runs: a missing Mediator marker compiles but leaves the handler undiscovered. Finish with the `architecture-guard` subagent.
 
 ## Checklist
 

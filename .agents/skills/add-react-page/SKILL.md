@@ -1,12 +1,12 @@
 ---
 name: add-react-page
-description: Add a list+create page to a React app (clients/admin or clients/dashboard) — API module, page, lazy route, (admin) permission gate, Playwright test. Use when adding any frontend screen. See .agents/rules/frontend/.
-argument-hint: [admin|dashboard] [Area] [Resource]
+description: Add a list+create page to a React app (clients/admin or clients/dashboard) — API module, page, lazy route, (admin) permission gate, Playwright test. Use when adding any frontend screen. See .claude/rules/frontend/.
+argument-hint: "[admin|dashboard] [Area] [Resource]"
 ---
 
 # Add React Page
 
-The frontend slice. Read `.agents/rules/frontend/shared.md` plus the app file (`frontend/admin.md` /
+The frontend slice. Read `.claude/rules/frontend/shared.md` plus the app file (`frontend/admin.md` /
 `frontend/dashboard.md`) — the two apps **deliberately diverge**:
 
 | | **admin** (operator) | **dashboard** (tenant) |
