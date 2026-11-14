@@ -44,10 +44,10 @@ What works on the first deploy, with no change:
 | Technology | Version |
 | --- | --- |
 | fullstackhero .NET starter kit | Release `10.0.0`, MIT licence ([`LICENSE`](LICENSE), which stays in every repository); every later commit on its `main` is reviewed and synced ([upstream.md](docs/upstream.md)) |
-| .NET | SDK 10.0.403 (`global.json`), runtime 10.0.14 (`aspnet:10.0.14-noble-chiseled`) |
-| ASP.NET Core | 10.0.14 |
-| EF Core | 10.0.14, with Npgsql's provider 10.0.3 |
-| Aspire (AppHost) | 13.4.0 |
+| .NET | SDK 10.0.404 (`global.json`), runtime 10.0.15 (`aspnet:10.0.15-noble-chiseled`) |
+| ASP.NET Core | 10.0.15 |
+| EF Core | 10.0.15, with Npgsql's provider 10.0.3 |
+| Aspire (AppHost) | 13.6.5 |
 | Hangfire | 1.8.23, stored in Postgres |
 | Redis-compatible cache | Optional: the stamp's `cache`; Valkey 9.1.0 in the AppHost; in-memory without it |
 | S3-compatible storage | The stamp's `storage`; rustfs 1.0.3 in the AppHost, `docker-compose.yml` and the integration tests; AWS SDK for S3 4.0.23.4 |
