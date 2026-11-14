@@ -55,4 +55,4 @@ dotnet ef migrations add {Name} \
 ## Tests + EF
 
 - Integration tests use Testcontainers (real PostgreSQL) — **Docker must be running**.
-- In integration tests, set the Finbuckle tenant context **inline in the same method** as the `UserManager`/`DbContext` call; an awaited-helper set is lost (AsyncLocal) and the tenant query filter NREs.
+- In integration tests, set the tenant context inline (`integration-testing.md`).
