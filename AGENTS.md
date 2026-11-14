@@ -6,8 +6,9 @@
 This file is the canonical guide for **all** AI coding tools (Claude Code, Cursor, Codex, …).
 `CLAUDE.md` is a thin bridge that imports this file — edit conventions **here**, not there.
 
-This file is the map. Detailed conventions live in `.agents/rules/` and are read on demand — **read the
-relevant rule file before working in that area** (see the index below). Keep this file lean.
+This file is the map. Detailed conventions live in `.claude/rules/`. Each rule has `paths:` front matter, so
+Claude Code loads it by itself when you touch a matching file; other tools: **read the relevant rule file
+before working in that area** (see the index below). Keep this file lean.
 
 ## What this is
 
@@ -99,7 +100,7 @@ Single long-lived branch: **`main`**. Branch from and target `main`; a PR needs 
 
 ## Rules index — read the relevant file before you work
 
-**Backend / cross-cutting** (`.agents/rules/`)
+**Backend / cross-cutting** (`.claude/rules/`)
 
 | Working on… | Read |
 |---|---|
@@ -119,7 +120,7 @@ Single long-lived branch: **`main`**. Branch from and target `main`; a PR needs 
 | **Modifying `src/BuildingBlocks`** (read first — it's protected) | `buildingblocks-protection.md` |
 | A specific module's quirks | `modules/{module}.md` (identity, multitenancy, chat, files, webhooks, auditing, billing, catalog, tickets, notifications) |
 
-**Frontend** (`.agents/rules/frontend/`)
+**Frontend** (`.claude/rules/frontend/`)
 
 | Working on… | Read |
 |---|---|
@@ -142,6 +143,14 @@ records for DTOs/events/value objects · `default!` for required non-nullable st
 
 ## AI tooling resources
 
-- **Rules** — `.agents/rules/*.md` (indexed above). Read on demand.
-- **Skills** — `.agents/skills/*/SKILL.md`: step-by-step task recipes. Scaffolders: `add-feature`, `add-entity`, `add-module`, `add-react-page`, `add-full-slice`. Ops: `create-migration`, `add-integration-event`, `add-permission`, `release` (deploy, tag, promote, roll back). Reference: `query-patterns`, `testing-guide`, `mediator-reference`.
-- **Workflows** — `.agents/workflows/*.md`: task playbooks (`code-reviewer`, `feature-scaffolder`, `module-creator`, `architecture-guard`, `migration-helper`).
+- **Rules** — `.claude/rules/**/*.md` (indexed above), each scoped with `paths:`. A rule without `paths:` would load in every session; `AgentFilesTests` fails on one.
+- **Skills** — `.agents/skills/<name>/SKILL.md` is the skill. Claude Code finds skills only in `.claude/skills/`, so each also has a pointer `.claude/skills/<name>/SKILL.md` with the same front matter; add one with every new skill (`AgentFilesTests` checks it). Scaffolders: `add-feature`, `add-entity`, `add-module`, `add-react-page`, `add-full-slice`. Ops: `create-migration`, `add-integration-event`, `add-permission`, `release` (deploy, tag, promote, roll back). Reference, loaded by the agent only: `query-patterns`, `testing-guide`, `mediator-reference`.
+- **Subagents** — `.claude/agents/*.md`, read-only: `code-reviewer` (the diff against the rules) and `architecture-guard` (boundaries, registration, `Architecture.Tests`). Run both before a commit.
+- **Settings** — `.claude/settings.json` asks before an edit in `src/BuildingBlocks` or `.github/workflows`, and denies reading `.env` files.
+
+## Working here
+
+- **No AI attribution.** No `Co-Authored-By:` trailer and no "generated with" line in a commit, PR or comment.
+- **Commit with your Trislab account**, never a personal one or another employer's.
+- **The repository is public.** No secrets, customer names, prices or internal URLs in code, docs, PRs or commits.
+- Write "section N", never "§".

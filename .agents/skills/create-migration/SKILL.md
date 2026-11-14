@@ -1,6 +1,6 @@
 ---
 name: create-migration
-description: Create and apply an EF Core migration for a module's DbContext the FSH way (central Migrations project, per-module folder, correct --context). Use after changing entities/EF config. See .agents/rules/database.md.
+description: Create and apply an EF Core migration for a module's DbContext the FSH way (central Migrations project, per-module folder, correct --context). Use after changing entities/EF config. See .claude/rules/database.md.
 argument-hint: [ModuleName] [MigrationName]
 ---
 
@@ -67,6 +67,10 @@ dotnet run --project src/Host/App.DbMigrator -- list-pending   # to preview firs
 
 - A **new module** also needs a `{X}/` folder in the Migrations project and the runtime project referenced from it — see `add-module`.
 - `dotnet ef` against a `BaseDbContext` works because the 4-arg ctor is satisfied by the startup host's DI.
+
+## More
+
+[reference.md](reference.md) has the real context names, how the DbMigrator applies migrations, the naming convention and a troubleshooting table.
 
 ## Checklist
 

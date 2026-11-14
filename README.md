@@ -76,7 +76,7 @@ Every base image is pinned by digest. Renovate will keep the versions current; u
 | `docker-compose.yml`, `.env.example` | The four images locally, without the .NET SDK |
 | `platform.yaml` | The images and the sizing of each app, within the stamp's caps |
 | `.github/` | The `ci` workflow, the PR template and the code owners |
-| `.agents/`, `AGENTS.md`, `CLAUDE.md` | How coding agents work in this codebase |
+| `AGENTS.md`, `CLAUDE.md`, `.agents/skills/`, `.claude/` (rules, skill pointers, subagents, settings) | How coding agents work in this codebase |
 | `docs/` | The detail behind this README |
 
 ## First steps

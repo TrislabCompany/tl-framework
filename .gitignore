@@ -521,3 +521,10 @@ clients/**/.env.local
 # Audit dead-letter queue — runtime fallback when the audit pipeline cannot
 # reach its persistent sink. Local-only by design; never commit.
 **/audit-dlq/
+
+# Personal Claude Code instructions
+CLAUDE.local.md
+
+# The release skill and its pointer, which the [Rr]elease/ build-output rule above would hide
+!.agents/skills/release/
+!.claude/skills/release/

@@ -8,7 +8,7 @@ argument-hint: [ModuleName] [Area] [FeatureName]
 
 A feature is a vertical slice **split across two projects**: the request/response types live in the
 module's `.Contracts` project (public API); the handler, validator, and endpoint live in the runtime
-project. Full conventions: `.agents/rules/api-conventions.md`.
+project. Full conventions: `.claude/rules/api-conventions.md`.
 
 ## Layout (real)
 
