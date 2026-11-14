@@ -28,15 +28,14 @@ public class HttpRequestContextEnricher : ILogEventEnricher
             logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("RequestPath", httpContext.Request.Path));
             logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("UserAgent", httpContext.Request.Headers["User-Agent"]));
 
+            // Ids only: an e-mail address or a name is never logged (.claude/rules/logging.md).
             if (httpContext.User?.Identity?.IsAuthenticated == true)
             {
                 var userId = httpContext.User.GetUserId();
                 var tenant = httpContext.User.GetTenant();
-                var userEmailId = httpContext.User.GetEmail();
 
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("UserId", userId));
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("Tenant", tenant));
-                logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("UserEmail", userEmailId));
             }
         }
     }

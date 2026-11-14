@@ -39,7 +39,8 @@ Secrets arrive as ordinary environment variables too: the platform reads them fr
 | `SEED_ADMIN_PASSWORD` | `Seed:DefaultAdminPassword` | No first operator account, `admin@root.com` |
 | `SMTP_PASSWORD` | `MailOptions:Smtp:Password` | Mail is off: each mail is logged, not sent |
 | `SEED_DEMO` | `Seed:Demo` | No demo data |
-| `PLATFORM_ENVIRONMENT` | `Platform:Environment`, in `GET /api/health/info` | `local` |
+| `PLATFORM_ENVIRONMENT` | `Platform:Environment`, in `GET /api/health/info` and in every log line. Outside `local` the logs are JSON lines ([.claude/rules/logging.md](../.claude/rules/logging.md)) | `local`: readable log lines |
+| `PLATFORM_STAMP` | `Platform:Stamp`, in every log line | Left out of the logs |
 
 `SEED_DEMO` seeds the demo tenants `acme` and `globex`, and the account `superadmin@root.com`, all with the public password `Password123!`. Set it only in an Environment with no real data, such as a sandbox's `dev` or a `demo`.
 

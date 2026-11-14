@@ -7,7 +7,7 @@ paths:
 
 `src/BuildingBlocks/Web/Observability/`. Read before adding logs, traces, or metrics.
 
-Checked by: `CA2254` (template must be constant) through `AnalysisMode=AllEnabledByDefault`. `CA1848` is off, so `[LoggerMessage]` on hot paths, the levels and the never-logged list are review only. The logs are what support reads during an incident: write each line for the person who has only the logs and a trace id.
+Checked by: `CA2254` (template must be constant) through `AnalysisMode=AllEnabledByDefault`; the line format by `PlatformJsonFormatterTests` (Framework.Tests) and the correlation id by `GlobalExceptionHandlerTests` (Integration.Middleware.Tests). `CA1848` is off, so `[LoggerMessage]` on hot paths, the levels and the never-logged list are review only. The logs are what support reads during an incident: write each line for the person who has only the logs and a trace id.
 
 ## Structured logging only
 
@@ -41,17 +41,21 @@ Build runs with `TreatWarningsAsErrors` — interpolated log calls won't even co
 
 ## Never logged
 
-Secrets, tokens, keys, connection strings, passwords; request and response bodies; e-mail addresses, names, phone numbers, IP addresses. Log the id instead (`{UserId}`, not `{Email}`). `HttpRequestContextEnricher` still adds `UserEmail`; don't add more like it, and don't query by it. When in doubt, leave it out: a missing field costs a query, a leaked one is a data-protection incident.
+Secrets, tokens, keys, connection strings, passwords; request and response bodies; e-mail addresses, names, phone numbers, IP addresses. Log the id instead (`{UserId}`, not `{Email}`). `HttpRequestContextEnricher` adds `UserId` and `Tenant`, never the e-mail. The global handler logs a client error without its detail, because an exception message can quote the request's data. When in doubt, leave it out: a missing field costs a query, a leaked one is a data-protection incident.
 
 ## Serilog
 
-`AddHeroLogging()` reads the `Serilog` config section (Console sink by default), attaches `HttpRequestContextEnricher` (adds `RequestMethod`/`RequestPath`/`UserAgent` + `UserId`/`Tenant`/`UserEmail` when authenticated), overrides Microsoft/EF/Hangfire/Finbuckle to higher levels, and excludes the `ExceptionHandlerMiddleware` source (the global handler logs exceptions itself — don't double-log).
+`AddHeroLogging()` reads the `Serilog` config section (enrichers, levels), attaches `HttpRequestContextEnricher` (adds `RequestMethod`/`RequestPath`/`UserAgent` + `UserId`/`Tenant` when authenticated), adds `Environment`, `Stamp` and `Version`, overrides Microsoft/EF/Hangfire/Finbuckle to higher levels, and excludes the `ExceptionHandlerMiddleware` source (the global handler logs exceptions itself — don't double-log).
+
+**The console sink is added in code, not in appsettings**, so the API and the migrator write the same format: readable lines when `PLATFORM_ENVIRONMENT` is `local` (or unset), and everywhere else one JSON object per line from `PlatformJsonFormatter`, with the fields of the platform's log contract (ADR 0062 in `tl-cloud-infrastructure`; the Logs section of `stamps/aca-app/README.md` in `tl-platform`). Don't add a console sink to `appsettings*.json`: it would write every line twice.
+
+The global handler logs a 5xx as `Error` with the exception, and a 4xx as `Warning` without it.
 
 ## Correlation
 
 The trace id is the correlation id. It comes from the W3C `traceparent` header when the caller sends one, is returned in every ProblemDetails as `traceId`, and is what a user quotes to support. A background job or outbox message started by a request keeps it.
 
-`X-Correlation-ID` request header (falls back to `HttpContext.TraceIdentifier`), surfaced in every ProblemDetails and pushed to the Serilog `LogContext`. `CurrentUserMiddleware` tags the current `Activity` with `fsh.user_id` / `fsh.tenant_id` / `fsh.correlation_id`.
+`Correlation.UseCorrelationHeader()` returns it on every response as `X-Correlation-ID`, and `AddHeroPlatform` puts it in every ProblemDetails as `traceId` (`Correlation.Id`). The `correlationId` extension of the global, quota and rate-limit handlers still echoes a caller's `X-Correlation-ID` request header, kept for compatibility; new code uses the trace id. `CurrentUserMiddleware` tags the current `Activity` with `fsh.user_id` / `fsh.tenant_id` / `fsh.correlation_id`.
 
 ## OpenTelemetry
 

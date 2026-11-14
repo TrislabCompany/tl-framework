@@ -64,4 +64,27 @@ public sealed class GlobalExceptionHandlerTests
     }
 
     #endregion
+
+    #region Correlation
+
+    [Fact]
+    public async Task ThrowEndpoint_Should_Return_The_Callers_Trace_Id_As_Correlation_Id_And_TraceId()
+    {
+        // Arrange
+        const string traceId = "4bf92f3577b34da6a3ce929d0e0e4736";
+        using var client = _factory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/__test/throw");
+        request.Headers.Add("traceparent", $"00-{traceId}-00f067aa0ba902b7-01");
+
+        // Act
+        using var response = await client.SendAsync(request);
+        var body = await response.Content.ReadAsStringAsync();
+
+        // Assert: the id a user quotes is the trace id every log line of the request carries (ADR 0062).
+        response.Headers.GetValues(FSH.Framework.Web.Observability.Correlation.Header).ShouldHaveSingleItem().ShouldBe(traceId);
+        using var doc = JsonDocument.Parse(body);
+        doc.RootElement.GetProperty("traceId").GetString().ShouldBe(traceId);
+    }
+
+    #endregion
 }

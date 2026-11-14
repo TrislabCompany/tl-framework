@@ -13,6 +13,7 @@ using FSH.Framework.Web.Sse;
 using FSH.Framework.Web.Health;
 using FSH.Framework.Web.Mediator.Behaviors;
 using FSH.Framework.Web.Modules;
+using FSH.Framework.Web.Observability;
 using FSH.Framework.Web.Observability.Logging.Serilog;
 using FSH.Framework.Web.Observability.OpenTelemetry;
 using FSH.Framework.Web.OpenApi;
@@ -131,7 +132,9 @@ public static class Extensions
 
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-        builder.Services.AddProblemDetails();
+        // Every ProblemDetails response carries the correlation id as traceId (Correlation).
+        builder.Services.AddProblemDetails(o => o.CustomizeProblemDetails = context =>
+            context.ProblemDetails.Extensions["traceId"] = Correlation.Id(context.HttpContext));
         builder.Services.AddOptions<OriginOptions>().BindConfiguration(nameof(OriginOptions));
         builder.Services.AddOptions<SecurityHeadersOptions>().BindConfiguration(nameof(SecurityHeadersOptions));
 
@@ -149,6 +152,7 @@ public static class Extensions
         var corsEnabled = options.UseCors && IsCorsEnabled(app.Configuration);
         var openApiEnabled = options.UseOpenApi && IsOpenApiEnabled(app.Configuration);
 
+        app.UseCorrelationHeader();
         app.UseExceptionHandler();
         app.UseResponseCompression();
 

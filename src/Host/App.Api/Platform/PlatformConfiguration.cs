@@ -33,6 +33,7 @@ internal static class PlatformConfiguration
         var settings = new Dictionary<string, string?>
         {
             ["Platform:Environment"] = Value(configuration, "PLATFORM_ENVIRONMENT") ?? LocalEnvironment,
+            ["Platform:Stamp"] = Value(configuration, "PLATFORM_STAMP"),
         };
 
         if (Value(configuration, "DATABASE_URL") is { } databaseUrl)

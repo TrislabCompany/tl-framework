@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,11 +20,35 @@ public static class Extensions
         // Resolve OTLP log export once (env-var/config), so the sink is only added when an endpoint is available.
         var otlp = ResolveOtlpLogExport(builder);
 
+        // Where every line comes from, as the platform's log contract names it (ADR 0062): the host maps
+        // PLATFORM_ENVIRONMENT and PLATFORM_STAMP to these keys. The platform passes no version, because the
+        // image is built once per commit and only tagged at release, so the version is the app's build version.
+        var environment = builder.Configuration["Platform:Environment"] ?? "local";
+        var stamp = builder.Configuration["Platform:Stamp"];
+        var version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown";
+
         builder.Services.AddSerilog((context, logger) =>
         {
             var httpEnricher = context.GetRequiredService<HttpRequestContextEnricher>();
             logger.ReadFrom.Configuration(builder.Configuration);
             logger.Enrich.With(httpEnricher);
+            logger.Enrich.WithProperty("Environment", environment);
+            logger.Enrich.WithProperty("Version", version);
+            if (!string.IsNullOrWhiteSpace(stamp))
+            {
+                logger.Enrich.WithProperty("Stamp", stamp);
+            }
+
+            // The console is the record the platform keeps: JSON lines everywhere but local, which keeps readable
+            // lines. It is added here, not in appsettings, so the API and the migrator write the same format.
+            if (environment == "local")
+            {
+                logger.WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information, formatProvider: CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                logger.WriteTo.Console(new PlatformJsonFormatter(), restrictedToMinimumLevel: LogEventLevel.Information);
+            }
             logger
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)

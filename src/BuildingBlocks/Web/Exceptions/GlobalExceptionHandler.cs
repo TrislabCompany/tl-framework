@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Serilog.Context;
 
 namespace FSH.Framework.Web.Exceptions;
 
@@ -94,12 +93,18 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             ?? httpContext.TraceIdentifier;
         problemDetails.Extensions["correlationId"] = correlationId;
 
-        LogContext.PushProperty("exception_title", problemDetails.Title);
-        LogContext.PushProperty("exception_detail", problemDetails.Detail);
-        LogContext.PushProperty("exception_statusCode", problemDetails.Status);
-        LogContext.PushProperty("exception_stackTrace", exception.StackTrace);
-
-        logger.LogError("Exception at {Path} - {StatusCode} {Title}", httpContext.Request.Path.Value?.Replace(Environment.NewLine, string.Empty), statusCode, problemDetails.Title);
+        // Logged once, here (.claude/rules/logging.md). A server error needs a person: Error, with the exception,
+        // whose stack trace the log line carries. A client error is handled: Warning, without the exception. The
+        // detail is left out, because an exception message can quote the request's data.
+        var path = httpContext.Request.Path.Value?.Replace(Environment.NewLine, string.Empty, StringComparison.Ordinal);
+        if (statusCode >= StatusCodes.Status500InternalServerError)
+        {
+            logger.LogError(exception, "Request {Method} {Path} failed with {StatusCode} {Title}", httpContext.Request.Method, path, statusCode, problemDetails.Title);
+        }
+        else
+        {
+            logger.LogWarning("Request {Method} {Path} rejected with {StatusCode} {Title}", httpContext.Request.Method, path, statusCode, problemDetails.Title);
+        }
 
         await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken).ConfigureAwait(false);
         return true;
