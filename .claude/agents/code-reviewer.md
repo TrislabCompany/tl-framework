@@ -34,9 +34,15 @@ playbook is the review procedure, not a second copy of the rules.
 - DbContext extends `BaseDbContext`, `base.OnModelCreating` last; **no manual tenant/soft-delete query filter**. Nav-collection children need `ValueGeneratedNever()`. `AsNoTracking` on read-only queries only (not read-then-save).
 
 **Cross-cutting**
-- **Structured logging only** — no `$"..."` interpolation in log calls.
+- **Logging** (`logging.md`) — no `$"..."` interpolation in log calls; the level fits (Error only when a person must act); no secrets, tokens, bodies or personal data (e-mail, names, IPs) in a log line; an exception logged once, with the exception object.
 - `CancellationToken` propagated into EF/IO calls.
 - Cross-module events go via the Outbox (`IOutboxStore.AddAsync`), not a direct bus publish.
+
+**Contracts** (`api-conventions.md`)
+- Endpoints, `.Contracts` and integration events only gained fields; a rename, removal or type change is a new version or a new event type.
+
+**Tests** (`testing.md`)
+- Every behaviour change has a test that fails without it; a bug fix has the reproducing test.
 
 **Frontend** (`frontend/*` rules)
 - Hand-written types + `apiFetch`; mutation data passed via `mutate(arg)`; query keys hierarchical; admin gates routes with `RouteGuard` + mirrors the permission; dashboard uses `withSuspense`.

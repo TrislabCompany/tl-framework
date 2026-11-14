@@ -7,6 +7,8 @@ paths:
 
 `src/BuildingBlocks/Web/Observability/`. Read before adding logs, traces, or metrics.
 
+Checked by: `CA2254` (template must be constant) through `AnalysisMode=AllEnabledByDefault`. `CA1848` is off, so `[LoggerMessage]` on hot paths, the levels and the never-logged list are review only. The logs are what support reads during an incident: write each line for the person who has only the logs and a trace id.
+
 ## Structured logging only
 
 **No string interpolation in log messages.** Use message templates with named placeholders, or `[LoggerMessage]` source-gen for hot paths.
@@ -23,11 +25,31 @@ _logger.LogInformation($"Cleaned up {count} sessions");   // breaks structured l
 
 Build runs with `TreatWarningsAsErrors` — interpolated log calls won't even compile clean under analysis.
 
+## Levels
+
+| Level | Use |
+|---|---|
+| `Critical` | The app can't serve at all (no database at startup) |
+| `Error` | A person must act: an operation failed and won't be retried, a dependency is broken |
+| `Warning` | Degraded but handled: a retry, a fallback, a dead-lettered message, input rejected at a boundary |
+| `Information` | A lifecycle or business event, once per meaningful step (tenant created, invoice issued, job finished with its count), never once per item in a loop |
+| `Debug`, `Trace` | Detail for a developer; off outside `local` |
+
+- Log an exception once, where it is handled, with the exception object as the first argument: `_logger.LogError(ex, "Invoice {InvoiceId} failed to send", id)`. The global handler logs unhandled ones; don't log and rethrow.
+- Health probes and static files write no `Information` line.
+- Every line answers *what happened, to which thing*: put the ids (`{TenantId}`, `{InvoiceId}`, `{MessageId}`) in the template, PascalCase.
+
+## Never logged
+
+Secrets, tokens, keys, connection strings, passwords; request and response bodies; e-mail addresses, names, phone numbers, IP addresses. Log the id instead (`{UserId}`, not `{Email}`). `HttpRequestContextEnricher` still adds `UserEmail`; don't add more like it, and don't query by it. When in doubt, leave it out: a missing field costs a query, a leaked one is a data-protection incident.
+
 ## Serilog
 
 `AddHeroLogging()` reads the `Serilog` config section (Console sink by default), attaches `HttpRequestContextEnricher` (adds `RequestMethod`/`RequestPath`/`UserAgent` + `UserId`/`Tenant`/`UserEmail` when authenticated), overrides Microsoft/EF/Hangfire/Finbuckle to higher levels, and excludes the `ExceptionHandlerMiddleware` source (the global handler logs exceptions itself — don't double-log).
 
 ## Correlation
+
+The trace id is the correlation id. It comes from the W3C `traceparent` header when the caller sends one, is returned in every ProblemDetails as `traceId`, and is what a user quotes to support. A background job or outbox message started by a request keeps it.
 
 `X-Correlation-ID` request header (falls back to `HttpContext.TraceIdentifier`), surfaced in every ProblemDetails and pushed to the Serilog `LogContext`. `CurrentUserMiddleware` tags the current `Activity` with `fsh.user_id` / `fsh.tenant_id` / `fsh.correlation_id`.
 

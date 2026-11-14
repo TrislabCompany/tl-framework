@@ -76,7 +76,7 @@ After wiring, the fastest sanity check is: build, hit the endpoint, confirm the 
 
 ## DI & handler conventions
 
-- Mediator handlers: `public sealed`, implement `ICommandHandler<T,TResponse>` / `IQueryHandler<T,TResponse>`, return `ValueTask<T>`, `.ConfigureAwait(false)` on every await. `ServiceLifetime.Scoped`.
+- Mediator handlers: `public sealed`, implement `ICommandHandler<T,TResponse>` / `IQueryHandler<T,TResponse>`, return `ValueTask<T>` (golden rule 5). `ServiceLifetime.Scoped`.
 - Validators auto-register via `ModuleLoader` (`AddValidatorsFromAssemblies`). Name them `{Command}Validator`.
 - Prefer constructor injection / primary constructors. Watch DI lifetimes: stateful singletons must be thread-safe (use `ConcurrentDictionary` / immutable snapshots).
 

@@ -73,9 +73,13 @@ dotnet run --project src/Host/App.DbMigrator -- list-pending
 
 **Ports:** API 7030 (https)/5030 (http) · admin 5173 · dashboard 5174 · Postgres 5432 · pgAdmin 5050 · Valkey 6379 · storage 9000. With `docker compose`: admin 8081 · dashboard 8082.
 
-## Branching & PRs
+## Git and review
 
-Single long-lived branch: **`main`**. Branch from and target `main`; a PR needs the check `ci / ci` and a code owner's approval, and is squashed on merge. Releases are tags `vX.Y.Z`. `.github/workflows/ci.yml` only calls the platform's reusable workflow: never add steps to it.
+- Branch from `main` with a short kebab-case topic (`billing-proration`). One change per PR; a workflow change goes in its own PR.
+- The PR title is an imperative plain sentence of 72 characters or fewer; it becomes the squash commit. The body follows `.github/pull_request_template.md`.
+- A PR merges with the check `ci / ci` green and one code owner's approval, never your own. The author resolves the threads.
+- Releases are tags `vX.Y.Z`, created only by an organization owner and never moved (`release` skill). `.github/workflows/ci.yml` only calls the platform's reusable workflow: never add steps to it.
+- Before asking for review, run the `code-reviewer` and `architecture-guard` subagents. A review checks: correctness and edge cases, a test for each behaviour change, logs per `logging.md`, contracts compatible per `api-conventions.md`, docs updated, no secrets.
 
 ## Platform contract (do not break)
 
@@ -104,8 +108,9 @@ Single long-lived branch: **`main`**. Branch from and target `main`; a PR needs 
 
 | Working on… | Read |
 |---|---|
+| C# style, naming, async, errors, comments | `coding-csharp.md` |
 | Module structure, boundaries, registration, DI, middleware order, config | `architecture.md` |
-| Endpoints, CQRS, validation, exceptions, permissions, versioning | `api-conventions.md` |
+| Endpoints, CQRS, validation, exceptions, permissions, versioning, contract compatibility | `api-conventions.md` |
 | EF Core, entities, migrations, tenant isolation, query filters | `database.md` |
 | Cross-module events, Outbox/Inbox, idempotent handlers | `eventing.md` |
 | Caching (HybridCache/Redis), keys, invalidation | `caching.md` |
@@ -114,8 +119,8 @@ Single long-lived branch: **`main`**. Branch from and target `main`; a PR needs 
 | Files/blobs, presigned uploads, providers | `storage.md` |
 | CORS, security headers, rate limiting, idempotency, quotas | `security.md` |
 | SignalR / SSE backend | `realtime.md` |
-| Logging, correlation, OpenTelemetry | `logging.md` |
-| Unit test conventions, NetArchTest | `testing.md` |
+| Logging (levels, never-logged data), correlation, OpenTelemetry | `logging.md` |
+| Unit test conventions, what to test, NetArchTest | `testing.md` |
 | Integration tests (Testcontainers harness + gotchas) | `integration-testing.md` |
 | **Modifying `src/BuildingBlocks`** (read first — it's protected) | `buildingblocks-protection.md` |
 | A specific module's quirks | `modules/{module}.md` (identity, multitenancy, chat, files, webhooks, auditing, billing, catalog, tickets, notifications) |
@@ -124,16 +129,16 @@ Single long-lived branch: **`main`**. Branch from and target `main`; a PR needs 
 
 | Working on… | Read |
 |---|---|
+| TypeScript style, components, errors, naming | `coding-typescript.md` |
 | Any React work (shared stack, API client, Query, Tailwind, design language) | `frontend/shared.md` |
 | The operator app (`clients/admin`) | `frontend/admin.md` |
 | The tenant app (`clients/dashboard`) | `frontend/dashboard.md` |
 
-## Coding style (backend)
+## Docs and tooling
 
-File-scoped namespaces · 4-space indent · explicit types (`var` only when RHS-obvious) · `is null` /
-`is not null` · pattern matching + switch expressions · `ArgumentNullException.ThrowIfNull` guards ·
-records for DTOs/events/value objects · `default!` for required non-nullable strings. Build runs with
-`TreatWarningsAsErrors` — warnings fail the build.
+- The build runs with `TreatWarningsAsErrors` and all analyzers on: a warning fails the build. Fix it; a suppression needs a `Justification`.
+- Docs travel with the change (golden rule 10): `README.md` for what the product is and how to run it, `docs/` for how it works on the platform, the rules in `.claude/rules/` for how code is written here. Change the rule when you change the convention.
+- Tools are pinned: the SDK in `global.json`, `dotnet-ef` in `.config/dotnet-tools.json`, packages in `src/Directory.Packages.props`.
 
 ## Adding things (quick pointers)
 

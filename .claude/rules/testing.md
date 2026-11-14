@@ -41,11 +41,16 @@ If Docker is down, integration tests fail fast with `DockerUnavailableException`
 - Tenant-isolation rules on entities.
 - Every command handler + paginated query handler has a `{Name}Validator` (`HandlerValidatorPairingTests`). Validator names accepted: `{Cmd}Validator`, `{Name}CommandValidator`, `{Name}Validator`.
 
-## Integration-test gotchas
+## Integration tests
 
-- Set the Finbuckle tenant context **inline** in the test method (AsyncLocal — an awaited helper loses it → NRE in the tenant filter).
-- `AddHeroStorage` reads config eagerly; rewire `IStorageService` **after** registration in the factory.
-- SignalR hub tests force **long-polling** (TestServer has no WebSocket).
+The harness and its gotchas (tenant context set inline, storage rewired after registration, long-polling for SignalR) are in `integration-testing.md`.
+
+## What to test
+
+- Every behaviour change gets a test that fails without it. A bug fix starts with the test that reproduces the bug.
+- A handler: unit test for its logic and validator; an integration test when it touches the database, the HTTP pipeline or another module.
+- Test names describe behaviour, not the implementation; one reason to fail per test.
+- No sleeps, no real clock (`TimeProvider`), no order dependence between tests.
 
 ## Frontend tests
 
