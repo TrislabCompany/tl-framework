@@ -246,20 +246,11 @@ namespace App.Migrations.PostgreSQL.Billing
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
-
                     b.Property<DateTime?>("CompletedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("character varying(8)");
 
                     b.Property<DateTime?>("DecidedAtUtc")
                         .HasColumnType("timestamp with time zone");
@@ -424,6 +415,36 @@ namespace App.Migrations.PostgreSQL.Billing
                         .WithMany("LineItems")
                         .HasForeignKey("InvoiceId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FSH.Modules.Billing.Domain.TopupRequest", b =>
+                {
+                    b.OwnsOne("FSH.Framework.Core.Domain.Money", "Amount", b1 =>
+                        {
+                            b1.Property<Guid>("TopupRequestId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasPrecision(18, 4)
+                                .HasColumnType("numeric(18,4)")
+                                .HasColumnName("Amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(8)
+                                .HasColumnType("character varying(8)")
+                                .HasColumnName("Currency");
+
+                            b1.HasKey("TopupRequestId");
+
+                            b1.ToTable("TopupRequests", "billing");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TopupRequestId");
+                        });
+
+                    b.Navigation("Amount")
                         .IsRequired();
                 });
 
