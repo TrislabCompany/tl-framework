@@ -2,14 +2,13 @@
 paths:
   - "src/Modules/Notifications/**"
   - "src/Tests/Notifications.Tests/**"
-  - "src/Host/App.Migrations.PostgreSQL/Notifications/**"
 ---
 
 # Module: Notifications
 
 Per-user in-app inbox (bell icon) driven by cross-module integration events, with live SignalR push. Module `Order = 750` (**before Chat 800** so its handlers are registered before Chat publishes).
 
-**Entities / DbContext:** `Notification` (aggregate: `UserId`, `Type`, `Title`/`Body`/`Link`, `Source`, `MetadataJson`, `ReadAtUtc`). `NotificationsDbContext`. Consumes integration events from other modules (e.g. Chat's `MentionedInChannelIntegrationEvent`).
+**Entities / DbContext:** `Notification` (aggregate: `UserId`, `Type`, `Title`/`Body`/`Link`, `Source`, `MetadataJson`, `ReadAtUtc`). `NotificationsDbContext`. Any module asks for a notification by publishing `UserNotificationRequestedIntegrationEvent` (in `Modules.Notifications.Contracts`, Events) with its own type, title, body, link and metadata; Chat does for a mention. Notifications references no publisher, so it never depends on a sample.
 **Areas:** List, GetUnreadCount, MarkRead, MarkAllRead. Full list: `Features/v1/` or `/scalar`.
 
 ## Gotchas

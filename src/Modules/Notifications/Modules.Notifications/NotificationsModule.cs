@@ -32,7 +32,7 @@ public sealed class NotificationsModule : IModule
 
         PermissionConstants.Register(NotificationPermissions.All);
 
-        builder.Services.AddTrislabDbContext<NotificationsDbContext>();
+        builder.Services.AddTrislabDbContext<NotificationsDbContext>(NotificationsDbContext.Schema);
         builder.Services.AddScoped<IDbInitializer, NotificationsDbInitializer>();
         builder.Services.AddValidatorsFromAssembly(typeof(NotificationsModule).Assembly);
 

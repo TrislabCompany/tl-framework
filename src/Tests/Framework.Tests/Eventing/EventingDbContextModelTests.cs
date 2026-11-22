@@ -30,7 +30,6 @@ public class EventingDbContextModelTests
         {
             Provider = "postgresql",
             ConnectionString = string.Empty,
-            MigrationsAssembly = "App.Migrations.PostgreSQL",
         });
 
         var environment = Substitute.For<IHostEnvironment>();

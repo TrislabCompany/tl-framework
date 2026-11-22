@@ -22,7 +22,6 @@ public class EventingRegistrationTests
             {
                 ["DatabaseOptions:Provider"] = "postgresql",
                 ["DatabaseOptions:ConnectionString"] = "Host=arch;Database=arch;Username=arch;Password=arch",
-                ["DatabaseOptions:MigrationsAssembly"] = "App.Migrations.PostgreSQL",
             })
             .Build();
     }

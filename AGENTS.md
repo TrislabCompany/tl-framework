@@ -25,11 +25,11 @@ front-ends. Multitenancy, auth, auditing, billing, files, chat and more are firs
 | Path | What |
 |------|------|
 | `src/BuildingBlocks/` | Shared framework libraries (Core, Persistence, Web, Caching, Eventing, Storage, Quota…). **Protected — see below.** |
-| `src/Modules/{Name}/` | Bounded contexts. Each has a runtime project + a `.Contracts` project (its only public API). |
+| `src/Modules/{Name}/` | Bounded contexts. Each has a runtime project + a `.Contracts` project (its only public API), and ships its own EF migrations in `Migrations/`. |
+| `src/Samples/{Name}/` | The samples Catalog, Tickets and Chat, with their tests: patterns to copy, not part of the framework. Never packed; nothing in `src/BuildingBlocks` or `src/Modules` may reference them. They move to `tl-product-saas`. |
 | `src/Host/App.Api` | Composition-root Web API host. `Platform/PlatformConfiguration.cs` maps the platform's settings onto options. |
 | `src/Host/App.AppHost` | .NET Aspire orchestrator (Postgres, Valkey, rustfs storage, migrator, API, **both React apps**). |
 | `src/Host/App.DbMigrator` | One-shot migrate/seed runner, the init container of `api`. DB is **not** migrated at API startup. |
-| `src/Host/App.Migrations.PostgreSQL` | All EF migrations, organized per-module by folder. |
 | `src/Tests/` | Per-module tests, `Architecture.Tests` (NetArchTest), `Integration.Tests` (Testcontainers). |
 | `clients/admin`, `clients/dashboard` | The two React apps, each with its Dockerfile and `docker/` (nginx, `/config.json`). |
 | `docker-compose.yml`, `.env.example` | The four images locally, without the .NET SDK. |

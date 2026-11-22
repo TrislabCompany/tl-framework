@@ -113,7 +113,7 @@ public class IdentityModule : IModule
         services.AddTransient<IRoleService, RoleService>();
         services.AddTrislabStorage(builder.Configuration);
         services.AddScoped<IIdentityService, IdentityService>();
-        services.AddTrislabDbContext<IdentityDbContext>();
+        services.AddTrislabDbContext<IdentityDbContext>(IdentityModuleConstants.SchemaName);
         // Eventing itself is bootstrapped by the host (AddEventingCore) — the outbox is framework
         // infrastructure, not Identity's. Handler registration stays per module.
         services.AddIntegrationEventHandlers(typeof(IdentityModule).Assembly);

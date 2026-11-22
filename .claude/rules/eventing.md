@@ -3,7 +3,9 @@ paths:
   - "src/BuildingBlocks/Eventing/**"
   - "src/BuildingBlocks/Eventing.Abstractions/**"
   - "src/Modules/**/IntegrationEventHandlers/**"
+  - "src/Samples/**/IntegrationEventHandlers/**"
   - "src/Modules/**/Events/**"
+  - "src/Samples/**/Events/**"
 ---
 
 # Eventing — domain events, integration events, Outbox/Inbox

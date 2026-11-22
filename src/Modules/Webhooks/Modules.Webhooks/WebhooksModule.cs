@@ -33,7 +33,7 @@ public sealed class WebhooksModule : IModule
 
         PermissionConstants.Register(WebhooksPermissions.All);
 
-        builder.Services.AddTrislabDbContext<WebhookDbContext>();
+        builder.Services.AddTrislabDbContext<WebhookDbContext>(WebhookDbContext.Schema);
         builder.Services.AddScoped<IDbInitializer, WebhookDbInitializer>();
         builder.Services.AddSingleton<IWebhookSecretProtector, WebhookSecretProtector>();
         builder.Services.AddScoped<IWebhookDeliveryService, WebhookDeliveryService>();

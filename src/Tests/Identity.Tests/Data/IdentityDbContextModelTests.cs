@@ -28,7 +28,6 @@ public class IdentityDbContextModelTests
         {
             Provider = "postgresql",
             ConnectionString = string.Empty,
-            MigrationsAssembly = "App.Migrations.PostgreSQL",
         });
 
         var environment = Substitute.For<IHostEnvironment>();

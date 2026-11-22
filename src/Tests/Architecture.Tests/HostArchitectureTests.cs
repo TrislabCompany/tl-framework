@@ -68,6 +68,16 @@ internal static class ModuleArchitectureTestsFixture
 {
     public static readonly string SolutionRoot = GetSolutionRoot();
 
+    /// <summary>
+    /// The folders that hold modules: the framework's (<c>src/Modules</c>) and the samples
+    /// (<c>src/Samples</c>), which follow the same conventions.
+    /// </summary>
+    public static readonly string[] ModuleRoots =
+    [
+        Path.Combine(SolutionRoot, "src", "Modules"),
+        Path.Combine(SolutionRoot, "src", "Samples"),
+    ];
+
     private static string GetSolutionRoot()
     {
         var directory = new DirectoryInfo(Directory.GetCurrentDirectory());

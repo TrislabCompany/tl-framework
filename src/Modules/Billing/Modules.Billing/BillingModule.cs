@@ -47,7 +47,7 @@ public sealed class BillingModule : IModule
         Trislab.Framework.Shared.Constants.PermissionConstants.Register(
             Trislab.Modules.Billing.Contracts.Authorization.BillingPermissions.All);
 
-        builder.Services.AddTrislabDbContext<BillingDbContext>();
+        builder.Services.AddTrislabDbContext<BillingDbContext>(BillingDbContext.Schema);
         builder.Services.AddScoped<IDbInitializer, BillingDbInitializer>();
         builder.Services.AddScoped<IUsageReporter, UsageReporter>();
         builder.Services.AddScoped<IBillingService, BillingService>();

@@ -18,11 +18,6 @@ public sealed class DatabaseOptions : IValidatableObject
     /// </summary>
     public string ConnectionString { get; set; } = string.Empty;
 
-    /// <summary>
-    /// The assembly that contains EF Core migrations for the selected provider.
-    /// </summary>
-    public string MigrationsAssembly { get; set; } = string.Empty;
-
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (string.IsNullOrEmpty(ConnectionString))

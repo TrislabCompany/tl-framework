@@ -42,15 +42,9 @@ public class CircularReferenceTests
     [Fact]
     public void Modules_Should_Not_Have_Circular_Dependencies()
     {
-        string modulesRoot = Path.Combine(SolutionRoot, "src", "Modules");
-
-        if (!Directory.Exists(modulesRoot))
-        {
-            return;
-        }
-
-        var moduleProjects = Directory
-            .GetFiles(modulesRoot, "Modules.*.csproj", SearchOption.AllDirectories)
+        var moduleProjects = ModuleArchitectureTestsFixture.ModuleRoots
+            .Where(Directory.Exists)
+            .SelectMany(root => Directory.GetFiles(root, "Modules.*.csproj", SearchOption.AllDirectories))
             .Where(p => !p.Contains("obj", StringComparison.OrdinalIgnoreCase))
             .ToArray();
 

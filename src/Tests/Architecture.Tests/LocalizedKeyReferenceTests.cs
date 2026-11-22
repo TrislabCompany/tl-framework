@@ -185,10 +185,11 @@ public sealed partial class LocalizedKeyReferenceTests
     private static IEnumerable<(string Path, string Source)> SourceFiles()
     {
         var root = ModuleArchitectureTestsFixture.SolutionRoot;
-        return new[] { "BuildingBlocks", "Modules" }
+        return new[] { "BuildingBlocks", "Modules", "Samples" }
             .SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, "src", folder), "*.cs", SearchOption.AllDirectories))
             .Select(file => Path.GetRelativePath(root, file).Replace('\\', '/'))
             .Where(relative => !relative.Contains("/bin/", StringComparison.Ordinal) && !relative.Contains("/obj/", StringComparison.Ordinal))
+            .Where(relative => !relative.Contains(".Tests/", StringComparison.Ordinal)) // the samples keep their tests beside them
             .Select(relative => (relative, File.ReadAllText(Path.Combine(root, relative))));
     }
 

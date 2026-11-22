@@ -2,9 +2,12 @@
 paths:
   - "src/BuildingBlocks/Persistence/**"
   - "src/Modules/**/Data/**"
+  - "src/Samples/**/Data/**"
   - "src/Modules/**/Persistence/**"
+  - "src/Samples/**/Persistence/**"
   - "src/Modules/**/Domain/**"
-  - "src/Host/App.Migrations.PostgreSQL/**"
+  - "src/Samples/**/Domain/**"
+  - "src/**/Migrations/**"
   - "src/Host/App.DbMigrator/**"
 ---
 
@@ -39,15 +42,14 @@ A child entity reached **only** through a parent's navigation collection needs `
 
 ## Migrations
 
-All migrations live in **one** project, `src/Host/App.Migrations.PostgreSQL`, organized **per-module by folder** (`Identity/`, `Catalog/`, `Chat/`, …), each with its own `{Module}DbContextModelSnapshot`.
+Each module ships its own migrations, in a `Migrations/` folder of its runtime project (the Eventing building block too: `src/BuildingBlocks/Eventing/Migrations/`). Each module started from **one `Baseline`** migration (`v0.1.0` squashed the inherited chain); from then on migrations are only added, never squashed or edited. The history table `__EFMigrationsHistory` lives in the module's own schema: `AddTrislabDbContext<{Module}DbContext>({Module}DbContext.Schema)` sets it, so modules never see each other's history and a module a product leaves out leaves no tables.
 
 ```bash
-dotnet ef migrations add {Name} \
-  --project src/Host/App.Migrations.PostgreSQL \
-  --startup-project src/Host/App.Api \
-  --context {Module}DbContext
+dotnet ef migrations add {Name}   --project src/Modules/{Module}/Modules.{Module}   --startup-project src/Host/App.Api   --context {Module}DbContext   --output-dir Migrations
 ```
 
+- **No foreign keys across schemas.** A module refers to another module's rows by id only.
+- `Architecture.Tests` (`ModuleMigrationsTests`) fails when a module's DbContext has no migrations in its own project.
 - **`migrations remove` operates on the snapshot** — run a full build *before* `migrations add` so the snapshot is current, or you can lose the previous migration.
 - The DB is **not** migrated at API startup. The `DbMigrator` host is a separate step: `apply` (default), `seed`, `seed-demo` (also run by `apply` where `SEED_DEMO` is true), `list-pending`; flags `--tenant <id>`, `--catalog-only`, `--seed`. It migrates the tenant catalog first, then each tenant's per-module schema, serialized by a Postgres advisory lock.
 - `dotnet-ef` is pinned in `.config/dotnet-tools.json` — run `dotnet tool restore` first.

@@ -28,4 +28,4 @@ paths:
 ```bash
 dotnet test --collect "XPlat Code Coverage" --settings coverage.runsettings
 ```
-Cobertura; includes `[Trislab.Modules.*]` + `[Trislab.Framework.*]`; excludes tests, the Migrations project, and `*HostedService`.
+Cobertura; includes `[Trislab.Modules.*]` + `[Trislab.Framework.*]`; excludes tests, every `Migrations` namespace, and `*HostedService`.

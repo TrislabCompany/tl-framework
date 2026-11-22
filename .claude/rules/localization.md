@@ -3,6 +3,7 @@ paths:
   - "src/BuildingBlocks/Core/Localization/**"
   - "src/BuildingBlocks/Web/Localization/**"
   - "src/Modules/*/Modules.*/Localization/**"
+  - "src/Samples/*/Modules.*/Localization/**"
   - "**/*.resx"
   - "clients/*/src/i18n.ts"
 ---

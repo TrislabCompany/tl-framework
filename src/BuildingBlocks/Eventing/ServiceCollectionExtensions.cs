@@ -62,7 +62,7 @@ public static class ServiceCollectionExtensions
         // one registration. Registering them per module DbContext (the old
         // AddEventingForDbContext<T>) left .NET DI resolving whichever module registered last —
         // for the whole application, including Identity's working outbox (issue #1349).
-        services.AddTrislabDbContext<EventingDbContext>();
+        services.AddTrislabDbContext<EventingDbContext>(EventingConstants.SchemaName);
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IDbInitializer, EventingDbInitializer>());
         services.TryAddScoped<IOutboxStore, EfCoreOutboxStore>();
 

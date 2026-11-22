@@ -266,7 +266,8 @@ dotnet_diagnostic.CA1054.severity = none
 dotnet_diagnostic.CA1056.severity = none
 dotnet_diagnostic.MSG0005.severity = none
 
-[**/Migrations.PostgreSQL/**/*.cs]
+# EF Core migrations, generated into each module's own Migrations folder.
+[**/Migrations/*.cs]
 dotnet_diagnostic.CA1062.severity = none
 dotnet_diagnostic.CA1861.severity = none
 

@@ -100,7 +100,6 @@ public sealed class TenantIsolationTests
         {
             Provider = "postgresql",
             ConnectionString = string.Empty,
-            MigrationsAssembly = "App.Migrations.PostgreSQL",
         });
 
         var ctor = dbContextType.GetConstructor([

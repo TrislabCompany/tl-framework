@@ -3,14 +3,14 @@
 The background to [SKILL.md](SKILL.md): read it when a step fails or a context is not found.
 
 ## Facts (read before running commands)
-- All migrations live in **one** project, `src/Host/App.Migrations.PostgreSQL`, foldered **per module/context** (`Catalog/`, `Identity/`, …), each with its own `{X}DbContextModelSnapshot`.
-- Startup project is `src/Host/App.Api`. Always pass `--context {X}DbContext` and `--output-dir {X}`.
+- Each module's migrations live in its own runtime project, folder `Migrations/`, with its `{X}DbContextModelSnapshot`; the history table `__EFMigrationsHistory` is in the module's schema. Each module began with one `Baseline`.
+- Startup project is `src/Host/App.Api`. Always pass `--project` (the module), `--context {X}DbContext` and `--output-dir Migrations`.
 - `dotnet-ef` is pinned — `dotnet tool restore` first.
 - **The DB is NOT migrated on API startup.** The `DbMigrator` host applies it: it migrates the tenant catalog (`TenantDbContext`) first, then each tenant's per-module schema, serialized by a Postgres advisory lock. (`UseTrislabMultiTenantDatabases()` only registers Finbuckle's tenant resolution — it does not run migrations.)
 - **Build before `migrations add`** — it reads the snapshot, which regenerates from a build; a stale snapshot silently loses changes. `migrations remove` rewrites the snapshot, so only ever remove the latest and rebuild after.
 
 ## Context names (real)
-`IdentityDbContext`, `TenantDbContext` (the tenant catalog — **not** "MultitenancyDbContext"), `AuditDbContext`, `BillingDbContext`, `CatalogDbContext`, `TicketsDbContext`, `FilesDbContext`, `ChatDbContext`, `NotificationsDbContext`, `WebhookDbContext`.
+`IdentityDbContext`, `TenantDbContext` (the tenant catalog — **not** "MultitenancyDbContext"), `AuditDbContext`, `BillingDbContext`, `FilesDbContext`, `NotificationsDbContext`, `WebhookDbContext`, `EventingDbContext` (in `src/BuildingBlocks/Eventing`); the samples `CatalogDbContext`, `TicketsDbContext` and `ChatDbContext` (in `src/Samples/`).
 
 ## Apply (canonical path)
 ```bash
@@ -31,6 +31,6 @@ dotnet run --project src/Host/App.DbMigrator -- apply [--seed]
 |---|---|
 | "No DbContext was found" / multiple contexts | Always pass `--context {X}DbContext` |
 | "Build failed" | `dotnet build src/App.slnx` first |
-| Migration landed in the wrong folder | Add `--output-dir {X}` (match the context's existing folder) |
+| Migration landed in the wrong project or folder | Pass `--project` (the module's runtime project) and `--output-dir Migrations` |
 | Changes missing from the migration | You didn't build before `migrations add` (stale snapshot) |
-| New module's context not found by ef | The Migrations project must reference the module's runtime project |
+| New module's context not found by ef | `App.Api` must reference the module's runtime project |

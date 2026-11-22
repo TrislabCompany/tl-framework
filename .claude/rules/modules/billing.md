@@ -2,7 +2,6 @@
 paths:
   - "src/Modules/Billing/**"
   - "src/Tests/Billing.Tests/**"
-  - "src/Host/App.Migrations.PostgreSQL/Billing/**"
 ---
 
 # Module: Billing

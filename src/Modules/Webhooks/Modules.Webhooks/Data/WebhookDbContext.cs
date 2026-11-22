@@ -11,6 +11,8 @@ namespace Trislab.Modules.Webhooks.Data;
 
 public sealed class WebhookDbContext : BaseDbContext
 {
+    public const string Schema = "webhooks";
+
     public WebhookDbContext(
         IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
         DbContextOptions<WebhookDbContext> options,
@@ -23,7 +25,7 @@ public sealed class WebhookDbContext : BaseDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
-        modelBuilder.HasDefaultSchema("webhooks");
+        modelBuilder.HasDefaultSchema(Schema);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(WebhookDbContext).Assembly);
         // base.OnModelCreating runs LAST so BaseDbContext's auto-apply sees
         // fully-configured entities (including HasMany child types).

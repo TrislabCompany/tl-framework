@@ -1,13 +1,12 @@
 ---
 paths:
-  - "src/Modules/Catalog/**"
-  - "src/Tests/Catalog.Tests/**"
-  - "src/Host/App.Migrations.PostgreSQL/Catalog/**"
+  - "src/Samples/Catalog/**"
+  - "src/Samples/Catalog/Catalog.Tests/**"
 ---
 
 # Module: Catalog
 
-Product catalog — products, categories (tree), brands — with soft-delete/restore/trash and search. Module `Order = 600`. This is the **reference module** for the soft-delete + image patterns; copy from here.
+A sample (`src/Samples/`), not part of the framework: it moves to `tl-product-saas`. Product catalog — products, categories (tree), brands — with soft-delete/restore/trash and search. Module `Order = 600`. This is the **reference module** for the soft-delete + image patterns; copy from here.
 
 **Entities / DbContext:** `Product` (aggregate, soft-deletable) + `ProductImage`, `Brand`, `Category` (self-referencing tree), `Money` (owned value object). `CatalogDbContext`. Domain events (`ProductCreated`/`PriceChanged`/`StockAdjusted`) are **internal**, not integration events.
 **Areas:** Products (+ price/stock/images), Categories (+ tree), Brands — each with Create/Update/Delete/Search/ListTrashed/Restore. Full list: `Features/v1/` or `/scalar`.

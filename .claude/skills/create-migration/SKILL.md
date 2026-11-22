@@ -1,6 +1,6 @@
 ---
 name: create-migration
-description: Create and apply an EF Core migration for a module's DbContext the FSH way (central Migrations project, per-module folder, correct --context). Use after changing entities/EF config. See .claude/rules/database.md.
+description: Create and apply an EF Core migration for a module's DbContext (into the module's own Migrations folder, correct --context). Use after changing entities/EF config. See .claude/rules/database.md.
 argument-hint: "[ModuleName] [MigrationName]"
 ---
 

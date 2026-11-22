@@ -91,7 +91,7 @@ public sealed class TenantMigrationsHealthCheckTests : IAsyncLifetime
         services.AddSingleton<IMultiTenantStore<AppTenantInfo>>(new SingleTenantStore());
         services.AddScoped<IMultiTenantContextSetter, FakeMultiTenantContextSetter>();
         services.AddDbContext<TenantDbContext>(opts =>
-            opts.UseNpgsql(connectionString, b => b.MigrationsAssembly("App.Migrations.PostgreSQL")));
+            opts.UseNpgsql(connectionString, b => b.MigrationsHistoryTable("__EFMigrationsHistory", TenantDbContext.Schema)));
         return services.BuildServiceProvider();
     }
 

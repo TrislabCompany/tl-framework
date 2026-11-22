@@ -2,6 +2,7 @@
 using Trislab.Framework.Shared.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Trislab.Framework.Persistence;
 
@@ -16,8 +17,10 @@ public static class OptionsBuilderExtensions
     /// <param name="builder">The DbContextOptionsBuilder to configure.</param>
     /// <param name="dbProvider">The database provider (PostgreSQL, MSSQL).</param>
     /// <param name="connectionString">The database connection string.</param>
-    /// <param name="migrationsAssembly">The assembly containing database migrations.</param>
     /// <param name="isDevelopment">Whether the application is running in development mode.</param>
+    /// <param name="migrationsHistorySchema">The schema of the context's migrations history table (the
+    /// module's own schema), or null to keep what the options already say. Migrations live in the
+    /// context's own assembly, EF Core's default.</param>
     /// <returns>The configured DbContextOptionsBuilder for method chaining.</returns>
     /// <exception cref="ArgumentNullException">Thrown when builder is null or dbProvider is null/whitespace.</exception>
     /// <exception cref="InvalidOperationException">Thrown when an unsupported database provider is specified.</exception>
@@ -25,8 +28,8 @@ public static class OptionsBuilderExtensions
         this DbContextOptionsBuilder builder,
         string dbProvider,
         string connectionString,
-        string migrationsAssembly,
-        bool isDevelopment)
+        bool isDevelopment,
+        string? migrationsHistorySchema = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNullOrWhiteSpace(dbProvider);
@@ -38,14 +41,24 @@ public static class OptionsBuilderExtensions
             case DbProviders.PostgreSQL:
                 builder.UseNpgsql(connectionString, e =>
                 {
-                    e.MigrationsAssembly(migrationsAssembly);
+                    // Each module keeps its migrations history in its own schema, so modules never see
+                    // each other's history and a module a product leaves out leaves nothing behind.
+                    if (!string.IsNullOrWhiteSpace(migrationsHistorySchema))
+                    {
+                        e.MigrationsHistoryTable(HistoryRepository.DefaultTableName, migrationsHistorySchema);
+                    }
                 });
                 break;
 
             case DbProviders.MSSQL:
                 builder.UseSqlServer(connectionString, e =>
                 {
-                    e.MigrationsAssembly(migrationsAssembly);
+                    // Each module keeps its migrations history in its own schema, so modules never see
+                    // each other's history and a module a product leaves out leaves nothing behind.
+                    if (!string.IsNullOrWhiteSpace(migrationsHistorySchema))
+                    {
+                        e.MigrationsHistoryTable(HistoryRepository.DefaultTableName, migrationsHistorySchema);
+                    }
                     e.EnableRetryOnFailure();
                 });
                 break;
@@ -70,8 +83,8 @@ public static class OptionsBuilderExtensions
         this DbContextOptionsBuilder builder,
         string dbProvider,
         DbConnection connection,
-        string migrationsAssembly,
-        bool isDevelopment)
+        bool isDevelopment,
+        string? migrationsHistorySchema = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(connection);
@@ -85,14 +98,24 @@ public static class OptionsBuilderExtensions
                 // contextOwnsConnection: false — the scope disposes it, not the first context to finish.
                 builder.UseNpgsql(connection, contextOwnsConnection: false, e =>
                 {
-                    e.MigrationsAssembly(migrationsAssembly);
+                    // Each module keeps its migrations history in its own schema, so modules never see
+                    // each other's history and a module a product leaves out leaves nothing behind.
+                    if (!string.IsNullOrWhiteSpace(migrationsHistorySchema))
+                    {
+                        e.MigrationsHistoryTable(HistoryRepository.DefaultTableName, migrationsHistorySchema);
+                    }
                 });
                 break;
 
             case DbProviders.MSSQL:
                 builder.UseSqlServer(connection, contextOwnsConnection: false, e =>
                 {
-                    e.MigrationsAssembly(migrationsAssembly);
+                    // Each module keeps its migrations history in its own schema, so modules never see
+                    // each other's history and a module a product leaves out leaves nothing behind.
+                    if (!string.IsNullOrWhiteSpace(migrationsHistorySchema))
+                    {
+                        e.MigrationsHistoryTable(HistoryRepository.DefaultTableName, migrationsHistorySchema);
+                    }
                     e.EnableRetryOnFailure();
                 });
                 break;

@@ -47,15 +47,9 @@ public partial class ApiVersioningTests
     [Fact]
     public void Feature_Folders_Should_Follow_Version_Convention()
     {
-        string modulesRoot = Path.Combine(SolutionRoot, "src", "Modules");
-
-        if (!Directory.Exists(modulesRoot))
-        {
-            return;
-        }
-
-        var featureFolders = Directory
-            .GetDirectories(modulesRoot, "Features", SearchOption.AllDirectories)
+        var featureFolders = ModuleArchitectureTestsFixture.ModuleRoots
+            .Where(Directory.Exists)
+            .SelectMany(root => Directory.GetDirectories(root, "Features", SearchOption.AllDirectories))
             .ToArray();
 
         var violations = new List<string>();
