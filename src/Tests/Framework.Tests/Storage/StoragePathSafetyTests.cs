@@ -166,7 +166,7 @@ public sealed class StoragePathSafetyTests : IDisposable
     [InlineData("file:///C:/Windows/win.ini", false)]
     [InlineData("javascript:alert(1)", false)]
     [InlineData("data:image/png;base64,AAAA", false)]
-    [InlineData("uploads/fshuser/x.png", false)]
+    [InlineData("uploads/trislabuser/x.png", false)]
     public void ClientImageUrl_Should_AcceptOnlyHttpUrlsAndSafeServerPaths(string value, bool expected)
     {
         ClientImageUrl.IsValid(value).ShouldBe(expected);

@@ -22,7 +22,7 @@ namespace Identity.Tests.Services;
 /// </summary>
 public sealed class ProfileImageStorageSafetyTests
 {
-    private const string OwnUpload = "uploads/fshuser/0123456789abcdef0123456789abcdef_me.png";
+    private const string OwnUpload = "uploads/trislabuser/0123456789abcdef0123456789abcdef_me.png";
 
     private readonly UserManager<TrislabUser> _userManager;
     private readonly SignInManager<TrislabUser> _signInManager;
@@ -95,7 +95,7 @@ public sealed class ProfileImageStorageSafetyTests
     public async Task SetImageUrlAsync_Should_Reject_AnotherStoredUpload()
     {
         UserWithImage(OwnUpload);
-        const string victimsAvatar = "/uploads/fshuser/fedcba9876543210fedcba9876543210_victim.png";
+        const string victimsAvatar = "/uploads/trislabuser/fedcba9876543210fedcba9876543210_victim.png";
 
         var ex = await Should.ThrowAsync<CustomException>(
             () => CreateSut().SetImageUrlAsync("u1", victimsAvatar, CancellationToken.None));

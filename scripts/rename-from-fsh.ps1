@@ -12,6 +12,7 @@
       AddHero*, UseHero*, MapHero*, ConfigureHero*, Hero<Type> -> ...Trislab...
       Fsh<Type>, IFsh<Type>                        -> Trislab<Type>, ITrislab<Type>
       @fullstackhero/admin, @fullstackhero/dashboard -> @trislabcompany/framework-admin, -dashboard
+      uploads/fshuser/ -> uploads/trislabuser/  (the upload folder follows the owner type's name)
     The Hero and Fsh rules skip clients/: there "Hero" is a page section (PageHero) and the
     UI's names change with framework-ui.
 
@@ -47,6 +48,8 @@ function Convert-Text([string] $text, [bool] $inClients) {
         $text = $text -creplace '\b(Add|Use|Map|Configure)Hero(?=[A-Z])', '${1}Trislab'
         $text = $text -creplace '(?<![A-Za-z])Hero(?=[A-Z])', 'Trislab'
         $text = $text -creplace 'Fsh(?=[A-Z])', 'Trislab'
+        # Upload folders are named after the owner type (StorageUploadKeys): FshUser -> uploads/trislabuser/.
+        $text = $text -creplace 'uploads/fshuser/', 'uploads/trislabuser/'
     }
     return $text
 }
