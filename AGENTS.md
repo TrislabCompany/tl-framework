@@ -120,6 +120,7 @@ dotnet run --project src/Host/App.DbMigrator -- list-pending
 | CORS, security headers, rate limiting, idempotency, quotas, front-end link origins | `security.md` |
 | SignalR / SSE backend | `realtime.md` |
 | Logging (levels, never-logged data), correlation, OpenTelemetry | `logging.md` |
+| Localization (i18n), request culture, resource catalogs, localized exceptions | `localization.md` |
 | Unit test conventions, what to test, NetArchTest | `testing.md` |
 | Integration tests (Testcontainers harness + gotchas) | `integration-testing.md` |
 | **Modifying `src/BuildingBlocks`** (read first — it's protected) | `buildingblocks-protection.md` |
