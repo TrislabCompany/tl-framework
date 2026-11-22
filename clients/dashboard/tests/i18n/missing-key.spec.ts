@@ -8,10 +8,10 @@ import { missingKeyFallback } from "../../src/lib/i18n-fallback";
 // its own key — the permission matrix would have degraded to "Create" instead of "Create users".
 // These run against the real i18next so the contract, not a re-implementation of it, is what holds.
 const instance = createInstance({
-  lng: "pt-BR",
+  lng: "sl-SI",
   fallbackLng: "en-US",
   resources: {
-    "pt-BR": { translation: { greeting: "Olá" } },
+    "sl-SI": { translation: { greeting: "Olá" } },
     "en-US": { translation: {} },
   },
   interpolation: { escapeValue: false },

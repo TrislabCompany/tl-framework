@@ -8,8 +8,8 @@ namespace Chat.Tests.Localization;
 
 // Proves the ChatResources catalog is embedded under the correct manifest name (ResourcesPath="" =>
 // co-located marker + resx). A wrong manifest name flips ResourceNotFound and leaks raw keys; a
-// pt-BR key the neutral catalog lacks is an orphan of a rename or delete. Both are caught here.
-// A missing pt-BR entry is allowed: it falls back to English.
+// sl-SI key the neutral catalog lacks is an orphan of a rename or delete. Both are caught here.
+// A missing sl-SI entry is allowed: it falls back to English.
 public sealed class ChatResourcesTests
 {
     private static IStringLocalizer BuildLocalizer()
@@ -42,13 +42,13 @@ public sealed class ChatResourcesTests
     }
 
     [Fact]
-    public void Every_ptBR_key_exists_in_the_neutral_catalog()
+    public void Every_slSI_key_exists_in_the_neutral_catalog()
     {
         var neutral = KeysFor(string.Empty);   // ChatResources.resx (English / fallback)
-        var pt = KeysFor("pt-BR");                 // ChatResources.pt-BR.resx
+        var sl = KeysFor("sl-SI");                 // ChatResources.sl-SI.resx
 
         neutral.ShouldNotBeEmpty();
-        pt.Except(neutral, StringComparer.Ordinal)
+        sl.Except(neutral, StringComparer.Ordinal)
             .OrderBy(k => k, StringComparer.Ordinal)
             .ShouldBeEmpty();
     }
@@ -66,13 +66,13 @@ public sealed class ChatResourcesTests
                 "resx did not resolve 'Chat.ChannelNotFound' for en-US — check ResourcesPath/resx manifest name.");
             en.Value.ShouldBe("Channel not found.");
 
-            CultureInfo.CurrentUICulture = new CultureInfo("pt-BR");
-            var pt = localizer["Chat.ChannelNotFound"];
-            pt.ResourceNotFound.ShouldBeFalse(
-                "resx did not resolve 'Chat.ChannelNotFound' for pt-BR — check the .pt-BR catalog manifest name.");
-            pt.Value.ShouldBe("Canal não encontrado.");
+            CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
+            var sl = localizer["Chat.ChannelNotFound"];
+            sl.ResourceNotFound.ShouldBeFalse(
+                "resx did not resolve 'Chat.ChannelNotFound' for sl-SI — check the .sl-SI catalog manifest name.");
+            sl.Value.ShouldBe("Canal não encontrado.");
 
-            pt.Value.ShouldNotBe(en.Value);
+            sl.Value.ShouldNotBe(en.Value);
         }
         finally
         {

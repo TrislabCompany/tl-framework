@@ -8,8 +8,8 @@ namespace Identity.Tests.Localization;
 
 // Proves the IdentityResources catalog is embedded under the correct manifest name (ResourcesPath="" =>
 // co-located marker + resx). A wrong manifest name flips ResourceNotFound and leaks raw keys; a
-// pt-BR key the neutral catalog lacks is an orphan of a rename or delete. Both are caught here.
-// A missing pt-BR entry is allowed: it falls back to English.
+// sl-SI key the neutral catalog lacks is an orphan of a rename or delete. Both are caught here.
+// A missing sl-SI entry is allowed: it falls back to English.
 public sealed class IdentityResourcesTests
 {
     private static IStringLocalizer BuildLocalizer()
@@ -42,13 +42,13 @@ public sealed class IdentityResourcesTests
     }
 
     [Fact]
-    public void Every_ptBR_key_exists_in_the_neutral_catalog()
+    public void Every_slSI_key_exists_in_the_neutral_catalog()
     {
         var neutral = KeysFor(string.Empty);   // IdentityResources.resx (English / fallback)
-        var pt = KeysFor("pt-BR");                 // IdentityResources.pt-BR.resx
+        var sl = KeysFor("sl-SI");                 // IdentityResources.sl-SI.resx
 
         neutral.ShouldNotBeEmpty();
-        pt.Except(neutral, StringComparer.Ordinal)
+        sl.Except(neutral, StringComparer.Ordinal)
             .OrderBy(k => k, StringComparer.Ordinal)
             .ShouldBeEmpty();
     }
@@ -66,13 +66,13 @@ public sealed class IdentityResourcesTests
                 "resx did not resolve 'Identity.UserNotFound' for en-US — check ResourcesPath/resx manifest name.");
             en.Value.ShouldBe("User not found.");
 
-            CultureInfo.CurrentUICulture = new CultureInfo("pt-BR");
-            var pt = localizer["Identity.UserNotFound"];
-            pt.ResourceNotFound.ShouldBeFalse(
-                "resx did not resolve 'Identity.UserNotFound' for pt-BR — check the .pt-BR catalog manifest name.");
-            pt.Value.ShouldBe("Usuário não encontrado.");
+            CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
+            var sl = localizer["Identity.UserNotFound"];
+            sl.ResourceNotFound.ShouldBeFalse(
+                "resx did not resolve 'Identity.UserNotFound' for sl-SI — check the .sl-SI catalog manifest name.");
+            sl.Value.ShouldBe("Usuário não encontrado.");
 
-            pt.Value.ShouldNotBe(en.Value);
+            sl.Value.ShouldNotBe(en.Value);
         }
         finally
         {

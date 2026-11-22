@@ -2,18 +2,18 @@ import { expect, test } from "@playwright/test";
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-// en-US is the source catalog; pt-BR is a translation that may lag behind it. A key (or a whole
-// namespace file) pt-BR lacks is fine: it renders in English at runtime (fallback-chain.spec.ts).
-// What breaks the UI is a pt-BR key nothing renders (an orphan, usually a renamed or deleted
+// en-US is the source catalog; sl-SI is a translation that may lag behind it. A key (or a whole
+// namespace file) sl-SI lacks is fine: it renders in English at runtime (fallback-chain.spec.ts).
+// What breaks the UI is a sl-SI key nothing renders (an orphan, usually a renamed or deleted
 // en-US key) and a translation whose placeholders drift from the English, so those two fail here.
 // Read via fs (cwd = the admin app dir) to avoid ESM JSON import-attribute rules.
 const readCatalog = (locale: string, ns: string): Record<string, string> =>
   JSON.parse(readFileSync(path.resolve("src/locales", locale, `${ns}.json`), "utf8"));
 
-// A contributor who adds a namespace without a translation ships no pt-BR file at all.
+// A contributor who adds a namespace without a translation ships no sl-SI file at all.
 const readTranslation = (ns: string): Record<string, string> => {
   try {
-    return readCatalog("pt-BR", ns);
+    return readCatalog("sl-SI", ns);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return {};
     throw error;
@@ -28,6 +28,13 @@ const catalogFiles = (locale: string): string[] =>
 
 const namespaces = ["common", "nav", "auth", "settings", "sessions", "users", "roles", "impersonation", "billing", "tenants", "webhooks", "audits", "notifications", "health", "dashboard"];
 
+// Slovenian has four plural forms (_one, _two, _few, _other); English has two. A sl-SI plural
+// form is not an orphan when en-US has the same key with _one or _other.
+const isPluralForm = (key: string, en: Record<string, string>): boolean => {
+  const match = /^(.+)_(one|two|few|other)$/.exec(key);
+  return match !== null && (`${match[1]}_one` in en || `${match[1]}_other` in en);
+};
+
 test.describe("catalog parity", () => {
   // The list above is hand-maintained, so it can drift from what actually ships: a namespace
   // file added without an entry here escapes every parity assertion below. This is the
@@ -36,14 +43,14 @@ test.describe("catalog parity", () => {
     expect(catalogFiles("en-US")).toEqual([...namespaces].sort());
   });
 
-  test("every pt-BR catalog file has an en-US counterpart", () => {
-    expect(catalogFiles("pt-BR").filter((ns) => !namespaces.includes(ns))).toEqual([]);
+  test("every sl-SI catalog file has an en-US counterpart", () => {
+    expect(catalogFiles("sl-SI").filter((ns) => !namespaces.includes(ns))).toEqual([]);
   });
 
   for (const ns of namespaces) {
-    test(`${ns}: pt-BR has no key en-US lacks`, () => {
+    test(`${ns}: sl-SI has no key en-US lacks`, () => {
       const en = readCatalog("en-US", ns);
-      const orphans = Object.keys(readTranslation(ns)).filter((key) => !(key in en));
+      const orphans = Object.keys(readTranslation(ns)).filter((key) => !(key in en) && !isPluralForm(key, en));
       expect(orphans).toEqual([]);
     });
   }
@@ -56,13 +63,13 @@ test.describe("catalog parity", () => {
     [...value.matchAll(/{{\s*([^},]+?)\s*(?:,[^}]*)?}}/g)].map((m) => m[1]).sort();
 
   for (const ns of namespaces) {
-    test(`${ns}: en-US and pt-BR interpolate the same variables`, () => {
+    test(`${ns}: en-US and sl-SI interpolate the same variables`, () => {
       const en = readCatalog("en-US", ns);
-      const pt = readTranslation(ns);
+      const sl = readTranslation(ns);
       const divergent = Object.keys(en)
-        .filter((key) => typeof en[key] === "string" && typeof pt[key] === "string")
-        .map((key) => ({ key, en: placeholders(en[key]), pt: placeholders(pt[key]) }))
-        .filter(({ en: a, pt: b }) => a.join("|") !== b.join("|"));
+        .filter((key) => typeof en[key] === "string" && typeof sl[key] === "string")
+        .map((key) => ({ key, en: placeholders(en[key]), sl: placeholders(sl[key]) }))
+        .filter(({ en: a, sl: b }) => a.join("|") !== b.join("|"));
 
       expect(divergent).toEqual([]);
     });

@@ -22,8 +22,8 @@ export function missingKeyFallback(key: string, defaultValue?: string | null): s
 /**
  * The language chain a missing key walks before `missingKeyFallback` runs.
  *
- * en-US is the only catalog guaranteed complete (a pt-BR translation may lag behind), so the chain
- * always ends there. A deployment defaulting to pt-BR keeps pt-BR first, so a browser locale the
+ * en-US is the only catalog guaranteed complete (a sl-SI translation may lag behind), so the chain
+ * always ends there. A deployment defaulting to sl-SI keeps sl-SI first, so a browser locale the
  * app does not offer still lands on the deployment's language.
  */
 export function fallbackChain(deploymentDefault: string, supported: readonly string[]): string | string[] {

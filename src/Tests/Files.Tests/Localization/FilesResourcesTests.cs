@@ -10,8 +10,8 @@ namespace Files.Tests.Localization;
 
 // Proves the FilesResources catalog is embedded under the correct manifest name (ResourcesPath="" =>
 // co-located marker + resx). A wrong manifest name flips ResourceNotFound and leaks raw keys; a
-// pt-BR key the neutral catalog lacks is an orphan of a rename or delete. Both are caught here.
-// A missing pt-BR entry is allowed: it falls back to English.
+// sl-SI key the neutral catalog lacks is an orphan of a rename or delete. Both are caught here.
+// A missing sl-SI entry is allowed: it falls back to English.
 public sealed class FilesResourcesTests
 {
     private static IStringLocalizer BuildLocalizer()
@@ -44,13 +44,13 @@ public sealed class FilesResourcesTests
     }
 
     [Fact]
-    public void Every_ptBR_key_exists_in_the_neutral_catalog()
+    public void Every_slSI_key_exists_in_the_neutral_catalog()
     {
         var neutral = KeysFor(string.Empty);   // FilesResources.resx (English / fallback)
-        var pt = KeysFor("pt-BR");                 // FilesResources.pt-BR.resx
+        var sl = KeysFor("sl-SI");                 // FilesResources.sl-SI.resx
 
         neutral.ShouldNotBeEmpty();
-        pt.Except(neutral, StringComparer.Ordinal)
+        sl.Except(neutral, StringComparer.Ordinal)
             .OrderBy(k => k, StringComparer.Ordinal)
             .ShouldBeEmpty();
     }
@@ -68,13 +68,13 @@ public sealed class FilesResourcesTests
                 "resx did not resolve 'Files.FileNotFound' for en-US — check ResourcesPath/resx manifest name.");
             en.Value.ShouldBe("File not found.");
 
-            CultureInfo.CurrentUICulture = new CultureInfo("pt-BR");
-            var pt = localizer["Files.FileNotFound"];
-            pt.ResourceNotFound.ShouldBeFalse(
-                "resx did not resolve 'Files.FileNotFound' for pt-BR — check the .pt-BR catalog manifest name.");
-            pt.Value.ShouldBe("Arquivo não encontrado.");
+            CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
+            var sl = localizer["Files.FileNotFound"];
+            sl.ResourceNotFound.ShouldBeFalse(
+                "resx did not resolve 'Files.FileNotFound' for sl-SI — check the .sl-SI catalog manifest name.");
+            sl.Value.ShouldBe("Arquivo não encontrado.");
 
-            pt.Value.ShouldNotBe(en.Value);
+            sl.Value.ShouldNotBe(en.Value);
         }
         finally
         {
@@ -84,7 +84,7 @@ public sealed class FilesResourcesTests
 
     // An enum handed to a message as an argument is looked up as "{EnumType}.{Member}" by
     // GlobalExceptionHandler. A member with no entry falls back to its C# name, which is a code
-    // identifier, not display text, so every member needs a neutral entry; pt-BR may omit it and fall back.
+    // identifier, not display text, so every member needs a neutral entry; sl-SI may omit it and fall back.
     [Theory]
     [InlineData(typeof(FileAssetStatus))]
     [InlineData(typeof(Visibility))]

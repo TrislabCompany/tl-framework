@@ -126,7 +126,7 @@ function ThemeMenuItem({
 
 const LANGUAGE_LABEL_KEYS = {
   "en-US": "language.enUS",
-  "pt-BR": "language.ptBR",
+  "sl-SI": "language.slSI",
 } as const satisfies Record<(typeof SUPPORTED)[number], ParseKeys<"common">>;
 
 function LanguageMenuItem({

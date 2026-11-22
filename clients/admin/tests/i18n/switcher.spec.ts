@@ -3,7 +3,7 @@ import { seedAuthedSession, TEST_USER } from "../helpers/auth-seed";
 import { installAdminShellMocks, ADMIN_PERMS, paged } from "../helpers/shell-mocks";
 import { mockJsonResponse } from "../helpers/api-mocks";
 
-// Task 10 — the topbar language switcher. Switching to Português must:
+// Task 10 — the topbar language switcher. Switching to Slovenščina must:
 //  (a) localize the UI in place (the "Language" section label becomes "Idioma"),
 //  (b) PUT the chosen locale to /identity/profile, and
 //  (c) trigger a token refresh so the new `locale` JWT claim is minted.
@@ -25,7 +25,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe("language switcher", () => {
-  test("switching to Português localizes the UI, persists the locale and refreshes the token", async ({
+  test("switching to Slovenščina localizes the UI, persists the locale and refreshes the token", async ({
     page,
   }) => {
     let refreshCalled = false;
@@ -67,7 +67,7 @@ test.describe("language switcher", () => {
         email: TEST_USER.email,
         name: "Root Admin",
         tenant: "root",
-        locale: "pt-BR",
+        locale: "sl-SI",
         permissions: [...ADMIN_PERMS],
         exp: Math.floor(Date.now() / 1000) + 3600,
         iat: Math.floor(Date.now() / 1000),
@@ -88,7 +88,7 @@ test.describe("language switcher", () => {
     const putRequest = page.waitForRequest(
       (r) => r.url().includes("/api/v1/identity/profile") && r.method() === "PUT",
     );
-    await page.getByRole("menuitem", { name: "Português (BR)" }).click();
+    await page.getByRole("menuitem", { name: "Slovenščina" }).click();
     // Read the body straight off the resolved request — waitForRequest fires on
     // dispatch, before the route handler could capture it into a shared variable.
     const putBody = (await putRequest).postDataJSON() as {
@@ -98,7 +98,7 @@ test.describe("language switcher", () => {
     };
 
     // (b) the chosen locale was persisted, name preserved (no data loss).
-    expect(putBody.locale).toBe("pt-BR");
+    expect(putBody.locale).toBe("sl-SI");
     expect(putBody.firstName).toBe("Root");
     expect(putBody.lastName).toBe("Admin");
 
@@ -158,7 +158,7 @@ test.describe("language switcher", () => {
         email: TEST_USER.email,
         name: "Root Admin",
         tenant: "root",
-        locale: "pt-BR",
+        locale: "sl-SI",
         permissions: [...ADMIN_PERMS],
         exp: Math.floor(Date.now() / 1000) + 3600,
         iat: Math.floor(Date.now() / 1000),
@@ -180,7 +180,7 @@ test.describe("language switcher", () => {
     const putRequest = page.waitForRequest(
       (r) => r.url().includes("/api/v1/identity/profile") && r.method() === "PUT",
     );
-    await page.getByRole("menuitem", { name: "Português (BR)" }).click();
+    await page.getByRole("menuitem", { name: "Slovenščina" }).click();
 
     // Only now let the profile reads resolve: updateMyProfile's own GET feeds the PUT.
     releaseGet();
@@ -192,7 +192,7 @@ test.describe("language switcher", () => {
       lastName?: string;
     };
 
-    expect(putBody.locale).toBe("pt-BR");
+    expect(putBody.locale).toBe("sl-SI");
     expect(putBody.firstName).toBe("Root");
     expect(putBody.lastName).toBe("Admin");
   });
@@ -256,7 +256,7 @@ test.describe("language switcher", () => {
     await page.getByRole("button", { name: /open profile menu/i }).click();
     await expect(page.getByText("Language", { exact: true })).toBeVisible();
 
-    await page.getByRole("menuitem", { name: "Português (BR)" }).click();
+    await page.getByRole("menuitem", { name: "Slovenščina" }).click();
     await expect(page.getByText("Idioma", { exact: true })).toBeVisible();
     await page.getByRole("menuitem", { name: "English (US)" }).click();
     await expect(page.getByText("Language", { exact: true })).toBeVisible();
@@ -305,7 +305,7 @@ test.describe("language switcher", () => {
 
     await page.goto("/");
     await page.getByRole("button", { name: /open profile menu/i }).click();
-    await page.getByRole("menuitem", { name: "Português (BR)" }).click();
+    await page.getByRole("menuitem", { name: "Slovenščina" }).click();
 
     await expect.poll(() => refreshCalled).toBe(true);
     // The redirect this guards against is a client-side route change with no network of its own,
@@ -358,7 +358,7 @@ test.describe("language switcher", () => {
       const putRequest = page.waitForRequest(
         (r) => r.url().includes("/api/v1/identity/profile") && r.method() === "PUT",
       );
-      await page.getByRole("menuitem", { name: "Português (BR)" }).click();
+      await page.getByRole("menuitem", { name: "Slovenščina" }).click();
       const putBody = (await putRequest).postDataJSON() as { phoneNumber?: string | null };
 
       expect(putBody.phoneNumber).toBe(stored);
@@ -395,7 +395,7 @@ test.describe("language switcher when the save fails", () => {
     });
     await page.goto("/");
     await page.getByRole("button", { name: /open profile menu/i }).click();
-    await page.getByRole("menuitem", { name: "Português (BR)" }).click();
+    await page.getByRole("menuitem", { name: "Slovenščina" }).click();
     // The switch still applies locally…
     await expect(page.getByText("Idioma", { exact: true })).toBeVisible();
     // …and the user is told it did not stick.

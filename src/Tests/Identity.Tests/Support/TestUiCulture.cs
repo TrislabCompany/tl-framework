@@ -12,7 +12,7 @@ internal static class TestUiCulture
     /// The validator tests assert the exact English message, and those messages now come from the
     /// embedded resx, which resolves against <see cref="CultureInfo.CurrentUICulture"/>. Left to the
     /// ambient value, the suite asserts a property of the developer's operating system rather than of
-    /// the code: green on an English machine, eleven failures on a pt-BR one, and green again on CI.
+    /// the code: green on an English machine, eleven failures on a sl-SI one, and green again on CI.
     /// Pinning here rather than in each test class keeps the assertions readable and covers every
     /// class that compares a localized string.
     /// </remarks>

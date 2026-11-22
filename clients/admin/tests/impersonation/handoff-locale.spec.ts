@@ -90,8 +90,8 @@ function handoffParams(url: string): URLSearchParams {
 test.describe("impersonation handoff carries the operator locale", () => {
   test("sends the operator's selected language, not the deployment default", async ({ page }) => {
     // `?culture=` is first in the detection order (lookupQuerystring: "culture"), so this
-    // boots the app in Portuguese without touching localStorage.
-    await page.goto("/impersonation?culture=pt-BR");
+    // boots the app in Slovenian without touching localStorage.
+    await page.goto("/impersonation?culture=sl-SI");
 
     await startImpersonationViaReopen(page, {
       reopen: "Reabrir",
@@ -103,7 +103,7 @@ test.describe("impersonation handoff carries the operator locale", () => {
     const opened = (await page.evaluate(() => window.__openedUrls![0]))!;
     const params = handoffParams(opened);
 
-    expect(params.get("locale")).toBe("pt-BR");
+    expect(params.get("locale")).toBe("sl-SI");
     // The pre-existing contract must survive the added parameter.
     expect(params.get("token")).toBe("header.payload.sig");
     expect(params.get("tenant")).toBe("acme");

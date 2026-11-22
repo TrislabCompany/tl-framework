@@ -57,12 +57,12 @@ test.describe("i18n", () => {
     expect(headers["accept-language"]).toBe("en-US");
   });
 
-  test("apiFetch sends Accept-Language: pt-BR once the locale is Portuguese", async ({ page }) => {
-    // Boot the app in Portuguese via the ?culture querystring — the i18n detector gives
-    // querystring top priority (order: ["querystring", ...]), so the active locale is pt-BR
+  test("apiFetch sends Accept-Language: sl-SI once the locale is Slovenian", async ({ page }) => {
+    // Boot the app in Slovenian via the ?culture querystring — the i18n detector gives
+    // querystring top priority (order: ["querystring", ...]), so the active locale is sl-SI
     // before the first apiFetch runs. A hardcoded "en-US" in apiFetch would fail this.
 
-    // Return a profile whose locale already matches pt-BR so the topbar's sync effect does not
+    // Return a profile whose locale already matches sl-SI so the topbar's sync effect does not
     // switch the language back.
     await page.route("**/api/v1/identity/profile", async (route) => {
       if (route.request().method() !== "GET") {
@@ -76,7 +76,7 @@ test.describe("i18n", () => {
           id: "u-test-1",
           isActive: true,
           emailConfirmed: true,
-          locale: "pt-BR",
+          locale: "sl-SI",
         }),
       });
     });
@@ -85,11 +85,11 @@ test.describe("i18n", () => {
       (r) => r.url().includes("/api/v1/identity/profile") && r.method() === "GET",
       { timeout: 10_000 },
     );
-    await page.goto("/?culture=pt-BR");
+    await page.goto("/?culture=sl-SI");
 
     // Read the header off the resolved request, not a handler-captured variable
     // (see the en-US case above).
     const headers = await (await profileReq).allHeaders();
-    expect(headers["accept-language"]).toBe("pt-BR");
+    expect(headers["accept-language"]).toBe("sl-SI");
   });
 });

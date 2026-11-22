@@ -91,7 +91,7 @@ public sealed class UpdateUserCommandValidatorTests
     }
 
     [Theory]
-    [InlineData("pt-BR", true)]
+    [InlineData("sl-SI", true)]
     [InlineData("en-US", true)]
     [InlineData(null, true)]
     // Empty/whitespace is treated as "not provided": the .When(!IsNullOrWhiteSpace) guard skips the
@@ -116,24 +116,24 @@ public sealed class UpdateUserCommandValidatorTests
     }
 
     [Fact]
-    public void UserId_required_message_is_localized_under_ptBR()
+    public void UserId_required_message_is_localized_under_slSI()
     {
         // Act
-        var result = WithCulture("pt-BR", () => _sut.Validate(new UpdateUserCommand { Id = "" }));
+        var result = WithCulture("sl-SI", () => _sut.Validate(new UpdateUserCommand { Id = "" }));
 
-        // Assert — custom WithMessage resolves from the .pt-BR catalog.
+        // Assert — custom WithMessage resolves from the .sl-SI catalog.
         result.Errors.Single(e => e.PropertyName == "Id").ErrorMessage
             .ShouldBe("O ID do usuário é obrigatório.");
     }
 
     [Fact]
-    public void Builtin_validation_message_is_localized_under_ptBR()
+    public void Builtin_validation_message_is_localized_under_slSI()
     {
-        // Act — FluentValidation resolves built-in messages via CurrentUICulture (ships a pt catalog).
-        var result = WithCulture("pt-BR", () =>
+        // Act — FluentValidation resolves built-in messages via CurrentUICulture (ships a sl catalog).
+        var result = WithCulture("sl-SI", () =>
             _sut.Validate(new UpdateUserCommand { Id = "user-123", PhoneNumber = new string('1', 16) }));
 
-        // Assert — pin the actual Portuguese text, not merely the absence of the English one.
+        // Assert — pin the actual Slovenian text, not merely the absence of the English one.
         // "does not contain the English sentence" is satisfied by a blank message, by a raw
         // resource key leaking through, and by any wrong-but-non-English string, so it stayed
         // green through exactly the failures it existed to catch.

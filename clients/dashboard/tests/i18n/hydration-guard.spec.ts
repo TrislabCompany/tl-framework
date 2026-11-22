@@ -51,7 +51,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe("language hydration guard", () => {
-  // index.html ships a static lang="en". Without syncing it, a Portuguese UI still declares
+  // index.html ships a static lang="en". Without syncing it, a Slovenian UI still declares
   // itself English to screen readers, browser translation and hyphenation — the document
   // language silently contradicts every visible string. Doubles as the one language signal in
   // this app that a stale render cannot satisfy, which is why the assertions above use it.
@@ -62,9 +62,9 @@ test.describe("language hydration guard", () => {
     await expect(html).toHaveAttribute("lang", "en-US");
 
     await page.getByRole("button", { name: /open profile menu/i }).click();
-    await page.getByRole("menuitem", { name: "Português (BR)" }).click();
+    await page.getByRole("menuitem", { name: "Slovenščina" }).click();
 
-    await expect(html).toHaveAttribute("lang", "pt-BR");
+    await expect(html).toHaveAttribute("lang", "sl-SI");
   });
 
   test("still hydrates from the server on a fresh session with no in-session choice", async ({
@@ -77,7 +77,7 @@ test.describe("language hydration guard", () => {
         await route.fulfill({
           status: 200,
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...STALE_PROFILE, locale: "pt-BR" }),
+          body: JSON.stringify({ ...STALE_PROFILE, locale: "sl-SI" }),
         });
         return;
       }
@@ -86,6 +86,6 @@ test.describe("language hydration guard", () => {
 
     await page.goto("/");
 
-    await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
+    await expect(page.locator("html")).toHaveAttribute("lang", "sl-SI");
   });
 });

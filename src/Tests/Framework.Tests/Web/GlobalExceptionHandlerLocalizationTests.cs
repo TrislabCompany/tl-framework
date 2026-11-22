@@ -56,7 +56,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     }
 
     [Theory]
-    [InlineData("pt-BR", "Não encontrado")]
+    [InlineData("sl-SI", "Não encontrado")]
     [InlineData("en-US", "Not Found")]
     public async Task NotFound_title_is_localized(string culture, string expected)
     {
@@ -65,7 +65,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     }
 
     [Theory]
-    [InlineData("pt-BR", "Ocorreu um erro inesperado")]
+    [InlineData("sl-SI", "Ocorreu um erro inesperado")]
     [InlineData("en-US", "An unexpected error occurred")]
     public async Task Unexpected_title_is_localized(string culture, string expected)
     {
@@ -75,7 +75,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
 
     // CustomException Title is now the status-mapped catalog key (404 -> Error.NotFound), localized.
     [Theory]
-    [InlineData("pt-BR", "Não encontrado")]
+    [InlineData("sl-SI", "Não encontrado")]
     [InlineData("en-US", "Not Found")]
     public async Task CustomException_title_is_localized_by_status(string culture, string expected)
     {
@@ -85,7 +85,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
 
     // Detail resolves from MessageKey under the request culture (using an existing Core key).
     [Theory]
-    [InlineData("pt-BR", "Não autorizado")]
+    [InlineData("sl-SI", "Não autorizado")]
     [InlineData("en-US", "Unauthorized")]
     public async Task CustomException_detail_is_localized_from_key(string culture, string expected)
     {
@@ -96,7 +96,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
 
     // No MessageKey: Detail falls back to the literal (English) Message regardless of culture (non-breaking).
     [Theory]
-    [InlineData("pt-BR")]
+    [InlineData("sl-SI")]
     [InlineData("en-US")]
     public async Task CustomException_detail_falls_back_to_message_without_key(string culture)
     {
@@ -107,7 +107,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     // Parameterless UnauthorizedException carries Error.AuthenticationFailed, so generic auth failures
     // localize their Detail without any call-site key (English fallback stays "Authentication failed.").
     [Theory]
-    [InlineData("pt-BR", "Falha na autenticação.")]
+    [InlineData("sl-SI", "Falha na autenticação.")]
     [InlineData("en-US", "Authentication failed.")]
     public async Task Parameterless_unauthorized_detail_is_localized(string culture, string expected)
     {
@@ -120,14 +120,14 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     public async Task CustomException_detail_falls_back_when_key_missing()
     {
         var exception = new NotFoundException("English fallback detail.").Localized("Does.Not.Exist");
-        var (_, detail) = await HandleAsync(exception, "pt-BR");
+        var (_, detail) = await HandleAsync(exception, "sl-SI");
         detail.ShouldBe("English fallback detail.");
     }
 
     // BCL-subclass exceptions (kept as their base type so audit severity classification is unaffected)
     // still localize their Detail from MessageKey through the shared handler path.
     [Theory]
-    [InlineData("pt-BR", "Falha na autenticação.")]
+    [InlineData("sl-SI", "Falha na autenticação.")]
     [InlineData("en-US", "Authentication failed.")]
     public async Task LocalizedUnauthorizedAccess_detail_is_localized(string culture, string expected)
     {
@@ -140,7 +140,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     }
 
     [Theory]
-    [InlineData("pt-BR", "Não encontrado")]
+    [InlineData("sl-SI", "Não encontrado")]
     [InlineData("en-US", "Not Found")]
     public async Task LocalizedKeyNotFound_detail_is_localized(string culture, string expected)
     {
@@ -156,14 +156,14 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     [Fact]
     public async Task LocalizedUnauthorizedAccess_without_key_falls_back_to_message()
     {
-        var (_, detail) = await HandleAsync(new LocalizedUnauthorizedAccessException("Plain English."), "pt-BR");
+        var (_, detail) = await HandleAsync(new LocalizedUnauthorizedAccessException("Plain English."), "sl-SI");
         detail.ShouldBe("Plain English.");
     }
 
     // Detail is prose under the request culture, so the MessageKey travels as a stable "code" extension:
     // clients branch on the code instead of matching localized text. Same key in every culture.
     [Theory]
-    [InlineData("pt-BR")]
+    [InlineData("sl-SI")]
     [InlineData("en-US")]
     public async Task CustomException_surfaces_the_message_key_as_code(string culture)
     {
@@ -177,7 +177,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     public async Task LocalizedKeyNotFound_surfaces_the_message_key_as_code()
     {
         var exception = new LocalizedKeyNotFoundException("english fallback") { MessageKey = "Error.NotFound" };
-        var (_, _, code) = await HandleWithCodeAsync(exception, "pt-BR");
+        var (_, _, code) = await HandleWithCodeAsync(exception, "sl-SI");
         code.ShouldBe("Error.NotFound");
     }
 
@@ -185,7 +185,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     [Fact]
     public async Task Exception_without_key_omits_the_code()
     {
-        var (_, _, code) = await HandleWithCodeAsync(new NotFoundException("Plain English detail."), "pt-BR");
+        var (_, _, code) = await HandleWithCodeAsync(new NotFoundException("Plain English detail."), "sl-SI");
         code.ShouldBeNull();
     }
 
@@ -195,7 +195,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     public async Task Unknown_key_still_surfaces_as_code()
     {
         var exception = new NotFoundException("English fallback detail.").Localized("Does.Not.Exist");
-        var (_, detail, code) = await HandleWithCodeAsync(exception, "pt-BR");
+        var (_, detail, code) = await HandleWithCodeAsync(exception, "sl-SI");
         detail.ShouldBe("English fallback detail.");
         code.ShouldBe("Does.Not.Exist");
     }
@@ -204,7 +204,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     [Fact]
     public async Task Raw_key_not_found_has_no_code()
     {
-        var (_, detail, code) = await HandleWithCodeAsync(new KeyNotFoundException("missing"), "pt-BR");
+        var (_, detail, code) = await HandleWithCodeAsync(new KeyNotFoundException("missing"), "sl-SI");
         detail.ShouldBe("missing");
         code.ShouldBeNull();
     }
@@ -215,7 +215,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     // own detail. There are 41 Conflict throw sites across Billing and Catalog.
     [Theory]
     [InlineData("en-US", "Conflict")]
-    [InlineData("pt-BR", "Conflito")]
+    [InlineData("sl-SI", "Conflito")]
     public async Task Conflict_is_titled_as_a_conflict_not_as_unexpected(string culture, string expected)
     {
         var exception = new CustomException("Brand name already taken.", [], HttpStatusCode.Conflict);
@@ -229,7 +229,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     // own key it fell back to the type name and went out titled "CustomException" in every culture.
     [Theory]
     [InlineData("en-US", "Precondition Failed")]
-    [InlineData("pt-BR", "Pré-condição não atendida")]
+    [InlineData("sl-SI", "Pré-condição não atendida")]
     public async Task PreconditionFailed_has_its_own_title(string culture, string expected)
     {
         var exception = new CustomException("The profile changed.", [], HttpStatusCode.PreconditionFailed);
@@ -243,7 +243,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     // name — instead of claiming the error was unexpected. Status-consistent beats confidently wrong.
     [Theory]
     [InlineData("en-US")]
-    [InlineData("pt-BR")]
+    [InlineData("sl-SI")]
     public async Task Untranslated_status_falls_back_to_the_exception_type_name(string culture)
     {
         var exception = new CustomException("Mailbox is locked.", [], HttpStatusCode.Locked);
@@ -260,7 +260,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
 
     private enum Untranslated { Member }
 
-    // Without this, a pt-BR reader gets a translated sentence ending in an English enum name:
+    // Without this, a sl-SI reader gets a translated sentence ending in an English enum name:
     // "um chamado no status Closed".
     [Fact]
     public async Task An_enum_argument_is_translated_through_the_same_catalog()
@@ -268,7 +268,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
         var exception = new CustomException("english fallback", [], HttpStatusCode.BadRequest)
             .Localized("Validation.ImpersonationTakeRange", Error.Unauthorized);
 
-        var (_, detail) = await HandleAsync(exception, "pt-BR");
+        var (_, detail) = await HandleAsync(exception, "sl-SI");
 
         detail.ShouldBe("O valor de Take deve estar entre 1 e Não autorizado.");
     }
@@ -279,7 +279,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
         var exception = new CustomException("english fallback", [], HttpStatusCode.BadRequest)
             .Localized("Validation.ImpersonationTakeRange", Untranslated.Member);
 
-        var (_, detail) = await HandleAsync(exception, "pt-BR");
+        var (_, detail) = await HandleAsync(exception, "sl-SI");
 
         detail.ShouldBe("O valor de Take deve estar entre 1 e Member.");
     }

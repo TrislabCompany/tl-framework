@@ -66,11 +66,11 @@ test.describe("status keys built from backend enums", () => {
     test(`${testCase.label}: every member has a label in both locales`, () => {
       const members = enumMembers(testCase.file, testCase.enumName);
       const en = readCatalog("en-US", testCase.ns);
-      const pt = readCatalog("pt-BR", testCase.ns);
+      const sl = readCatalog("sl-SI", testCase.ns);
 
       const missing = members
         .map((member) => testCase.key(member))
-        .filter((key) => !(key in en) || !(key in pt));
+        .filter((key) => !(key in en) || !(key in sl));
 
       expect(missing).toEqual([]);
     });
@@ -86,7 +86,7 @@ test("a status the server added after this build has no key, so the badge shows 
 // The permission matrix is the other place keys are built at run time, and the largest: eight
 // groups and thirty-plus entries, rendered on the role detail screen. The English text stays in
 // permissions.ts as the fallback, so a missing key degrades rather than showing "perm.entry.x" —
-// but degrading means an English row in a Portuguese table, which is what this catches.
+// but degrading means an English row in a Slovenian table, which is what this catches.
 test.describe("permission catalog keys", () => {
   test("every group and entry has a label in both locales", () => {
     const source = readFileSync(path.resolve("src/lib/permissions.ts"), "utf8");
@@ -115,12 +115,12 @@ test.describe("permission catalog keys", () => {
     expect(entries.length).toBeGreaterThan(0);
 
     const en = readCatalog("en-US", "roles");
-    const pt = readCatalog("pt-BR", "roles");
+    const sl = readCatalog("sl-SI", "roles");
     const expected = [
       ...groups.flatMap((key) => [`perm.group.${key}`, `perm.blurb.${key}`]),
       ...entries.map((name) => `perm.entry.${name}`),
     ];
 
-    expect(expected.filter((key) => !(key in en) || !(key in pt))).toEqual([]);
+    expect(expected.filter((key) => !(key in en) || !(key in sl))).toEqual([]);
   });
 });

@@ -15,9 +15,9 @@ public sealed class CreateBasicClaimsTests
     [Fact]
     public void Emits_locale_claim_when_user_locale_is_set()
     {
-        var claims = IdentityService.CreateBasicClaims(User("pt-BR"), "codefi");
+        var claims = IdentityService.CreateBasicClaims(User("sl-SI"), "codefi");
 
-        claims.Single(c => c.Type == "locale").Value.ShouldBe("pt-BR");
+        claims.Single(c => c.Type == "locale").Value.ShouldBe("sl-SI");
     }
 
     [Fact]

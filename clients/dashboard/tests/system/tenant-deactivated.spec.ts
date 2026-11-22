@@ -7,7 +7,7 @@
 // error banner under a half-loaded dashboard.
 //
 // The detector keys off the ProblemDetails `code`: `detail` is localized under the
-// request's Accept-Language, so a pt-BR reader would otherwise stay stuck on failing
+// request's Accept-Language, so a sl-SI reader would otherwise stay stuck on failing
 // screens. The English detail is still accepted as a fallback, because `code` only
 // reaches the wire once the localized-errors slice ships on the API.
 
@@ -38,7 +38,7 @@ test.describe("tenant deactivated mid-session", () => {
   });
 
   // The regression this guards: the detector used to match the English detail
-  // text. Under pt-BR the server localizes that prose, so a text match fails and
+  // text. Under sl-SI the server localizes that prose, so a text match fails and
   // the user is left on a dead screen. The code is culture-independent.
   test("routes on a localized 403 — detection does not depend on the detail prose", async ({
     page,
@@ -49,8 +49,8 @@ test.describe("tenant deactivated mid-session", () => {
       code: TENANT_DEACTIVATED_CODE,
     });
 
-    await page.goto("/?culture=pt-BR");
-    await page.goto("/catalog/products?culture=pt-BR");
+    await page.goto("/?culture=sl-SI");
+    await page.goto("/catalog/products?culture=sl-SI");
 
     await expect(page).toHaveURL(/\/tenant-deactivated/);
     await expect(page.getByRole("heading", { name: /organização desativada/i })).toBeVisible();

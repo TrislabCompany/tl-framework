@@ -921,7 +921,7 @@ public sealed class IdempotencyEndpointFilterReplayTests
         var provider = BuildProvider();
         var filter = new IdempotencyEndpointFilter();
         var previousUiCulture = CultureInfo.CurrentUICulture;
-        CultureInfo.CurrentUICulture = new CultureInfo("pt-BR");
+        CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
         try
         {
             var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);

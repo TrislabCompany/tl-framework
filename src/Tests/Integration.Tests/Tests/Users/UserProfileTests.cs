@@ -152,7 +152,7 @@ public sealed class UserProfileTests
             {
                 firstName = "Ana",
                 lastName = "Souza",
-                locale = "pt-BR"
+                locale = "sl-SI"
             });
         chosen.StatusCode.ShouldBe(HttpStatusCode.OK);
 
@@ -171,7 +171,7 @@ public sealed class UserProfileTests
         var profile = await userClient.GetAsync($"{TestConstants.IdentityBasePath}/profile");
         var dto = await profile.DeserializeAsync<UserDto>();
         dto.FirstName.ShouldBe("Ana Maria");
-        dto.Locale.ShouldBe("pt-BR");
+        dto.Locale.ShouldBe("sl-SI");
     }
 
     #endregion
@@ -298,7 +298,7 @@ public sealed class UserProfileTests
 
         var switched = await PutProfileAsync(
             userClient,
-            new { firstName = "Same", lastName = "Person", locale = "pt-BR" },
+            new { firstName = "Same", lastName = "Person", locale = "sl-SI" },
             ifMatch: null);
         switched.StatusCode.ShouldBe(HttpStatusCode.OK);
 

@@ -10,8 +10,8 @@ namespace Tickets.Tests.Localization;
 
 // Proves the TicketsResources catalog is embedded under the correct manifest name so the module
 // resx resolves at runtime. A wrong manifest name would flip ResourceNotFound and leak raw keys or
-// English text, and a pt-BR key the neutral catalog lacks is an orphan of a rename or delete. Both are
-// caught here; a missing pt-BR entry is allowed and falls back to English. This is the module's only
+// English text, and a sl-SI key the neutral catalog lacks is an orphan of a rename or delete. Both are
+// caught here; a missing sl-SI entry is allowed and falls back to English. This is the module's only
 // unit test project, added when Tickets exception bodies were localized.
 public sealed class TicketsResourcesTests
 {
@@ -45,13 +45,13 @@ public sealed class TicketsResourcesTests
     }
 
     [Fact]
-    public void Every_ptBR_key_exists_in_the_neutral_catalog()
+    public void Every_slSI_key_exists_in_the_neutral_catalog()
     {
         var neutral = KeysFor(string.Empty);   // TicketsResources.resx (English / fallback)
-        var pt = KeysFor("pt-BR");                 // TicketsResources.pt-BR.resx
+        var sl = KeysFor("sl-SI");                 // TicketsResources.sl-SI.resx
 
         neutral.ShouldNotBeEmpty();
-        pt.Except(neutral, StringComparer.Ordinal)
+        sl.Except(neutral, StringComparer.Ordinal)
             .OrderBy(k => k, StringComparer.Ordinal)
             .ShouldBeEmpty();
     }
@@ -69,13 +69,13 @@ public sealed class TicketsResourcesTests
                 "resx did not resolve 'Tickets.ClosedCannotResolve' for en-US — check ResourcesPath/resx manifest name.");
             en.Value.ShouldBe("A closed ticket cannot be resolved — reopen it first.");
 
-            CultureInfo.CurrentUICulture = new CultureInfo("pt-BR");
-            var pt = localizer["Tickets.ClosedCannotResolve"];
-            pt.ResourceNotFound.ShouldBeFalse(
-                "resx did not resolve 'Tickets.ClosedCannotResolve' for pt-BR — check the .pt-BR catalog manifest name.");
-            pt.Value.ShouldBe("Um chamado fechado não pode ser resolvido. Reabra-o primeiro.");
+            CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
+            var sl = localizer["Tickets.ClosedCannotResolve"];
+            sl.ResourceNotFound.ShouldBeFalse(
+                "resx did not resolve 'Tickets.ClosedCannotResolve' for sl-SI — check the .sl-SI catalog manifest name.");
+            sl.Value.ShouldBe("Um chamado fechado não pode ser resolvido. Reabra-o primeiro.");
 
-            pt.Value.ShouldNotBe(en.Value);
+            sl.Value.ShouldNotBe(en.Value);
         }
         finally
         {
@@ -94,7 +94,7 @@ public sealed class TicketsResourcesTests
             CultureInfo.CurrentUICulture = new CultureInfo("en-US");
             localizer["Tickets.TicketNotFound", "abc"].Value.ShouldBe("Ticket abc not found.");
 
-            CultureInfo.CurrentUICulture = new CultureInfo("pt-BR");
+            CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
             localizer["Tickets.TicketNotFound", "abc"].Value.ShouldBe("Chamado abc não encontrado.");
             // The status argument arrives already localized: GlobalExceptionHandler resolves an enum
             // argument through this same catalog before formatting, so asserting the raw "Open" here
@@ -110,7 +110,7 @@ public sealed class TicketsResourcesTests
 
     // An enum handed to a message as an argument is looked up as "{EnumType}.{Member}" by
     // GlobalExceptionHandler. A member with no entry falls back to its C# name, which is a code
-    // identifier, not display text, so every member needs a neutral entry; pt-BR may omit it and fall back.
+    // identifier, not display text, so every member needs a neutral entry; sl-SI may omit it and fall back.
     [Theory]
     [InlineData(typeof(TicketStatus))]
     public void Every_enum_member_that_reaches_a_message_has_a_neutral_entry(Type enumType)

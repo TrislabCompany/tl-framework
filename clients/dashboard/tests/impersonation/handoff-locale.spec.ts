@@ -9,7 +9,7 @@ import { installShellMocks } from "../helpers/shell-mocks";
 // different origin than admin and therefore cannot read admin's persisted
 // language (`fsh.admin.lng`). Before the `locale` handoff parameter existed, the API culture
 // fell through to the dashboard's own browser detection: the operator picked
-// Português in admin, then read English error details here.
+// Slovenščina in admin, then read English error details here.
 //
 // The Accept-Language assertions are the real regression pin — apiFetch derives
 // that header from i18n.language, so it is the observable consequence of the fix
@@ -79,18 +79,18 @@ test.describe("impersonation handoff locale", () => {
   });
 
   test("adopts the operator's locale for the UI and for Accept-Language", async ({ page }) => {
-    await page.goto(handoffUrl("pt-BR"));
+    await page.goto(handoffUrl("sl-SI"));
 
     // The shell rendered from the hash-installed token (no seeded session here) in
     // the operator's language: the button's own aria-label (common:profileMenu.open)
-    // is already Portuguese, so the English name must not resolve at all.
+    // is already Slovenian, so the English name must not resolve at all.
     await expect(page.getByRole("button", { name: /open profile menu/i })).toHaveCount(0);
     await page.getByRole("button", { name: "Abrir menu do perfil" }).click();
     await expect(page.getByText("Idioma", { exact: true })).toBeVisible();
 
     // The API side of the same fix: the culture the backend negotiates from.
     await expect.poll(() => observed.length).toBeGreaterThan(0);
-    expect(apiFetchLocales()).toEqual(new Set(["pt-BR"]));
+    expect(apiFetchLocales()).toEqual(new Set(["sl-SI"]));
 
     // The secret never survives in the URL bar.
     expect(page.url()).not.toContain("#impersonate");

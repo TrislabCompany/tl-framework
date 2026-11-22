@@ -3,7 +3,7 @@ import { seedAuthedSession, TEST_USER } from "../helpers/auth-seed";
 import { installShellMocks } from "../helpers/shell-mocks";
 
 // The palette matches on the visible label *and* on per-action keywords. Those
-// keywords used to be English literals in the component, so a pt-BR user could read
+// keywords used to be English literals in the component, so a sl-SI user could read
 // every label in their language and still have to guess the English term to find
 // anything by search. They now live in the catalog like any other string.
 
@@ -13,9 +13,9 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe("command palette search terms", () => {
-  test("pt-BR keywords match, and the English ones no longer do", async ({ page }) => {
-    await page.goto("/?culture=pt-BR");
-    // The pt-BR catalog loads before the first render, after the load event: a shortcut pressed
+  test("sl-SI keywords match, and the English ones no longer do", async ({ page }) => {
+    await page.goto("/?culture=sl-SI");
+    // The sl-SI catalog loads before the first render, after the load event: a shortcut pressed
     // before the shell mounts has no listener to reach.
     await expect(page.getByRole("button", { name: "Abrir menu do perfil" })).toBeVisible();
     await page.keyboard.press("Control+k");
@@ -23,7 +23,7 @@ test.describe("command palette search terms", () => {
     const search = page.getByPlaceholder("Digite um comando ou busque…");
     await expect(search).toBeVisible();
 
-    // "noite" appears in no label — only in the pt-BR keywords for the dark theme.
+    // "noite" appears in no label — only in the sl-SI keywords for the dark theme.
     await search.fill("noite");
     await expect(page.getByRole("option", { name: "Mudar para escuro" })).toBeVisible();
 

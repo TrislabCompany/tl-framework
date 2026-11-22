@@ -8,8 +8,8 @@ namespace Auditing.Tests.Localization;
 
 // Proves the AuditingResources catalog is embedded under the correct manifest name (ResourcesPath="" =>
 // co-located marker + resx). A wrong manifest name flips ResourceNotFound and leaks raw keys; a
-// pt-BR key the neutral catalog lacks is an orphan of a rename or delete. Both are caught here.
-// A missing pt-BR entry is allowed: it falls back to English.
+// sl-SI key the neutral catalog lacks is an orphan of a rename or delete. Both are caught here.
+// A missing sl-SI entry is allowed: it falls back to English.
 public sealed class AuditingResourcesTests
 {
     private static IStringLocalizer BuildLocalizer()
@@ -42,13 +42,13 @@ public sealed class AuditingResourcesTests
     }
 
     [Fact]
-    public void Every_ptBR_key_exists_in_the_neutral_catalog()
+    public void Every_slSI_key_exists_in_the_neutral_catalog()
     {
         var neutral = KeysFor(string.Empty);   // AuditingResources.resx (English / fallback)
-        var pt = KeysFor("pt-BR");                 // AuditingResources.pt-BR.resx
+        var sl = KeysFor("sl-SI");                 // AuditingResources.sl-SI.resx
 
         neutral.ShouldNotBeEmpty();
-        pt.Except(neutral, StringComparer.Ordinal)
+        sl.Except(neutral, StringComparer.Ordinal)
             .OrderBy(k => k, StringComparer.Ordinal)
             .ShouldBeEmpty();
     }
@@ -66,13 +66,13 @@ public sealed class AuditingResourcesTests
                 "resx did not resolve 'Validation.DateRangeOrder' for en-US — check ResourcesPath/resx manifest name.");
             en.Value.ShouldBe("FromUtc must be less than or equal to ToUtc.");
 
-            CultureInfo.CurrentUICulture = new CultureInfo("pt-BR");
-            var pt = localizer["Validation.DateRangeOrder"];
-            pt.ResourceNotFound.ShouldBeFalse(
-                "resx did not resolve 'Validation.DateRangeOrder' for pt-BR — check the .pt-BR catalog manifest name.");
-            pt.Value.ShouldBe("FromUtc deve ser menor ou igual a ToUtc.");
+            CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
+            var sl = localizer["Validation.DateRangeOrder"];
+            sl.ResourceNotFound.ShouldBeFalse(
+                "resx did not resolve 'Validation.DateRangeOrder' for sl-SI — check the .sl-SI catalog manifest name.");
+            sl.Value.ShouldBe("FromUtc deve ser menor ou igual a ToUtc.");
 
-            pt.Value.ShouldNotBe(en.Value);
+            sl.Value.ShouldNotBe(en.Value);
         }
         finally
         {

@@ -10,8 +10,8 @@ namespace Billing.Tests.Localization;
 
 // Proves the BillingResources catalog is embedded under the correct manifest name (ResourcesPath="" =>
 // co-located marker + resx). A wrong manifest name flips ResourceNotFound and leaks raw keys; a
-// pt-BR key the neutral catalog lacks is an orphan of a rename or delete. Both are caught here.
-// A missing pt-BR entry is allowed: it falls back to English.
+// sl-SI key the neutral catalog lacks is an orphan of a rename or delete. Both are caught here.
+// A missing sl-SI entry is allowed: it falls back to English.
 public sealed class BillingResourcesTests
 {
     private static IStringLocalizer BuildLocalizer()
@@ -44,13 +44,13 @@ public sealed class BillingResourcesTests
     }
 
     [Fact]
-    public void Every_ptBR_key_exists_in_the_neutral_catalog()
+    public void Every_slSI_key_exists_in_the_neutral_catalog()
     {
         var neutral = KeysFor(string.Empty);   // BillingResources.resx (English / fallback)
-        var pt = KeysFor("pt-BR");                 // BillingResources.pt-BR.resx
+        var sl = KeysFor("sl-SI");                 // BillingResources.sl-SI.resx
 
         neutral.ShouldNotBeEmpty();
-        pt.Except(neutral, StringComparer.Ordinal)
+        sl.Except(neutral, StringComparer.Ordinal)
             .OrderBy(k => k, StringComparer.Ordinal)
             .ShouldBeEmpty();
     }
@@ -68,13 +68,13 @@ public sealed class BillingResourcesTests
                 "resx did not resolve 'Billing.OnlyRootOperatorMayGenerateInvoices' for en-US — check ResourcesPath/resx manifest name.");
             en.Value.ShouldBe("Only the root operator may generate invoices across tenants.");
 
-            CultureInfo.CurrentUICulture = new CultureInfo("pt-BR");
-            var pt = localizer["Billing.OnlyRootOperatorMayGenerateInvoices"];
-            pt.ResourceNotFound.ShouldBeFalse(
-                "resx did not resolve 'Billing.OnlyRootOperatorMayGenerateInvoices' for pt-BR — check the .pt-BR catalog manifest name.");
-            pt.Value.ShouldBe("Apenas o operador raiz pode gerar faturas entre tenants.");
+            CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
+            var sl = localizer["Billing.OnlyRootOperatorMayGenerateInvoices"];
+            sl.ResourceNotFound.ShouldBeFalse(
+                "resx did not resolve 'Billing.OnlyRootOperatorMayGenerateInvoices' for sl-SI — check the .sl-SI catalog manifest name.");
+            sl.Value.ShouldBe("Apenas o operador raiz pode gerar faturas entre tenants.");
 
-            pt.Value.ShouldNotBe(en.Value);
+            sl.Value.ShouldNotBe(en.Value);
         }
         finally
         {
@@ -84,7 +84,7 @@ public sealed class BillingResourcesTests
 
     // An enum handed to a message as an argument is looked up as "{EnumType}.{Member}" by
     // GlobalExceptionHandler. A member with no entry falls back to its C# name, which is a code
-    // identifier, not display text, so every member needs a neutral entry; pt-BR may omit it and fall back.
+    // identifier, not display text, so every member needs a neutral entry; sl-SI may omit it and fall back.
     [Theory]
     [InlineData(typeof(TopupRequestStatus))]
     public void Every_enum_member_that_reaches_a_message_has_a_neutral_entry(Type enumType)

@@ -75,11 +75,11 @@ test.describe("status keys built from backend enums", () => {
     test(`${testCase.label}: every member has a label in both locales`, () => {
       const members = enumMembers(testCase.file, testCase.enumName);
       const en = readCatalog("en-US", testCase.ns);
-      const pt = readCatalog("pt-BR", testCase.ns);
+      const sl = readCatalog("sl-SI", testCase.ns);
 
       const missing = members
         .map((member) => testCase.key(member))
-        .filter((key) => !(key in en) || !(key in pt));
+        .filter((key) => !(key in en) || !(key in sl));
 
       expect(missing).toEqual([]);
     });

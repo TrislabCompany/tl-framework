@@ -5,7 +5,7 @@ import { seedAuthedSession, TEST_USER } from "../helpers/auth-seed";
 // Upload failures are raised deep in the hook, where no translator is in scope, so they travel as
 // catalog keys on an UploadError and are resolved at the toast by describeUploadError. Nothing in
 // the suite walked that path end to end: the keys could be missing, namespaced wrong, or carry the
-// wrong interpolation params and every spec stayed green while a Portuguese tenant read English.
+// wrong interpolation params and every spec stayed green while a Slovenian tenant read English.
 //
 // Namespacing is the sharp edge here. Every upload surface in this app binds `t` to "files"
 // (ImageInput, ProductImageManager, FileDropzone), while the messages live in "common" — so the
@@ -32,8 +32,8 @@ const PNG_BYTES = Buffer.from(
 );
 
 async function pickAvatar(page: import("@playwright/test").Page) {
-  await page.goto("/settings/profile?culture=pt-BR");
-  await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
+  await page.goto("/settings/profile?culture=sl-SI");
+  await expect(page.locator("html")).toHaveAttribute("lang", "sl-SI");
 
   const chooser = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: "Escolher imagem" }).click();
@@ -57,7 +57,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe("upload failures are localized", () => {
-  test("a storage PUT that never connects reports a network error in Portuguese", async ({
+  test("a storage PUT that never connects reports a network error in Slovenian", async ({
     page,
   }) => {
     await mockJsonResponse(page, "**/api/v1/files/upload-url", PRESIGNED);

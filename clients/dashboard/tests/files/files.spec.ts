@@ -141,8 +141,8 @@ test.describe("files — My files / Shared tabs", () => {
 // ─── Preview metadata follows the app language ────────────────────────
 
 test.describe("files — preview metadata", () => {
-  // The browser speaks English, the app is in pt-BR: a bare toLocaleString() would follow the
-  // browser and print an English date under Portuguese labels.
+  // The browser speaks English, the app is in sl-SI: a bare toLocaleString() would follow the
+  // browser and print an English date under Slovenian labels.
   test.use({ locale: "en-US" });
 
   test("the created date is formatted in the app language, not the browser's", async ({ page }) => {
@@ -153,7 +153,7 @@ test.describe("files — preview metadata", () => {
     });
     await mockJsonResponse(page, `**/api/v1/files/${FILE_REPORT.id}`, FILE_REPORT);
 
-    await page.goto("/files?culture=pt-BR");
+    await page.goto("/files?culture=sl-SI");
     await page.getByText("quarterly-report.pdf").last().click();
 
     const dialog = page.getByRole("dialog");

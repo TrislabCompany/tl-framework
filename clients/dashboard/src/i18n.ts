@@ -20,14 +20,14 @@ import enChat from "@/locales/en-US/chat.json";
 import enHealth from "@/locales/en-US/health.json";
 
 // Canonical tags: specific (what the switcher offers, User.Locale persists, the claim carries).
-export const SUPPORTED = ["en-US", "pt-BR"] as const;
+export const SUPPORTED = ["en-US", "sl-SI"] as const;
 
 type Catalog = Record<string, string>;
 
 // en-US translation catalogs keyed by namespace. To add a namespace in a later wave: import its
 // en-US JSON file and add one row here — `resources` and the namespace list derive from this
-// single map, so no other wiring changes. Its pt-BR file (optional) is picked up by
-// src/locales/pt-BR.ts; a namespace or key pt-BR lacks renders in English through fallbackChain.
+// single map, so no other wiring changes. Its sl-SI file (optional) is picked up by
+// src/locales/sl-SI.ts; a namespace or key sl-SI lacks renders in English through fallbackChain.
 // Its type is also what src/i18next.d.ts checks every t() key against.
 const catalogs = {
   common: enCommon,
@@ -57,7 +57,7 @@ export const NAMESPACES = Object.keys(catalogs);
 const LAZY_LANGUAGES: Partial<
   Record<(typeof SUPPORTED)[number], () => Promise<{ default: Record<string, Catalog> }>>
 > = {
-  "pt-BR": () => import("@/locales/pt-BR"),
+  "sl-SI": () => import("@/locales/sl-SI"),
 };
 const loadedLanguages = new Set<string>(["en-US"]);
 
@@ -93,14 +93,14 @@ export async function changeLanguage(lng: string): Promise<boolean> {
   return true;
 }
 
-// i18next's nonExplicitSupportedLngs does NOT rewrite pt-PT->pt-BR. Normalize explicitly via
+// i18next's nonExplicitSupportedLngs does NOT rewrite sl->sl-SI. Normalize explicitly via
 // convertDetectedLanguage: map any variant onto a canonical tag by its language part.
-const CANON: Record<string, string> = { pt: "pt-BR", en: "en-US" };
+const CANON: Record<string, string> = { sl: "sl-SI", en: "en-US" };
 const toCanonical = (lng: string) =>
   (SUPPORTED as readonly string[]).includes(lng) ? lng : (CANON[lng.split("-")[0]] ?? lng);
 
 // Keep the document's language attribute in step with the active locale. index.html ships a
-// static lang="en"; without this, a Portuguese UI still declares itself English to screen
+// static lang="en"; without this, a Slovenian UI still declares itself English to screen
 // readers, browser translation and hyphenation. Registered once, before init, so it also fires
 // for the initial language. It reads resolvedLanguage, the language the text is actually in:
 // when a catalog failed to load, `lng` is still the requested one while the UI shows English.
@@ -141,12 +141,12 @@ export async function initI18n(deploymentDefault: string) {
         caches: ["localStorage"],
         lookupLocalStorage: "fsh.dashboard.lng",
         lookupQuerystring: "culture",
-        convertDetectedLanguage: toCanonical, // pt/pt-PT->pt-BR, en/en-GB->en-US
+        convertDetectedLanguage: toCanonical, // sl->sl-SI, en/en-GB->en-US
       },
     });
 
   // The detected (or deployment-default) language may be a lazy one: fetch it before the first
-  // render so a pt-BR user never sees English first. If the chunk fails, the app still boots and
+  // render so a sl-SI user never sees English first. If the chunk fails, the app still boots and
   // renders English through the fallback chain. i18next has already set (and the detector saved)
   // `language` to the requested tag; switching to en-US here would overwrite that saved choice,
   // so code that needs the language on screen reads resolvedLanguage, which stays en-US.

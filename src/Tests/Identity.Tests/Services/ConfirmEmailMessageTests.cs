@@ -26,7 +26,7 @@ public sealed class ConfirmEmailMessageTests
 {
     [Theory]
     [InlineData("en-US", "Your email u@codefi.com.br is confirmed. You can now sign in.")]
-    [InlineData("pt-BR", "Seu e-mail u@codefi.com.br foi confirmado. Agora você já pode entrar.")]
+    [InlineData("sl-SI", "Seu e-mail u@codefi.com.br foi confirmado. Agora você já pode entrar.")]
     public async Task ConfirmEmailAsync_returns_the_success_message_in_the_request_language(string culture, string expected)
     {
         // Arrange

@@ -23,7 +23,7 @@ namespace Framework.Tests.Web;
 //
 // The ambient culture is pinned to invariant for the duration of each case, which is what a container
 // with no LANG gives the API. Without the pin the developer machine culture decides the outcome and a
-// pt-BR machine reports a false pass.
+// sl-SI machine reports a false pass.
 public sealed class ExceptionLocalizationPipelineTests
 {
     private sealed record Outcome(string? Title, string? Detail, string? Code, string? NegotiatedUiCulture, string? ContentLanguage);
@@ -94,7 +94,7 @@ public sealed class ExceptionLocalizationPipelineTests
     // Baseline: the middleware DOES negotiate the requested UI culture. If this fails, the gap is in
     // negotiation and the assertions below say nothing about the handler.
     [Theory]
-    [InlineData("pt-BR")]
+    [InlineData("sl-SI")]
     [InlineData("en-US")]
     public async Task Request_culture_is_negotiated_from_the_accept_language_header(string acceptLanguage)
     {
@@ -105,9 +105,9 @@ public sealed class ExceptionLocalizationPipelineTests
         outcome.NegotiatedUiCulture.ShouldBe(acceptLanguage);
     }
 
-    // The production symptom: a localized exception answered in English despite Accept-Language: pt-BR.
+    // The production symptom: a localized exception answered in English despite Accept-Language: sl-SI.
     [Theory]
-    [InlineData("pt-BR", "Não encontrado")]
+    [InlineData("sl-SI", "Não encontrado")]
     [InlineData("en-US", "Not Found")]
     public async Task Detail_is_localized_from_the_negotiated_request_culture(string acceptLanguage, string expected)
     {
@@ -123,7 +123,7 @@ public sealed class ExceptionLocalizationPipelineTests
     // catalog the key is looked up in the shared one and the English fallback comes back; without
     // the arguments the placeholder reaches the client unformatted.
     [Theory]
-    [InlineData("pt-BR", "Item 42 não foi encontrado")]
+    [InlineData("sl-SI", "Item 42 não foi encontrado")]
     [InlineData("en-US", "Item 42 was not found")]
     public async Task Detail_is_localized_from_the_module_catalog_named_by_the_factory(string acceptLanguage, string expected)
     {
@@ -138,7 +138,7 @@ public sealed class ExceptionLocalizationPipelineTests
     // Title comes from the status-mapped catalog key through the injected IStringLocalizer, a separate
     // resolution path from Detail IStringLocalizerFactory. Both read the ambient culture, so both broke.
     [Theory]
-    [InlineData("pt-BR", "Não encontrado")]
+    [InlineData("sl-SI", "Não encontrado")]
     [InlineData("en-US", "Not Found")]
     public async Task Title_is_localized_from_the_negotiated_request_culture(string acceptLanguage, string expected)
     {
@@ -150,7 +150,7 @@ public sealed class ExceptionLocalizationPipelineTests
     // A raw exception takes the 500 branch, whose Title and Detail come straight off the injected
     // localizer with no MessageKey involved.
     [Theory]
-    [InlineData("pt-BR", "Ocorreu um erro inesperado")]
+    [InlineData("sl-SI", "Ocorreu um erro inesperado")]
     [InlineData("en-US", "An unexpected error occurred")]
     public async Task Unexpected_error_is_localized_from_the_negotiated_request_culture(string acceptLanguage, string expected)
     {
@@ -162,7 +162,7 @@ public sealed class ExceptionLocalizationPipelineTests
     // ExceptionHandlerMiddleware clears the response before re-executing, dropping the Content-Language
     // the localization middleware had written. The handler restores it so the body culture is declared.
     [Theory]
-    [InlineData("pt-BR")]
+    [InlineData("sl-SI")]
     [InlineData("en-US")]
     public async Task Content_language_declares_the_culture_the_body_was_written_in(string acceptLanguage)
     {
@@ -180,7 +180,7 @@ public sealed class ExceptionLocalizationPipelineTests
     {
         var exception = new NotFoundException("English fallback").Localized("Error.NotFound");
 
-        var outcome = await InvokeWithoutLocalizationAsync("pt-BR", exception);
+        var outcome = await InvokeWithoutLocalizationAsync("sl-SI", exception);
 
         outcome.NegotiatedUiCulture.ShouldBeNull();
         outcome.ContentLanguage.ShouldBeNull();
@@ -197,7 +197,7 @@ public sealed class ExceptionLocalizationPipelineTests
         var exception = new NotFoundException("English fallback").Localized("Error.NotFound");
         var before = CultureInfo.CurrentUICulture;
 
-        await InvokeAsync("pt-BR", exception);
+        await InvokeAsync("sl-SI", exception);
 
         CultureInfo.CurrentUICulture.ShouldBe(before);
     }

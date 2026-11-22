@@ -52,7 +52,7 @@ export function formatDateTimeMono(iso: string | null | undefined, locale?: stri
   return `${formatDateMono(iso, locale)} · ${timeShortFor(activeLocale(locale)).format(new Date(iso))}`;
 }
 
-// Locale-grouped integer/decimal (e.g. en-US "1,234" · pt-BR "1.234").
+// Locale-grouped integer/decimal (e.g. en-US "1,234" · sl-SI "1.234").
 export function formatNumber(value: number, locale?: string) {
   return new Intl.NumberFormat(activeLocale(locale)).format(value);
 }

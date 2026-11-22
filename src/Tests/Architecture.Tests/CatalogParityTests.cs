@@ -18,7 +18,7 @@ namespace Architecture.Tests;
 /// its assembly lands in the output, with no new test to write.
 ///
 /// A translation is optional: a key missing from a translated catalog falls back to the
-/// neutral (English) string at runtime, so a contributor never has to write Portuguese to
+/// neutral (English) string at runtime, so a contributor never has to write Slovenian to
 /// get a green build. What fails is a translated key the neutral catalog does not declare
 /// (an orphan left by a rename or delete, which never resolves) and a translation whose
 /// `{n}` placeholders differ from the neutral string.
@@ -63,7 +63,7 @@ public sealed class CatalogParityTests
 
     /// <summary>
     /// Keys declared by this culture's OWN catalog. `tryParents: false` is the whole point:
-    /// with parent fallback on, every neutral key would appear in pt-BR too, and its English
+    /// with parent fallback on, every neutral key would appear in sl-SI too, and its English
     /// value would be compared against itself in the placeholder check.
     /// </summary>
     internal static Dictionary<string, string>? OwnEntries(ResourceManager manager, CultureInfo culture)
@@ -150,7 +150,7 @@ public sealed class CatalogParityTests
                 // culture, so a translation consuming a different set of `{n}` placeholders than
                 // the neutral string either drops data silently or throws FormatException at
                 // render time — in the translated culture only, i.e. never on the reviewer's
-                // machine. `{1}` present in Portuguese but not English is the dangerous
+                // machine. `{1}` present in Slovenian but not English is the dangerous
                 // direction: string.Format throws when the index is out of range.
                 foreach (var key in neutral.Keys.Intersect(translated.Keys, StringComparer.Ordinal).OrderBy(k => k, StringComparer.Ordinal))
                 {

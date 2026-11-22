@@ -61,7 +61,7 @@ public sealed class StaleProfileLocalizationTests
 
     [Theory]
     [InlineData("en-US", "The profile changed since you loaded it. Reload it and apply your changes again.")]
-    [InlineData("pt-BR", "O perfil mudou desde que você o carregou. Recarregue e aplique suas alterações de novo.")]
+    [InlineData("sl-SI", "O perfil mudou desde que você o carregou. Recarregue e aplique suas alterações de novo.")]
     public void The_stale_profile_key_resolves_in_every_catalog(string culture, string expected)
     {
         var services = new ServiceCollection();

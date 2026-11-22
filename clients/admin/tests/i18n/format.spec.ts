@@ -30,11 +30,11 @@ test.describe("format.ts", () => {
       const formatModuleUrl = "/src/lib/format.ts";
       const m = await import(/* @vite-ignore */ formatModuleUrl);
       return {
-        curPt: m.formatCurrency(1234.5, "BRL", "pt-BR"),
+        curPt: m.formatCurrency(1234.5, "BRL", "sl-SI"),
         curEn: m.formatCurrency(1234.5, "BRL", "en-US"),
-        numPt: m.formatNumber(1234567.89, "pt-BR"),
+        numPt: m.formatNumber(1234567.89, "sl-SI"),
         numEn: m.formatNumber(1234567.89, "en-US"),
-        datePt: m.formatDate("2026-01-15T12:00:00Z", "pt-BR"),
+        datePt: m.formatDate("2026-01-15T12:00:00Z", "sl-SI"),
         dateEn: m.formatDate("2026-01-15T12:00:00Z", "en-US"),
         dateNull: m.formatDate(null),
         dateBad: m.formatDate("not-a-date"),
@@ -64,11 +64,11 @@ test.describe("format.ts", () => {
 
   // Every assertion above passes an explicit locale, so `resolveLocale` — the branch every
   // production call site actually takes — was never exercised: replacing it with `() => "en-US"`
-  // kept the spec green while pt-BR users saw 1,234,567.89.
+  // kept the spec green while sl-SI users saw 1,234,567.89.
   test("formatters follow the active locale with no locale argument", async ({ page }) => {
-    await page.goto("/?culture=pt-BR");
+    await page.goto("/?culture=sl-SI");
     // The profile-menu label is itself translated, so wait on something language-neutral.
-    await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
+    await expect(page.locator("html")).toHaveAttribute("lang", "sl-SI");
 
     const out = await page.evaluate(async () => {
       const formatModuleUrl = "/src/lib/format.ts";
@@ -86,13 +86,13 @@ test.describe("format.ts", () => {
 
   test("a list count is grouped and pluralized by the locale, not by English rules", async ({ page }) => {
     // Two separate defects met in this one chip. The count reached i18next as a raw number, so a
-    // Portuguese UI read "1234" beside currency and dates that were correctly grouped. And the
+    // Slovenian UI read "1234" beside currency and dates that were correctly grouped. And the
     // header pluralized by appending "s" to the unit, which is an English rule: "organização" + "s"
     // is not a word. Both are the catalog's job now, so both are asserted on the rendered chip.
     await mockJsonResponse(page, "**/api/v1/tenants**", paged([], { totalCount: 1234, pageSize: 20 }));
 
-    await page.goto("/tenants?culture=pt-BR");
-    await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
+    await page.goto("/tenants?culture=sl-SI");
+    await expect(page.locator("html")).toHaveAttribute("lang", "sl-SI");
 
     await expect(page.getByText("1.234 organizações", { exact: true })).toBeVisible();
     await expect(page.getByText("1.234 organizações registradas nesta instância.")).toBeVisible();
@@ -171,7 +171,7 @@ test.describe("format.ts", () => {
           email: TEST_USER.email,
           name: "Root Admin",
           tenant: "root",
-          locale: "pt-BR",
+          locale: "sl-SI",
           permissions: [...ADMIN_PERMS],
           exp: now + 3600,
           iat: now,
@@ -193,7 +193,7 @@ test.describe("format.ts", () => {
     await expect(main).toContainText("May");
 
     await page.getByRole("button", { name: /open profile menu/i }).click();
-    await page.getByRole("menuitem", { name: "Português (BR)" }).click();
+    await page.getByRole("menuitem", { name: "Slovenščina" }).click();
     await expect(page.getByText("Idioma", { exact: true })).toBeVisible();
 
     // "01 de mai. de 2026". Not a remount: the route never changed and the list was read once.

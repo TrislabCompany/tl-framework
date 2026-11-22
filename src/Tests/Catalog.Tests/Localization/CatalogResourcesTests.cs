@@ -8,8 +8,8 @@ namespace Catalog.Tests.Localization;
 
 // Proves the CatalogResources catalog is embedded under the correct manifest name (ResourcesPath="" =>
 // co-located marker + resx). A wrong manifest name flips ResourceNotFound and leaks raw keys; a
-// pt-BR key the neutral catalog lacks is an orphan of a rename or delete. Both are caught here.
-// A missing pt-BR entry is allowed: it falls back to English.
+// sl-SI key the neutral catalog lacks is an orphan of a rename or delete. Both are caught here.
+// A missing sl-SI entry is allowed: it falls back to English.
 public sealed class CatalogResourcesTests
 {
     private static IStringLocalizer BuildLocalizer()
@@ -42,13 +42,13 @@ public sealed class CatalogResourcesTests
     }
 
     [Fact]
-    public void Every_ptBR_key_exists_in_the_neutral_catalog()
+    public void Every_slSI_key_exists_in_the_neutral_catalog()
     {
         var neutral = KeysFor(string.Empty);   // CatalogResources.resx (English / fallback)
-        var pt = KeysFor("pt-BR");                 // CatalogResources.pt-BR.resx
+        var sl = KeysFor("sl-SI");                 // CatalogResources.sl-SI.resx
 
         neutral.ShouldNotBeEmpty();
-        pt.Except(neutral, StringComparer.Ordinal)
+        sl.Except(neutral, StringComparer.Ordinal)
             .OrderBy(k => k, StringComparer.Ordinal)
             .ShouldBeEmpty();
     }
@@ -66,13 +66,13 @@ public sealed class CatalogResourcesTests
                 "resx did not resolve 'Catalog.CategoryCannotBeOwnParent' for en-US — check ResourcesPath/resx manifest name.");
             en.Value.ShouldBe("A category cannot be its own parent.");
 
-            CultureInfo.CurrentUICulture = new CultureInfo("pt-BR");
-            var pt = localizer["Catalog.CategoryCannotBeOwnParent"];
-            pt.ResourceNotFound.ShouldBeFalse(
-                "resx did not resolve 'Catalog.CategoryCannotBeOwnParent' for pt-BR — check the .pt-BR catalog manifest name.");
-            pt.Value.ShouldBe("Uma categoria não pode ser pai de si mesma.");
+            CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
+            var sl = localizer["Catalog.CategoryCannotBeOwnParent"];
+            sl.ResourceNotFound.ShouldBeFalse(
+                "resx did not resolve 'Catalog.CategoryCannotBeOwnParent' for sl-SI — check the .sl-SI catalog manifest name.");
+            sl.Value.ShouldBe("Uma categoria não pode ser pai de si mesma.");
 
-            pt.Value.ShouldNotBe(en.Value);
+            sl.Value.ShouldNotBe(en.Value);
         }
         finally
         {
@@ -93,10 +93,10 @@ public sealed class CatalogResourcesTests
             en.ResourceNotFound.ShouldBeFalse();
             en.Value.ShouldBe("Stock adjustment of -4 would result in negative stock (current: 3).");
 
-            CultureInfo.CurrentUICulture = new CultureInfo("pt-BR");
-            var pt = localizer["Catalog.StockAdjustmentNegative", -4, 3];
-            pt.ResourceNotFound.ShouldBeFalse();
-            pt.Value.ShouldBe("O ajuste de estoque de -4 resultaria em estoque negativo (atual: 3).");
+            CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
+            var sl = localizer["Catalog.StockAdjustmentNegative", -4, 3];
+            sl.ResourceNotFound.ShouldBeFalse();
+            sl.Value.ShouldBe("O ajuste de estoque de -4 resultaria em estoque negativo (atual: 3).");
         }
         finally
         {
