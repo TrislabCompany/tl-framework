@@ -191,7 +191,7 @@
     <value>Posodobitev slike profila ni uspela.</value>
   </data>
   <data name="Identity.ProfileImageUrlNotAllowed" xml:space="preserve">
-    <value>Essa URL de imagem aponta para um arquivo enviado. Envie uma nova imagem.</value>
+    <value>Ta URL slike kaže na shranjeno naloženo datoteko. Namesto tega naložite novo sliko.</value>
   </data>
   <data name="Identity.EmailConfirmationError" xml:space="preserve">
     <value>Pri potrjevanju e-pošte je prišlo do napake.</value>
