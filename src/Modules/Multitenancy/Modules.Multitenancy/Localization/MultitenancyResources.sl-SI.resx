@@ -142,6 +142,9 @@
   <data name="Validation.DefaultElevationRange" xml:space="preserve">
     <value>DefaultElevation mora biti med 0 in 24.</value>
   </data>
+  <data name="Validation.BrandAssetUrlInvalid" xml:space="preserve">
+    <value>{0} mora biti URL http(s) ali pot, relativna na strežnik.</value>
+  </data>
   <data name="TenantProvisioningStatus.Pending" xml:space="preserve">
     <value>V čakanju</value>
   </data>

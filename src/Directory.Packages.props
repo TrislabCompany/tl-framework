@@ -104,7 +104,9 @@
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
-    <PackageVersion Include="xunit" Version="2.9.3" />
+    <!-- mtp-off keeps VSTest so `dotnet test` and the coverlet collector work without a test-runner
+         setting in global.json (ours pins only the SDK). Move to the MTP packages as a separate change. -->
+    <PackageVersion Include="xunit.v3.mtp-off" Version="4.0.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.15" />
     <PackageVersion Include="Testcontainers.PostgreSql" Version="4.16.0" />
