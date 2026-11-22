@@ -1,7 +1,33 @@
 # This repository
 
-> A multi-tenant SaaS on the Trislab platform: a modular .NET 10 monolith + two React 19 apps, built on
-> the fullstackhero .NET starter kit and adapted to the platform contract (`README.md`, `docs/`).
+> `tl-framework`: the framework every Trislab SaaS product and webapp is built on. A modular .NET 10
+> monolith + two React 19 apps, built on the fullstackhero .NET starter kit and adapted to the platform
+> contract (`README.md`, `docs/`).
+
+## Role
+
+The same block starts the `AGENTS.md` of every Trislab repository, so an agent in any of them knows where a change belongs.
+
+- **For:** the framework of the Trislab SaaS products and webapps: the core building blocks and every reusable module, released as packages that products reference.
+- **Contains:**
+  - the core building blocks in `src/BuildingBlocks/` (`Trislab.Framework.*`);
+  - every reusable module in `src/Modules/`, with its `.Contracts` (`Trislab.Modules.*`) and its own migrations (each will declare the tenancy modes it supports, with single-tenant mode);
+  - country rule packs (`*-si`), when they come;
+  - the migrator, and the React apps `clients/admin` and `clients/dashboard` (later the packages `framework-admin`, `framework-dashboard` and `framework-ui`);
+  - the framework's agent skills, and `docs/upstream.md`, the log of the fullstackhero ports.
+  - Until `tl-product-saas` exists, also the hosts and the samples Catalog, Tickets and Chat (`src/Samples/`), which move there.
+- **Never contains:** a product's own features; Trislab-only code; customer names, secrets or prices; live infrastructure.
+- **A change goes elsewhere when it is:**
+  - starter scaffolding (the host, the AppHost, `init-product`, the template manifest): `tl-product-saas` (not created yet) or `tl-product-webapp`;
+  - a need of one product only: its product repository. It moves here when a second product needs it;
+  - a reusable infrastructure module, stamp template or app workflow: `tl-platform`;
+  - a repository, environment or hostname: `tl-cloud-infrastructure`;
+  - a product idea, plan, decision or hand-off plan: `tl-product-ideas` (private).
+- **Released as:** one lockstep train `vX.Y.Z` of NuGet and npm packages on GitHub Packages, from `v0.1.0` (not published yet). Both starters deploy each release to the sandbox and smoke-test it, which is the gate.
+- **Skills:** `.agents/skills/`, listed under [AI tooling resources](#ai-tooling-resources).
+- **Scripts:** `scripts/`, listed with when to use each in [`scripts/README.md`](scripts/README.md); read it first. Each script prints its help with `pwsh <script> -?`.
+
+## This guide
 
 This file is the canonical guide for **all** AI coding tools (Claude Code, Cursor, Codex, …).
 `CLAUDE.md` is a thin bridge that imports this file — edit conventions **here**, not there.
@@ -34,6 +60,7 @@ front-ends. Multitenancy, auth, auditing, billing, files, chat and more are firs
 | `clients/admin`, `clients/dashboard` | The two React apps, each with its Dockerfile and `docker/` (nginx, `/config.json`). |
 | `docker-compose.yml`, `.env.example` | The four images locally, without the .NET SDK. |
 | `platform.yaml`, `.github/workflows/ci.yml` | The images and app sizing for the platform; the `ci / ci` check. |
+| `scripts/` | Scripts for repetitive work, listed in `scripts/README.md` (porting fullstackhero commits). |
 | `docs/` | How the repository works on the platform: getting started, architecture, configuration, deployment, modules. |
 
 ## Tech stack
@@ -159,4 +186,5 @@ dotnet run --project src/Host/App.DbMigrator -- list-pending
 - **No AI attribution.** No `Co-Authored-By:` trailer and no "generated with" line in a commit, PR or comment.
 - **Commit with your Trislab account**, never a personal one or another employer's.
 - **The repository is public.** No secrets, customer names, prices or internal URLs in code, docs, PRs or commits.
+- **Repetitive work is done by scripts.** When the same kind of work comes back and a script would make it faster and cheaper than doing it by hand, add one to `scripts/`, list it in `scripts/README.md`, and name it in the skill or doc that uses it. No script for one-off work. A script prints a summary and its errors, never a dump.
 - Write "section N", never "§".
