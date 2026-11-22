@@ -235,7 +235,7 @@ internal sealed class DemoSeeder
 
         // Paid plans get an issued term invoice (like real CreateTenant), written directly so no InvoiceIssuedIntegrationEvent fires
         // (no outbox dispatcher; seeding mustn't email). Idempotent on invoice number; free plans (term price 0) get none, as in production.
-        if (plan.TermPrice > 0m)
+        if (plan.TermPrice.Amount > 0m)
         {
             var invoiceNumber = string.Create(
                 CultureInfo.InvariantCulture, $"SUB-{startUtc:yyyyMM}-{demo.Id.ToUpperInvariant()}");
@@ -253,7 +253,7 @@ internal sealed class DemoSeeder
                         CultureInfo.InvariantCulture,
                         $"{plan.Name} — {plan.Interval} subscription ({startUtc:yyyy-MM-dd} to {endUtc:yyyy-MM-dd})"),
                     1m,
-                    plan.TermPrice);
+                    plan.TermPrice.Amount);
                 invoice.Issue();
                 billingDb.Invoices.Add(invoice);
                 if (_logger.IsEnabled(LogLevel.Information))

@@ -9,7 +9,7 @@ paths:
 
 Tenant-scoped outbound webhook subscriptions with HMAC-signed delivery and retries. Module `Order = 400`.
 
-**Entities / DbContext:** `WebhookSubscription` (`Url`, `EventsCsv`, `SecretHash`, `IsActive`), `WebhookDelivery` (per-attempt log). `WebhookDbContext` (tenant-filtered). Contracts expose **DTOs only** — `IWebhookDispatcher`/`IWebhookDeliveryService` are internal.
+**Entities / DbContext:** `WebhookSubscription` (`Url`, `EventsCsv`, `ProtectedSecret`, `IsActive`), `WebhookDelivery` (per-attempt log). `WebhookDbContext` (tenant-filtered). Contracts expose **DTOs only** — `IWebhookDispatcher`/`IWebhookDeliveryService` are internal.
 **Areas:** Create/Delete/Get subscriptions, GetDeliveries, Test. Full list: `Features/v1/` or `/scalar`.
 
 ## Gotchas
