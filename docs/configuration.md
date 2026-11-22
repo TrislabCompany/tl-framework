@@ -48,7 +48,7 @@ Secrets arrive as ordinary environment variables too: the platform reads them fr
 The browser can't read environment variables, so when a front end starts, `docker/docker-entrypoint.sh` writes `/config.json` from `docker/config.json.template`. Each `${PLATFORM_*}` and `${PUBLIC_*}` in the template becomes that setting's value, or `""` when it is unset; the script refuses a template that names any other setting. In `clients/dashboard`:
 
 ```json
-{"PLATFORM_ENVIRONMENT":"dev","PLATFORM_STAMP":"shr-con-dev","PUBLIC_DEFAULT_TENANT":"","PUBLIC_DEMO_MODE":"true","PUBLIC_INACTIVITY_IDLE_MS":"","PUBLIC_INACTIVITY_WARNING_MS":""}
+{"PLATFORM_ENVIRONMENT":"dev","PLATFORM_STAMP":"shr-con-dev","PUBLIC_DEFAULT_TENANT":"","PUBLIC_DEFAULT_LANGUAGE":"","PUBLIC_DEMO_MODE":"true","PUBLIC_INACTIVITY_IDLE_MS":"","PUBLIC_INACTIVITY_WARNING_MS":""}
 ```
 
 `src/env.ts` loads it once, before the app renders, and gives each unset value its default. Anything in it is public: never give a secret a `PUBLIC_` name. In the Vite dev server, `public/config.json` takes its place.

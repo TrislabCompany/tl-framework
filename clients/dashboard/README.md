@@ -57,6 +57,7 @@ secret a `PUBLIC_` name. The settings:
 | Setting | Purpose |
 |---|---|
 | `PUBLIC_DEFAULT_TENANT` | Default tenant for unauthenticated calls (`root` when unset) |
+| `PUBLIC_DEFAULT_LANGUAGE` | The UI language when the user has chosen none and the browser asks for none we have: `en-US` (when unset) or `sl-SI` |
 | `PUBLIC_DEMO_MODE` | `true` shows the demo sign-in; set it where `SEED_DEMO` is true |
 | `PUBLIC_INACTIVITY_IDLE_MS`, `PUBLIC_INACTIVITY_WARNING_MS` | Idle sign-out timing |
 
