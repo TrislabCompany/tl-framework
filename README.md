@@ -1,6 +1,6 @@
-# tl-template-saas
+# tl-framework
 
-The template for multi-tenant SaaS products on the Trislab platform. Read this first; the detail is in [`docs/`](docs/).
+The framework that Trislab's multi-tenant SaaS products and webapps are built on, with the code the SaaS starter will hold until `tl-product-saas` exists. Read this first; the detail is in [`docs/`](docs/).
 
 ## What it is
 
@@ -13,16 +13,16 @@ Use it for a product that serves many customers from one deployment, each a tena
 | Your product… | Choose |
 | --- | --- |
 | Shows content, with no backend of its own | `tl-template-website` |
-| Lets people work with data for one organisation, with its own API and database | `tl-template-webapp` |
-| Serves many customers from one deployment, each a tenant with its own users, plans and data | `tl-template-saas`, this template |
+| Lets people work with data for one organisation, with its own API and database | `tl-product-webapp` |
+| Serves many customers from one deployment, each a tenant with its own users, plans and data | `tl-product-saas` (not created yet; its code is in this repository until then) |
 
 ## How to use it
 
-You don't create a repository from this template yourself. The platform creates it when your product is onboarded: the onboarding PR in `tl-cloud-infrastructure` adds the repository to `catalog/repos.yaml`, named `<customer>-saas-<product>` (for example `trislab-saas-construction`), and the pipeline creates it from this template with its team, rules and `dev` Environment. Don't use GitHub's "Use this template" button.
+You don't create a product repository yourself. The platform creates it when your product is onboarded: the onboarding PR in `tl-cloud-infrastructure` adds the product to `catalog/products.yaml`, with its repository named `<customer>-saas-<product>` (for example `trislab-saas-construction`), and the pipeline creates the repository from the SaaS starter `tl-product-saas` with its team, rules and `dev` Environment. Products reference this repository, `tl-framework`, as packages from `v0.1.0`; until the starter exists, no SaaS product is onboarded. Don't use GitHub's "Use this template" button.
 
 The same PR writes the first stamp. It declares the secrets `jwt-signing-key`, `hangfire-password` and `seed-admin-password`, and the backing services `postgres` and `storage`, and gives `api` internal ingress. It has no cache yet, so the API runs on its in-memory cache until the stamp adds `cache`.
 
-The new repository gets a copy of these files and never syncs with the template again. From then on the code, this README and `docs/` are your team's.
+The new repository gets a copy of the starter's files. Framework releases reach it as package upgrade PRs, and starter changes as `update-from-template` PRs; its own code, README and `docs/` are your team's.
 
 ## Features included
 
