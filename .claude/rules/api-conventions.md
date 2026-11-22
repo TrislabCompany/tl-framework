@@ -1,7 +1,9 @@
 ---
 paths:
   - "src/Modules/**/Features/**/*.cs"
+  - "src/Samples/**/Features/**/*.cs"
   - "src/Modules/*/Modules.*.Contracts/**/*.cs"
+  - "src/Samples/*/Modules.*.Contracts/**/*.cs"
   - "src/BuildingBlocks/Web/**/*.cs"
 ---
 

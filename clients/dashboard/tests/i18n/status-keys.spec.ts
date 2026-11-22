@@ -51,14 +51,14 @@ const CASES = [
   {
     label: "ticket status",
     ns: "tickets",
-    file: "src/Modules/Tickets/Modules.Tickets.Contracts/Dtos/TicketStatus.cs",
+    file: "src/Samples/Tickets/Modules.Tickets.Contracts/Dtos/TicketStatus.cs",
     enumName: "TicketStatus",
     key: (member: string) => `status.${member}`,
   },
   {
     label: "ticket priority",
     ns: "tickets",
-    file: "src/Modules/Tickets/Modules.Tickets.Contracts/Dtos/TicketPriority.cs",
+    file: "src/Samples/Tickets/Modules.Tickets.Contracts/Dtos/TicketPriority.cs",
     enumName: "TicketPriority",
     key: (member: string) => `priority.${member}`,
   },

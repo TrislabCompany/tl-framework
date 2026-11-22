@@ -10,10 +10,9 @@ public class ModuleArchitectureTests
     public void Modules_Should_Not_Depend_On_Other_Modules()
     {
         string solutionRoot = GetSolutionRoot();
-        string modulesRoot = Path.Combine(solutionRoot, "src", "Modules");
-
-        var runtimeProjects = Directory
-            .GetFiles(modulesRoot, "Modules.*.csproj", SearchOption.AllDirectories)
+        var runtimeProjects = new[] { "Modules", "Samples" }
+            .Select(folder => Path.Combine(solutionRoot, "src", folder))
+            .SelectMany(root => Directory.GetFiles(root, "Modules.*.csproj", SearchOption.AllDirectories))
             .Where(path => !path.Contains(".Contracts", StringComparison.OrdinalIgnoreCase))
             .ToArray();
 
@@ -48,6 +47,28 @@ public class ModuleArchitectureTests
                     "Only contracts or building block projects are allowed.");
             }
         }
+    }
+
+    /// <summary>
+    /// The samples (src/Samples) leave with tl-product-saas, so nothing in the framework may need them:
+    /// no building block or module references a sample project.
+    /// </summary>
+    [Fact]
+    public void Framework_Should_Not_Reference_Samples()
+    {
+        string solutionRoot = GetSolutionRoot();
+
+        var violations = new[] { "BuildingBlocks", "Modules" }
+            .Select(folder => Path.Combine(solutionRoot, "src", folder))
+            .SelectMany(root => Directory.GetFiles(root, "*.csproj", SearchOption.AllDirectories))
+            .SelectMany(projectPath => XDocument.Load(projectPath)
+                .Descendants("ProjectReference")
+                .Select(x => (string?)x.Attribute("Include") ?? string.Empty)
+                .Where(include => include.Replace('\\', '/').Contains("/Samples/", StringComparison.OrdinalIgnoreCase))
+                .Select(include => $"{Path.GetFileName(projectPath)} -> {include}"))
+            .ToList();
+
+        violations.ShouldBeEmpty("The framework must not reference the samples: " + string.Join("; ", violations));
     }
 
     private static string GetSolutionRoot()

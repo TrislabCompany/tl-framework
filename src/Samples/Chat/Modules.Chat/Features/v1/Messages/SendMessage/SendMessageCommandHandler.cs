@@ -4,7 +4,6 @@ using Trislab.Framework.Core.Context;
 using Trislab.Framework.Core.Exceptions;
 using Trislab.Framework.Eventing.Abstractions;
 using Trislab.Framework.Web.Realtime;
-using Trislab.Modules.Chat.Contracts.Events;
 using Trislab.Modules.Chat.Contracts.v1.Commands;
 using Trislab.Modules.Chat.Contracts.v1.DTOs;
 using Trislab.Modules.Chat.Data;
@@ -12,6 +11,7 @@ using Trislab.Modules.Chat.Domain;
 using Trislab.Modules.Chat.Features.v1.Internal;
 using Trislab.Modules.Chat.Localization;
 using Trislab.Modules.Chat.Services;
+using Trislab.Modules.Notifications.Contracts.Events;
 using Mediator;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -102,7 +102,8 @@ public sealed class SendMessageCommandHandler(
             .SendAsync("ChatMessageCreated", dto, cancellationToken)
             .ConfigureAwait(false);
 
-        // One integration event per distinct mentioned user. Notifications module subscribes.
+        // One notification request per distinct mentioned user; the Notifications module writes it to the
+        // user's inbox. Chat owns the wording and the link, so Notifications never depends on Chat.
         //
         // Deliberately still on the bus, not the outbox (the documented exception to
         // .agents/rules/eventing.md): the Notifications handler writes the row AND pushes it over
@@ -118,18 +119,26 @@ public sealed class SendMessageCommandHandler(
             foreach (var mentionedUserId in notifyUserIds)
             {
                 await eventBus.PublishAsync(
-                    new MentionedInChannelIntegrationEvent(
+                    new UserNotificationRequestedIntegrationEvent(
                         Id: Guid.NewGuid(),
                         OccurredOnUtc: DateTime.UtcNow,
                         TenantId: tenantId,
                         CorrelationId: correlationId,
                         Source: "Chat",
-                        ChannelId: channel.Id,
-                        ChannelName: channel.Name,
-                        MessageId: message.Id,
-                        AuthorUserId: currentUserId,
-                        MentionedUserId: mentionedUserId,
-                        BodyPreview: preview),
+                        UserId: mentionedUserId,
+                        Type: "chat.mention",
+                        Title: string.IsNullOrEmpty(channel.Name)
+                            ? "You were mentioned in a conversation"
+                            : $"You were mentioned in #{channel.Name}",
+                        Body: preview,
+                        Link: $"/chat/{channel.Id}?messageId={message.Id}",
+                        Metadata: new Dictionary<string, string?>
+                        {
+                            ["channelId"] = channel.Id.ToString(),
+                            ["channelName"] = channel.Name,
+                            ["messageId"] = message.Id.ToString(),
+                            ["authorUserId"] = currentUserId,
+                        }),
                     cancellationToken)
                     .ConfigureAwait(false);
             }

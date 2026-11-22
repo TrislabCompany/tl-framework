@@ -2,8 +2,8 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<RootNamespace>Chat.Tests</RootNamespace>
-		<AssemblyName>Chat.Tests</AssemblyName>
+		<RootNamespace>Catalog.Tests</RootNamespace>
+		<AssemblyName>Catalog.Tests</AssemblyName>
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
 		<NoWarn>$(NoWarn);CA1515;CA1861;CA1707</NoWarn>
@@ -20,8 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Modules\Chat\Modules.Chat\Modules.Chat.csproj" />
-		<ProjectReference Include="..\..\Modules\Chat\Modules.Chat.Contracts\Modules.Chat.Contracts.csproj" />
+		<ProjectReference Include="..\Modules.Catalog\Modules.Catalog.csproj" />
 	</ItemGroup>
 
 </Project>

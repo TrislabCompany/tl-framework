@@ -1,13 +1,13 @@
 ---
 paths:
-  - "src/Modules/Tickets/**"
-  - "src/Tests/Tickets.Tests/**"
+  - "src/Samples/Tickets/**"
+  - "src/Samples/Tickets/Tickets.Tests/**"
   - "src/Host/App.Migrations.PostgreSQL/Tickets/**"
 ---
 
 # Module: Tickets
 
-Support ticket lifecycle with comments. Module `Order = 700`.
+A sample (`src/Samples/`), not part of the framework: it moves to `tl-product-saas`. Support ticket lifecycle with comments. Module `Order = 700`.
 
 **Entities / DbContext:** `Ticket` (aggregate, soft-deletable, state machine) + `TicketComment`. `TicketsDbContext`. `TicketStatus`/`TicketPriority` enums in Contracts; domain events internal.
 **Areas:** Create, Assign, Resolve, Reopen, Restore, AddComment, ListComments, GetById, Search, ListTrashed. Full list: `Features/v1/` or `/scalar`.

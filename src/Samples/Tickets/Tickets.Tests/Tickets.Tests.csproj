@@ -2,8 +2,8 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<RootNamespace>Catalog.Tests</RootNamespace>
-		<AssemblyName>Catalog.Tests</AssemblyName>
+		<RootNamespace>Tickets.Tests</RootNamespace>
+		<AssemblyName>Tickets.Tests</AssemblyName>
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
 		<NoWarn>$(NoWarn);CA1515;CA1861;CA1707</NoWarn>
@@ -20,7 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Modules\Catalog\Modules.Catalog\Modules.Catalog.csproj" />
+		<ProjectReference Include="..\Modules.Tickets\Modules.Tickets.csproj" />
 	</ItemGroup>
 
 </Project>

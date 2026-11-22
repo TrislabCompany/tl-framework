@@ -2,8 +2,11 @@
 paths:
   - "src/BuildingBlocks/Persistence/**"
   - "src/Modules/**/Data/**"
+  - "src/Samples/**/Data/**"
   - "src/Modules/**/Persistence/**"
+  - "src/Samples/**/Persistence/**"
   - "src/Modules/**/Domain/**"
+  - "src/Samples/**/Domain/**"
   - "src/Host/App.Migrations.PostgreSQL/**"
   - "src/Host/App.DbMigrator/**"
 ---
