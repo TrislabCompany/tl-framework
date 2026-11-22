@@ -136,11 +136,11 @@ dotnet sln src/App.slnx add src/Modules/{Name}/Modules.{Name}/Modules.{Name}.csp
 dotnet sln src/App.slnx add src/Modules/{Name}/Modules.{Name}.Contracts/Modules.{Name}.Contracts.csproj
 ```
 
-Add a `<ProjectReference>` to the runtime module from **both** `App.Api` and `App.DbMigrator`, and reference the runtime project from `App.Migrations.PostgreSQL`.
+Add a `<ProjectReference>` to the runtime module from **both** `App.Api` and `App.DbMigrator`.
 
-## Step 5 — Migrations folder
+## Step 5 — Migrations
 
-Add a `{Name}/` folder in `src/Host/App.Migrations.PostgreSQL`, then create the initial migration (see **create-migration**) with `--context {Name}DbContext`.
+The module ships its own migrations. Register its context with its schema, `AddTrislabDbContext<{Name}DbContext>({Name}DbContext.Schema)`, so its history table lives there; then create its first migration, named `Baseline`, into `Migrations/` of the runtime project (see **create-migration**, `--project src/Modules/{Name}/Modules.{Name} --output-dir Migrations`).
 
 ## Step 6 — ⚠️ Register in ALL FOUR places (the footgun)
 

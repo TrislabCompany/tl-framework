@@ -2,7 +2,6 @@
 paths:
   - "src/Samples/Chat/**"
   - "src/Samples/Chat/Chat.Tests/**"
-  - "src/Host/App.Migrations.PostgreSQL/Chat/**"
 ---
 
 # Module: Chat

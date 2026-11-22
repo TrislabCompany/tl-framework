@@ -2,7 +2,6 @@
 paths:
   - "src/Modules/Files/**"
   - "src/Tests/Files.Tests/**"
-  - "src/Host/App.Migrations.PostgreSQL/Files/**"
 ---
 
 # Module: Files

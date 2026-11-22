@@ -68,8 +68,9 @@ Every base image is pinned by digest. Renovate will keep the versions current; u
 | Path | Holds |
 | --- | --- |
 | `src/BuildingBlocks/` | The shared framework every module uses: persistence, caching, eventing, jobs, mail, storage, quotas, web |
-| `src/Modules/` | One folder per module, each with a runtime project and a `.Contracts` project ([modules.md](docs/modules.md)) |
-| `src/Host/` | `App.Api` with `Platform/PlatformConfiguration.cs`; `App.DbMigrator`, the init container of `api`; `App.Migrations.PostgreSQL`; `App.AppHost` for local runs |
+| `src/Modules/` | One folder per module, each with a runtime project, its migrations, and a `.Contracts` project ([modules.md](docs/modules.md)) |
+| `src/Samples/` | The samples Catalog, Tickets and Chat, with their tests: patterns to copy, never packed, and moving to `tl-product-saas` |
+| `src/Host/` | `App.Api` with `Platform/PlatformConfiguration.cs`; `App.DbMigrator`, the init container of `api`; `App.AppHost` for local runs |
 | `src/Tests/` | `Architecture.Tests`, a test project per module and building block, and `Integration.Tests` |
 | `clients/admin/` | The operator console: React, its Dockerfile and `docker/` with nginx and `/config.json` |
 | `clients/dashboard/` | The tenant app, laid out like `admin` |
@@ -84,8 +85,8 @@ Every base image is pinned by digest. Renovate will keep the versions current; u
 1. **Run it locally:** `dotnet run --project src/Host/App.AppHost`, after `npm install` in both clients; or, without the .NET SDK, `cp .env.example .env` and `docker compose up --build`, then open <http://localhost:8082>. Before you push, run `dotnet test src/App.slnx`. [getting-started.md](docs/getting-started.md) has the accounts to sign in with.
 2. **Open your first PR:** change something in `src/` or `clients/`, push a branch and open a PR. `ci / ci` must pass and a code owner must approve.
 3. **Deploy, release and promote:** a merge to `main` deploys to `dev`, a tag `vX.Y.Z` releases to the `release` tier, and a promotion moves a release to production. `deploy.yml` and `release.yml` do the first two, and the platform adds `promote.yml` before the first production Environment; [deployment.md](docs/deployment.md) explains how they work, and [its section 8](docs/deployment.md#8-steps-for-developers) lists your steps. The `release` skill runs them.
-4. **Add a module:** a runtime project and a `.Contracts` project in `src/Modules/`, registered in both `Program.cs` files ([modules.md](docs/modules.md#2-add-a-module)). Delete the sample modules you don't need.
-5. **Add a migration:** change the module's model, then `dotnet ef migrations add <Name>` into its folder of `App.Migrations.PostgreSQL`. Keep it backward compatible ([deployment.md](docs/deployment.md#3-migrations)).
+4. **Add a module:** a runtime project and a `.Contracts` project in `src/Modules/`, registered in both `Program.cs` files ([modules.md](docs/modules.md#2-add-a-module)). Copy from a sample in `src/Samples/`.
+5. **Add a migration:** change the module's model, then `dotnet ef migrations add <Name>` into the module's own `Migrations/` folder. Keep it backward compatible ([deployment.md](docs/deployment.md#3-migrations)).
 6. **Add a setting or a secret:** add it to the stamp, then map it in `src/Host/App.Api/Platform/PlatformConfiguration.cs` ([configuration.md](docs/configuration.md#5-add-a-setting-or-a-secret)).
 7. **Choose a backing service:** add `cache` or `messaging` to a stamp, or move its Postgres to Neon, in its `stamp.yaml`; the app needs no change ([deployment.md](docs/deployment.md#6-choosing-a-backing-service)).
 

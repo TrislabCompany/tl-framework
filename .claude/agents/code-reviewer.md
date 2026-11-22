@@ -50,7 +50,7 @@ playbook is the review procedure, not a second copy of the rules.
 ## Commands
 ```bash
 git diff HEAD
-grep -rn "MediatR\|IRequest<\|IRequestHandler<" src/Modules/ --include="*.cs"   # must be empty
+grep -rn "MediatR\|IRequest<\|IRequestHandler<" src/Modules/ src/Samples/ --include="*.cs"   # must be empty
 dotnet build src/App.slnx 2>&1 | grep -E "warning|error"               # 0 expected
 ```
 

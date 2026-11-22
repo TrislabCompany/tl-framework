@@ -2,7 +2,6 @@
 paths:
   - "src/Modules/Auditing/**"
   - "src/Tests/Auditing.Tests/**"
-  - "src/Host/App.Migrations.PostgreSQL/Audit/**"
 ---
 
 # Module: Auditing

@@ -45,15 +45,15 @@ The previous revision of `api` keeps serving on the migrated database until the 
 1. One release adds what the new code needs, such as a column or a table, and the code works with and without it.
 2. A later release drops what the code has stopped using.
 
-Each module has its own `DbContext`, and its migrations are in its folder of `src/Host/App.Migrations.PostgreSQL`. To add one, change the module's model and run:
+Each module has its own `DbContext` and schema, and ships its own migrations, in the `Migrations/` folder of its runtime project. Its migrations history table is in its schema too. Each module started from one `Baseline`; a released migration is never edited or squashed. To add one, change the module's model and run:
 
 ```sh
 dotnet tool restore
 dotnet ef migrations add <Name> \
-  --project src/Host/App.Migrations.PostgreSQL \
+  --project src/Modules/<Module>/Modules.<Module> \
   --startup-project src/Host/App.Api \
   --context <Module>DbContext \
-  --output-dir <Module>
+  --output-dir Migrations
 ```
 
 Commit the files it writes. The AppHost and `docker compose up --build` apply it locally, through the migrator, as every deploy does. Answer "Is the migration backward compatible?" in the PR. `.agents/skills/create-migration/SKILL.md` has the details, such as how to review the SQL first.

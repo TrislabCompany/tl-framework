@@ -2,7 +2,6 @@
 paths:
   - "src/Modules/Notifications/**"
   - "src/Tests/Notifications.Tests/**"
-  - "src/Host/App.Migrations.PostgreSQL/Notifications/**"
 ---
 
 # Module: Notifications

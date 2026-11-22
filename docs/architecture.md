@@ -47,7 +47,7 @@ A container service keeps its data only while it runs: after a restart, the migr
 
 The other replicas wait for the lock, find nothing left to do and exit. When the migrator fails, the new revision never becomes ready, and the previous revision keeps serving. So a revision never serves on a database it doesn't know.
 
-The migrations are in `src/Host/App.Migrations.PostgreSQL`, one folder per module. The previous revision runs on the migrated database until the new one is ready, so every migration must be backward compatible ([deployment.md](deployment.md)).
+Each module ships its own migrations, in the `Migrations/` folder of its runtime project, and keeps its migrations history in its own schema, so a product that leaves a module out gets none of its tables. Each module started from one `Baseline` migration. The previous revision runs on the migrated database until the new one is ready, so every migration must be backward compatible ([deployment.md](deployment.md)).
 
 ## 5. A request, from the browser to the database
 

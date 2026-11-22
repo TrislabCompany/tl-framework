@@ -2,7 +2,6 @@
 paths:
   - "src/Modules/Webhooks/**"
   - "src/Tests/Webhooks.Tests/**"
-  - "src/Host/App.Migrations.PostgreSQL/Webhooks/**"
 ---
 
 # Module: Webhooks

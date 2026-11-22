@@ -2,7 +2,6 @@
 paths:
   - "src/Samples/Catalog/**"
   - "src/Samples/Catalog/Catalog.Tests/**"
-  - "src/Host/App.Migrations.PostgreSQL/Catalog/**"
 ---
 
 # Module: Catalog

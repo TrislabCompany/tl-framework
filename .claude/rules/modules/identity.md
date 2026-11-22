@@ -2,7 +2,6 @@
 paths:
   - "src/Modules/Identity/**"
   - "src/Tests/Identity.Tests/**"
-  - "src/Host/App.Migrations.PostgreSQL/Identity/**"
 ---
 
 # Module: Identity

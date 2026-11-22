@@ -2,7 +2,6 @@
 paths:
   - "src/Samples/Tickets/**"
   - "src/Samples/Tickets/Tickets.Tests/**"
-  - "src/Host/App.Migrations.PostgreSQL/Tickets/**"
 ---
 
 # Module: Tickets

@@ -2,7 +2,6 @@
 paths:
   - "src/Modules/Multitenancy/**"
   - "src/Tests/Multitenancy.Tests/**"
-  - "src/Host/App.Migrations.PostgreSQL/MultiTenancy/**"
 ---
 
 # Module: Multitenancy

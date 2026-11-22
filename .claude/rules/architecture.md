@@ -17,7 +17,8 @@ Host (composition root)  →  Modules.{Name} (runtime)  →  Modules.{Name}.Cont
 ```
 
 - **BuildingBlocks** (`src/BuildingBlocks/`) — Core, Persistence, Web, Caching, Eventing, Storage, Quota, Jobs, Mailing, Shared. Consumed by all modules. **Do not modify without explicit approval.**
-- **Modules** (`src/Modules/{Name}/`) — bounded contexts. Each = a runtime project (internal) + a `.Contracts` project (public API: commands, queries, events, DTOs, service interfaces).
+- **Modules** (`src/Modules/{Name}/`) — bounded contexts. Each = a runtime project (internal, with its own `Migrations/`) + a `.Contracts` project (public API: commands, queries, events, DTOs, service interfaces).
+- **Samples** (`src/Samples/{Name}/`) — Catalog, Tickets and Chat, built like modules, with their tests beside them. Not part of the framework: never packed, and no building block or framework module may reference them. They move to `tl-product-saas`.
 - A module **MUST NOT** reference another module's runtime project — only its `.Contracts`. Enforced by `Architecture.Tests` (NetArchTest).
 
 ## Module = runtime + Contracts
