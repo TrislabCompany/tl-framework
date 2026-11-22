@@ -2,11 +2,11 @@
 
 Tenant-facing dashboard for the FullStackHero .NET Starter Kit. Shows realtime telemetry over Server-Sent Events, current-period usage vs. plan limits (Recharts), and billing history.
 
-Built with React 19, Vite 7, TypeScript, TanStack Query, React Router, Tailwind 4 + shadcn/ui, and Recharts. Standalone — not part of a pnpm workspace — so it plugs into .NET Aspire as a plain `ExecutableResource`.
+Built with React 19, Vite 8, TypeScript 6, TanStack Query, React Router, Tailwind 4 + shadcn/ui, and Recharts. Standalone — not part of a pnpm workspace — so it plugs into .NET Aspire as a plain `ExecutableResource`.
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 20.19+ or 22.13+
 - The API running (locally or remote)
 
 ## Install & run

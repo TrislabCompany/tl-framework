@@ -1,12 +1,12 @@
 # FullStackHero — Admin
 
-Operator console for the FullStackHero .NET Starter Kit. Built with React 19, Vite 7, TypeScript, TanStack Query, React Router and Tailwind 4 + shadcn/ui.
+Operator console for the FullStackHero .NET Starter Kit. Built with React 19, Vite 8, TypeScript 6, TanStack Query, React Router and Tailwind 4 + shadcn/ui.
 
 This is a **standalone Vite app** — not part of a pnpm workspace — so it can be mounted into .NET Aspire as a plain `ExecutableResource` without monorepo friction.
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 20.19+ or 22.13+
 - The API running locally (`dotnet run --project src/Host/App.Api`, defaults to `http://localhost:5030`)
 
 ## Install & run
