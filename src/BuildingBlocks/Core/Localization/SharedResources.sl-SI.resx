@@ -133,6 +133,12 @@
   <data name="Validation.MaxFileSize" xml:space="preserve">
     <value>Datoteka ne sme presegati {0} MB.</value>
   </data>
+  <data name="Validation.FileContentMismatch" xml:space="preserve">
+    <value>O conteúdo do arquivo não corresponde à extensão {0}.</value>
+  </data>
+  <data name="Validation.ImageUrlInvalid" xml:space="preserve">
+    <value>A URL da imagem deve ser uma URL http(s) ou um caminho relativo ao servidor.</value>
+  </data>
   <data name="Jobs.DatabaseOptionsNotFound" xml:space="preserve">
     <value>Možnosti zbirke podatkov niso najdene.</value>
   </data>
