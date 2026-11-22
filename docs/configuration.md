@@ -41,6 +41,8 @@ Secrets arrive as ordinary environment variables too: the platform reads them fr
 | `SEED_DEMO` | `Seed:Demo` | No demo data |
 | `PLATFORM_ENVIRONMENT` | `Platform:Environment`, in `GET /api/health/info` | `local` |
 
+**A Redis shared with another app or Environment.** Everything the API writes to Redis (cache entries, the Data Protection key ring, idempotency locks, quota counters, the SignalR channel) is unprefixed by default. When two apps, or two Environments of one product, use the same Redis, set `CachingOptions__KeyPrefix` in `apps[].env` of both the `api` and the `migrator`, with a different value for each app and Environment, such as `my-product:prod`. A `defaultDatabase` index is not enough, because Redis pub/sub ignores it. To turn the prefix on where data already exists, copy the key ring first (`COPY DataProtection-Keys <prefix>:DataProtection-Keys`); without it, sign-in cookies, reset links and the stored webhook signing secrets can't be read. Expect a cold cache after the change.
+
 `SEED_DEMO` seeds the demo tenants `acme` and `globex`, and the account `superadmin@root.com`, all with the public password `Password123!`. Set it only in an Environment with no real data, such as a sandbox's `dev` or a `demo`.
 
 ## 3. `/config.json`
