@@ -15,6 +15,8 @@ type RuntimeConfig = {
   inactivityIdleMs: number;
   /** Warning-countdown length (ms) before auto sign-out. */
   inactivityWarningMs: number;
+  /** Per-deployment default UI language (BCP 47); the i18n fallback when nothing is persisted/detected. */
+  defaultLanguage: string;
 };
 
 // Dashboard defaults: 20 minutes idle, then a 60-second warning.
@@ -46,6 +48,7 @@ export async function loadRuntimeConfig(): Promise<void> {
     demoMode: text(cfg.PUBLIC_DEMO_MODE) === "true",
     inactivityIdleMs: positiveOr(cfg.PUBLIC_INACTIVITY_IDLE_MS, DEFAULT_INACTIVITY_IDLE_MS),
     inactivityWarningMs: positiveOr(cfg.PUBLIC_INACTIVITY_WARNING_MS, DEFAULT_INACTIVITY_WARNING_MS),
+    defaultLanguage: text(cfg.PUBLIC_DEFAULT_LANGUAGE) ?? "en-US",
   };
 }
 
@@ -65,4 +68,5 @@ export const env = {
   get demoMode(): boolean { return get().demoMode; },
   get inactivityIdleMs(): number { return get().inactivityIdleMs; },
   get inactivityWarningMs(): number { return get().inactivityWarningMs; },
+  get defaultLanguage(): string { return get().defaultLanguage; },
 };
