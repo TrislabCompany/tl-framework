@@ -1,3 +1,11 @@
+---
+paths:
+  - "src/BuildingBlocks/Core/Localization/**"
+  - "src/BuildingBlocks/Web/Localization/**"
+  - "src/Modules/*/Modules.*/Localization/**"
+  - "**/*.resx"
+  - "clients/*/src/i18n.ts"
+---
 # Localization (i18n)
 
 `src/BuildingBlocks/Core/Localization/` + per-module `Localization/` folders. Read before adding any user-facing message (exception, validation, API error). **The client's culture decides which words the client reads; it never decides how the API formats numbers or dates.**

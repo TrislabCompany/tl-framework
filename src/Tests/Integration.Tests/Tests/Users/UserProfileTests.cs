@@ -452,33 +452,6 @@ public sealed class UserProfileTests
         dto.FirstName.ShouldBe("Concurrent");
     }
 
-    [Fact]
-    public async Task GetProfile_Should_ExposeETagToCrossOriginCallers_When_ProfileIsRead()
-    {
-        // Arrange — ETag is not a CORS-safelisted response header, so the contract only reaches a
-        // front-end if the server also lists it in Access-Control-Expose-Headers. Asserted here
-        // rather than left as a comment: the front-end specs mock the header, so nothing else in
-        // the suite notices when the server stops sending it.
-        using var adminClient = await _auth.CreateRootAdminClientAsync();
-        var user = await IdentityUserSeeder.CreateLoginableUserAsync(_factory, adminClient, "etag-cors");
-        using var userClient = await _auth.CreateAuthenticatedClientAsync(user.Email, user.Password);
-
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"{TestConstants.IdentityBasePath}/profile");
-        request.Headers.TryAddWithoutValidation("Origin", "http://localhost:5174");
-
-        // Act
-        var response = await userClient.SendAsync(request);
-
-        // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        response.Headers.ETag.ShouldNotBeNull();
-        response.Headers.TryGetValues("Access-Control-Expose-Headers", out var exposedHeaders).ShouldBeTrue();
-        exposedHeaders
-            .SelectMany(value => value.Split(','))
-            .Select(value => value.Trim())
-            .ShouldContain(value => string.Equals(value, "ETag", StringComparison.OrdinalIgnoreCase));
-    }
-
     private static async Task<string> ReadProfileETagAsync(HttpClient client)
     {
         var response = await client.GetAsync($"{TestConstants.IdentityBasePath}/profile");

@@ -25,6 +25,8 @@ public sealed class SmtpConnectionSecurityTests
             ["MailOptions:From"] = "noreply@x.com",
             ["MailOptions:Smtp:Host"] = "127.0.0.1",
             ["MailOptions:Smtp:Port"] = port.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            // Without a password AddHeroMailing registers the disabled service; no user name, so no AUTH.
+            ["MailOptions:Smtp:Password"] = "unused",
         };
         if (security is not null)
         {
