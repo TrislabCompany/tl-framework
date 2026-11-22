@@ -1,14 +1,14 @@
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Web.Frontend;
-using FSH.Framework.Web.Idempotency;
-using FSH.Modules.Identity.Contracts.v1.Users.RegisterUser;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Web.Frontend;
+using Trislab.Framework.Web.Idempotency;
+using Trislab.Modules.Identity.Contracts.v1.Users.RegisterUser;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Identity.Features.v1.Users.SelfRegistration;
+namespace Trislab.Modules.Identity.Features.v1.Users.SelfRegistration;
 
 public static class SelfRegisterUserEndpoint
 {

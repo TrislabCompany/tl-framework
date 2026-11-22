@@ -1,13 +1,13 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Framework.Web.Idempotency;
-using FSH.Modules.Catalog.Contracts.Authorization;
-using FSH.Modules.Catalog.Contracts.v1.Categories;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Framework.Web.Idempotency;
+using Trislab.Modules.Catalog.Contracts.Authorization;
+using Trislab.Modules.Catalog.Contracts.v1.Categories;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Catalog.Features.v1.Categories.RestoreCategory;
+namespace Trislab.Modules.Catalog.Features.v1.Categories.RestoreCategory;
 
 public static class RestoreCategoryEndpoint
 {

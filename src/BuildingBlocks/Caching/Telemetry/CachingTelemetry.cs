@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
-namespace FSH.Framework.Caching.Telemetry;
+namespace Trislab.Framework.Caching.Telemetry;
 
 /// <summary>
 /// OpenTelemetry primitives for the caching building block.

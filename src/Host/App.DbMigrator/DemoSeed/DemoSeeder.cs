@@ -1,27 +1,27 @@
 using System.Globalization;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Shared.Identity.Claims;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Billing.Contracts;
-using FSH.Modules.Billing.Data;
-using FSH.Modules.Billing.Domain;
-using FSH.Modules.Catalog.Contracts.Authorization;
-using FSH.Modules.Catalog.Data;
-using FSH.Modules.Catalog.Domain;
-using FSH.Modules.Chat.Data;
-using FSH.Modules.Chat.Domain;
-using FSH.Modules.Identity.Contracts.Authorization;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Identity.Domain;
-using FSH.Modules.Multitenancy.Contracts;
-using FSH.Modules.Multitenancy.Data;
-using FSH.Modules.Multitenancy.Provisioning;
-using FSH.Modules.Tickets.Contracts.Authorization;
-using FSH.Modules.Tickets.Contracts.Dtos;
-using FSH.Modules.Tickets.Data;
-using FSH.Modules.Tickets.Domain;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Identity.Claims;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Billing.Contracts;
+using Trislab.Modules.Billing.Data;
+using Trislab.Modules.Billing.Domain;
+using Trislab.Modules.Catalog.Contracts.Authorization;
+using Trislab.Modules.Catalog.Data;
+using Trislab.Modules.Catalog.Domain;
+using Trislab.Modules.Chat.Data;
+using Trislab.Modules.Chat.Domain;
+using Trislab.Modules.Identity.Contracts.Authorization;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Multitenancy.Contracts;
+using Trislab.Modules.Multitenancy.Data;
+using Trislab.Modules.Multitenancy.Provisioning;
+using Trislab.Modules.Tickets.Contracts.Authorization;
+using Trislab.Modules.Tickets.Contracts.Dtos;
+using Trislab.Modules.Tickets.Data;
+using Trislab.Modules.Tickets.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -304,17 +304,17 @@ internal sealed class DemoSeeder
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<FshUser>>();
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<FshRole>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<TrislabRole>>();
         var context = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
-        var hasher = new PasswordHasher<FshUser>();
+        var hasher = new PasswordHasher<TrislabUser>();
 
         foreach (var demoRole in customRoles)
         {
             var role = await roleManager.FindByNameAsync(demoRole.Name).ConfigureAwait(false);
             if (role is null)
             {
-                role = new FshRole(demoRole.Name, demoRole.Description);
+                role = new TrislabRole(demoRole.Name, demoRole.Description);
                 await roleManager.CreateAsync(role).ConfigureAwait(false);
                 if (_logger.IsEnabled(LogLevel.Information))
                 {
@@ -329,7 +329,7 @@ internal sealed class DemoSeeder
                 {
                     continue;
                 }
-                context.RoleClaims.Add(new FshRoleClaim
+                context.RoleClaims.Add(new TrislabRoleClaim
                 {
                     RoleId = role.Id,
                     ClaimType = ClaimConstants.Permission,
@@ -346,7 +346,7 @@ internal sealed class DemoSeeder
             var existing = await userManager.FindByEmailAsync(demoUser.Email).ConfigureAwait(false);
             if (existing is null)
             {
-                var user = new FshUser
+                var user = new TrislabUser
                 {
                     UserName = demoUser.UserName,
                     Email = demoUser.Email,
@@ -401,9 +401,9 @@ internal sealed class DemoSeeder
     }
 
     private async Task EnsureSharedPasswordAsync(
-        UserManager<FshUser> userManager,
-        PasswordHasher<FshUser> hasher,
-        FshUser user)
+        UserManager<TrislabUser> userManager,
+        PasswordHasher<TrislabUser> hasher,
+        TrislabUser user)
     {
         if (await userManager.CheckPasswordAsync(user, _sharedPassword).ConfigureAwait(false))
         {
@@ -484,7 +484,7 @@ internal sealed class DemoSeeder
             return;
         }
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<FshUser>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
         var usersByEmail = await userManager.Users
             .ToDictionaryAsync(u => u.Email!, u => Guid.Parse(u.Id), cancellationToken)
             .ConfigureAwait(false);
@@ -552,7 +552,7 @@ internal sealed class DemoSeeder
             return;
         }
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<FshUser>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
         var usersByEmail = await userManager.Users
             .ToDictionaryAsync(u => u.Email!, u => u.Id, cancellationToken)
             .ConfigureAwait(false);

@@ -1,6 +1,6 @@
-using FSH.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Constants;
 
-namespace FSH.Modules.Tickets.Contracts.Authorization;
+namespace Trislab.Modules.Tickets.Contracts.Authorization;
 
 public static class TicketsPermissions
 {
@@ -19,7 +19,7 @@ public static class TicketsPermissions
         public const string Comment  = $"Permissions.{Resource}.Comment";
     }
 
-    public static IReadOnlyList<FshPermission> All { get; } =
+    public static IReadOnlyList<TrislabPermission> All { get; } =
     [
         new("View Tickets",    ActionConstants.View,   Tickets.Resource, IsBasic: true),
         new("Create Tickets",  ActionConstants.Create, Tickets.Resource),

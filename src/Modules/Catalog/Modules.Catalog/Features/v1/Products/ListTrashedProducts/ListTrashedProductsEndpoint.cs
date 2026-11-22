@@ -1,12 +1,12 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Modules.Catalog.Contracts.Authorization;
-using FSH.Modules.Catalog.Contracts.v1.Products;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Modules.Catalog.Contracts.Authorization;
+using Trislab.Modules.Catalog.Contracts.v1.Products;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Catalog.Features.v1.Products.ListTrashedProducts;
+namespace Trislab.Modules.Catalog.Features.v1.Products.ListTrashedProducts;
 
 public static class ListTrashedProductsEndpoint
 {

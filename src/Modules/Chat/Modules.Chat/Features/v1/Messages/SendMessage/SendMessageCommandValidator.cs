@@ -1,9 +1,9 @@
 using FluentValidation;
-using FSH.Modules.Chat.Contracts.v1.Commands;
-using FSH.Modules.Chat.Localization;
+using Trislab.Modules.Chat.Contracts.v1.Commands;
+using Trislab.Modules.Chat.Localization;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Chat.Features.v1.Messages.SendMessage;
+namespace Trislab.Modules.Chat.Features.v1.Messages.SendMessage;
 
 public sealed class SendMessageCommandValidator : AbstractValidator<SendMessageCommand>
 {

@@ -1,8 +1,8 @@
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Shared.Multitenancy;
 
-namespace FSH.Modules.Multitenancy.Services;
+namespace Trislab.Modules.Multitenancy.Services;
 
 /// <summary>
 /// Returns the default database plus one target per distinct active per-tenant connection string.

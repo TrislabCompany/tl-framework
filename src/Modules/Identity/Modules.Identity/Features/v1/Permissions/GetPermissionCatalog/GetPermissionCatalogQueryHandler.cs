@@ -1,11 +1,11 @@
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Contracts.DTOs;
-using FSH.Modules.Identity.Contracts.v1.Permissions.GetPermissionCatalog;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.v1.Permissions.GetPermissionCatalog;
 using Finbuckle.MultiTenant.Abstractions;
 using Mediator;
 
-namespace FSH.Modules.Identity.Features.v1.Permissions.GetPermissionCatalog;
+namespace Trislab.Modules.Identity.Features.v1.Permissions.GetPermissionCatalog;
 
 public sealed class GetPermissionCatalogQueryHandler(
     IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)

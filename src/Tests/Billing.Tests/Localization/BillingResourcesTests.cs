@@ -1,8 +1,8 @@
 using System;
 using System.Globalization;
-using FSH.Modules.Billing.Contracts;
+using Trislab.Modules.Billing.Contracts;
 using System.Linq;
-using FSH.Modules.Billing.Localization;
+using Trislab.Modules.Billing.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 

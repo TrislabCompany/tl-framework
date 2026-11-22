@@ -1,7 +1,7 @@
 using System.Text;
-using FSH.Modules.Billing.Contracts;
-using FSH.Modules.Billing.Contracts.Dtos;
-using FSH.Modules.Billing.Services;
+using Trislab.Modules.Billing.Contracts;
+using Trislab.Modules.Billing.Contracts.Dtos;
+using Trislab.Modules.Billing.Services;
 
 namespace Billing.Tests.Services;
 

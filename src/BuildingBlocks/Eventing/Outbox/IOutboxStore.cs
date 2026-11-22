@@ -1,6 +1,6 @@
-using FSH.Framework.Eventing.Abstractions;
+using Trislab.Framework.Eventing.Abstractions;
 
-namespace FSH.Framework.Eventing.Outbox;
+namespace Trislab.Framework.Eventing.Outbox;
 
 /// <summary>
 /// Abstraction for persisting and reading outbox messages. Modules only ever need the publish

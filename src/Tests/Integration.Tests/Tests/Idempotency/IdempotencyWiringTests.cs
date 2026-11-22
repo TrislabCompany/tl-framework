@@ -1,4 +1,4 @@
-using FSH.Framework.Web.Idempotency;
+using Trislab.Framework.Web.Idempotency;
 using Integration.Tests.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Routing;
@@ -6,12 +6,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Integration.Tests.Tests.Idempotency;
 
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class IdempotencyWiringTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
 
-    public IdempotencyWiringTests(FshWebApplicationFactory factory)
+    public IdempotencyWiringTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
     }

@@ -1,4 +1,4 @@
-namespace FSH.Framework.Shared.Persistence;
+namespace Trislab.Framework.Shared.Persistence;
 
 public sealed class PagedResponse<T>
 {

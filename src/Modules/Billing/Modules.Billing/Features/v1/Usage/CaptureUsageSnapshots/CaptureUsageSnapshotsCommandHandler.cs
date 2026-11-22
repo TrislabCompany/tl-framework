@@ -1,12 +1,12 @@
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Billing.Contracts.Dtos;
-using FSH.Modules.Billing.Contracts.v1.Usage;
-using FSH.Modules.Billing.Services;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Billing.Contracts.Dtos;
+using Trislab.Modules.Billing.Contracts.v1.Usage;
+using Trislab.Modules.Billing.Services;
 using Mediator;
 
-namespace FSH.Modules.Billing.Features.v1.Usage.CaptureUsageSnapshots;
+namespace Trislab.Modules.Billing.Features.v1.Usage.CaptureUsageSnapshots;
 
 public sealed class CaptureUsageSnapshotsCommandHandler(
     IUsageReporter reporter,

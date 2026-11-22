@@ -1,7 +1,7 @@
 using FluentValidation;
-using FSH.Modules.Identity.Contracts.v1.Sessions.RevokeAllSessions;
+using Trislab.Modules.Identity.Contracts.v1.Sessions.RevokeAllSessions;
 
-namespace FSH.Modules.Identity.Features.v1.Sessions.RevokeAllSessions;
+namespace Trislab.Modules.Identity.Features.v1.Sessions.RevokeAllSessions;
 
 public sealed class RevokeAllSessionsCommandValidator : AbstractValidator<RevokeAllSessionsCommand>
 {

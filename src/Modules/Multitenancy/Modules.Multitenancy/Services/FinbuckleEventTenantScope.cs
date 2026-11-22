@@ -2,13 +2,13 @@ using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.EntityFrameworkCore.Stores;
 using Finbuckle.MultiTenant.Stores;
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Multitenancy.Data;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Multitenancy.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Modules.Multitenancy.Services;
+namespace Trislab.Modules.Multitenancy.Services;
 
 /// <summary>
 /// Finbuckle-backed <see cref="IEventTenantScope"/>. Installs the ambient tenant context

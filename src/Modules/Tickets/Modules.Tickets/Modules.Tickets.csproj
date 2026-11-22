@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<RootNamespace>FSH.Modules.Tickets</RootNamespace>
-		<AssemblyName>FSH.Modules.Tickets</AssemblyName>
+		<RootNamespace>Trislab.Modules.Tickets</RootNamespace>
+		<AssemblyName>Trislab.Modules.Tickets</AssemblyName>
 		<!-- TicketsResources is an intentional empty localizer marker (see Localization/TicketsResources.cs). -->
 		<NoWarn>$(NoWarn);CA1031;CA1812;CA1859;S3267;S2094</NoWarn>
 	</PropertyGroup>

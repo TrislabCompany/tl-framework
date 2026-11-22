@@ -1,4 +1,4 @@
-﻿namespace FSH.Framework.Storage;
+﻿namespace Trislab.Framework.Storage;
 
 public enum FileType
 {

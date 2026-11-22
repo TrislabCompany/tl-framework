@@ -1,4 +1,4 @@
-namespace FSH.Framework.Web.Security;
+namespace Trislab.Framework.Web.Security;
 
 public sealed class SecurityHeadersOptions
 {

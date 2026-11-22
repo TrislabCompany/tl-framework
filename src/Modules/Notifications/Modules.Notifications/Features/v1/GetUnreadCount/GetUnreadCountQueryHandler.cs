@@ -1,11 +1,11 @@
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Notifications.Contracts.v1.Queries;
-using FSH.Modules.Notifications.Data;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Notifications.Contracts.v1.Queries;
+using Trislab.Modules.Notifications.Data;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Notifications.Features.v1.GetUnreadCount;
+namespace Trislab.Modules.Notifications.Features.v1.GetUnreadCount;
 
 public sealed class GetUnreadCountQueryHandler(
     NotificationsDbContext db,

@@ -1,5 +1,5 @@
-using FSH.Framework.Eventing.Outbox;
-using FSH.Framework.Eventing.Persistence;
+using Trislab.Framework.Eventing.Outbox;
+using Trislab.Framework.Eventing.Persistence;
 
 namespace Integration.Tests.Infrastructure;
 

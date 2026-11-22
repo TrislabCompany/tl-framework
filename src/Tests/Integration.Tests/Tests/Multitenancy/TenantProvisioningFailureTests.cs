@@ -1,6 +1,6 @@
 using System.Text.Json;
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Multitenancy.Provisioning;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Multitenancy.Provisioning;
 using Integration.Tests.Infrastructure;
 
 namespace Integration.Tests.Tests.Multitenancy;
@@ -22,7 +22,7 @@ namespace Integration.Tests.Tests.Multitenancy;
 /// <c>MarkFailedAsync(..., Migrations, ...)</c>. No production code or shared test infra is
 /// modified; the failure flows through the exact production pipeline.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class TenantProvisioningFailureTests : IAsyncLifetime
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -36,7 +36,7 @@ public sealed class TenantProvisioningFailureTests : IAsyncLifetime
     private const string UnreachableConnectionString =
         "Host=127.0.0.1;Port=1;Database=does_not_exist;Username=postgres;Password=x;Timeout=3;Command Timeout=3";
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
     // Tenants created here point at an unreachable database. They are removed after each test so that
@@ -44,7 +44,7 @@ public sealed class TenantProvisioningFailureTests : IAsyncLifetime
     // as failures. Test order is not guaranteed, so cleanup can't rely on running last.
     private readonly List<string> _createdTenantIds = [];
 
-    public TenantProvisioningFailureTests(FshWebApplicationFactory factory)
+    public TenantProvisioningFailureTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

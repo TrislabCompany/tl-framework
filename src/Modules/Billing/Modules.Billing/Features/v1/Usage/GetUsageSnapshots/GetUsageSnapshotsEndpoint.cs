@@ -1,12 +1,12 @@
-using FSH.Modules.Billing.Contracts.Authorization;
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Modules.Billing.Contracts.v1.Usage;
+using Trislab.Modules.Billing.Contracts.Authorization;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Modules.Billing.Contracts.v1.Usage;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Billing.Features.v1.Usage.GetUsageSnapshots;
+namespace Trislab.Modules.Billing.Features.v1.Usage.GetUsageSnapshots;
 
 public static class GetUsageSnapshotsEndpoint
 {

@@ -1,8 +1,8 @@
 using AutoFixture;
-using FSH.Framework.Core.Context;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Sessions.RevokeSession;
-using FSH.Modules.Identity.Features.v1.Sessions.RevokeSession;
+using Trislab.Framework.Core.Context;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Sessions.RevokeSession;
+using Trislab.Modules.Identity.Features.v1.Sessions.RevokeSession;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 

@@ -1,4 +1,4 @@
-namespace FSH.Modules.Identity.Contracts.DTOs;
+namespace Trislab.Modules.Identity.Contracts.DTOs;
 
 public sealed class PasswordExpiryStatusDto
 {

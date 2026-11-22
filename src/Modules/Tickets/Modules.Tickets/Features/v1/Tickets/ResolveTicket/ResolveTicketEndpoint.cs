@@ -1,13 +1,13 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Framework.Web.Idempotency;
-using FSH.Modules.Tickets.Contracts.Authorization;
-using FSH.Modules.Tickets.Contracts.v1.Tickets;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Framework.Web.Idempotency;
+using Trislab.Modules.Tickets.Contracts.Authorization;
+using Trislab.Modules.Tickets.Contracts.v1.Tickets;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Tickets.Features.v1.Tickets.ResolveTicket;
+namespace Trislab.Modules.Tickets.Features.v1.Tickets.ResolveTicket;
 
 public static class ResolveTicketEndpoint
 {

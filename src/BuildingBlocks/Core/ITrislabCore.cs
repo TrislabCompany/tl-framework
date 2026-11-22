@@ -1,5 +1,5 @@
-﻿namespace FSH.Framework.Core;
+﻿namespace Trislab.Framework.Core;
 
-public interface IFshCore
+public interface ITrislabCore
 {
 }

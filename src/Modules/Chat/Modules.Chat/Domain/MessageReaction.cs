@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Domain;
+using Trislab.Framework.Core.Domain;
 
-namespace FSH.Modules.Chat.Domain;
+namespace Trislab.Modules.Chat.Domain;
 
 /// <summary>
 /// One reaction (emoji) by one user on one message. Uniqueness is enforced via a composite index

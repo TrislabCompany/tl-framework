@@ -1,13 +1,13 @@
 using System.Security.Cryptography;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Quota;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Quota;
-using FSH.Framework.Storage.Services;
-using FSH.Modules.Files.Contracts.v1.DTOs;
-using FSH.Modules.Files.Data;
-using FSH.Modules.Files.Jobs;
+using Trislab.Framework.Quota;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Quota;
+using Trislab.Framework.Storage.Services;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Modules.Files.Data;
+using Trislab.Modules.Files.Jobs;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -24,16 +24,16 @@ namespace Integration.Tests.Tests.Files;
 /// scope (the shape Hangfire's activator gives it) and run once. Every tenant's rows and blobs must be
 /// purged, and the deleted-files purge must refund each tenant's storage quota under that tenant's id.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class PurgeJobsPerTenantTests
 {
     private const string FilesBasePath = "/api/v1/files";
     private const int FileSize = 256;
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public PurgeJobsPerTenantTests(FshWebApplicationFactory factory)
+    public PurgeJobsPerTenantTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -59,7 +59,7 @@ public sealed class PurgeJobsPerTenantTests
             seeded.Add((tenantId, id, key));
         }
 
-        // Act — fresh scope, no tenant set, as FshJobActivator gives a job registered via AddOrUpdate.
+        // Act — fresh scope, no tenant set, as TrislabJobActivator gives a job registered via AddOrUpdate.
         using (var jobScope = _factory.Services.CreateScope())
         {
             var job = ActivatorUtilities.CreateInstance<PurgeDeletedFilesJob>(jobScope.ServiceProvider, quotas);

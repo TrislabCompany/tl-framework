@@ -2,13 +2,13 @@ using Integration.Tests.Infrastructure;
 
 namespace Integration.Tests.Tests.Files;
 
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class UploadValidationTests
 {
     private const string FilesBasePath = "/api/v1/files";
     private readonly AuthHelper _auth;
 
-    public UploadValidationTests(FshWebApplicationFactory factory)
+    public UploadValidationTests(TrislabWebApplicationFactory factory)
     {
         _auth = new AuthHelper(factory);
     }

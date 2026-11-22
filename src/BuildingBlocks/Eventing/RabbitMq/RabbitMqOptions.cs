@@ -1,4 +1,4 @@
-namespace FSH.Framework.Eventing.RabbitMq;
+namespace Trislab.Framework.Eventing.RabbitMq;
 
 /// <summary>
 /// Configuration options for RabbitMQ event bus.

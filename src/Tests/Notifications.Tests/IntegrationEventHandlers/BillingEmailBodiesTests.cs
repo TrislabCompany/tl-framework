@@ -1,4 +1,4 @@
-using FSH.Modules.Notifications.IntegrationEventHandlers;
+using Trislab.Modules.Notifications.IntegrationEventHandlers;
 
 namespace Notifications.Tests.IntegrationEventHandlers;
 

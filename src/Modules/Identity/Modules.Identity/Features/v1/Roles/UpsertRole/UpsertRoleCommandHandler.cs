@@ -1,9 +1,9 @@
-using FSH.Modules.Identity.Contracts.DTOs;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Roles.UpsertRole;
+using Trislab.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Roles.UpsertRole;
 using Mediator;
 
-namespace FSH.Modules.Identity.Features.v1.Roles.UpsertRole;
+namespace Trislab.Modules.Identity.Features.v1.Roles.UpsertRole;
 
 public sealed class UpsertRoleCommandHandler : ICommandHandler<UpsertRoleCommand, RoleDto>
 {

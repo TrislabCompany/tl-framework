@@ -1,13 +1,13 @@
 using System.Globalization;
 using System.Net;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Storage.Services;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Domain;
-using FSH.Modules.Identity.Localization;
-using FSH.Modules.Identity.Services;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Storage.Services;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Identity.Localization;
+using Trislab.Modules.Identity.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -29,17 +29,17 @@ public sealed class StaleProfileLocalizationTests
     public async Task UpdateAsync_with_a_stale_stamp_throws_a_localizable_412()
     {
         // Arrange
-        var userManager = Substitute.For<UserManager<FshUser>>(
-            Substitute.For<IUserStore<FshUser>>(), null, null, null, null, null, null, null, null);
-        var signInManager = Substitute.For<SignInManager<FshUser>>(
+        var userManager = Substitute.For<UserManager<TrislabUser>>(
+            Substitute.For<IUserStore<TrislabUser>>(), null, null, null, null, null, null, null, null);
+        var signInManager = Substitute.For<SignInManager<TrislabUser>>(
             userManager,
             Substitute.For<IHttpContextAccessor>(),
-            Substitute.For<IUserClaimsPrincipalFactory<FshUser>>(),
+            Substitute.For<IUserClaimsPrincipalFactory<TrislabUser>>(),
             Options.Create(new IdentityOptions()),
-            Substitute.For<ILogger<SignInManager<FshUser>>>(),
+            Substitute.For<ILogger<SignInManager<TrislabUser>>>(),
             Substitute.For<IAuthenticationSchemeProvider>(),
-            Substitute.For<IUserConfirmation<FshUser>>());
-        var user = new FshUser { Id = "u1", Email = "u@codefi.com.br", UserName = "u", ConcurrencyStamp = "current" };
+            Substitute.For<IUserConfirmation<TrislabUser>>());
+        var user = new TrislabUser { Id = "u1", Email = "u@codefi.com.br", UserName = "u", ConcurrencyStamp = "current" };
         userManager.FindByIdAsync("u1").Returns(user);
         var sut = new UserProfileService(
             userManager,

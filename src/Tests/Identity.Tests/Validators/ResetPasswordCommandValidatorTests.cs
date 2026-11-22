@@ -1,5 +1,5 @@
-using FSH.Modules.Identity.Contracts.v1.Users.ResetPassword;
-using FSH.Modules.Identity.Features.v1.Users.ResetPassword;
+using Trislab.Modules.Identity.Contracts.v1.Users.ResetPassword;
+using Trislab.Modules.Identity.Features.v1.Users.ResetPassword;
 using Shouldly;
 using Xunit;
 

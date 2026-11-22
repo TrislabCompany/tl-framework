@@ -1,5 +1,5 @@
-using FSH.Modules.Files.Contracts.v1.DTOs;
-using FSH.Modules.Files.Services;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Modules.Files.Services;
 using Shouldly;
 
 namespace Files.Tests.Services;

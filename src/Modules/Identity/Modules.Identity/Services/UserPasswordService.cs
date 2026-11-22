@@ -1,22 +1,22 @@
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Jobs.Services;
-using FSH.Framework.Mailing;
-using FSH.Framework.Mailing.Services;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Identity.Domain;
-using FSH.Modules.Identity.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Jobs.Services;
+using Trislab.Framework.Mailing;
+using Trislab.Framework.Mailing.Services;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Identity.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Collections.ObjectModel;
 using System.Text;
 
-namespace FSH.Modules.Identity.Services;
+namespace Trislab.Modules.Identity.Services;
 
 internal sealed class UserPasswordService(
-    UserManager<FshUser> userManager,
+    UserManager<TrislabUser> userManager,
     IdentityDbContext db,
     IJobService jobService,
     IMailService mailService,

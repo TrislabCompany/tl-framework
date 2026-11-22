@@ -1,6 +1,6 @@
-using FSH.Framework.Eventing.Abstractions;
+using Trislab.Framework.Eventing.Abstractions;
 
-namespace FSH.Modules.Identity.Contracts.Events;
+namespace Trislab.Modules.Identity.Contracts.Events;
 
 /// <summary>
 /// Integration event raised when a JWT token is generated for a user.

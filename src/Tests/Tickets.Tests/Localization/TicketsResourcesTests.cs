@@ -1,8 +1,8 @@
 using System;
 using System.Globalization;
-using FSH.Modules.Tickets.Contracts.Dtos;
+using Trislab.Modules.Tickets.Contracts.Dtos;
 using System.Linq;
-using FSH.Modules.Tickets.Localization;
+using Trislab.Modules.Tickets.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 

@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
-using FSH.Modules.Catalog.Contracts.Dtos;
-using FSH.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Modules.Catalog.Contracts.Dtos;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 
@@ -12,14 +12,14 @@ namespace Integration.Tests.Tests.Catalog;
 /// <c>DELETE /products/{id}/images/{imageId}</c> and <c>PUT /products/{id}/images/order</c>,
 /// including the validator and 404 paths.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class ProductImageRemoveReorderTests
 {
     private const string FilesBasePath = "/api/v1/files";
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public ProductImageRemoveReorderTests(FshWebApplicationFactory factory)
+    public ProductImageRemoveReorderTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

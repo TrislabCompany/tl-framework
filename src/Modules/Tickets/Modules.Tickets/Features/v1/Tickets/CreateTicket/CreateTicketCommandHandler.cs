@@ -1,16 +1,16 @@
 using System.Globalization;
 using System.Net;
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Tickets.Contracts.v1.Tickets;
-using FSH.Modules.Tickets.Data;
-using FSH.Modules.Tickets.Domain;
-using FSH.Modules.Tickets.Localization;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Tickets.Contracts.v1.Tickets;
+using Trislab.Modules.Tickets.Data;
+using Trislab.Modules.Tickets.Domain;
+using Trislab.Modules.Tickets.Localization;
 using Mediator;
-using FSH.Framework.Persistence;
+using Trislab.Framework.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Tickets.Features.v1.Tickets.CreateTicket;
+namespace Trislab.Modules.Tickets.Features.v1.Tickets.CreateTicket;
 
 public sealed class CreateTicketCommandHandler(
     TicketsDbContext dbContext,

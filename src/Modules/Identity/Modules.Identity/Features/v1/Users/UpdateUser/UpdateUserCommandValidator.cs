@@ -1,10 +1,10 @@
 using FluentValidation;
-using FSH.Framework.Core.Localization;
-using FSH.Framework.Storage;
-using FSH.Modules.Identity.Contracts.v1.Users.UpdateUser;
+using Trislab.Framework.Core.Localization;
+using Trislab.Framework.Storage;
+using Trislab.Modules.Identity.Contracts.v1.Users.UpdateUser;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Identity.Features.v1.Users.UpdateUser;
+namespace Trislab.Modules.Identity.Features.v1.Users.UpdateUser;
 
 public sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
 {

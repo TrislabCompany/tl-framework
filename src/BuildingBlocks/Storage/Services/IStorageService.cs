@@ -1,7 +1,7 @@
-using FSH.Framework.Shared.Storage;
-using FSH.Framework.Storage.DTOs;
+using Trislab.Framework.Shared.Storage;
+using Trislab.Framework.Storage.DTOs;
 
-namespace FSH.Framework.Storage.Services;
+namespace Trislab.Framework.Storage.Services;
 
 public interface IStorageService
 {

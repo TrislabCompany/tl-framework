@@ -1,7 +1,7 @@
 using FluentValidation;
-using FSH.Modules.Tickets.Contracts.v1.Tickets;
+using Trislab.Modules.Tickets.Contracts.v1.Tickets;
 
-namespace FSH.Modules.Tickets.Features.v1.Tickets.AddTicketComment;
+namespace Trislab.Modules.Tickets.Features.v1.Tickets.AddTicketComment;
 
 public sealed class AddTicketCommentCommandValidator : AbstractValidator<AddTicketCommentCommand>
 {

@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using FSH.Framework.Caching;
+using Trislab.Framework.Caching;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Hybrid;
@@ -39,7 +39,7 @@ public sealed class HybridCacheRedisTests : IAsyncLifetime
             })
             .Build();
         services.AddSingleton<IConfiguration>(config);
-        services.AddHeroCaching(config);
+        services.AddTrislabCaching(config);
         var provider = services.BuildServiceProvider();
         return (provider.GetRequiredService<HybridCache>(),
                 provider.GetRequiredService<IDistributedCache>(),
@@ -217,7 +217,7 @@ public sealed class HybridCacheRedisTests : IAsyncLifetime
         // The invariant that protects existing deployments on upgrade: without an opt-in prefix every
         // key stays where it was. A moved Data Protection ring would orphan everything protected with
         // the old one (webhook signing secrets included). The SignalR side ("fsh-signalr") is pinned by
-        // RedisKeyPrefixWiringTests.AddHeroRealtime_Should_KeepTheHistoricalChannel_When_KeyPrefixIsEmpty.
+        // RedisKeyPrefixWiringTests.AddTrislabRealtime_Should_KeepTheHistoricalChannel_When_KeyPrefixIsEmpty.
         var (cache, _, provider) = CreateCache(keyPrefix);
         await using (provider)
         {

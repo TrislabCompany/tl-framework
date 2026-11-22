@@ -1,10 +1,10 @@
 using System.Net;
 using AutoFixture;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Web.Frontend;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Users.ForgotPassword;
-using FSH.Modules.Identity.Features.v1.Users.ForgotPassword;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Web.Frontend;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Users.ForgotPassword;
+using Trislab.Modules.Identity.Features.v1.Users.ForgotPassword;
 using NSubstitute;
 using Shouldly;
 using Xunit;

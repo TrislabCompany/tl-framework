@@ -1,3 +1,3 @@
-using FSH.Framework.Web.Modules;
+using Trislab.Framework.Web.Modules;
 
-[assembly: FshModule(typeof(FSH.Modules.Auditing.AuditingModule), 300)]
+[assembly: TrislabModule(typeof(Trislab.Modules.Auditing.AuditingModule), 300)]

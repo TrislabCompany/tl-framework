@@ -1,5 +1,5 @@
-using FSH.Framework.Mailing;
-using FSH.Framework.Mailing.Services;
+using Trislab.Framework.Mailing;
+using Trislab.Framework.Mailing.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -25,14 +25,14 @@ public sealed class MailingExtensionsTests
         var services = new ServiceCollection();
         services.AddSingleton<IConfiguration>(configuration);
         services.AddLogging();
-        services.AddHeroMailing();
+        services.AddTrislabMailing();
         return services.BuildServiceProvider();
     }
 
     #region Service selection
 
     [Fact]
-    public void AddHeroMailing_Should_RegisterSmtpService_When_UseSendGridFalse()
+    public void AddTrislabMailing_Should_RegisterSmtpService_When_UseSendGridFalse()
     {
         // Arrange
         using var provider = BuildProvider(useSendGrid: false);
@@ -45,7 +45,7 @@ public sealed class MailingExtensionsTests
     }
 
     [Fact]
-    public void AddHeroMailing_Should_RegisterDisabledService_When_NoSmtpPassword()
+    public void AddTrislabMailing_Should_RegisterDisabledService_When_NoSmtpPassword()
     {
         // Arrange: no SMTP_PASSWORD in the stamp turns mail off
         using var provider = BuildProvider(useSendGrid: false, smtpPassword: null);
@@ -58,7 +58,7 @@ public sealed class MailingExtensionsTests
     }
 
     [Fact]
-    public void AddHeroMailing_Should_RegisterSendGridService_When_UseSendGridTrue()
+    public void AddTrislabMailing_Should_RegisterSendGridService_When_UseSendGridTrue()
     {
         // Arrange
         using var provider = BuildProvider(useSendGrid: true);
@@ -71,7 +71,7 @@ public sealed class MailingExtensionsTests
     }
 
     [Fact]
-    public void AddHeroMailing_Should_ReturnSameServiceCollection_When_Chained()
+    public void AddTrislabMailing_Should_ReturnSameServiceCollection_When_Chained()
     {
         // Arrange
         var configuration = new ConfigurationBuilder().Build();
@@ -80,7 +80,7 @@ public sealed class MailingExtensionsTests
         services.AddLogging();
 
         // Act
-        var result = services.AddHeroMailing();
+        var result = services.AddTrislabMailing();
 
         // Assert
         result.ShouldBeSameAs(services);

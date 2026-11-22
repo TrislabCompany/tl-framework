@@ -3,21 +3,21 @@ using Finbuckle.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.EntityFrameworkCore.Stores;
 using Finbuckle.MultiTenant.Extensions;
 using Finbuckle.MultiTenant.Stores;
-using FSH.Framework.Eventing;
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Eventing.InMemory;
-using FSH.Framework.Eventing.Outbox;
-using FSH.Framework.Eventing.Persistence;
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Catalog.Data;
-using FSH.Modules.Catalog.Domain;
-using FSH.Modules.Files.Contracts.Events;
-using FSH.Modules.Multitenancy.Data;
-using FSH.Modules.Multitenancy.Services;
-using FSH.Modules.Webhooks.Data;
-using FSH.Modules.Webhooks.Domain;
-using FSH.Modules.Webhooks.Services;
+using Trislab.Framework.Eventing;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Eventing.InMemory;
+using Trislab.Framework.Eventing.Outbox;
+using Trislab.Framework.Eventing.Persistence;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Catalog.Data;
+using Trislab.Modules.Catalog.Domain;
+using Trislab.Modules.Files.Contracts.Events;
+using Trislab.Modules.Multitenancy.Data;
+using Trislab.Modules.Multitenancy.Services;
+using Trislab.Modules.Webhooks.Data;
+using Trislab.Modules.Webhooks.Domain;
+using Trislab.Modules.Webhooks.Services;
 using Integration.Tests.Infrastructure;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
@@ -31,8 +31,8 @@ using System.Collections.Concurrent;
 
 namespace Integration.Tests.Tests.Eventing;
 
-[Collection(FshCollectionDefinition.Name)]
-public sealed class DedicatedTenantRoutingTests(FshWebApplicationFactory factory)
+[Collection(TrislabCollectionDefinition.Name)]
+public sealed class DedicatedTenantRoutingTests(TrislabWebApplicationFactory factory)
 {
     [Fact]
     public async Task DispatchAsync_Should_WriteConsumerAndInboxOnlyToDedicatedDatabase()
@@ -258,13 +258,13 @@ public sealed class DedicatedTenantRoutingTests(FshWebApplicationFactory factory
                 .WithDistributedCacheStore(TimeSpan.FromMinutes(60))
                 .WithStore<EFCoreStore<TenantDbContext, AppTenantInfo>>(ServiceLifetime.Scoped);
             services.AddEventingCore(configuration);
-            services.AddHeroDbContext<CatalogDbContext>();
+            services.AddTrislabDbContext<CatalogDbContext>();
             services.Replace(ServiceDescriptor.Singleton<IEventTenantScope, FinbuckleEventTenantScope>());
             services.Replace(ServiceDescriptor.Singleton<IEventingDrainScope, FinbuckleEventingDrainScope>());
             services.AddScoped<IIntegrationEventHandler<FileFinalizedIntegrationEvent>, FileEventMarkerHandler>();
             if (webhooks)
             {
-                services.AddHeroDbContext<WebhookDbContext>();
+                services.AddTrislabDbContext<WebhookDbContext>();
                 services.AddSingleton<IWebhookDispatcher>(recorder);
                 services.AddScoped(typeof(IIntegrationEventHandler<>), typeof(WebhookFanoutHandler<>));
             }

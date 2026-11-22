@@ -1,6 +1,6 @@
-﻿using FSH.Framework.Web.Modules;
+﻿using Trislab.Framework.Web.Modules;
 
-namespace FSH.Modules.Identity;
+namespace Trislab.Modules.Identity;
 
 public sealed class IdentityModuleConstants : IModuleConstants
 {

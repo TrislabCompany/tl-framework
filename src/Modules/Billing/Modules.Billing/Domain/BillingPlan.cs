@@ -1,8 +1,8 @@
-using FSH.Framework.Core.Domain;
-using FSH.Framework.Shared.Quota;
-using FSH.Modules.Billing.Contracts;
+using Trislab.Framework.Core.Domain;
+using Trislab.Framework.Shared.Quota;
+using Trislab.Modules.Billing.Contracts;
 
-namespace FSH.Modules.Billing.Domain;
+namespace Trislab.Modules.Billing.Domain;
 
 /// <summary>
 /// Priced side of a tenant plan. The plan key matches the key used by quota configuration so a

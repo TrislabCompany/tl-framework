@@ -1,25 +1,25 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Caching;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Shared.Identity.Claims;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Caching;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Identity.Domain;
+using Trislab.Framework.Caching;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Identity.Claims;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Caching;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FSH.Modules.Identity.Services;
+namespace Trislab.Modules.Identity.Services;
 
 internal sealed class UserPermissionService(
-    UserManager<FshUser> userManager,
-    RoleManager<FshRole> roleManager,
+    UserManager<TrislabUser> userManager,
+    RoleManager<TrislabRole> roleManager,
     IdentityDbContext db,
     HybridCache cache,
     IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
@@ -107,16 +107,16 @@ internal sealed class UserPermissionService(
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(homeTenant);
 
         return await LoadInCurrentTenantAsync(
-            services.GetRequiredService<UserManager<FshUser>>(),
-            services.GetRequiredService<RoleManager<FshRole>>(),
+            services.GetRequiredService<UserManager<TrislabUser>>(),
+            services.GetRequiredService<RoleManager<TrislabRole>>(),
             services.GetRequiredService<IdentityDbContext>(),
             s.UserId,
             ct).ConfigureAwait(false);
     }
 
     private static async Task<PermissionSet> LoadInCurrentTenantAsync(
-        UserManager<FshUser> userManager,
-        RoleManager<FshRole> roleManager,
+        UserManager<TrislabUser> userManager,
+        RoleManager<TrislabRole> roleManager,
         IdentityDbContext db,
         string userId,
         CancellationToken ct)
@@ -164,8 +164,8 @@ internal sealed class UserPermissionService(
 
     // Struct state flows through HybridCache's TState parameter — avoids closure allocation.
     private readonly record struct FactoryState(
-        UserManager<FshUser> UserManager,
-        RoleManager<FshRole> RoleManager,
+        UserManager<TrislabUser> UserManager,
+        RoleManager<TrislabRole> RoleManager,
         IdentityDbContext Db,
         string? HomeTenantId,
         IServiceScopeFactory ScopeFactory,

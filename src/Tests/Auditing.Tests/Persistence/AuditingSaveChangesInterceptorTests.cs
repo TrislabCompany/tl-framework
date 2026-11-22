@@ -1,5 +1,5 @@
-using FSH.Modules.Auditing.Contracts;
-using FSH.Modules.Auditing.Persistence;
+using Trislab.Modules.Auditing.Contracts;
+using Trislab.Modules.Auditing.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Auditing.Tests.Persistence;

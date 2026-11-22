@@ -1,9 +1,9 @@
-using FSH.Framework.Core.Context;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Users.ChangePassword;
+using Trislab.Framework.Core.Context;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Users.ChangePassword;
 using Mediator;
 
-namespace FSH.Modules.Identity.Features.v1.Users.ChangePassword;
+namespace Trislab.Modules.Identity.Features.v1.Users.ChangePassword;
 
 public sealed class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordCommand, string>
 {

@@ -1,4 +1,4 @@
-namespace FSH.Modules.Files.Domain;
+namespace Trislab.Modules.Files.Domain;
 
 public enum ScanStatus
 {

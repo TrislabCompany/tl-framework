@@ -1,4 +1,4 @@
-namespace FSH.Framework.Web.Idempotency;
+namespace Trislab.Framework.Web.Idempotency;
 
 /// <summary>
 /// Marks an endpoint as idempotent. Applied by <c>WithIdempotency()</c> so the wiring can be asserted

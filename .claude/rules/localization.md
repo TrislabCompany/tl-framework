@@ -12,7 +12,7 @@ paths:
 
 ## Culture negotiation (already wired — don't re-add)
 
-`AddHeroLocalization()` / `UseHeroLocalization()` (`BuildingBlocks/Web/Localization/`) negotiate the request **UI** culture in this order: `?culture=` query → `locale` JWT claim (`UserLocaleRequestCultureProvider`) → `Accept-Language` → configured default → `en-US`. Supported tags live in `SupportedCultures.Tags`. The culture is set before endpoints and the exception handler run, so any `IStringLocalizer` resolved downstream picks up the request culture automatically.
+`AddTrislabLocalization()` / `UseTrislabLocalization()` (`BuildingBlocks/Web/Localization/`) negotiate the request **UI** culture in this order: `?culture=` query → `locale` JWT claim (`UserLocaleRequestCultureProvider`) → `Accept-Language` → configured default → `en-US`. Supported tags live in `SupportedCultures.Tags`. The culture is set before endpoints and the exception handler run, so any `IStringLocalizer` resolved downstream picks up the request culture automatically.
 
 **`CultureInfo.CurrentUICulture` only — `CurrentCulture` stays invariant.** An API that emits JSON must not shift `ToString()`, `Parse()` or interpolation per request; both React apps format at the presentation layer. `RequestLocalizationMiddleware` assigns both cultures unconditionally, so the culture half is pinned rather than left alone: `DefaultRequestCulture` carries `(InvariantCulture, configured default)` and `SupportedCultures` is `null` so the middleware skips culture filtering. Do **not** "fix" this by adding `AddSupportedCultures(...)`; `Formatting_culture_stays_invariant_while_ui_culture_negotiates` fails if you do.
 
@@ -62,7 +62,7 @@ public sealed class XCommandValidator : AbstractValidator<XCommand>
 }
 ```
 
-Always the `.WithMessage(_ => localizer["Key"])` lambda (resolution is deferred to `Validate()`, under the request culture) — never `.WithMessage(localizer["Key"])`. **Catalog choice:** inject `IStringLocalizer<SharedResources>` for genuinely shared/generic validation (`Validation.*` already in Core, reuse them), or `IStringLocalizer<<Module>Resources>` for module-specific validation messages kept in the module's own catalog. DI provides the localizer automatically (`AddValidatorsFromAssembly` + `AddHeroLocalization` + the module's own `AddLocalization`); nested validators (`Include(new PagedQueryValidator<T>(localizer))`) receive it from the parent.
+Always the `.WithMessage(_ => localizer["Key"])` lambda (resolution is deferred to `Validate()`, under the request culture) — never `.WithMessage(localizer["Key"])`. **Catalog choice:** inject `IStringLocalizer<SharedResources>` for genuinely shared/generic validation (`Validation.*` already in Core, reuse them), or `IStringLocalizer<<Module>Resources>` for module-specific validation messages kept in the module's own catalog. DI provides the localizer automatically (`AddValidatorsFromAssembly` + `AddTrislabLocalization` + the module's own `AddLocalization`); nested validators (`Include(new PagedQueryValidator<T>(localizer))`) receive it from the parent.
 
 ## Known behaviour (documented, not bugs)
 

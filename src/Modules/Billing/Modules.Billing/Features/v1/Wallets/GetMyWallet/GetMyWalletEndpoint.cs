@@ -1,12 +1,12 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Modules.Billing.Contracts.Authorization;
-using FSH.Modules.Billing.Contracts.v1.Wallets;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Modules.Billing.Contracts.Authorization;
+using Trislab.Modules.Billing.Contracts.v1.Wallets;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Billing.Features.v1.Wallets.GetMyWallet;
+namespace Trislab.Modules.Billing.Features.v1.Wallets.GetMyWallet;
 
 public static class GetMyWalletEndpoint
 {

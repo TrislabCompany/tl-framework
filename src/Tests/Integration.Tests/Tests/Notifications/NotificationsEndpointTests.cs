@@ -1,10 +1,10 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Domain;
-using FSH.Modules.Notifications.Contracts.v1.DTOs;
-using FSH.Modules.Notifications.Data;
-using FSH.Modules.Notifications.Domain;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Notifications.Contracts.v1.DTOs;
+using Trislab.Modules.Notifications.Data;
+using Trislab.Modules.Notifications.Domain;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Identity;
@@ -17,15 +17,15 @@ namespace Integration.Tests.Tests.Notifications;
 /// — this file seeds rows directly via the DbContext and focuses on the read/mark-read surface so
 /// edge cases (cross-user MarkRead, idempotency, unread filter, paging) are explicit.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class NotificationsEndpointTests
 {
     private const string NotificationsBasePath = "/api/v1/notifications";
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public NotificationsEndpointTests(FshWebApplicationFactory factory)
+    public NotificationsEndpointTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -390,7 +390,7 @@ public sealed class NotificationsEndpointTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
             new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<FshUser>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
         var user = await userManager.FindByIdAsync(userId);
         user.ShouldNotBeNull();
         if (!user.EmailConfirmed)

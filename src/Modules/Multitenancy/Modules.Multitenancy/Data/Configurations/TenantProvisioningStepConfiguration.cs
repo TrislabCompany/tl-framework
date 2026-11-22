@@ -1,9 +1,9 @@
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Multitenancy.Provisioning;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Multitenancy.Provisioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FSH.Modules.Multitenancy.Data.Configurations;
+namespace Trislab.Modules.Multitenancy.Data.Configurations;
 
 public class TenantProvisioningStepConfiguration : IEntityTypeConfiguration<TenantProvisioningStep>
 {

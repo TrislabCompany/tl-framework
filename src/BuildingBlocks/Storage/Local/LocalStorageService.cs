@@ -1,11 +1,11 @@
-using FSH.Framework.Shared.Storage;
-using FSH.Framework.Storage.DTOs;
-using FSH.Framework.Storage.Services;
+using Trislab.Framework.Shared.Storage;
+using Trislab.Framework.Storage.DTOs;
+using Trislab.Framework.Storage.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.StaticFiles;
 using System.Threading;
 
-namespace FSH.Framework.Storage.Local;
+namespace Trislab.Framework.Storage.Local;
 
 public sealed class LocalStorageService : IStorageService
 {

@@ -1,4 +1,4 @@
-using FSH.Framework.Eventing.Inbox;
+using Trislab.Framework.Eventing.Inbox;
 using Shouldly;
 using Xunit;
 

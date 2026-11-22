@@ -1,9 +1,9 @@
 using FluentValidation;
-using FSH.Modules.Multitenancy.Contracts.v1.RenewTenant;
-using FSH.Modules.Multitenancy.Localization;
+using Trislab.Modules.Multitenancy.Contracts.v1.RenewTenant;
+using Trislab.Modules.Multitenancy.Localization;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Multitenancy.Features.v1.RenewTenant;
+namespace Trislab.Modules.Multitenancy.Features.v1.RenewTenant;
 
 public sealed class RenewTenantCommandValidator : AbstractValidator<RenewTenantCommand>
 {

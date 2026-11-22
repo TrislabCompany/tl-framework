@@ -1,13 +1,13 @@
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Billing.Data;
-using FSH.Modules.Billing.Localization;
-using FSH.Modules.Billing.Services;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Billing.Data;
+using Trislab.Modules.Billing.Localization;
+using Trislab.Modules.Billing.Services;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Billing.Features.v1.Invoices.GetInvoicePdf;
+namespace Trislab.Modules.Billing.Features.v1.Invoices.GetInvoicePdf;
 
 public sealed class GetInvoicePdfQueryHandler(
     BillingDbContext dbContext,

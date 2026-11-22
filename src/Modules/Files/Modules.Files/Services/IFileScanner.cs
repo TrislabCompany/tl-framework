@@ -1,6 +1,6 @@
-using FSH.Modules.Files.Domain;
+using Trislab.Modules.Files.Domain;
 
-namespace FSH.Modules.Files.Services;
+namespace Trislab.Modules.Files.Services;
 
 /// <summary>
 /// Hook point for antivirus / content scanning. The Files module's <c>FinalizeUpload</c> handler

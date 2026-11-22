@@ -1,8 +1,8 @@
 using System;
 using System.Globalization;
-using FSH.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
 using System.Linq;
-using FSH.Modules.Files.Localization;
+using Trislab.Modules.Files.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 

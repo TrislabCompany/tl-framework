@@ -1,4 +1,4 @@
-﻿namespace FSH.Framework.Web.Origin;
+﻿namespace Trislab.Framework.Web.Origin;
 
 public sealed class OriginOptions
 {

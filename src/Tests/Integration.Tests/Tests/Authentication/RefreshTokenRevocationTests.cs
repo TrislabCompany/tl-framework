@@ -1,5 +1,5 @@
 using Integration.Tests.Infrastructure;
-using FSH.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.DTOs;
 using System.Net.Http.Json;
 using System.Net;
 using Shouldly;
@@ -7,13 +7,13 @@ using Xunit;
 
 namespace Integration.Tests.Tests.Authentication;
 
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class RefreshTokenRevocationTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public RefreshTokenRevocationTests(FshWebApplicationFactory factory)
+    public RefreshTokenRevocationTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

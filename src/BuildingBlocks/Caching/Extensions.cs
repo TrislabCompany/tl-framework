@@ -1,11 +1,11 @@
-using FSH.Framework.Core.Common;
+using Trislab.Framework.Core.Common;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 
-namespace FSH.Framework.Caching;
+namespace Trislab.Framework.Caching;
 
 /// <summary>
 /// DI extensions for the HybridCache-backed caching building block.
@@ -23,7 +23,7 @@ public static class Extensions
     /// + L2 (distributed) layering, and logical tag-based invalidation. Consumers inject
     /// <see cref="HybridCache"/> directly — the decorator is transparent.
     /// </remarks>
-    public static IServiceCollection AddHeroCaching(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddTrislabCaching(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);

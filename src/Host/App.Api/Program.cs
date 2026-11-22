@@ -1,18 +1,18 @@
 using App.Api.Platform;
-using FSH.Framework.Eventing;
-using FSH.Framework.Web;
-using FSH.Framework.Web.Modules;
-using FSH.Modules.Auditing;
-using FSH.Modules.Identity;
-using FSH.Modules.Identity.Contracts.v1.Tokens.TokenGeneration;
-using FSH.Modules.Identity.Features.v1.Tokens.TokenGeneration;
-using FSH.Modules.Multitenancy;
-using FSH.Modules.Multitenancy.Contracts.v1.GetTenantStatus;
-using FSH.Modules.Webhooks;
-using FSH.Modules.Billing;
-using FSH.Modules.Catalog;
-using FSH.Modules.Tickets;
-using FSH.Modules.Multitenancy.Features.v1.GetTenantStatus;
+using Trislab.Framework.Eventing;
+using Trislab.Framework.Web;
+using Trislab.Framework.Web.Modules;
+using Trislab.Modules.Auditing;
+using Trislab.Modules.Identity;
+using Trislab.Modules.Identity.Contracts.v1.Tokens.TokenGeneration;
+using Trislab.Modules.Identity.Features.v1.Tokens.TokenGeneration;
+using Trislab.Modules.Multitenancy;
+using Trislab.Modules.Multitenancy.Contracts.v1.GetTenantStatus;
+using Trislab.Modules.Webhooks;
+using Trislab.Modules.Billing;
+using Trislab.Modules.Catalog;
+using Trislab.Modules.Tickets;
+using Trislab.Modules.Multitenancy.Features.v1.GetTenantStatus;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -67,22 +67,22 @@ builder.Services.AddMediator(o =>
         typeof(GenerateTokenCommandHandler),
         typeof(GetTenantStatusQuery),
         typeof(GetTenantStatusQueryHandler),
-        typeof(FSH.Modules.Auditing.Contracts.AuditEnvelope),
-        typeof(FSH.Modules.Auditing.Persistence.AuditDbContext),
-        typeof(FSH.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription.CreateWebhookSubscriptionCommand),
-        typeof(FSH.Modules.Webhooks.WebhooksModule),
-        typeof(FSH.Modules.Billing.Contracts.BillingContractsMarker),
-        typeof(FSH.Modules.Billing.BillingModule),
-        typeof(FSH.Modules.Catalog.Contracts.CatalogContractsMarker),
-        typeof(FSH.Modules.Catalog.CatalogModule),
-        typeof(FSH.Modules.Tickets.Contracts.TicketsContractsMarker),
-        typeof(FSH.Modules.Tickets.TicketsModule),
-        typeof(FSH.Modules.Files.Contracts.v1.Commands.RequestUploadUrlCommand),
-        typeof(FSH.Modules.Files.FilesModule),
-        typeof(FSH.Modules.Chat.Contracts.v1.Commands.CreateChannelCommand),
-        typeof(FSH.Modules.Chat.ChatModule),
-        typeof(FSH.Modules.Notifications.Contracts.v1.Commands.MarkNotificationReadCommand),
-        typeof(FSH.Modules.Notifications.NotificationsModule)];
+        typeof(Trislab.Modules.Auditing.Contracts.AuditEnvelope),
+        typeof(Trislab.Modules.Auditing.Persistence.AuditDbContext),
+        typeof(Trislab.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription.CreateWebhookSubscriptionCommand),
+        typeof(Trislab.Modules.Webhooks.WebhooksModule),
+        typeof(Trislab.Modules.Billing.Contracts.BillingContractsMarker),
+        typeof(Trislab.Modules.Billing.BillingModule),
+        typeof(Trislab.Modules.Catalog.Contracts.CatalogContractsMarker),
+        typeof(Trislab.Modules.Catalog.CatalogModule),
+        typeof(Trislab.Modules.Tickets.Contracts.TicketsContractsMarker),
+        typeof(Trislab.Modules.Tickets.TicketsModule),
+        typeof(Trislab.Modules.Files.Contracts.v1.Commands.RequestUploadUrlCommand),
+        typeof(Trislab.Modules.Files.FilesModule),
+        typeof(Trislab.Modules.Chat.Contracts.v1.Commands.CreateChannelCommand),
+        typeof(Trislab.Modules.Chat.ChatModule),
+        typeof(Trislab.Modules.Notifications.Contracts.v1.Commands.MarkNotificationReadCommand),
+        typeof(Trislab.Modules.Notifications.NotificationsModule)];
 });
 
 var moduleAssemblies = new Assembly[]
@@ -90,16 +90,16 @@ var moduleAssemblies = new Assembly[]
     typeof(IdentityModule).Assembly,
     typeof(MultitenancyModule).Assembly,
     typeof(AuditingModule).Assembly,
-    typeof(FSH.Modules.Files.FilesModule).Assembly,
+    typeof(Trislab.Modules.Files.FilesModule).Assembly,
     typeof(WebhooksModule).Assembly,
     typeof(BillingModule).Assembly,
     typeof(CatalogModule).Assembly,
     typeof(TicketsModule).Assembly,
-    typeof(FSH.Modules.Chat.ChatModule).Assembly,
-    typeof(FSH.Modules.Notifications.NotificationsModule).Assembly,
+    typeof(Trislab.Modules.Chat.ChatModule).Assembly,
+    typeof(Trislab.Modules.Notifications.NotificationsModule).Assembly,
 };
 
-builder.AddHeroPlatform(o =>
+builder.AddTrislabPlatform(o =>
 {
     o.EnableCaching = true;
     o.EnableMailing = true;
@@ -124,8 +124,8 @@ builder.Services.AddHostedService<App.Api.OrphanedOutboxRecurringJobCleanupServi
 
 var app = builder.Build();
 
-app.UseHeroMultiTenantDatabases();
-app.UseHeroPlatform(p =>
+app.UseTrislabMultiTenantDatabases();
+app.UseTrislabPlatform(p =>
 {
     p.MapModules = true;
     p.ServeStaticFiles = true;

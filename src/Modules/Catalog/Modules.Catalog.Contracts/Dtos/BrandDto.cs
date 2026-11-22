@@ -1,4 +1,4 @@
-namespace FSH.Modules.Catalog.Contracts.Dtos;
+namespace Trislab.Modules.Catalog.Contracts.Dtos;
 
 public sealed record BrandDto(
     Guid Id,

@@ -1,14 +1,14 @@
 using Finbuckle.MultiTenant.EntityFrameworkCore.Extensions;
-using FSH.Modules.Identity.Domain;
+using Trislab.Modules.Identity.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FSH.Modules.Identity.Data;
+namespace Trislab.Modules.Identity.Data;
 
-public class ApplicationUserConfig : IEntityTypeConfiguration<FshUser>
+public class ApplicationUserConfig : IEntityTypeConfiguration<TrislabUser>
 {
-    public void Configure(EntityTypeBuilder<FshUser> builder)
+    public void Configure(EntityTypeBuilder<TrislabUser> builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
@@ -29,9 +29,9 @@ public class ApplicationUserConfig : IEntityTypeConfiguration<FshUser>
     }
 }
 
-public class ApplicationRoleConfig : IEntityTypeConfiguration<FshRole>
+public class ApplicationRoleConfig : IEntityTypeConfiguration<TrislabRole>
 {
-    public void Configure(EntityTypeBuilder<FshRole> builder)
+    public void Configure(EntityTypeBuilder<TrislabRole> builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
@@ -42,9 +42,9 @@ public class ApplicationRoleConfig : IEntityTypeConfiguration<FshRole>
     }
 }
 
-public class ApplicationRoleClaimConfig : IEntityTypeConfiguration<FshRoleClaim>
+public class ApplicationRoleClaimConfig : IEntityTypeConfiguration<TrislabRoleClaim>
 {
-    public void Configure(EntityTypeBuilder<FshRoleClaim> builder)
+    public void Configure(EntityTypeBuilder<TrislabRoleClaim> builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
 

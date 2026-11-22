@@ -1,12 +1,12 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Identity.Contracts.DTOs;
-using FSH.Modules.Identity.Contracts.v1.Users.GetUserGroups;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Identity.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.v1.Users.GetUserGroups;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Localization;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Identity.Features.v1.Users.GetUserGroups;
+namespace Trislab.Modules.Identity.Features.v1.Users.GetUserGroups;
 
 public sealed class GetUserGroupsQueryHandler : IQueryHandler<GetUserGroupsQuery, IEnumerable<GroupDto>>
 {

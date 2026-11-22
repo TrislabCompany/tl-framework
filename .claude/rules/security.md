@@ -12,7 +12,7 @@ For auth/JWT/permissions see `modules/identity.md`; for the global exception han
 
 ## CORS (`Web/Cors/`) — the SignalR gotcha
 
-Policy `FSHCorsPolicy`. When `CorsOptions.AllowAll=true` it uses **`SetIsOriginAllowed(_ => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials()`** — deliberately **NOT `AllowAnyOrigin()`**. `Access-Control-Allow-Origin: *` is illegal with credentialed requests, and **SignalR's negotiate always runs credentialed**, so `AllowAnyOrigin()` silently breaks SignalR while REST keeps working. Never "simplify" it to `AllowAnyOrigin()`. `UseHeroCors()` runs **before** `UseHttpsRedirection()` so OPTIONS preflight isn't 307-redirected.
+Policy `FSHCorsPolicy`. When `CorsOptions.AllowAll=true` it uses **`SetIsOriginAllowed(_ => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials()`** — deliberately **NOT `AllowAnyOrigin()`**. `Access-Control-Allow-Origin: *` is illegal with credentialed requests, and **SignalR's negotiate always runs credentialed**, so `AllowAnyOrigin()` silently breaks SignalR while REST keeps working. Never "simplify" it to `AllowAnyOrigin()`. `UseTrislabCors()` runs **before** `UseHttpsRedirection()` so OPTIONS preflight isn't 307-redirected.
 
 ## Front-end origin for outbound links (`Web/Frontend/`)
 
@@ -23,11 +23,11 @@ Policy `FSHCorsPolicy`. When `CorsOptions.AllowAll=true` it uses **`SetIsOriginA
 
 Picking the wrong method is a silent bug — both compile and both return a plausible origin. Match the method to **who receives the link**, not to who sent the request.
 
-No `ValidateOnStart` on `FrontendOptions`, on purpose: a deployment that never sends such a link must not be taken down by the setting. `UseHeroPlatform` logs at startup instead — `Warning` for an empty or all-typo allow-list (counted after normalization, so a list of nothing but typos reports as the empty list it effectively is), `Error` for a missing `DefaultOrigin`, since without it those flows return 500 rather than degrading. `OriginOptions:OriginUrl` keeps its own job — the API's own public base for back-end-served assets (avatars), read through `IRequestContext.Origin`.
+No `ValidateOnStart` on `FrontendOptions`, on purpose: a deployment that never sends such a link must not be taken down by the setting. `UseTrislabPlatform` logs at startup instead — `Warning` for an empty or all-typo allow-list (counted after normalization, so a list of nothing but typos reports as the empty list it effectively is), `Error` for a missing `DefaultOrigin`, since without it those flows return 500 rather than degrading. `OriginOptions:OriginUrl` keeps its own job — the API's own public base for back-end-served assets (avatars), read through `IRequestContext.Origin`.
 
 ## Security headers (`Web/Security/`)
 
-`UseHeroSecurityHeaders()` sets `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, HSTS (HTTPS), and a CSP. `SecurityHeadersOptions.ExcludedPaths` defaults to `["/scalar","/openapi"]` (they manage their own scripts) — keep those excluded.
+`UseTrislabSecurityHeaders()` sets `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, HSTS (HTTPS), and a CSP. `SecurityHeadersOptions.ExcludedPaths` defaults to `["/scalar","/openapi"]` (they manage their own scripts) — keep those excluded.
 
 ## Rate limiting (`Web/RateLimiting/`)
 

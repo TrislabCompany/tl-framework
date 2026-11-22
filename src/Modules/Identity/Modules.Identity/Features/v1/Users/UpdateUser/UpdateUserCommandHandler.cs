@@ -1,8 +1,8 @@
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Users.UpdateUser;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Users.UpdateUser;
 using Mediator;
 
-namespace FSH.Modules.Identity.Features.v1.Users.UpdateUser;
+namespace Trislab.Modules.Identity.Features.v1.Users.UpdateUser;
 
 public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Unit>
 {

@@ -1,7 +1,7 @@
 using FluentValidation;
-using FSH.Modules.Notifications.Contracts.v1.Commands;
+using Trislab.Modules.Notifications.Contracts.v1.Commands;
 
-namespace FSH.Modules.Notifications.Features.v1.MarkNotificationRead;
+namespace Trislab.Modules.Notifications.Features.v1.MarkNotificationRead;
 
 public sealed class MarkNotificationReadCommandValidator : AbstractValidator<MarkNotificationReadCommand>
 {

@@ -1,7 +1,7 @@
 using FluentValidation;
-using FSH.Modules.Identity.Contracts.v1.TwoFactor;
+using Trislab.Modules.Identity.Contracts.v1.TwoFactor;
 
-namespace FSH.Modules.Identity.Features.v1.TwoFactor.VerifyEnroll;
+namespace Trislab.Modules.Identity.Features.v1.TwoFactor.VerifyEnroll;
 
 public sealed class VerifyEnrollTwoFactorCommandValidator : AbstractValidator<VerifyEnrollTwoFactorCommand>
 {

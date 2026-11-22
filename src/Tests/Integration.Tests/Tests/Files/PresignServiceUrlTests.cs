@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
-using FSH.Framework.Storage;
-using FSH.Framework.Storage.Services;
+using Trislab.Framework.Storage;
+using Trislab.Framework.Storage.Services;
 using Integration.Tests.Infrastructure;
 using Microsoft.Extensions.Configuration;
 
@@ -11,13 +11,13 @@ namespace Integration.Tests.Tests.Files;
 /// presigned URLs for <c>localhost</c>, two host strings for the same container. A 200 on the PUT proves the
 /// signature was computed for the public host, not the one the API talks to (SigV4 signs the Host header).
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class PresignServiceUrlTests
 {
     private const string ContentType = "application/octet-stream";
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
 
-    public PresignServiceUrlTests(FshWebApplicationFactory factory)
+    public PresignServiceUrlTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
     }
@@ -78,12 +78,12 @@ public sealed class PresignServiceUrlTests
         var settings = new Dictionary<string, string?>
         {
             ["Storage:Provider"] = "s3",
-            ["Storage:S3:Bucket"] = FshWebApplicationFactory.S3Bucket,
+            ["Storage:S3:Bucket"] = TrislabWebApplicationFactory.S3Bucket,
             ["Storage:S3:Region"] = "us-east-1",
             ["Storage:S3:ServiceUrl"] = serviceUrl,
             ["Storage:S3:PresignServiceUrl"] = presignServiceUrl,
-            ["Storage:S3:AccessKey"] = FshWebApplicationFactory.S3AccessKey,
-            ["Storage:S3:SecretKey"] = FshWebApplicationFactory.S3SecretKey,
+            ["Storage:S3:AccessKey"] = TrislabWebApplicationFactory.S3AccessKey,
+            ["Storage:S3:SecretKey"] = TrislabWebApplicationFactory.S3SecretKey,
             ["Storage:S3:ForcePathStyle"] = "true",
             ["Storage:S3:PublicRead"] = "false"
         };
@@ -91,7 +91,7 @@ public sealed class PresignServiceUrlTests
 
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddHeroStorage(configuration);
+        services.AddTrislabStorage(configuration);
         return services.BuildServiceProvider();
     }
 }

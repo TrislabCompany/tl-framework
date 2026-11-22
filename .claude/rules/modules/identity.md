@@ -26,7 +26,7 @@ Auth (JWT + ASP.NET Identity), users, roles, permissions, sessions, impersonatio
 
 ## Permission gating footgun
 
-`RequiredPermissionAttribute` implements `FSH.Framework.Shared.Identity.Authorization.IRequiredPermissionMetadata`. **Never let a second/duplicate `IRequiredPermissionMetadata` appear** — it silently disables **all** `.RequirePermission()` gates across the app. Permission constants live in `Shared/Identity/*Permissions.cs`.
+`RequiredPermissionAttribute` implements `Trislab.Framework.Shared.Identity.Authorization.IRequiredPermissionMetadata`. **Never let a second/duplicate `IRequiredPermissionMetadata` appear** — it silently disables **all** `.RequirePermission()` gates across the app. Permission constants live in `Shared/Identity/*Permissions.cs`.
 
 ## Hosted services (background)
 

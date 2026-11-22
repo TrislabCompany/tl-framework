@@ -1,10 +1,10 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Identity.Domain;
-using FSH.Modules.Identity.Services;
-using FSH.Modules.Multitenancy.Contracts.Dtos;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Identity.Services;
+using Trislab.Modules.Multitenancy.Contracts.Dtos;
 using Integration.Tests.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Hosting;
@@ -17,17 +17,17 @@ namespace Integration.Tests.Tests.Sessions;
 /// runs inside that tenant's context. Sessions are seeded in two tenants and the registered hosted
 /// service's single run is invoked directly, so the test does not wait for the hourly timer.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class SessionCleanupTests
 {
     // The service keeps sessions for 30 days past expiry; 31 is safely past the cutoff, 1 is inside it.
     private const int DaysPastRetention = 31;
     private const int DaysInsideRetention = 1;
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public SessionCleanupTests(FshWebApplicationFactory factory)
+    public SessionCleanupTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -85,7 +85,7 @@ public sealed class SessionCleanupTests
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
         var user = await scope.ServiceProvider
-            .GetRequiredService<UserManager<FshUser>>()
+            .GetRequiredService<UserManager<TrislabUser>>()
             .FindByEmailAsync(userEmail);
         user.ShouldNotBeNull();
 

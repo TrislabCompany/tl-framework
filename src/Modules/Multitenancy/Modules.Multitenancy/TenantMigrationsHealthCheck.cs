@@ -1,12 +1,12 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Multitenancy.Data;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Multitenancy.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace FSH.Modules.Multitenancy;
+namespace Trislab.Modules.Multitenancy;
 
 /// <summary>
 /// Readiness check: returns <c>Unhealthy</c> when any tenant's <c>TenantDbContext</c> has

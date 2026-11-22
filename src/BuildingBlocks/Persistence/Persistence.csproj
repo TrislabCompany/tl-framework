@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<RootNamespace>FSH.Framework.Persistence</RootNamespace>
-		<AssemblyName>FSH.Framework.Persistence</AssemblyName>
+		<RootNamespace>Trislab.Framework.Persistence</RootNamespace>
+		<AssemblyName>Trislab.Framework.Persistence</AssemblyName>
 		<NoWarn>$(NoWarn);S4144;CS0618</NoWarn>
 	</PropertyGroup>
 

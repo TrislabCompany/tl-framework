@@ -1,23 +1,23 @@
 using Finbuckle.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.Identity.EntityFrameworkCore;
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Identity.Domain;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Identity.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
-namespace FSH.Modules.Identity.Data;
+namespace Trislab.Modules.Identity.Data;
 
-public class IdentityDbContext : MultiTenantIdentityDbContext<FshUser,
-    FshRole,
+public class IdentityDbContext : MultiTenantIdentityDbContext<TrislabUser,
+    TrislabRole,
     string,
     IdentityUserClaim<string>,
     IdentityUserRole<string>,
     IdentityUserLogin<string>,
-    FshRoleClaim,
+    TrislabRoleClaim,
     IdentityUserToken<string>,
     IdentityUserPasskey<string>>
 {
@@ -68,7 +68,7 @@ public class IdentityDbContext : MultiTenantIdentityDbContext<FshUser,
     {
         if (!string.IsNullOrWhiteSpace(TenantInfo?.ConnectionString))
         {
-            optionsBuilder.ConfigureHeroDatabase(
+            optionsBuilder.ConfigureTrislabDatabase(
                 _settings.Provider,
                 TenantInfo.ConnectionString,
                 _settings.MigrationsAssembly,

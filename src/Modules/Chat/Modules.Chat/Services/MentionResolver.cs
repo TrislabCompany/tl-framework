@@ -1,6 +1,6 @@
-using FSH.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.Services;
 
-namespace FSH.Modules.Chat.Services;
+namespace Trislab.Modules.Chat.Services;
 
 /// <summary>
 /// Default mention resolver. Pulls the full user list once and filters in memory — fine for

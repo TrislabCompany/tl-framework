@@ -1,5 +1,5 @@
-using FSH.Framework.Shared.Quota;
-using FSH.Modules.Billing.Domain;
+using Trislab.Framework.Shared.Quota;
+using Trislab.Modules.Billing.Domain;
 
 namespace Billing.Tests.Domain;
 

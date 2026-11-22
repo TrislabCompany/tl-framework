@@ -1,8 +1,8 @@
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Billing.Contracts.Dtos;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Billing.Contracts.Dtos;
 using Mediator;
 
-namespace FSH.Modules.Billing.Contracts.v1.Wallets;
+namespace Trislab.Modules.Billing.Contracts.v1.Wallets;
 
 public sealed record GetMyTopupRequestsQuery(
     TopupRequestStatus? Status = null,

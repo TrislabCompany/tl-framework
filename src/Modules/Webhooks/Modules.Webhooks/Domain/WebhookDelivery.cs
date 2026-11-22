@@ -1,4 +1,4 @@
-namespace FSH.Modules.Webhooks.Domain;
+namespace Trislab.Modules.Webhooks.Domain;
 
 public sealed class WebhookDelivery
 {

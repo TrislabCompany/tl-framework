@@ -1,10 +1,10 @@
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Modules.Catalog.Data;
-using FSH.Modules.Catalog.Domain;
-using FSH.Modules.Files.Contracts.Events;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Modules.Catalog.Data;
+using Trislab.Modules.Catalog.Domain;
+using Trislab.Modules.Files.Contracts.Events;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Catalog.IntegrationEventHandlers;
+namespace Trislab.Modules.Catalog.IntegrationEventHandlers;
 
 /// <summary>
 /// A <see cref="ProductImage"/> persists the public URL of its FileAsset at attach time. When Files

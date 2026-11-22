@@ -1,4 +1,4 @@
-﻿namespace FSH.Framework.Core.Domain;
+﻿namespace Trislab.Framework.Core.Domain;
 
 /// <summary>
 /// Base domain event with correlation and tenant context.

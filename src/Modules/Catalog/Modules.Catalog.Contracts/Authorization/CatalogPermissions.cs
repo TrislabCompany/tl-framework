@@ -1,6 +1,6 @@
-using FSH.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Constants;
 
-namespace FSH.Modules.Catalog.Contracts.Authorization;
+namespace Trislab.Modules.Catalog.Contracts.Authorization;
 
 public static class CatalogPermissions
 {
@@ -35,7 +35,7 @@ public static class CatalogPermissions
         public const string AdjustStock = $"Permissions.{Resource}.AdjustStock";
     }
 
-    public static IReadOnlyList<FshPermission> All { get; } =
+    public static IReadOnlyList<TrislabPermission> All { get; } =
     [
         new("View Brands",    ActionConstants.View,   Brands.Resource, IsBasic: true),
         new("Create Brands",  ActionConstants.Create, Brands.Resource),

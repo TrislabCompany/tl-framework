@@ -1,9 +1,9 @@
 using FluentValidation;
-using FSH.Modules.Catalog.Contracts.v1.Products;
-using FSH.Modules.Catalog.Localization;
+using Trislab.Modules.Catalog.Contracts.v1.Products;
+using Trislab.Modules.Catalog.Localization;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Catalog.Features.v1.Products.AdjustProductStock;
+namespace Trislab.Modules.Catalog.Features.v1.Products.AdjustProductStock;
 
 public sealed class AdjustProductStockCommandValidator : AbstractValidator<AdjustProductStockCommand>
 {

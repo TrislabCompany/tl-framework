@@ -1,10 +1,10 @@
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Modules.Billing.Data;
-using FSH.Modules.Billing.Services;
-using FSH.Modules.Multitenancy.Contracts.Events;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Modules.Billing.Data;
+using Trislab.Modules.Billing.Services;
+using Trislab.Modules.Multitenancy.Contracts.Events;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Modules.Billing.IntegrationEventHandlers;
+namespace Trislab.Modules.Billing.IntegrationEventHandlers;
 
 /// <summary>
 /// Reacts to a tenant renewal: when the plan changed, swaps the active subscription to the new plan;

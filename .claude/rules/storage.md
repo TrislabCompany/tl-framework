@@ -23,7 +23,7 @@ Bucket policies in every stack (Aspire bootstrap, compose `rustfs-init`, Terrafo
 - Modules that persist a public URL must handle that event and use `ResolveUrl` (it returns the API's current `NewPublicUrl` for public files) — Catalog (product images) and Identity (avatars) do.
 - Keys from before #1410 (`tenants/…`, `uploads/…`) have no root: `MigrateLegacyPublicFileKeysJob` (enqueued via `IJobService` on every API start; keyset-paginated; retried by Hangfire) moves public FileAssets under `public/`; legacy private ones stay put. It reads the partial index `IX_FileAsset_LegacyKey`, which is empty once done, so repeat runs are nearly free. `FinalizeUpload` relocates uploads that were presigned before the upgrade, best-effort: the finalize is already committed, so a failed move is logged and the file stays at its legacy key (the job moves a public one later; a private one stays, which is safe). Legacy `UploadAsync<T>` objects (`uploads/…`) are **not** migrated.
 - `QuotaMeteredStorageService.RemoveAsync` refunds only when the object is gone afterwards (providers swallow delete errors).
-- With `Storage:S3:Prefix` set, keys become `{Prefix}/public/…` — the policy must match that, and the prefix's first segment must **not** be `public` or `private` (case-insensitive; `AddHeroStorage` fails startup via `ValidateOnStart`).
+- With `Storage:S3:Prefix` set, keys become `{Prefix}/public/…` — the policy must match that, and the prefix's first segment must **not** be `public` or `private` (case-insensitive; `AddTrislabStorage` fails startup via `ValidateOnStart`).
 - The **Local** provider serves everything under wwwroot: it does not enforce `private/` at all. Use it for dev only.
 
 `FileType`: `Image` (5MB), `Document`, `Pdf` (10MB) — `FileTypeMetadata.GetRules` enforces extension + size, and `UploadAsync` also checks the bytes against the extension (`FileSignatures`). **Always propagate `CancellationToken`.**
@@ -52,9 +52,9 @@ A real breach on an earlier generation of this kit came from exactly this: a cli
 
 ## Providers
 
-`AddHeroStorage(config)` reads `Storage:Provider` **eagerly at registration**: `"s3"` → `S3StorageService` (any S3-compatible service via `ServiceUrl` + `ForcePathStyle`: rustfs in a stamp, the AppHost and the tests), else `LocalStorageService`. Presigned URLs are signed by a second client, keyed `S3StorageService.PresignClientKey`, for `PresignServiceUrl` (`S3_PUBLIC_ENDPOINT`): the browser reaches the storage through the front end's `/storage` proxy, on the page's hostname. When quotas are enabled the service is wrapped in `QuotaMeteredStorageService` (debits `StorageBytes`).
+`AddTrislabStorage(config)` reads `Storage:Provider` **eagerly at registration**: `"s3"` → `S3StorageService` (any S3-compatible service via `ServiceUrl` + `ForcePathStyle`: rustfs in a stamp, the AppHost and the tests), else `LocalStorageService`. Presigned URLs are signed by a second client, keyed `S3StorageService.PresignClientKey`, for `PresignServiceUrl` (`S3_PUBLIC_ENDPOINT`): the browser reaches the storage through the front end's `/storage` proxy, on the page's hostname. When quotas are enabled the service is wrapped in `QuotaMeteredStorageService` (debits `StorageBytes`).
 
-`Storage:S3:PresignServiceUrl` (optional, validated at startup as an absolute http(s) URL): presigned PUT/GET URLs are signed for this host through a second, keyed `IAmazonS3` (`S3StorageService.PresignClientKey`); all real I/O stays on `ServiceUrl`. Needed when the API reaches the store on an internal address browsers can't resolve (compose: `http://rustfs:9000`). A test factory that re-registers the S3 stack must register that keyed client too (see `FshWebApplicationFactory`).
+`Storage:S3:PresignServiceUrl` (optional, validated at startup as an absolute http(s) URL): presigned PUT/GET URLs are signed for this host through a second, keyed `IAmazonS3` (`S3StorageService.PresignClientKey`); all real I/O stays on `ServiceUrl`. Needed when the API reaches the store on an internal address browsers can't resolve (compose: `http://rustfs:9000`). A test factory that re-registers the S3 stack must register that keyed client too (see `TrislabWebApplicationFactory`).
 
 ## Presigned upload flow (preferred for user uploads)
 
@@ -67,4 +67,4 @@ Without S3 storage, local disk uses `LocalPresignTokenStore` (in-memory one-shot
 
 ## Test gotcha
 
-`AddHeroStorage` reads `Storage:Provider` **before** a test factory's in-memory config overlay applies, so it wires `LocalStorageService`. Integration tests that need object storage must **remove the `IStorageService`/`LocalStorageService`/`S3StorageService` descriptors post-registration and re-register the S3 stack** pointed at the rustfs container (see `FshWebApplicationFactory`). See `integration-testing.md`.
+`AddTrislabStorage` reads `Storage:Provider` **before** a test factory's in-memory config overlay applies, so it wires `LocalStorageService`. Integration tests that need object storage must **remove the `IStorageService`/`LocalStorageService`/`S3StorageService` descriptors post-registration and re-register the S3 stack** pointed at the rustfs container (see `TrislabWebApplicationFactory`). See `integration-testing.md`.

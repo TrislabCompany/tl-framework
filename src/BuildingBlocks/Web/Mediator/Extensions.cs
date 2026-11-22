@@ -1,9 +1,9 @@
-﻿using FSH.Framework.Web.Mediator.Behaviors;
+﻿using Trislab.Framework.Web.Mediator.Behaviors;
 using Mediator;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
-namespace FSH.Framework.Web.Mediator;
+namespace Trislab.Framework.Web.Mediator;
 
 public static class Extensions
 {

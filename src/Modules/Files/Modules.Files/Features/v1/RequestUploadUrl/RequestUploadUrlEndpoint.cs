@@ -1,7 +1,7 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Framework.Web.Idempotency;
-using FSH.Modules.Files.Contracts.Authorization;
-using FSH.Modules.Files.Contracts.v1.Commands;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Framework.Web.Idempotency;
+using Trislab.Modules.Files.Contracts.Authorization;
+using Trislab.Modules.Files.Contracts.v1.Commands;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace FSH.Modules.Files.Features.v1.RequestUploadUrl;
+namespace Trislab.Modules.Files.Features.v1.RequestUploadUrl;
 
 public static class RequestUploadUrlEndpoint
 {

@@ -1,7 +1,7 @@
 using FluentValidation;
-using FSH.Modules.Catalog.Contracts.v1.Products.AddProductImage;
+using Trislab.Modules.Catalog.Contracts.v1.Products.AddProductImage;
 
-namespace FSH.Modules.Catalog.Features.v1.Products.AddProductImage;
+namespace Trislab.Modules.Catalog.Features.v1.Products.AddProductImage;
 
 public sealed class AddProductImageCommandValidator : AbstractValidator<AddProductImageCommand>
 {

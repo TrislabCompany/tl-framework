@@ -1,10 +1,10 @@
-using FSH.Modules.Webhooks.Data;
-using FSH.Modules.Webhooks.Domain;
+using Trislab.Modules.Webhooks.Data;
+using Trislab.Modules.Webhooks.Domain;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
 using System.Text;
 
-namespace FSH.Modules.Webhooks.Services;
+namespace Trislab.Modules.Webhooks.Services;
 
 public sealed class WebhookDeliveryService(
     IHttpClientFactory httpClientFactory,

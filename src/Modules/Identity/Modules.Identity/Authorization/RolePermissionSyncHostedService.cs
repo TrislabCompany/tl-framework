@@ -1,16 +1,16 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Multitenancy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FSH.Modules.Identity.Authorization;
+namespace Trislab.Modules.Identity.Authorization;
 
 /// <summary>
 /// Runs once on host startup: iterates every tenant and reconciles the built-in roles' permission
-/// claims with the ones registered via <see cref="FSH.Framework.Shared.Constants.PermissionConstants"/>,
+/// claims with the ones registered via <see cref="Trislab.Framework.Shared.Constants.PermissionConstants"/>,
 /// adding the missing ones and removing the ones no longer granted (unless
 /// <see cref="PermissionSyncOptions.RemoveRevoked"/> is off). Idempotent and lightweight —
 /// only writes when something changed, so it's safe to run unconditionally.

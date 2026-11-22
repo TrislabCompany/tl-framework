@@ -1,8 +1,8 @@
-using FSH.Modules.Chat.Data;
-using FSH.Modules.Files.Contracts;
+using Trislab.Modules.Chat.Data;
+using Trislab.Modules.Files.Contracts;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Chat.Authorization;
+namespace Trislab.Modules.Chat.Authorization;
 
 /// <summary>
 /// IFileAccessPolicy for chat-channel attachments (OwnerType=ChatChannel).

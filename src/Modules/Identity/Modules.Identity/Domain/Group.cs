@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Domain;
+using Trislab.Framework.Core.Domain;
 
-namespace FSH.Modules.Identity.Domain;
+namespace Trislab.Modules.Identity.Domain;
 
 public class Group : IAuditableEntity, ISoftDeletable
 {

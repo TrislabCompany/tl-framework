@@ -1,17 +1,17 @@
-﻿using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Jobs.Services;
-using FSH.Framework.Shared.Persistence;
+﻿using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Jobs.Services;
+using Trislab.Framework.Shared.Persistence;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FSH.Framework.Jobs;
+namespace Trislab.Framework.Jobs;
 
 public static class Extensions
 {
-    public static IServiceCollection AddHeroJobs(this IServiceCollection services)
+    public static IServiceCollection AddTrislabJobs(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
 
@@ -52,8 +52,8 @@ public static class Extensions
                         .Localized("Jobs.UnsupportedStorageProvider", dbOptions.Provider);
             }
 
-            config.UseActivator(new FshJobActivator(provider.GetRequiredService<IServiceScopeFactory>()));
-            config.UseFilter(new FshJobFilter(provider));
+            config.UseActivator(new TrislabJobActivator(provider.GetRequiredService<IServiceScopeFactory>()));
+            config.UseFilter(new TrislabJobFilter(provider));
             config.UseFilter(new LogJobFilter());
             config.UseFilter(new HangfireTelemetryFilter());
         });
@@ -67,7 +67,7 @@ public static class Extensions
     }
 
 
-    public static IApplicationBuilder UseHeroJobDashboard(this IApplicationBuilder app, IConfiguration config)
+    public static IApplicationBuilder UseTrislabJobDashboard(this IApplicationBuilder app, IConfiguration config)
     {
         ArgumentNullException.ThrowIfNull(app);
         ArgumentNullException.ThrowIfNull(config);

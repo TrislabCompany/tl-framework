@@ -1,10 +1,10 @@
-using FSH.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription;
-using FSH.Modules.Webhooks.Data;
-using FSH.Modules.Webhooks.Domain;
-using FSH.Modules.Webhooks.Services;
+using Trislab.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription;
+using Trislab.Modules.Webhooks.Data;
+using Trislab.Modules.Webhooks.Domain;
+using Trislab.Modules.Webhooks.Services;
 using Mediator;
 
-namespace FSH.Modules.Webhooks.Features.v1.CreateWebhookSubscription;
+namespace Trislab.Modules.Webhooks.Features.v1.CreateWebhookSubscription;
 
 public sealed class CreateWebhookSubscriptionCommandHandler(
     WebhookDbContext dbContext,

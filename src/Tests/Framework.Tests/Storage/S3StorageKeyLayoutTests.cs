@@ -2,12 +2,12 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Quota;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Quota;
-using FSH.Framework.Shared.Storage;
-using FSH.Framework.Storage;
-using FSH.Framework.Storage.Services;
+using Trislab.Framework.Quota;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Quota;
+using Trislab.Framework.Shared.Storage;
+using Trislab.Framework.Storage;
+using Trislab.Framework.Storage.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,7 +15,7 @@ namespace Framework.Tests.Storage;
 
 /// <summary>
 /// Bucket policies grant anonymous read on <c>public/*</c> only, so where <c>S3StorageService</c> puts
-/// objects decides whether they can be read. These run the real <c>AddHeroStorage</c> wiring against a
+/// objects decides whether they can be read. These run the real <c>AddTrislabStorage</c> wiring against a
 /// substituted <see cref="IAmazonS3"/> and assert on the requests it receives.
 /// </summary>
 public sealed class S3StorageKeyLayoutTests
@@ -186,7 +186,7 @@ public sealed class S3StorageKeyLayoutTests
 
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddHeroStorage(configuration);
+        services.AddTrislabStorage(configuration);
 
         // Last registration wins for a single-service resolve.
         services.AddSingleton(s3);

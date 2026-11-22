@@ -1,17 +1,17 @@
-using FSH.Modules.Chat.Contracts.v1.DTOs;
+using Trislab.Modules.Chat.Contracts.v1.DTOs;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 
 namespace Integration.Tests.Tests.Chat;
 
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class ChatChannelsTests
 {
     private const string ChatBasePath = "/api/v1/chat";
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public ChatChannelsTests(FshWebApplicationFactory factory)
+    public ChatChannelsTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

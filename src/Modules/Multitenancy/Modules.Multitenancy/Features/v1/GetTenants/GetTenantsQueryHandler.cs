@@ -1,10 +1,10 @@
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Multitenancy.Contracts;
-using FSH.Modules.Multitenancy.Contracts.Dtos;
-using FSH.Modules.Multitenancy.Contracts.v1.GetTenants;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Multitenancy.Contracts;
+using Trislab.Modules.Multitenancy.Contracts.Dtos;
+using Trislab.Modules.Multitenancy.Contracts.v1.GetTenants;
 using Mediator;
 
-namespace FSH.Modules.Multitenancy.Features.v1.GetTenants;
+namespace Trislab.Modules.Multitenancy.Features.v1.GetTenants;
 
 public sealed class GetTenantsQueryHandler(ITenantService tenantService)
     : IQueryHandler<GetTenantsQuery, PagedResponse<TenantDto>>

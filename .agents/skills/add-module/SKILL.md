@@ -25,14 +25,14 @@ src/Modules/{Name}/
 project references. The runtime project references its Contracts project + the BuildingBlocks it needs;
 the Contracts project references `Mediator` + shared contracts.
 
-## Step 1 — `[FshModule]` is an ASSEMBLY attribute (not class-level)
+## Step 1 — `[TrislabModule]` is an ASSEMBLY attribute (not class-level)
 
 In `{Name}Module.cs`, above the namespace:
 
 ```csharp
-[assembly: FshModule(typeof(FSH.Modules.{Name}.{Name}Module), 900)]   // (Type, order)
+[assembly: TrislabModule(typeof(Trislab.Modules.{Name}.{Name}Module), 900)]   // (Type, order)
 
-namespace FSH.Modules.{Name};
+namespace Trislab.Modules.{Name};
 
 public sealed class {Name}Module : IModule
 {
@@ -40,7 +40,7 @@ public sealed class {Name}Module : IModule
     {
         ArgumentNullException.ThrowIfNull(builder);
         PermissionConstants.Register({Name}Permissions.All);
-        builder.Services.AddHeroDbContext<{Name}DbContext>();
+        builder.Services.AddTrislabDbContext<{Name}DbContext>();
         builder.Services.AddScoped<IDbInitializer, {Name}DbInitializer>();
 
         // Only if the module HANDLES integration events:
@@ -106,7 +106,7 @@ module ships localized from its first feature. Mirror `Modules.Tickets/Localizat
 
 ```csharp
 // src/Modules/{Name}/Modules.{Name}/Localization/{Name}Resources.cs
-namespace FSH.Modules.{Name}.Localization;
+namespace Trislab.Modules.{Name}.Localization;
 
 /// <summary>Marker type binding <c>IStringLocalizer&lt;{Name}Resources&gt;</c> to the {Name} resx catalog.</summary>
 public sealed class {Name}Resources;
@@ -116,12 +116,12 @@ public sealed class {Name}Resources;
   `TicketsResources.resx` and delete its `<data>` entries. `Localization/{Name}Resources.pt-BR.resx`
   is optional; a missing translation falls back to English.
 - The embedded resource must be named after the marker's full name
-  (`FSH.Modules.{Name}.Localization.{Name}Resources`). Because each resx sits next to a `.cs` file of the
+  (`Trislab.Modules.{Name}.Localization.{Name}Resources`). Because each resx sits next to a `.cs` file of the
   same base name, the SDK names it after the class declared in that file
   (`EmbeddedResourceUseDependentUponConvention`), so keep the marker's class name equal to its file
   name; no `<EmbeddedResource>` item is needed.
 - Add `S2094` to the runtime csproj's `<NoWarn>` (the marker is an empty class on purpose).
-- No per-module registration: `AddHeroLocalization` in the host serves every catalog.
+- No per-module registration: `AddTrislabLocalization` in the host serves every catalog.
 
 Throws use `.Localized<{Name}Resources>("{Name}.Case", args)` and validators inject
 `IStringLocalizer<{Name}Resources>` (see **add-feature**). Once the module is referenced from
@@ -146,7 +146,7 @@ Add a `{Name}/` folder in `src/Host/App.Migrations.PostgreSQL`, then create the 
 
 Identical edits in **both** `App.Api/Program.cs` **and** `App.DbMigrator/Program.cs`:
 
-1. Mediator `o.Assemblies` — add **two** markers: a Contracts type (e.g. `typeof(FSH.Modules.{Name}.Contracts.{Name}ContractsMarker)`) **and** the module type (`typeof({Name}Module)`).
+1. Mediator `o.Assemblies` — add **two** markers: a Contracts type (e.g. `typeof(Trislab.Modules.{Name}.Contracts.{Name}ContractsMarker)`) **and** the module type (`typeof({Name}Module)`).
 2. `moduleAssemblies` array — add `typeof({Name}Module).Assembly`.
 
 Miss the Mediator marker → handlers silently undiscovered. Miss the assembly entry → module never loads. Miss the DbMigrator pair → migrate/seed skips the module.
@@ -165,8 +165,8 @@ Then call one endpoint and confirm its handler runs: a missing Mediator marker c
 ## Checklist
 
 - [ ] Two projects (copied csproj), added to `.slnx`, referenced from Api + DbMigrator (+ Migrations)
-- [ ] `[assembly: FshModule(typeof({Name}Module), order)]` (assembly-level, positional)
-- [ ] `IModule`: `AddHeroDbContext<T>()`, `PermissionConstants.Register`, version-set group, eventing trio if needed
+- [ ] `[assembly: TrislabModule(typeof({Name}Module), order)]` (assembly-level, positional)
+- [ ] `IModule`: `AddTrislabDbContext<T>()`, `PermissionConstants.Register`, version-set group, eventing trio if needed
 - [ ] `{Name}DbContext : BaseDbContext`, 4-arg ctor, `base.OnModelCreating` last
 - [ ] `{Name}Permissions` in Contracts/Authorization
 - [ ] `Localization/{Name}Resources.cs` marker + `{Name}Resources.resx` (English; pt-BR optional), `S2094` in `<NoWarn>`

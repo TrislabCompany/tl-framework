@@ -1,18 +1,18 @@
 using System.Security.Cryptography;
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 
 namespace Integration.Tests.Tests.Files;
 
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class SoftDeleteAndRestoreTests
 {
     private const string FilesBasePath = "/api/v1/files";
     private readonly AuthHelper _auth;
 
-    public SoftDeleteAndRestoreTests(FshWebApplicationFactory factory)
+    public SoftDeleteAndRestoreTests(TrislabWebApplicationFactory factory)
     {
         _auth = new AuthHelper(factory);
     }

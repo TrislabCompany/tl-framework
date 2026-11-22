@@ -1,12 +1,12 @@
 using FluentValidation;
-using FSH.Framework.Storage;
-using FSH.Modules.Multitenancy.Contracts.Dtos;
-using FSH.Modules.Multitenancy.Contracts.v1.UpdateTenantTheme;
-using FSH.Modules.Multitenancy.Localization;
+using Trislab.Framework.Storage;
+using Trislab.Modules.Multitenancy.Contracts.Dtos;
+using Trislab.Modules.Multitenancy.Contracts.v1.UpdateTenantTheme;
+using Trislab.Modules.Multitenancy.Localization;
 using Microsoft.Extensions.Localization;
 using System.Text.RegularExpressions;
 
-namespace FSH.Modules.Multitenancy.Features.v1.UpdateTenantTheme;
+namespace Trislab.Modules.Multitenancy.Features.v1.UpdateTenantTheme;
 
 public partial class UpdateTenantThemeCommandValidator : AbstractValidator<UpdateTenantThemeCommand>
 {

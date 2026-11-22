@@ -1,17 +1,17 @@
 using System.Net.Http.Json;
-using FSH.Modules.Chat.Contracts.v1.DTOs;
+using Trislab.Modules.Chat.Contracts.v1.DTOs;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 
 namespace Integration.Tests.Tests.Chat;
 
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class ThreadAndReactionTests
 {
     private const string ChatBasePath = "/api/v1/chat";
     private readonly AuthHelper _auth;
 
-    public ThreadAndReactionTests(FshWebApplicationFactory factory)
+    public ThreadAndReactionTests(TrislabWebApplicationFactory factory)
     {
         _auth = new AuthHelper(factory);
     }

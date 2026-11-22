@@ -1,17 +1,17 @@
 using Asp.Versioning;
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Web.HttpResilience;
-using FSH.Framework.Web.Modules;
-using FSH.Modules.Webhooks.Contracts.Authorization;
-using FSH.Modules.Webhooks.Data;
-using FSH.Modules.Webhooks.Features.v1.CreateWebhookSubscription;
-using FSH.Modules.Webhooks.Features.v1.DeleteWebhookSubscription;
-using FSH.Modules.Webhooks.Features.v1.GetWebhookDeliveries;
-using FSH.Modules.Webhooks.Features.v1.GetWebhookSubscriptions;
-using FSH.Modules.Webhooks.Features.v1.TestWebhookSubscription;
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Modules.Webhooks.Services;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Web.HttpResilience;
+using Trislab.Framework.Web.Modules;
+using Trislab.Modules.Webhooks.Contracts.Authorization;
+using Trislab.Modules.Webhooks.Data;
+using Trislab.Modules.Webhooks.Features.v1.CreateWebhookSubscription;
+using Trislab.Modules.Webhooks.Features.v1.DeleteWebhookSubscription;
+using Trislab.Modules.Webhooks.Features.v1.GetWebhookDeliveries;
+using Trislab.Modules.Webhooks.Features.v1.GetWebhookSubscriptions;
+using Trislab.Modules.Webhooks.Features.v1.TestWebhookSubscription;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Modules.Webhooks.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -21,9 +21,9 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using System.Net.Http;
 
-[assembly: FshModule(typeof(FSH.Modules.Webhooks.WebhooksModule), 400)]
+[assembly: TrislabModule(typeof(Trislab.Modules.Webhooks.WebhooksModule), 400)]
 
-namespace FSH.Modules.Webhooks;
+namespace Trislab.Modules.Webhooks;
 
 public sealed class WebhooksModule : IModule
 {
@@ -33,7 +33,7 @@ public sealed class WebhooksModule : IModule
 
         PermissionConstants.Register(WebhooksPermissions.All);
 
-        builder.Services.AddHeroDbContext<WebhookDbContext>();
+        builder.Services.AddTrislabDbContext<WebhookDbContext>();
         builder.Services.AddScoped<IDbInitializer, WebhookDbInitializer>();
         builder.Services.AddSingleton<IWebhookSecretProtector, WebhookSecretProtector>();
         builder.Services.AddScoped<IWebhookDeliveryService, WebhookDeliveryService>();
@@ -55,7 +55,7 @@ public sealed class WebhooksModule : IModule
                 AllowAutoRedirect = false,
                 ConnectCallback = WebhookUrlGuard.ConnectAsync,
             })
-            .AddHeroResilience(builder.Configuration);
+            .AddTrislabResilience(builder.Configuration);
 
         builder.Services.AddHealthChecks()
             .AddDbContextCheck<WebhookDbContext>(

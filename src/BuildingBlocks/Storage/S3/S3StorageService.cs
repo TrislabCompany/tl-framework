@@ -1,14 +1,14 @@
 using Amazon.S3;
 using Amazon.S3.Model;
-using FSH.Framework.Shared.Storage;
-using FSH.Framework.Storage.DTOs;
-using FSH.Framework.Storage.Services;
+using Trislab.Framework.Shared.Storage;
+using Trislab.Framework.Storage.DTOs;
+using Trislab.Framework.Storage.Services;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FSH.Framework.Storage.S3;
+namespace Trislab.Framework.Storage.S3;
 
 internal sealed class S3StorageService : IStorageService
 {

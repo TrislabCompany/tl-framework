@@ -1,4 +1,4 @@
-namespace FSH.Modules.Identity.Authorization;
+namespace Trislab.Modules.Identity.Authorization;
 
 /// <summary>
 /// Startup reconciliation of the built-in roles' permission claims (config section

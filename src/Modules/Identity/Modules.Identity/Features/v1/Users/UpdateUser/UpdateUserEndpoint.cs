@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Shared.Identity.Claims;
-using FSH.Modules.Identity.Contracts.v1.Users.UpdateUser;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Shared.Identity.Claims;
+using Trislab.Modules.Identity.Contracts.v1.Users.UpdateUser;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Net.Http.Headers;
 using System.Security.Claims;
 
-namespace FSH.Modules.Identity.Features.v1.Users.UpdateUser;
+namespace Trislab.Modules.Identity.Features.v1.Users.UpdateUser;
 
 public static class UpdateUserEndpoint
 {

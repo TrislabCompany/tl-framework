@@ -1,8 +1,8 @@
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Modules.Files.Contracts.Events;
-using FSH.Modules.Files.Services;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Modules.Files.Contracts.Events;
+using Trislab.Modules.Files.Services;
 
-namespace FSH.Modules.Files.IntegrationEventHandlers;
+namespace Trislab.Modules.Files.IntegrationEventHandlers;
 
 /// <summary>
 /// The durable half of a storage move. <see cref="FileStorageRelocator"/> tries to delete the old object

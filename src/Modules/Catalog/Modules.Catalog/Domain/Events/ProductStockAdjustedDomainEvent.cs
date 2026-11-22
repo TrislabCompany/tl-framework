@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Domain;
+using Trislab.Framework.Core.Domain;
 
-namespace FSH.Modules.Catalog.Domain.Events;
+namespace Trislab.Modules.Catalog.Domain.Events;
 
 public sealed record ProductStockAdjustedDomainEvent(
     Guid ProductId,

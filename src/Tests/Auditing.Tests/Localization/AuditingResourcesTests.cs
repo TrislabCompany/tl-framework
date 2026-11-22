@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Linq;
-using FSH.Modules.Auditing.Localization;
+using Trislab.Modules.Auditing.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 

@@ -1,4 +1,4 @@
-namespace FSH.Framework.Core.Common;
+namespace Trislab.Framework.Core.Common;
 
 /// <summary>
 /// The per-application namespace for everything the framework writes to Redis: cache entries,

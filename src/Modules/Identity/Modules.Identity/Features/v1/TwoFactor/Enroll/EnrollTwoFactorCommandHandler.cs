@@ -1,25 +1,25 @@
 using System.Text.Encodings.Web;
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Identity.Contracts.DTOs;
-using FSH.Modules.Identity.Contracts.v1.TwoFactor;
-using FSH.Modules.Identity.Domain;
-using FSH.Modules.Identity.Localization;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.v1.TwoFactor;
+using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Identity.Localization;
 using Mediator;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-namespace FSH.Modules.Identity.Features.v1.TwoFactor.Enroll;
+namespace Trislab.Modules.Identity.Features.v1.TwoFactor.Enroll;
 
 public sealed class EnrollTwoFactorCommandHandler
     : ICommandHandler<EnrollTwoFactorCommand, TwoFactorEnrollmentResponse>
 {
-    private readonly UserManager<FshUser> _userManager;
+    private readonly UserManager<TrislabUser> _userManager;
     private readonly ICurrentUser _currentUser;
     private readonly TwoFactorOptions _options;
 
     public EnrollTwoFactorCommandHandler(
-        UserManager<FshUser> userManager,
+        UserManager<TrislabUser> userManager,
         ICurrentUser currentUser,
         IOptions<TwoFactorOptions> options)
     {

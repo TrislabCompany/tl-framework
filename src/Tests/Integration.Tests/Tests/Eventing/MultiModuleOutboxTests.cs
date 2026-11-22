@@ -1,11 +1,11 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Eventing.Inbox;
-using FSH.Framework.Eventing.Outbox;
-using FSH.Framework.Eventing.Persistence;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Billing.Contracts.Events;
-using FSH.Modules.Identity.Contracts.Events;
+using Trislab.Framework.Eventing.Inbox;
+using Trislab.Framework.Eventing.Outbox;
+using Trislab.Framework.Eventing.Persistence;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Billing.Contracts.Events;
+using Trislab.Modules.Identity.Contracts.Events;
 using Integration.Tests.Infrastructure;
 
 namespace Integration.Tests.Tests.Eventing;
@@ -17,12 +17,12 @@ namespace Integration.Tests.Tests.Eventing;
 /// the real store against Postgres, with no substitution, so they fail if the single framework-owned
 /// registration regresses.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class MultiModuleOutboxTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
 
-    public MultiModuleOutboxTests(FshWebApplicationFactory factory)
+    public MultiModuleOutboxTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
     }
@@ -90,7 +90,7 @@ public sealed class MultiModuleOutboxTests
     public async Task Identity_No_Longer_Owns_The_Outbox_Tables()
     {
         using var scope = await CreateTenantScopeAsync();
-        var identity = scope.ServiceProvider.GetRequiredService<FSH.Modules.Identity.Data.IdentityDbContext>();
+        var identity = scope.ServiceProvider.GetRequiredService<Trislab.Modules.Identity.Data.IdentityDbContext>();
 
         identity.Model.FindEntityType(typeof(OutboxMessage)).ShouldBeNull(
             "the outbox is framework infrastructure; a module mapping it again reintroduces the ambiguity");

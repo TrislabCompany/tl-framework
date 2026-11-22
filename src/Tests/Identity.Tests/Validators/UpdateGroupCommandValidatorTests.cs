@@ -1,5 +1,5 @@
-using FSH.Modules.Identity.Contracts.v1.Groups.UpdateGroup;
-using FSH.Modules.Identity.Features.v1.Groups.UpdateGroup;
+using Trislab.Modules.Identity.Contracts.v1.Groups.UpdateGroup;
+using Trislab.Modules.Identity.Features.v1.Groups.UpdateGroup;
 using Identity.Tests.Support;
 
 namespace Identity.Tests.Validators;

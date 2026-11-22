@@ -1,5 +1,5 @@
-using FSH.Modules.Chat.Domain;
-using FSH.Modules.Chat.Domain.Events;
+using Trislab.Modules.Chat.Domain;
+using Trislab.Modules.Chat.Domain.Events;
 
 namespace Chat.Tests.Domain;
 

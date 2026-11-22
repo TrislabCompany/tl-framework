@@ -2,27 +2,27 @@ using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Quota;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Storage.Local;
-using FSH.Framework.Storage.S3;
-using FSH.Framework.Storage.Services;
+using Trislab.Framework.Quota;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Storage.Local;
+using Trislab.Framework.Storage.S3;
+using Trislab.Framework.Storage.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FSH.Framework.Storage;
+namespace Trislab.Framework.Storage;
 
 public static class Extensions
 {
-    public static IServiceCollection AddHeroLocalFileStorage(this IServiceCollection services)
+    public static IServiceCollection AddTrislabLocalFileStorage(this IServiceCollection services)
     {
         services.AddScoped<IStorageService, LocalStorageService>();
         return services;
     }
 
-    public static IServiceCollection AddHeroStorage(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddTrislabStorage(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);

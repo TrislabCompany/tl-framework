@@ -1,12 +1,12 @@
-using FSH.Framework.Quota;
-using FSH.Framework.Shared.Quota;
+using Trislab.Framework.Quota;
+using Trislab.Framework.Shared.Quota;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Framework.Tests.Quota;
 
 /// <summary>
-/// Guards the "quota enabled" DI wiring. <see cref="Extensions.AddHeroQuotas"/> registers the quota
+/// Guards the "quota enabled" DI wiring. <see cref="Extensions.AddTrislabQuotas"/> registers the quota
 /// service by type and the enforcement middleware resolves it per request; the host disables
 /// ValidateOnBuild, so a service the container cannot construct only fails at resolution time — which
 /// is why a non-public <see cref="InMemoryQuotaService"/> constructor turned every authenticated
@@ -27,12 +27,12 @@ public sealed class QuotaExtensionsTests
         var services = new ServiceCollection();
         services.AddSingleton<IConfiguration>(configuration);
         services.AddLogging();
-        services.AddHeroQuotas(configuration);
+        services.AddTrislabQuotas(configuration);
         return services.BuildServiceProvider();
     }
 
     [Fact]
-    public void AddHeroQuotas_Should_ResolveInMemoryService_When_EnabledWithoutRedis()
+    public void AddTrislabQuotas_Should_ResolveInMemoryService_When_EnabledWithoutRedis()
     {
         // Arrange
         using var provider = BuildProvider(enabled: true);
@@ -46,7 +46,7 @@ public sealed class QuotaExtensionsTests
     }
 
     [Fact]
-    public void AddHeroQuotas_Should_ResolveNoopService_When_Disabled()
+    public void AddTrislabQuotas_Should_ResolveNoopService_When_Disabled()
     {
         // Arrange
         using var provider = BuildProvider(enabled: false);

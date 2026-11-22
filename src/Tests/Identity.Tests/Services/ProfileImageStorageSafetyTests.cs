@@ -1,11 +1,11 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Storage.Services;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Domain;
-using FSH.Modules.Identity.Services;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Storage.Services;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Identity.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -24,23 +24,23 @@ public sealed class ProfileImageStorageSafetyTests
 {
     private const string OwnUpload = "uploads/fshuser/0123456789abcdef0123456789abcdef_me.png";
 
-    private readonly UserManager<FshUser> _userManager;
-    private readonly SignInManager<FshUser> _signInManager;
+    private readonly UserManager<TrislabUser> _userManager;
+    private readonly SignInManager<TrislabUser> _signInManager;
     private readonly IStorageService _storageService;
 
     public ProfileImageStorageSafetyTests()
     {
-        _userManager = Substitute.For<UserManager<FshUser>>(
-            Substitute.For<IUserStore<FshUser>>(), null, null, null, null, null, null, null, null);
-        _signInManager = Substitute.For<SignInManager<FshUser>>(
+        _userManager = Substitute.For<UserManager<TrislabUser>>(
+            Substitute.For<IUserStore<TrislabUser>>(), null, null, null, null, null, null, null, null);
+        _signInManager = Substitute.For<SignInManager<TrislabUser>>(
             _userManager,
             Substitute.For<IHttpContextAccessor>(),
-            Substitute.For<IUserClaimsPrincipalFactory<FshUser>>(),
+            Substitute.For<IUserClaimsPrincipalFactory<TrislabUser>>(),
             Options.Create(new IdentityOptions()),
-            Substitute.For<ILogger<SignInManager<FshUser>>>(),
+            Substitute.For<ILogger<SignInManager<TrislabUser>>>(),
             Substitute.For<IAuthenticationSchemeProvider>(),
-            Substitute.For<IUserConfirmation<FshUser>>());
-        _signInManager.RefreshSignInAsync(Arg.Any<FshUser>()).Returns(Task.CompletedTask);
+            Substitute.For<IUserConfirmation<TrislabUser>>());
+        _signInManager.RefreshSignInAsync(Arg.Any<TrislabUser>()).Returns(Task.CompletedTask);
         _storageService = Substitute.For<IStorageService>();
     }
 
@@ -52,9 +52,9 @@ public sealed class ProfileImageStorageSafetyTests
             Substitute.For<IRequestContextService>(), new IdentityErrorDescriber());
     }
 
-    private FshUser UserWithImage(string? imageUrl)
+    private TrislabUser UserWithImage(string? imageUrl)
     {
-        var user = new FshUser
+        var user = new TrislabUser
         {
             Id = "u1",
             Email = "u@example.com",
@@ -101,7 +101,7 @@ public sealed class ProfileImageStorageSafetyTests
             () => CreateSut().SetImageUrlAsync("u1", victimsAvatar, CancellationToken.None));
 
         ex.StatusCode.ShouldBe(System.Net.HttpStatusCode.BadRequest);
-        await _userManager.DidNotReceive().UpdateAsync(Arg.Any<FshUser>());
+        await _userManager.DidNotReceive().UpdateAsync(Arg.Any<TrislabUser>());
     }
 
     [Fact]

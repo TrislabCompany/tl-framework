@@ -1,10 +1,10 @@
 using FluentValidation;
-using FSH.Framework.Core.Localization;
-using FSH.Framework.Web.Validation;
-using FSH.Modules.Multitenancy.Contracts.v1.GetTenants;
+using Trislab.Framework.Core.Localization;
+using Trislab.Framework.Web.Validation;
+using Trislab.Modules.Multitenancy.Contracts.v1.GetTenants;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Multitenancy.Features.v1.GetTenants;
+namespace Trislab.Modules.Multitenancy.Features.v1.GetTenants;
 
 public sealed class GetTenantsQueryValidator : AbstractValidator<GetTenantsQuery>
 {

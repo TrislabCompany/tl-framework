@@ -1,5 +1,5 @@
-using FSH.Modules.Files.Contracts.Events;
-using FSH.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Modules.Files.Contracts.Events;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
 
 namespace Files.Tests.Events;
 

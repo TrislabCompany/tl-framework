@@ -30,7 +30,7 @@ dotnet build src/App.slnx 2>&1 | grep -E "warning|error"   # expect none (TreatW
 
 ### 4. Module boundary heuristic
 ```bash
-grep -rn "using FSH.Modules\." src/Modules --include="*.cs" | grep -v "\.Contracts"
+grep -rn "using Trislab.Modules\." src/Modules --include="*.cs" | grep -v "\.Contracts"
 ```
 Cross-module `using`s should resolve only to `*.Contracts` namespaces (same-module internal usings are fine — confirm the module name differs).
 

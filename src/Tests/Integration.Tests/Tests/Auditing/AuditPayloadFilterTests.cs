@@ -1,11 +1,11 @@
 using System.Text.Json;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Auditing;
-using FSH.Modules.Auditing.Contracts;
-using FSH.Modules.Auditing.Contracts.Dtos;
-using FSH.Modules.Auditing.Persistence;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Auditing;
+using Trislab.Modules.Auditing.Contracts;
+using Trislab.Modules.Auditing.Contracts.Dtos;
+using Trislab.Modules.Auditing.Persistence;
 using Integration.Tests.Infrastructure;
 
 namespace Integration.Tests.Tests.Auditing;
@@ -20,7 +20,7 @@ namespace Integration.Tests.Tests.Auditing;
 /// filter and asserts the row comes back (no 500). All payloads carry a unique correlation id so
 /// the assertions are isolated from audit rows written by the background worker.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class AuditPayloadFilterTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -31,10 +31,10 @@ public sealed class AuditPayloadFilterTests
         Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
     };
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public AuditPayloadFilterTests(FshWebApplicationFactory factory)
+    public AuditPayloadFilterTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

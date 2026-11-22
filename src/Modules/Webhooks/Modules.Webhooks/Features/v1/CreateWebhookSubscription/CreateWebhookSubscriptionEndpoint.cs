@@ -1,13 +1,13 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Framework.Web.Idempotency;
-using FSH.Modules.Webhooks.Contracts.Authorization;
-using FSH.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Framework.Web.Idempotency;
+using Trislab.Modules.Webhooks.Contracts.Authorization;
+using Trislab.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Webhooks.Features.v1.CreateWebhookSubscription;
+namespace Trislab.Modules.Webhooks.Features.v1.CreateWebhookSubscription;
 
 public static class CreateWebhookSubscriptionEndpoint
 {

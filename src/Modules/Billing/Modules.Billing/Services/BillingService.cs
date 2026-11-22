@@ -1,18 +1,18 @@
 using System.Net;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Quota;
-using FSH.Modules.Billing.Contracts;
-using FSH.Modules.Billing.Contracts.Events;
-using FSH.Modules.Billing.Data;
-using FSH.Modules.Billing.Domain;
-using FSH.Modules.Billing.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Quota;
+using Trislab.Modules.Billing.Contracts;
+using Trislab.Modules.Billing.Contracts.Events;
+using Trislab.Modules.Billing.Data;
+using Trislab.Modules.Billing.Domain;
+using Trislab.Modules.Billing.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Modules.Billing.Services;
+namespace Trislab.Modules.Billing.Services;
 
 public sealed class BillingService : IBillingService
 {

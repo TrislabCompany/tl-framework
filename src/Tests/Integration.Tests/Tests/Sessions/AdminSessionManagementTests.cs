@@ -1,5 +1,5 @@
 using System.Text.Json;
-using FSH.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.DTOs;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 
@@ -11,13 +11,13 @@ namespace Integration.Tests.Tests.Sessions;
 /// Sessions are created on token issuance, so each test logs a user in to populate
 /// the session table before querying / revoking.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class AdminSessionManagementTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public AdminSessionManagementTests(FshWebApplicationFactory factory)
+    public AdminSessionManagementTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

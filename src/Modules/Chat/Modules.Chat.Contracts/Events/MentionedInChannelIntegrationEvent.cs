@@ -1,6 +1,6 @@
-using FSH.Framework.Eventing.Abstractions;
+using Trislab.Framework.Eventing.Abstractions;
 
-namespace FSH.Modules.Chat.Contracts.Events;
+namespace Trislab.Modules.Chat.Contracts.Events;
 
 /// <summary>
 /// One event per resolved <c>@user</c> mention inside a sent <see cref="MessageId"/>. Consumed by

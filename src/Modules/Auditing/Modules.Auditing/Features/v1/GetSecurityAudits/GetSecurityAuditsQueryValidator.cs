@@ -1,9 +1,9 @@
 using FluentValidation;
-using FSH.Modules.Auditing.Contracts.v1.GetSecurityAudits;
-using FSH.Modules.Auditing.Localization;
+using Trislab.Modules.Auditing.Contracts.v1.GetSecurityAudits;
+using Trislab.Modules.Auditing.Localization;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Auditing.Features.v1.GetSecurityAudits;
+namespace Trislab.Modules.Auditing.Features.v1.GetSecurityAudits;
 
 public sealed class GetSecurityAuditsQueryValidator : AbstractValidator<GetSecurityAuditsQuery>
 {

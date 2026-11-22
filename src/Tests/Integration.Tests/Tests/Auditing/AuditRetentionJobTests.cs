@@ -1,10 +1,10 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Auditing;
-using FSH.Modules.Auditing.Contracts;
-using FSH.Modules.Auditing.Persistence;
-using FSH.Modules.Multitenancy.Contracts.Dtos;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Auditing;
+using Trislab.Modules.Auditing.Contracts;
+using Trislab.Modules.Auditing.Persistence;
+using Trislab.Modules.Multitenancy.Contracts.Dtos;
 using Integration.Tests.Infrastructure;
 
 namespace Integration.Tests.Tests.Auditing;
@@ -16,7 +16,7 @@ namespace Integration.Tests.Tests.Auditing;
 /// tenants and the job is resolved from a fresh, tenant-less scope — the same shape Hangfire's
 /// activator gives it — and run once.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class AuditRetentionJobTests
 {
     // Activity events are kept for 30 days by default; 31 is safely past the cutoff, 1 is inside it.
@@ -24,10 +24,10 @@ public sealed class AuditRetentionJobTests
     private const int DaysPastRetention = 31;
     private const int DaysInsideRetention = 1;
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public AuditRetentionJobTests(FshWebApplicationFactory factory)
+    public AuditRetentionJobTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -57,7 +57,7 @@ public sealed class AuditRetentionJobTests
             ActivityRetentionDays = ActivityRetentionDays,
         };
 
-        // Act — a fresh scope with no tenant set, as FshJobActivator gives a job registered via AddOrUpdate.
+        // Act — a fresh scope with no tenant set, as TrislabJobActivator gives a job registered via AddOrUpdate.
         using (var jobScope = _factory.Services.CreateScope())
         {
             var job = ActivatorUtilities.CreateInstance<AuditRetentionJob>(jobScope.ServiceProvider, options);

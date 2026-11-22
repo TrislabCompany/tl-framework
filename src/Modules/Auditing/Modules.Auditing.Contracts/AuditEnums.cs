@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace FSH.Modules.Auditing.Contracts;
+namespace Trislab.Modules.Auditing.Contracts;
 
 /// <summary>
 /// High-level classification of audit events.

@@ -1,7 +1,7 @@
-using FSH.Framework.Core.Domain;
-using FSH.Modules.Catalog.Domain;
+using Trislab.Framework.Core.Domain;
+using Trislab.Modules.Catalog.Domain;
 
-namespace FSH.Modules.Catalog.Data;
+namespace Trislab.Modules.Catalog.Data;
 
 /// <summary>
 /// Demo seed data for the Catalog module — a small "what a catalogue looks like"

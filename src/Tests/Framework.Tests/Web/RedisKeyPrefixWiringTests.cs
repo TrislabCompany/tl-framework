@@ -1,6 +1,6 @@
-using FSH.Framework.Caching;
-using FSH.Framework.Quota;
-using FSH.Framework.Web.Realtime;
+using Trislab.Framework.Caching;
+using Trislab.Framework.Quota;
+using Trislab.Framework.Web.Realtime;
 using Microsoft.AspNetCore.SignalR.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,13 +24,13 @@ public sealed class RedisKeyPrefixWiringTests
         var configuration = Config(values);
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddHeroRealtime(configuration);
+        services.AddTrislabRealtime(configuration);
         using var provider = services.BuildServiceProvider();
         return provider.GetRequiredService<IOptions<RedisOptions>>().Value;
     }
 
     [Fact]
-    public void AddHeroRealtime_Should_NamespaceTheBackplaneChannel_When_KeyPrefixIsSet()
+    public void AddTrislabRealtime_Should_NamespaceTheBackplaneChannel_When_KeyPrefixIsSet()
     {
         var options = SignalRRedisOptions(new()
         {
@@ -44,7 +44,7 @@ public sealed class RedisKeyPrefixWiringTests
     }
 
     [Fact]
-    public void AddHeroRealtime_Should_KeepTheHistoricalChannel_When_KeyPrefixIsEmpty()
+    public void AddTrislabRealtime_Should_KeepTheHistoricalChannel_When_KeyPrefixIsEmpty()
     {
         var options = SignalRRedisOptions(new()
         {
@@ -55,7 +55,7 @@ public sealed class RedisKeyPrefixWiringTests
     }
 
     [Fact]
-    public void AddHeroQuotas_Should_InheritTheCachingKeyPrefix_When_QuotaHasNone()
+    public void AddTrislabQuotas_Should_InheritTheCachingKeyPrefix_When_QuotaHasNone()
     {
         var configuration = Config(new()
         {
@@ -64,14 +64,14 @@ public sealed class RedisKeyPrefixWiringTests
         });
         var services = new ServiceCollection();
         services.AddSingleton(configuration);
-        services.AddHeroQuotas(configuration);
+        services.AddTrislabQuotas(configuration);
         using var provider = services.BuildServiceProvider();
 
         provider.GetRequiredService<QuotaOptions>().KeyPrefix.ShouldBe("MyApp:prod");
     }
 
     [Fact]
-    public void AddHeroQuotas_Should_PreferItsOwnKeyPrefix_When_Configured()
+    public void AddTrislabQuotas_Should_PreferItsOwnKeyPrefix_When_Configured()
     {
         var configuration = Config(new()
         {
@@ -81,14 +81,14 @@ public sealed class RedisKeyPrefixWiringTests
         });
         var services = new ServiceCollection();
         services.AddSingleton(configuration);
-        services.AddHeroQuotas(configuration);
+        services.AddTrislabQuotas(configuration);
         using var provider = services.BuildServiceProvider();
 
         provider.GetRequiredService<QuotaOptions>().KeyPrefix.ShouldBe("quota-store");
     }
 
     [Fact]
-    public void AddHeroQuotas_Should_ExposeTheSameKeyPrefix_Through_IOptions_And_TheSingleton()
+    public void AddTrislabQuotas_Should_ExposeTheSameKeyPrefix_Through_IOptions_And_TheSingleton()
     {
         var configuration = Config(new()
         {
@@ -97,7 +97,7 @@ public sealed class RedisKeyPrefixWiringTests
         });
         var services = new ServiceCollection();
         services.AddSingleton(configuration);
-        services.AddHeroQuotas(configuration);
+        services.AddTrislabQuotas(configuration);
         using var provider = services.BuildServiceProvider();
 
         provider.GetRequiredService<IOptions<QuotaOptions>>().Value.KeyPrefix.ShouldBe("MyApp:prod");
@@ -107,17 +107,17 @@ public sealed class RedisKeyPrefixWiringTests
     [Theory]
     [InlineData("{MyApp}")]
     [InlineData("My App")]
-    public void AddHeroCaching_Should_FailAtStartup_When_KeyPrefixIsInvalid(string keyPrefix)
+    public void AddTrislabCaching_Should_FailAtStartup_When_KeyPrefixIsInvalid(string keyPrefix)
     {
         // No Redis configured: the prefix must still be validated, so a bad value fails the first
         // deployment that has no Redis yet rather than the one that adds it.
         var configuration = Config(new() { ["CachingOptions:KeyPrefix"] = keyPrefix });
 
-        Should.Throw<InvalidOperationException>(() => new ServiceCollection().AddHeroCaching(configuration));
+        Should.Throw<InvalidOperationException>(() => new ServiceCollection().AddTrislabCaching(configuration));
     }
 
     [Fact]
-    public void AddHeroRealtime_Should_FailAtStartup_When_KeyPrefixIsInvalid()
+    public void AddTrislabRealtime_Should_FailAtStartup_When_KeyPrefixIsInvalid()
     {
         var configuration = Config(new()
         {
@@ -125,11 +125,11 @@ public sealed class RedisKeyPrefixWiringTests
             ["CachingOptions:KeyPrefix"] = "{MyApp}",
         });
 
-        Should.Throw<InvalidOperationException>(() => new ServiceCollection().AddHeroRealtime(configuration));
+        Should.Throw<InvalidOperationException>(() => new ServiceCollection().AddTrislabRealtime(configuration));
     }
 
     [Fact]
-    public void AddHeroQuotas_Should_FailAtStartup_When_KeyPrefixIsInvalid()
+    public void AddTrislabQuotas_Should_FailAtStartup_When_KeyPrefixIsInvalid()
     {
         var configuration = Config(new()
         {
@@ -137,6 +137,6 @@ public sealed class RedisKeyPrefixWiringTests
             ["QuotaOptions:KeyPrefix"] = "quota {store}",
         });
 
-        Should.Throw<InvalidOperationException>(() => new ServiceCollection().AddHeroQuotas(configuration));
+        Should.Throw<InvalidOperationException>(() => new ServiceCollection().AddTrislabQuotas(configuration));
     }
 }

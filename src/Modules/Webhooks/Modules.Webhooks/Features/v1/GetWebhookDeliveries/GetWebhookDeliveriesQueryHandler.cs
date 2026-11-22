@@ -1,12 +1,12 @@
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Webhooks.Contracts.Dtos;
-using FSH.Modules.Webhooks.Contracts.v1.GetWebhookDeliveries;
-using FSH.Modules.Webhooks.Data;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Webhooks.Contracts.Dtos;
+using Trislab.Modules.Webhooks.Contracts.v1.GetWebhookDeliveries;
+using Trislab.Modules.Webhooks.Data;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Webhooks.Features.v1.GetWebhookDeliveries;
+namespace Trislab.Modules.Webhooks.Features.v1.GetWebhookDeliveries;
 
 public sealed class GetWebhookDeliveriesQueryHandler(
     WebhookDbContext dbContext) : IQueryHandler<GetWebhookDeliveriesQuery, PagedResponse<WebhookDeliveryDto>>

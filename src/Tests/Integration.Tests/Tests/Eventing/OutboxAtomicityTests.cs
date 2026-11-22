@@ -1,12 +1,12 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Eventing.Outbox;
-using FSH.Framework.Eventing.Persistence;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Billing.Contracts.Events;
-using FSH.Modules.Catalog.Data;
-using FSH.Modules.Catalog.Domain;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Eventing.Outbox;
+using Trislab.Framework.Eventing.Persistence;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Billing.Contracts.Events;
+using Trislab.Modules.Catalog.Data;
+using Trislab.Modules.Catalog.Domain;
 using Integration.Tests.Infrastructure;
 
 namespace Integration.Tests.Tests.Eventing;
@@ -20,12 +20,12 @@ namespace Integration.Tests.Tests.Eventing;
 /// directly here too: it is the load-bearing precondition, and a silent regression to
 /// per-context connections would leave these rollbacks passing for the wrong reason.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class OutboxAtomicityTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
 
-    public OutboxAtomicityTests(FshWebApplicationFactory factory)
+    public OutboxAtomicityTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
     }

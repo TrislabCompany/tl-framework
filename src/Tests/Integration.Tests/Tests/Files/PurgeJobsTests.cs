@@ -2,12 +2,12 @@ using System.Reflection;
 using System.Security.Cryptography;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Storage.Services;
-using FSH.Modules.Files.Contracts.v1.DTOs;
-using FSH.Modules.Files.Data;
-using FSH.Modules.Files.Domain;
-using FSH.Modules.Files.Jobs;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Storage.Services;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Modules.Files.Data;
+using Trislab.Modules.Files.Domain;
+using Trislab.Modules.Files.Jobs;
 using Hangfire;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
@@ -23,14 +23,14 @@ namespace Integration.Tests.Tests.Files;
 /// a purgeable precondition. The real S3/MinIO RemoveAsync runs against bytes that were genuinely
 /// PUT, so this also exercises S3StorageService.RemoveAsync (DeleteObject) end-to-end.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class PurgeJobsTests
 {
     private const string FilesBasePath = "/api/v1/files";
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public PurgeJobsTests(FshWebApplicationFactory factory)
+    public PurgeJobsTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

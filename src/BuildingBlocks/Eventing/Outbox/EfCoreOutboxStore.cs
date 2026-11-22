@@ -1,12 +1,12 @@
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Eventing.Persistence;
-using FSH.Framework.Persistence;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Eventing.Persistence;
+using Trislab.Framework.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FSH.Framework.Eventing.Outbox;
+namespace Trislab.Framework.Eventing.Outbox;
 
 /// <summary>
 /// EF Core outbox store over the framework-owned <see cref="EventingDbContext"/>.

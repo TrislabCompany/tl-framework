@@ -1,4 +1,4 @@
-using FSH.Framework.Core.Localization;
+using Trislab.Framework.Core.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 

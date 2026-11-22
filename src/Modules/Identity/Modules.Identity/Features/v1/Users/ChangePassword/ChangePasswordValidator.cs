@@ -1,11 +1,11 @@
 using FluentValidation;
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Localization;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Users.ChangePassword;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Localization;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Users.ChangePassword;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Identity.Features.v1.Users.ChangePassword;
+namespace Trislab.Modules.Identity.Features.v1.Users.ChangePassword;
 
 public sealed class ChangePasswordValidator : AbstractValidator<ChangePasswordCommand>
 {

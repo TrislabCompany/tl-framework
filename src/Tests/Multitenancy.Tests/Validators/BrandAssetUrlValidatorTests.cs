@@ -1,6 +1,6 @@
-using FSH.Modules.Multitenancy.Contracts.Dtos;
-using FSH.Modules.Multitenancy.Contracts.v1.UpdateTenantTheme;
-using FSH.Modules.Multitenancy.Features.v1.UpdateTenantTheme;
+using Trislab.Modules.Multitenancy.Contracts.Dtos;
+using Trislab.Modules.Multitenancy.Contracts.v1.UpdateTenantTheme;
+using Trislab.Modules.Multitenancy.Features.v1.UpdateTenantTheme;
 using Multitenancy.Tests.Support;
 
 namespace Multitenancy.Tests.Validators;

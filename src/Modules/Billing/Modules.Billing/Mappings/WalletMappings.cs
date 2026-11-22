@@ -1,7 +1,7 @@
-using FSH.Modules.Billing.Contracts.Dtos;
-using FSH.Modules.Billing.Domain;
+using Trislab.Modules.Billing.Contracts.Dtos;
+using Trislab.Modules.Billing.Domain;
 
-namespace FSH.Modules.Billing.Mappings;
+namespace Trislab.Modules.Billing.Mappings;
 
 internal static class WalletMappings
 {

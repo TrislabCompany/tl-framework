@@ -2,9 +2,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Web.Exceptions;
-using FSH.Framework.Web.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Web.Exceptions;
+using Trislab.Framework.Web.Localization;
 using Framework.Tests.Localization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -30,10 +30,10 @@ public sealed class ExceptionLocalizationPipelineTests
 
     // The production order: UseExceptionHandler at the top of the pipeline, localization further in.
     private static Task<Outcome> InvokeAsync(string acceptLanguage, Exception exception) =>
-        RunAsync(app => app.UseHeroLocalization(), acceptLanguage, exception);
+        RunAsync(app => app.UseTrislabLocalization(), acceptLanguage, exception);
 
     // A pipeline with no localization at all, standing in for the middleware registered between
-    // UseExceptionHandler and UseHeroLocalization: nothing negotiates a culture, so no feature exists.
+    // UseExceptionHandler and UseTrislabLocalization: nothing negotiates a culture, so no feature exists.
     private static Task<Outcome> InvokeWithoutLocalizationAsync(string acceptLanguage, Exception exception) =>
         RunAsync(_ => { }, acceptLanguage, exception);
 
@@ -54,7 +54,7 @@ public sealed class ExceptionLocalizationPipelineTests
             services.AddSingleton(_ => new DiagnosticListener("Microsoft.AspNetCore"));
             services.AddSingleton<DiagnosticSource>(sp => sp.GetRequiredService<DiagnosticListener>());
 
-            services.AddHeroLocalization(configuration);
+            services.AddTrislabLocalization(configuration);
             services.AddExceptionHandler<GlobalExceptionHandler>();
             services.AddProblemDetails();
 

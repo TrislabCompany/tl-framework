@@ -18,7 +18,7 @@ public class HostArchitectureTests
         var result = Types
             .InCurrentDomain()
             .That()
-            .ResideInNamespace("FSH.Modules")
+            .ResideInNamespace("Trislab.Modules")
             .Should()
             .NotHaveDependencyOnAny(hostNamespaces)
             .GetResult();
@@ -37,15 +37,15 @@ public class HostArchitectureTests
         // but should not directly reference feature or data-layer namespaces.
         string[] forbiddenNamespaces =
         {
-            "FSH.Modules.Auditing.Features",
-            "FSH.Modules.Auditing.Data",
-            "FSH.Modules.Chat.Features",
-            "FSH.Modules.Chat.Data",
-            "FSH.Modules.Chat.Domain",
-            "FSH.Modules.Identity.Features",
-            "FSH.Modules.Identity.Data",
-            "FSH.Modules.Multitenancy.Features",
-            "FSH.Modules.Multitenancy.Data"
+            "Trislab.Modules.Auditing.Features",
+            "Trislab.Modules.Auditing.Data",
+            "Trislab.Modules.Chat.Features",
+            "Trislab.Modules.Chat.Data",
+            "Trislab.Modules.Chat.Domain",
+            "Trislab.Modules.Identity.Features",
+            "Trislab.Modules.Identity.Data",
+            "Trislab.Modules.Multitenancy.Features",
+            "Trislab.Modules.Multitenancy.Data"
         };
 
         var hostResult = Types

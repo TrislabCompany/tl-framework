@@ -1,13 +1,13 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Catalog.Contracts.Authorization;
-using FSH.Modules.Identity.Authorization;
-using FSH.Modules.Identity.Contracts.Authorization;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Identity.Domain;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Catalog.Contracts.Authorization;
+using Trislab.Modules.Identity.Authorization;
+using Trislab.Modules.Identity.Contracts.Authorization;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Domain;
 using Integration.Tests.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +27,7 @@ namespace Integration.Tests.Tests.Catalog;
 /// 401s in dev when the Catalog module was added. Also verifies the reverse path:
 /// a permission the catalog stops granting is revoked from the built-in roles.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class RolePermissionSyncerTests
 {
     // Well-formed but never registered: stands in for a permission a release removed from the catalog.
@@ -35,11 +35,11 @@ public sealed class RolePermissionSyncerTests
     private const string NonPermissionClaimType = "fsh.test.marker";
 
     // Target for the throwaway-role tests; never registered, so it cannot collide with a real grant.
-    private static readonly FshPermission ProbePermission = new("Sync probe", "View", "SyncProbe");
+    private static readonly TrislabPermission ProbePermission = new("Sync probe", "View", "SyncProbe");
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
 
-    public RolePermissionSyncerTests(FshWebApplicationFactory factory)
+    public RolePermissionSyncerTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
     }
@@ -325,7 +325,7 @@ public sealed class RolePermissionSyncerTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<FshRole>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<TrislabRole>>();
         var role = await roleManager.Roles.SingleAsync(r => r.Name == roleName);
 
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
@@ -333,7 +333,7 @@ public sealed class RolePermissionSyncerTests
             rc.RoleId == role.Id && rc.ClaimType == ClaimConstants.Permission && rc.ClaimValue == claimValue);
     }
 
-    private async Task<int> RunSyncRoleAsync(AppTenantInfo tenant, string roleName, IReadOnlyList<FshPermission> target, bool removeRevoked)
+    private async Task<int> RunSyncRoleAsync(AppTenantInfo tenant, string roleName, IReadOnlyList<TrislabPermission> target, bool removeRevoked)
     {
         using var scope = _factory.Services.CreateScope();
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
@@ -351,8 +351,8 @@ public sealed class RolePermissionSyncerTests
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
         string roleName = $"sync-probe-{Guid.NewGuid():N}";
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<FshRole>>();
-        (await roleManager.CreateAsync(new FshRole(roleName))).Succeeded.ShouldBeTrue();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<TrislabRole>>();
+        (await roleManager.CreateAsync(new TrislabRole(roleName))).Succeeded.ShouldBeTrue();
 
         await SeedClaimAsync(tenant, roleName, ClaimConstants.Permission, permission);
         return roleName;
@@ -365,7 +365,7 @@ public sealed class RolePermissionSyncerTests
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
         // Role claims cascade with the role.
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<FshRole>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<TrislabRole>>();
         var role = await roleManager.FindByNameAsync(roleName);
         if (role is not null)
         {
@@ -379,7 +379,7 @@ public sealed class RolePermissionSyncerTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<FshRole>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<TrislabRole>>();
         var role = await roleManager.Roles.SingleAsync(r => r.Name == roleName);
 
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
@@ -433,11 +433,11 @@ public sealed class RolePermissionSyncerTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<FshRole>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<TrislabRole>>();
         var role = await roleManager.Roles.SingleAsync(r => r.Name == roleName);
 
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
-        db.RoleClaims.Add(new FshRoleClaim { RoleId = role.Id, ClaimType = claimType, ClaimValue = claimValue });
+        db.RoleClaims.Add(new TrislabRoleClaim { RoleId = role.Id, ClaimType = claimType, ClaimValue = claimValue });
         await db.SaveChangesAsync();
     }
 
@@ -447,7 +447,7 @@ public sealed class RolePermissionSyncerTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<FshRole>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<TrislabRole>>();
         var role = await roleManager.Roles.SingleAsync(r => r.Name == roleName);
 
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
@@ -469,7 +469,7 @@ public sealed class RolePermissionSyncerTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<FshRole>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<TrislabRole>>();
         var role = await roleManager.Roles.SingleAsync(r => r.Name == roleName);
 
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();

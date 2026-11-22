@@ -1,9 +1,9 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Chat.Contracts.v1.DTOs;
-using FSH.Modules.Chat.Domain;
-using FSH.Modules.Chat.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Chat.Contracts.v1.DTOs;
+using Trislab.Modules.Chat.Domain;
+using Trislab.Modules.Chat.Localization;
 
-namespace FSH.Modules.Chat.Features.v1.Internal;
+namespace Trislab.Modules.Chat.Features.v1.Internal;
 
 /// <summary>
 /// Small assertion helpers used by channel/message handlers so the rules stay in one place.

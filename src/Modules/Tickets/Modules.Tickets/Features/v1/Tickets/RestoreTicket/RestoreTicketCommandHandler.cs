@@ -1,12 +1,12 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Persistence;
-using FSH.Modules.Tickets.Localization;
-using FSH.Modules.Tickets.Contracts.v1.Tickets;
-using FSH.Modules.Tickets.Data;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Persistence;
+using Trislab.Modules.Tickets.Localization;
+using Trislab.Modules.Tickets.Contracts.v1.Tickets;
+using Trislab.Modules.Tickets.Data;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Tickets.Features.v1.Tickets.RestoreTicket;
+namespace Trislab.Modules.Tickets.Features.v1.Tickets.RestoreTicket;
 
 public sealed class RestoreTicketCommandHandler(TicketsDbContext dbContext)
     : ICommandHandler<RestoreTicketCommand, Guid>

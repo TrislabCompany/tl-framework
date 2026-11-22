@@ -1,8 +1,8 @@
 // TODO(i18n): email bodies are localized in a follow-up PR — recipient locale must be propagated (no HTTP request culture in background handlers).
 using System.Globalization;
-using FSH.Framework.Mailing;
+using Trislab.Framework.Mailing;
 
-namespace FSH.Modules.Notifications.IntegrationEventHandlers;
+namespace Trislab.Modules.Notifications.IntegrationEventHandlers;
 
 /// <summary>
 /// Builds the subject + HTML body + text/plain alternative for tenant billing emails. Plain interpolated

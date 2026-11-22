@@ -1,9 +1,9 @@
 using FluentValidation;
-using FSH.Framework.Core.Localization;
-using FSH.Framework.Shared.Persistence;
+using Trislab.Framework.Core.Localization;
+using Trislab.Framework.Shared.Persistence;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Framework.Web.Validation;
+namespace Trislab.Framework.Web.Validation;
 
 /// <summary>
 /// Shared validator for types implementing IPagedQuery.

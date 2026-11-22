@@ -1,4 +1,4 @@
-namespace FSH.Framework.Eventing.Abstractions;
+namespace Trislab.Framework.Eventing.Abstractions;
 
 /// <summary>
 /// The publish side of the transactional outbox — all a module ever needs.

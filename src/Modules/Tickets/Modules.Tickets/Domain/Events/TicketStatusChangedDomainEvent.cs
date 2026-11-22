@@ -1,7 +1,7 @@
-using FSH.Framework.Core.Domain;
-using FSH.Modules.Tickets.Contracts.Dtos;
+using Trislab.Framework.Core.Domain;
+using Trislab.Modules.Tickets.Contracts.Dtos;
 
-namespace FSH.Modules.Tickets.Domain.Events;
+namespace Trislab.Modules.Tickets.Domain.Events;
 
 public sealed record TicketStatusChangedDomainEvent(
     Guid TicketId,

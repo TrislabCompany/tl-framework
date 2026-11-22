@@ -1,4 +1,4 @@
-namespace FSH.Framework.Storage.DTOs;
+namespace Trislab.Framework.Storage.DTOs;
 
 public sealed class FileDownloadResponse
 {

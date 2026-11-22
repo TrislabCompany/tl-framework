@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Security.Claims;
-using FSH.Framework.Web.Localization;
+using Trislab.Framework.Web.Localization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
@@ -18,7 +18,7 @@ public sealed class UserLocaleRequestCultureProviderTests
     {
         var configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
         var services = new ServiceCollection();
-        services.AddHeroLocalization(configuration);
+        services.AddTrislabLocalization(configuration);
         return services.BuildServiceProvider().GetRequiredService<IOptions<RequestLocalizationOptions>>();
     }
 

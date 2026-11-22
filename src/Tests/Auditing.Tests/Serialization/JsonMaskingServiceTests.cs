@@ -1,4 +1,4 @@
-using FSH.Modules.Auditing;
+using Trislab.Modules.Auditing;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 

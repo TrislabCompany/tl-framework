@@ -1,5 +1,5 @@
-using FSH.Modules.Files.Contracts;
-using FSH.Modules.Files.Services;
+using Trislab.Modules.Files.Contracts;
+using Trislab.Modules.Files.Services;
 using NSubstitute;
 
 namespace Files.Tests.Services;

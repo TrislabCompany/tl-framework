@@ -1,4 +1,4 @@
-namespace FSH.Framework.Eventing;
+namespace Trislab.Framework.Eventing;
 
 /// <summary>
 /// Configuration options for the eventing building block.

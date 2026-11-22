@@ -1,6 +1,6 @@
 using Catalog.Tests.Support;
-using FSH.Modules.Catalog.Contracts.v1.Products;
-using FSH.Modules.Catalog.Features.v1.Products.AdjustProductStock;
+using Trislab.Modules.Catalog.Contracts.v1.Products;
+using Trislab.Modules.Catalog.Features.v1.Products.AdjustProductStock;
 
 namespace Catalog.Tests.Validators;
 

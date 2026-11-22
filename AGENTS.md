@@ -144,7 +144,7 @@ dotnet run --project src/Host/App.DbMigrator -- list-pending
 ## Adding things (quick pointers)
 
 - **Feature** — Contracts command/query → handler → validator → endpoint → wire in module `MapEndpoints()` → tests. Details: `api-conventions.md`.
-- **Module** — new `Modules.{Name}` + `.Contracts`, implement `IModule` w/ assembly-level `[assembly: FshModule(typeof(XModule), order)]`, register in **all four places**, add migration folder + tests. Details: `architecture.md`.
+- **Module** — new `Modules.{Name}` + `.Contracts`, implement `IModule` w/ assembly-level `[assembly: TrislabModule(typeof(XModule), order)]`, register in **all four places**, add migration folder + tests. Details: `architecture.md`.
 - **React page** — API module (`src/api/`) → English keys in `src/locales/en-US/{ns}.json` → page (`t()`) → register lazy route → (admin) mirror permission + RouteGuard → Playwright test. Details: `frontend/shared.md`.
 
 ## AI tooling resources

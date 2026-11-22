@@ -1,30 +1,30 @@
 using Asp.Versioning;
-using FSH.Framework.Eventing;
-using FSH.Framework.Persistence;
-using FSH.Framework.Web.Modules;
-using FSH.Modules.Billing.Data;
-using FSH.Modules.Billing.Features.v1.Invoices.GenerateInvoices;
-using FSH.Modules.Billing.Features.v1.Invoices.GetInvoiceById;
-using FSH.Modules.Billing.Features.v1.Invoices.GetInvoices;
-using FSH.Modules.Billing.Features.v1.Invoices.GetInvoicePdf;
-using FSH.Modules.Billing.Features.v1.Invoices.GetMyInvoices;
-using FSH.Modules.Billing.Features.v1.Invoices.IssueInvoice;
-using FSH.Modules.Billing.Features.v1.Invoices.MarkInvoicePaid;
-using FSH.Modules.Billing.Features.v1.Invoices.VoidInvoice;
-using FSH.Modules.Billing.Features.v1.Plans.CreatePlan;
-using FSH.Modules.Billing.Features.v1.Plans.GetPlans;
-using FSH.Modules.Billing.Features.v1.Plans.UpdatePlan;
-using FSH.Modules.Billing.Features.v1.Subscriptions.AssignSubscription;
-using FSH.Modules.Billing.Features.v1.Subscriptions.GetSubscription;
-using FSH.Modules.Billing.Features.v1.Usage.CaptureUsageSnapshots;
-using FSH.Modules.Billing.Features.v1.Usage.GetUsageSnapshots;
-using FSH.Modules.Billing.Features.v1.Wallets.ApproveTopupRequest;
-using FSH.Modules.Billing.Features.v1.Wallets.CreateTopupRequest;
-using FSH.Modules.Billing.Features.v1.Wallets.GetMyTopupRequests;
-using FSH.Modules.Billing.Features.v1.Wallets.GetMyWallet;
-using FSH.Modules.Billing.Features.v1.Wallets.GetTopupRequests;
-using FSH.Modules.Billing.Features.v1.Wallets.RejectTopupRequest;
-using FSH.Modules.Billing.Services;
+using Trislab.Framework.Eventing;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Web.Modules;
+using Trislab.Modules.Billing.Data;
+using Trislab.Modules.Billing.Features.v1.Invoices.GenerateInvoices;
+using Trislab.Modules.Billing.Features.v1.Invoices.GetInvoiceById;
+using Trislab.Modules.Billing.Features.v1.Invoices.GetInvoices;
+using Trislab.Modules.Billing.Features.v1.Invoices.GetInvoicePdf;
+using Trislab.Modules.Billing.Features.v1.Invoices.GetMyInvoices;
+using Trislab.Modules.Billing.Features.v1.Invoices.IssueInvoice;
+using Trislab.Modules.Billing.Features.v1.Invoices.MarkInvoicePaid;
+using Trislab.Modules.Billing.Features.v1.Invoices.VoidInvoice;
+using Trislab.Modules.Billing.Features.v1.Plans.CreatePlan;
+using Trislab.Modules.Billing.Features.v1.Plans.GetPlans;
+using Trislab.Modules.Billing.Features.v1.Plans.UpdatePlan;
+using Trislab.Modules.Billing.Features.v1.Subscriptions.AssignSubscription;
+using Trislab.Modules.Billing.Features.v1.Subscriptions.GetSubscription;
+using Trislab.Modules.Billing.Features.v1.Usage.CaptureUsageSnapshots;
+using Trislab.Modules.Billing.Features.v1.Usage.GetUsageSnapshots;
+using Trislab.Modules.Billing.Features.v1.Wallets.ApproveTopupRequest;
+using Trislab.Modules.Billing.Features.v1.Wallets.CreateTopupRequest;
+using Trislab.Modules.Billing.Features.v1.Wallets.GetMyTopupRequests;
+using Trislab.Modules.Billing.Features.v1.Wallets.GetMyWallet;
+using Trislab.Modules.Billing.Features.v1.Wallets.GetTopupRequests;
+using Trislab.Modules.Billing.Features.v1.Wallets.RejectTopupRequest;
+using Trislab.Modules.Billing.Services;
 using Hangfire;
 using Hangfire.Common;
 using Microsoft.AspNetCore.Builder;
@@ -34,9 +34,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 
-[assembly: FshModule(typeof(FSH.Modules.Billing.BillingModule), 500)]
+[assembly: TrislabModule(typeof(Trislab.Modules.Billing.BillingModule), 500)]
 
-namespace FSH.Modules.Billing;
+namespace Trislab.Modules.Billing;
 
 public sealed class BillingModule : IModule
 {
@@ -44,10 +44,10 @@ public sealed class BillingModule : IModule
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        FSH.Framework.Shared.Constants.PermissionConstants.Register(
-            FSH.Modules.Billing.Contracts.Authorization.BillingPermissions.All);
+        Trislab.Framework.Shared.Constants.PermissionConstants.Register(
+            Trislab.Modules.Billing.Contracts.Authorization.BillingPermissions.All);
 
-        builder.Services.AddHeroDbContext<BillingDbContext>();
+        builder.Services.AddTrislabDbContext<BillingDbContext>();
         builder.Services.AddScoped<IDbInitializer, BillingDbInitializer>();
         builder.Services.AddScoped<IUsageReporter, UsageReporter>();
         builder.Services.AddScoped<IBillingService, BillingService>();

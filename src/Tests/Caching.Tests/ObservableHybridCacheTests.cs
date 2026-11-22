@@ -1,6 +1,6 @@
 using System.Diagnostics.Metrics;
-using FSH.Framework.Caching;
-using FSH.Framework.Caching.Telemetry;
+using Trislab.Framework.Caching;
+using Trislab.Framework.Caching.Telemetry;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -66,7 +66,7 @@ public sealed class ObservableHybridCacheTests : IDisposable
         var services = new ServiceCollection();
         var config = new ConfigurationBuilder().Build();
         services.AddSingleton<IConfiguration>(config);
-        services.AddHeroCaching(config);
+        services.AddTrislabCaching(config);
         return services.BuildServiceProvider().GetRequiredService<HybridCache>();
     }
 

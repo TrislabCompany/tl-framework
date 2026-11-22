@@ -1,4 +1,4 @@
-using FSH.Framework.Caching;
+using Trislab.Framework.Caching;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,7 +7,7 @@ namespace Caching.Tests;
 
 /// <summary>
 /// End-to-end behavior tests for HybridCache using the in-memory distributed cache backend
-/// wired through <see cref="Extensions.AddHeroCaching"/>. Covers the core GetOrCreate / Set /
+/// wired through <see cref="Extensions.AddTrislabCaching"/>. Covers the core GetOrCreate / Set /
 /// Remove / RemoveByTag paths consumers rely on.
 /// </summary>
 public sealed class HybridCacheBehaviorTests
@@ -16,7 +16,7 @@ public sealed class HybridCacheBehaviorTests
     {
         var services = new ServiceCollection();
         var config = new ConfigurationBuilder().Build();
-        services.AddHeroCaching(config);
+        services.AddTrislabCaching(config);
         return services.BuildServiceProvider().GetRequiredService<HybridCache>();
     }
 

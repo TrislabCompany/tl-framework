@@ -1,4 +1,4 @@
-using FSH.Framework.Core.Domain;
+using Trislab.Framework.Core.Domain;
 
 namespace Framework.Tests.Core;
 

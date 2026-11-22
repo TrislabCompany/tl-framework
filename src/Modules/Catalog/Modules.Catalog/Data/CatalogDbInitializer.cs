@@ -1,8 +1,8 @@
-using FSH.Framework.Persistence;
+using Trislab.Framework.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Modules.Catalog.Data;
+namespace Trislab.Modules.Catalog.Data;
 
 public sealed class CatalogDbInitializer(
     CatalogDbContext dbContext,

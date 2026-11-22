@@ -1,9 +1,9 @@
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Mailing.Services;
-using FSH.Modules.Multitenancy.Contracts.Events;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Mailing.Services;
+using Trislab.Modules.Multitenancy.Contracts.Events;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Modules.Notifications.IntegrationEventHandlers;
+namespace Trislab.Modules.Notifications.IntegrationEventHandlers;
 
 /// <summary>Emails the tenant admin that their subscription lapsed and the grace period is counting down.</summary>
 public sealed class TenantEnteredGraceEmailHandler(

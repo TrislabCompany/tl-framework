@@ -1,7 +1,7 @@
 using FluentValidation;
-using FSH.Modules.Catalog.Contracts.v1.Categories;
+using Trislab.Modules.Catalog.Contracts.v1.Categories;
 
-namespace FSH.Modules.Catalog.Features.v1.Categories.CreateCategory;
+namespace Trislab.Modules.Catalog.Features.v1.Categories.CreateCategory;
 
 public sealed class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryCommand>
 {

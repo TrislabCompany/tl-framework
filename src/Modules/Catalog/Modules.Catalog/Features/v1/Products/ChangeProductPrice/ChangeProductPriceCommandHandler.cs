@@ -1,13 +1,13 @@
-using FSH.Framework.Core.Domain;
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Catalog.Contracts.v1.Products;
-using FSH.Modules.Catalog.Data;
-using FSH.Modules.Catalog.Domain;
-using FSH.Modules.Catalog.Localization;
+using Trislab.Framework.Core.Domain;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Catalog.Contracts.v1.Products;
+using Trislab.Modules.Catalog.Data;
+using Trislab.Modules.Catalog.Domain;
+using Trislab.Modules.Catalog.Localization;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Catalog.Features.v1.Products.ChangeProductPrice;
+namespace Trislab.Modules.Catalog.Features.v1.Products.ChangeProductPrice;
 
 public sealed class ChangeProductPriceCommandHandler(CatalogDbContext dbContext)
     : ICommandHandler<ChangeProductPriceCommand, Guid>

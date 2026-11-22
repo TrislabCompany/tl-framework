@@ -1,4 +1,4 @@
-using FSH.Framework.Caching;
+using Trislab.Framework.Caching;
 
 namespace Caching.Tests;
 

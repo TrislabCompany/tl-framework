@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace FSH.Framework.Web.Health;
+namespace Trislab.Framework.Web.Health;
 
 public static class HealthEndpoints
 {
     public sealed record HealthResult(string Status, IEnumerable<HealthEntry> Results);
     public sealed record HealthEntry(string Name, string Status, string? Description, double DurationMs, Dictionary<string, object>? Details = default);
-    public static IEndpointRouteBuilder MapHeroHealthEndpoints(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapTrislabHealthEndpoints(this IEndpointRouteBuilder app)
     {
         // Under /api, so the front ends reach it through their /api proxy. The platform's
         // probes, /healthz and /readyz, are mapped in the API host onto the same checks.

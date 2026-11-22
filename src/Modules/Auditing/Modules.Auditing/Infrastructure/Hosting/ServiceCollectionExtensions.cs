@@ -1,12 +1,12 @@
-using FSH.Framework.Persistence;
-using FSH.Modules.Auditing.Contracts;
-using FSH.Modules.Auditing.Persistence;
+using Trislab.Framework.Persistence;
+using Trislab.Modules.Auditing.Contracts;
+using Trislab.Modules.Auditing.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace FSH.Modules.Auditing;
+namespace Trislab.Modules.Auditing;
 
 public static class ServiceCollectionExtensions
 {
@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<IAuditClient, DefaultAuditClient>();
         services.AddScoped<ISecurityAudit, SecurityAudit>();
-        services.AddHeroDbContext<AuditDbContext>();
+        services.AddTrislabDbContext<AuditDbContext>();
         services.AddSingleton<IAuditSerializer, SystemTextJsonAuditSerializer>();
 
         // Request-scoped scope reader (HttpContext-backed)

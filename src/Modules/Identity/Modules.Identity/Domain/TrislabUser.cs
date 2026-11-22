@@ -1,10 +1,10 @@
-using FSH.Framework.Core.Domain;
-using FSH.Modules.Identity.Domain.Events;
+using Trislab.Framework.Core.Domain;
+using Trislab.Modules.Identity.Domain.Events;
 using Microsoft.AspNetCore.Identity;
 
-namespace FSH.Modules.Identity.Domain;
+namespace Trislab.Modules.Identity.Domain;
 
-public class FshUser : IdentityUser, IHasDomainEvents
+public class TrislabUser : IdentityUser, IHasDomainEvents
 {
     private readonly List<IDomainEvent> _domainEvents = [];
 

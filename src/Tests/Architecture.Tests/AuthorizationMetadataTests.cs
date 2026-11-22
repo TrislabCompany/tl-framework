@@ -1,4 +1,4 @@
-using FSH.Framework.Shared.Identity.Authorization;
+using Trislab.Framework.Shared.Identity.Authorization;
 using Shouldly;
 using System.Reflection;
 using Xunit;
@@ -15,12 +15,12 @@ namespace Architecture.Tests;
 public class AuthorizationMetadataTests
 {
     private const string AttributeName = "RequiredPermissionAttribute";
-    private const string ExpectedNamespace = "FSH.Framework.Shared.Identity.Authorization";
+    private const string ExpectedNamespace = "Trislab.Framework.Shared.Identity.Authorization";
 
     [Fact]
     public void RequiredPermissionAttribute_Should_Exist_Exactly_Once_Across_All_FSH_Assemblies()
     {
-        var matches = GetAllFshAssemblies()
+        var matches = GetAllTrislabAssemblies()
             .SelectMany(GetLoadableTypes)
             .Where(t => string.Equals(t.Name, AttributeName, StringComparison.Ordinal))
             .ToArray();
@@ -51,17 +51,17 @@ public class AuthorizationMetadataTests
     }
 
     /// <summary>
-    /// Loads every FSH.* assembly deployed alongside the tests so the duplicate sweep covers
+    /// Loads every Trislab.* assembly deployed alongside the tests so the duplicate sweep covers
     /// BuildingBlocks, all modules (including Contracts), and host assemblies — not just the
     /// runtime module assemblies that ModuleAssemblyDiscovery returns.
     /// </summary>
-    private static Assembly[] GetAllFshAssemblies()
+    private static Assembly[] GetAllTrislabAssemblies()
     {
         string baseDir = AppContext.BaseDirectory;
 
         var assemblies = new List<Assembly>();
 
-        foreach (var file in Directory.GetFiles(baseDir, "FSH.*.dll"))
+        foreach (var file in Directory.GetFiles(baseDir, "Trislab.*.dll"))
         {
             try
             {
@@ -77,7 +77,7 @@ public class AuthorizationMetadataTests
         }
 
         assemblies.ShouldNotBeEmpty(
-            "No FSH.* assemblies were found in the test output directory; the duplicate sweep would be a no-op.");
+            "No Trislab.* assemblies were found in the test output directory; the duplicate sweep would be a no-op.");
 
         return [.. assemblies];
     }

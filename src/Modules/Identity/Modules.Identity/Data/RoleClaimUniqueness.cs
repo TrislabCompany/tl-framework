@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 
-namespace FSH.Modules.Identity.Data;
+namespace Trislab.Modules.Identity.Data;
 
 /// <summary>
 /// The unique index on <c>identity.RoleClaims (RoleId, ClaimType, ClaimValue)</c> and how the permission

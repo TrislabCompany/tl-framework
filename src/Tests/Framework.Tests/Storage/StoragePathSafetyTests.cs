@@ -1,6 +1,6 @@
-using FSH.Framework.Shared.Storage;
-using FSH.Framework.Storage;
-using FSH.Framework.Storage.Local;
+using Trislab.Framework.Shared.Storage;
+using Trislab.Framework.Storage;
+using Trislab.Framework.Storage.Local;
 using Microsoft.AspNetCore.Hosting;
 
 namespace Framework.Tests.Storage;

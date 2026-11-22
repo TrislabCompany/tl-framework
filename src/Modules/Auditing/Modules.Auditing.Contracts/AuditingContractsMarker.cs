@@ -1,4 +1,4 @@
-namespace FSH.Modules.Auditing.Contracts;
+namespace Trislab.Modules.Auditing.Contracts;
 
 // Marker type for contract assembly scanning (Mediator, etc.)
 public sealed class AuditingContractsMarker

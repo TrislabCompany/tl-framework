@@ -1,10 +1,10 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Auditing;
-using FSH.Modules.Auditing.Contracts;
-using FSH.Modules.Auditing.Contracts.Dtos;
-using FSH.Modules.Auditing.Persistence;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Auditing;
+using Trislab.Modules.Auditing.Contracts;
+using Trislab.Modules.Auditing.Contracts.Dtos;
+using Trislab.Modules.Auditing.Persistence;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 
@@ -15,7 +15,7 @@ namespace Integration.Tests.Tests.Auditing;
 /// does ToListAsync with no Skip/Take/cap and the validator does not require a time window, so an
 /// unpaged call materializes the whole matching set. A bounded API would cap the page size.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class SecurityAuditListBoundsTests
 {
     private const int SeededRows = 500;
@@ -24,10 +24,10 @@ public sealed class SecurityAuditListBoundsTests
     // "so an over-eager client can't pull a tenant's full session table in one round-trip".
     private const int ExpectedServerCap = 200;
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public SecurityAuditListBoundsTests(FshWebApplicationFactory factory)
+    public SecurityAuditListBoundsTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

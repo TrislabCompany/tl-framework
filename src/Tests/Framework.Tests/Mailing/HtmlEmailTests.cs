@@ -1,4 +1,4 @@
-using FSH.Framework.Mailing;
+using Trislab.Framework.Mailing;
 
 namespace Framework.Tests.Mailing;
 

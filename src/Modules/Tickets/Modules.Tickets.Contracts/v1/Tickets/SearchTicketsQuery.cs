@@ -1,8 +1,8 @@
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Tickets.Contracts.Dtos;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Tickets.Contracts.Dtos;
 using Mediator;
 
-namespace FSH.Modules.Tickets.Contracts.v1.Tickets;
+namespace Trislab.Modules.Tickets.Contracts.v1.Tickets;
 
 public sealed record SearchTicketsQuery : IQuery<PagedResponse<TicketDto>>
 {

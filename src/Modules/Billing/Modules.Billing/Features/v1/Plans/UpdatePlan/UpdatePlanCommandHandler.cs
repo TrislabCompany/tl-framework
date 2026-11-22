@@ -1,11 +1,11 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Billing.Contracts.v1.Plans;
-using FSH.Modules.Billing.Data;
-using FSH.Modules.Billing.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Billing.Contracts.v1.Plans;
+using Trislab.Modules.Billing.Data;
+using Trislab.Modules.Billing.Localization;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Billing.Features.v1.Plans.UpdatePlan;
+namespace Trislab.Modules.Billing.Features.v1.Plans.UpdatePlan;
 
 public sealed class UpdatePlanCommandHandler(BillingDbContext dbContext)
     : ICommandHandler<UpdatePlanCommand, Guid>

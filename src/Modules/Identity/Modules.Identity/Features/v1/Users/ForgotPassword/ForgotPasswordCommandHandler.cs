@@ -1,9 +1,9 @@
-using FSH.Framework.Web.Frontend;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Users.ForgotPassword;
+using Trislab.Framework.Web.Frontend;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Users.ForgotPassword;
 using Mediator;
 
-namespace FSH.Modules.Identity.Features.v1.Users.ForgotPassword;
+namespace Trislab.Modules.Identity.Features.v1.Users.ForgotPassword;
 
 public sealed class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordCommand, string>
 {

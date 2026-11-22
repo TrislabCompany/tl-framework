@@ -1,8 +1,8 @@
 using System.Text.RegularExpressions;
-using FSH.Framework.Storage;
-using FSH.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Framework.Storage;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
 
-namespace FSH.Modules.Files.Services;
+namespace Trislab.Modules.Files.Services;
 
 /// <summary>
 /// Builds canonical storage keys for the Files module:

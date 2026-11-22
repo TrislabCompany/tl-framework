@@ -1,4 +1,4 @@
-﻿namespace FSH.Modules.Auditing.Contracts;
+﻿namespace Trislab.Modules.Auditing.Contracts;
 
 public sealed class AuditHttpOptions
 {

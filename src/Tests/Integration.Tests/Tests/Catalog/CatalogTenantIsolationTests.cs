@@ -1,4 +1,4 @@
-using FSH.Modules.Catalog.Contracts.Dtos;
+using Trislab.Modules.Catalog.Contracts.Dtos;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 
@@ -12,12 +12,12 @@ namespace Integration.Tests.Tests.Catalog;
 /// tenant isolation via BaseDbContext's auto-apply, so these assert the
 /// intended behavior. Intra-tenant CRUD lives in <see cref="ProductsEndpointTests"/>.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class CatalogTenantIsolationTests
 {
     private readonly AuthHelper _auth;
 
-    public CatalogTenantIsolationTests(FshWebApplicationFactory factory)
+    public CatalogTenantIsolationTests(TrislabWebApplicationFactory factory)
     {
         _auth = new AuthHelper(factory);
     }

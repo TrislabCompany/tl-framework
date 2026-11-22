@@ -1,4 +1,4 @@
-using FSH.Modules.Identity.Services;
+using Trislab.Modules.Identity.Services;
 
 namespace Identity.Tests.Services;
 

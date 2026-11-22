@@ -1,4 +1,4 @@
-﻿namespace FSH.Framework.Web.OpenApi;
+﻿namespace Trislab.Framework.Web.OpenApi;
 
 public sealed class OpenApiOptions
 {

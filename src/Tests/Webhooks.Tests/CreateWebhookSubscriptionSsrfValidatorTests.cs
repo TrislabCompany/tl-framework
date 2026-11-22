@@ -1,7 +1,7 @@
 using System.Net;
-using FSH.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription;
-using FSH.Modules.Webhooks.Features.v1.CreateWebhookSubscription;
-using FSH.Modules.Webhooks.Services;
+using Trislab.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription;
+using Trislab.Modules.Webhooks.Features.v1.CreateWebhookSubscription;
+using Trislab.Modules.Webhooks.Services;
 using Webhooks.Tests.Support;
 
 namespace Webhooks.Tests;

@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using FSH.Framework.Persistence;
-using FSH.Modules.Multitenancy.Contracts;
-using FSH.Modules.Multitenancy.Contracts.v1.CreateTenant;
-using FSH.Modules.Multitenancy.Localization;
+using Trislab.Framework.Persistence;
+using Trislab.Modules.Multitenancy.Contracts;
+using Trislab.Modules.Multitenancy.Contracts.v1.CreateTenant;
+using Trislab.Modules.Multitenancy.Localization;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Multitenancy.Features.v1.CreateTenant;
+namespace Trislab.Modules.Multitenancy.Features.v1.CreateTenant;
 
 public sealed class CreateTenantCommandValidator : AbstractValidator<CreateTenantCommand>
 {

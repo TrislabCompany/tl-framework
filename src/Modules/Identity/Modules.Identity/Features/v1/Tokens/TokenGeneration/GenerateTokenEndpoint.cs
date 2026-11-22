@@ -1,7 +1,7 @@
-using FSH.Framework.Core.Localization;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Contracts.DTOs;
-using FSH.Modules.Identity.Contracts.v1.Tokens.TokenGeneration;
+using Trislab.Framework.Core.Localization;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.v1.Tokens.TokenGeneration;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Localization;
 using System.ComponentModel;
 
-namespace FSH.Modules.Identity.Features.v1.Tokens.TokenGeneration;
+namespace Trislab.Modules.Identity.Features.v1.Tokens.TokenGeneration;
 
 public static class GenerateTokenEndpoint
 {

@@ -1,8 +1,8 @@
 using System;
 using System.Globalization;
-using FSH.Modules.Multitenancy.Provisioning;
+using Trislab.Modules.Multitenancy.Provisioning;
 using System.Linq;
-using FSH.Modules.Multitenancy.Localization;
+using Trislab.Modules.Multitenancy.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 

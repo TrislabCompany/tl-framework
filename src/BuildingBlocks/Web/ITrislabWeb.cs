@@ -1,5 +1,5 @@
-﻿namespace FSH.Framework.Web;
+﻿namespace Trislab.Framework.Web;
 
-public interface IFshWeb
+public interface ITrislabWeb
 {
 }

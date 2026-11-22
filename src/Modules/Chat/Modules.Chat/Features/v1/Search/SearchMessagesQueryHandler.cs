@@ -1,16 +1,16 @@
 using System.Collections.ObjectModel;
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Persistence;
-using FSH.Modules.Chat.Contracts.v1.DTOs;
-using FSH.Modules.Chat.Contracts.v1.Queries;
-using FSH.Modules.Chat.Data;
-using FSH.Modules.Chat.Domain;
-using FSH.Modules.Chat.Features.v1.Internal;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Persistence;
+using Trislab.Modules.Chat.Contracts.v1.DTOs;
+using Trislab.Modules.Chat.Contracts.v1.Queries;
+using Trislab.Modules.Chat.Data;
+using Trislab.Modules.Chat.Domain;
+using Trislab.Modules.Chat.Features.v1.Internal;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Chat.Features.v1.Search;
+namespace Trislab.Modules.Chat.Features.v1.Search;
 
 public sealed class SearchMessagesQueryHandler(
     ChatDbContext db,

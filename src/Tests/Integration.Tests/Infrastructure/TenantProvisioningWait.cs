@@ -1,4 +1,4 @@
-using FSH.Modules.Multitenancy.Contracts.Dtos;
+using Trislab.Modules.Multitenancy.Contracts.Dtos;
 
 namespace Integration.Tests.Infrastructure;
 

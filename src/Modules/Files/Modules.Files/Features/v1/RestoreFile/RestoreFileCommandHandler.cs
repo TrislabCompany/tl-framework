@@ -1,11 +1,11 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Files.Contracts.v1.Commands;
-using FSH.Modules.Files.Data;
-using FSH.Modules.Files.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Files.Contracts.v1.Commands;
+using Trislab.Modules.Files.Data;
+using Trislab.Modules.Files.Localization;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Files.Features.v1.RestoreFile;
+namespace Trislab.Modules.Files.Features.v1.RestoreFile;
 
 public sealed class RestoreFileCommandHandler(FilesDbContext db)
     : ICommandHandler<RestoreFileCommand, Unit>

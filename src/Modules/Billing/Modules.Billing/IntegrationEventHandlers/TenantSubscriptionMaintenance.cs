@@ -1,9 +1,9 @@
-using FSH.Modules.Billing.Contracts;
-using FSH.Modules.Billing.Data;
-using FSH.Modules.Billing.Domain;
+using Trislab.Modules.Billing.Contracts;
+using Trislab.Modules.Billing.Data;
+using Trislab.Modules.Billing.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Billing.IntegrationEventHandlers;
+namespace Trislab.Modules.Billing.IntegrationEventHandlers;
 
 /// <summary>
 /// Shared subscription bookkeeping for the tenant-lifecycle integration handlers: at most one active

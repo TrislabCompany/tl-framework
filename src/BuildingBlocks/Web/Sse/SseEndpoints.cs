@@ -1,9 +1,9 @@
-using FSH.Framework.Core.Context;
+using Trislab.Framework.Core.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Framework.Web.Sse;
+namespace Trislab.Framework.Web.Sse;
 
 public static class SseEndpoints
 {
@@ -15,7 +15,7 @@ public static class SseEndpoints
     /// API cannot send an Authorization header, so the stream authenticates via a short-lived opaque
     /// token issued from the token endpoint.
     /// </summary>
-    public static IEndpointRouteBuilder MapHeroSseEndpoints(this IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapTrislabSseEndpoints(this IEndpointRouteBuilder endpoints)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
 

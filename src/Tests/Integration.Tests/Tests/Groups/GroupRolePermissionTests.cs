@@ -1,8 +1,8 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Contracts.Authorization;
-using FSH.Modules.Identity.Domain;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Contracts.Authorization;
+using Trislab.Modules.Identity.Domain;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Identity;
@@ -17,15 +17,15 @@ namespace Integration.Tests.Tests.Groups;
 /// must resolve the same union, or a user whose only role comes via a group fails every
 /// <c>.RequirePermission()</c> gate despite their JWT showing the role.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class GroupRolePermissionTests
 {
     private const string ProbePermission = IdentityPermissions.Groups.Create;
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public GroupRolePermissionTests(FshWebApplicationFactory factory)
+    public GroupRolePermissionTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -155,8 +155,8 @@ public sealed class GroupRolePermissionTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<FshUser>>();
-        var user = new FshUser
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
+        var user = new TrislabUser
         {
             FirstName = "GroupRole",
             LastName = "Probe",

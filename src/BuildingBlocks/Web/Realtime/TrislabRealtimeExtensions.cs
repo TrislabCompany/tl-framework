@@ -1,4 +1,4 @@
-using FSH.Framework.Core.Common;
+using Trislab.Framework.Core.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -7,16 +7,16 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FSH.Framework.Web.Realtime;
+namespace Trislab.Framework.Web.Realtime;
 
-public static class HeroRealtimeExtensions
+public static class TrislabRealtimeExtensions
 {
     /// <summary>
     /// Registers SignalR with a Redis backplane when <c>CachingOptions:Redis</c> is configured.
     /// Without Redis the hub still works in single-host mode (useful for tests / dev).
     /// Also registers the in-memory presence tracker shared by the hub and the presence endpoint.
     /// </summary>
-    public static IServiceCollection AddHeroRealtime(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddTrislabRealtime(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
@@ -41,7 +41,7 @@ public static class HeroRealtimeExtensions
         return services;
     }
 
-    public static IEndpointRouteBuilder MapHeroRealtime(this IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapTrislabRealtime(this IEndpointRouteBuilder endpoints)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
         endpoints.MapHub<AppHub>("/api/v1/realtime/hub");

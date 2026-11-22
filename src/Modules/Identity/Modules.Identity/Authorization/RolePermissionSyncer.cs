@@ -1,9 +1,9 @@
-using FSH.Framework.Caching;
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Shared.Identity.Claims;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Identity.Domain;
+using Trislab.Framework.Caching;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Identity.Claims;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Domain;
 using Finbuckle.MultiTenant.Abstractions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +11,7 @@ using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FSH.Modules.Identity.Authorization;
+namespace Trislab.Modules.Identity.Authorization;
 
 /// <summary>
 /// Reconciles the permission claims of the built-in roles (<see cref="RoleConstants.Admin"/>,
@@ -23,7 +23,7 @@ namespace FSH.Modules.Identity.Authorization;
 /// </summary>
 public sealed class RolePermissionSyncer(
     IdentityDbContext context,
-    RoleManager<FshRole> roleManager,
+    RoleManager<TrislabRole> roleManager,
     IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
     HybridCache cache,
     TimeProvider timeProvider,
@@ -51,7 +51,7 @@ public sealed class RolePermissionSyncer(
         }
     }
 
-    internal async Task<int> SyncRoleAsync(string roleName, IReadOnlyList<FshPermission> targetPermissions, CancellationToken cancellationToken)
+    internal async Task<int> SyncRoleAsync(string roleName, IReadOnlyList<TrislabPermission> targetPermissions, CancellationToken cancellationToken)
     {
         var role = await roleManager.Roles
             .SingleOrDefaultAsync(r => r.Name == roleName, cancellationToken)
@@ -71,7 +71,7 @@ public sealed class RolePermissionSyncer(
 
         var toAdd = targetPermissions
             .Where(p => !existingSet.Contains(p.Name))
-            .Select(p => new FshRoleClaim
+            .Select(p => new TrislabRoleClaim
             {
                 RoleId = role.Id,
                 ClaimType = ClaimConstants.Permission,
@@ -163,7 +163,7 @@ public sealed class RolePermissionSyncer(
         }
     }
 
-    private List<FshRoleClaim> SelectRevokedClaims(string roleName, List<FshRoleClaim> existing, HashSet<string> targetSet)
+    private List<TrislabRoleClaim> SelectRevokedClaims(string roleName, List<TrislabRoleClaim> existing, HashSet<string> targetSet)
     {
         if (!options.Value.RemoveRevoked)
         {

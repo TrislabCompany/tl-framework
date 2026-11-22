@@ -2,16 +2,16 @@ using System.Net.Http.Headers;
 using System.Text;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Webhooks.Data;
-using FSH.Modules.Webhooks.Domain;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Webhooks.Data;
+using Trislab.Modules.Webhooks.Domain;
 using Hangfire;
 using Hangfire.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Modules.Webhooks.Services;
+namespace Trislab.Modules.Webhooks.Services;
 
 /// <summary>
 /// Hangfire job that delivers a webhook payload. Throws on transient failure so Hangfire

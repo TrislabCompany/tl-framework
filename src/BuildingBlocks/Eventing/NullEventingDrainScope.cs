@@ -1,6 +1,6 @@
-using FSH.Framework.Eventing.Abstractions;
+using Trislab.Framework.Eventing.Abstractions;
 
-namespace FSH.Framework.Eventing;
+namespace Trislab.Framework.Eventing;
 
 /// <summary>
 /// No-op drain scope used when no multitenancy composition is wired: there is only the default

@@ -1,29 +1,29 @@
-﻿using FSH.Framework.Caching;
-using FSH.Framework.Jobs;
-using FSH.Framework.Mailing;
-using FSH.Framework.Persistence;
-using FSH.Framework.Quota;
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Web.Auth;
-using FSH.Framework.Web.Cors;
-using FSH.Framework.Web.Exceptions;
-using FSH.Framework.Web.FeatureFlags;
-using FSH.Framework.Web.Frontend;
-using FSH.Framework.Web.Idempotency;
-using FSH.Framework.Web.Localization;
-using FSH.Framework.Web.Sse;
-using FSH.Framework.Web.Health;
-using FSH.Framework.Web.Mediator.Behaviors;
-using FSH.Framework.Web.Modules;
-using FSH.Framework.Web.Observability.Logging.Serilog;
-using FSH.Framework.Web.Observability.OpenTelemetry;
-using FSH.Framework.Web.OpenApi;
-using FSH.Framework.Web.Origin;
-using FSH.Framework.Web.RateLimiting;
-using FSH.Framework.Web.Realtime;
-using FSH.Framework.Web.Security;
-using FSH.Framework.Web.TrustedProxy;
-using FSH.Framework.Web.Versioning;
+﻿using Trislab.Framework.Caching;
+using Trislab.Framework.Jobs;
+using Trislab.Framework.Mailing;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Quota;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Web.Auth;
+using Trislab.Framework.Web.Cors;
+using Trislab.Framework.Web.Exceptions;
+using Trislab.Framework.Web.FeatureFlags;
+using Trislab.Framework.Web.Frontend;
+using Trislab.Framework.Web.Idempotency;
+using Trislab.Framework.Web.Localization;
+using Trislab.Framework.Web.Sse;
+using Trislab.Framework.Web.Health;
+using Trislab.Framework.Web.Mediator.Behaviors;
+using Trislab.Framework.Web.Modules;
+using Trislab.Framework.Web.Observability.Logging.Serilog;
+using Trislab.Framework.Web.Observability.OpenTelemetry;
+using Trislab.Framework.Web.OpenApi;
+using Trislab.Framework.Web.Origin;
+using Trislab.Framework.Web.RateLimiting;
+using Trislab.Framework.Web.Realtime;
+using Trislab.Framework.Web.Security;
+using Trislab.Framework.Web.TrustedProxy;
+using Trislab.Framework.Web.Versioning;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -37,15 +37,15 @@ using Microsoft.Extensions.Options;
 using Mediator;
 using System.Net;
 
-namespace FSH.Framework.Web;
+namespace Trislab.Framework.Web;
 
 public static class Extensions
 {
-    public static IHostApplicationBuilder AddHeroPlatform(this IHostApplicationBuilder builder, Action<FshPlatformOptions>? configure = null)
+    public static IHostApplicationBuilder AddTrislabPlatform(this IHostApplicationBuilder builder, Action<TrislabPlatformOptions>? configure = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        var options = new FshPlatformOptions();
+        var options = new TrislabPlatformOptions();
         configure?.Invoke(options);
 
         PermissionConstants.Register(SystemPermissions.All);
@@ -63,10 +63,10 @@ public static class Extensions
             options.Level = System.IO.Compression.CompressionLevel.Fastest;
         });
 
-        builder.AddHeroLogging();
+        builder.AddTrislabLogging();
         if (options.EnableOpenTelemetry)
         {
-            builder.AddHeroOpenTelemetry();
+            builder.AddTrislabOpenTelemetry();
         }
 
         builder.Services.AddHttpContextAccessor();
@@ -136,40 +136,40 @@ public static class Extensions
             }
         });
 
-        builder.Services.AddHeroDatabaseOptions(builder.Configuration);
-        builder.Services.AddHeroRateLimiting(builder.Configuration);
+        builder.Services.AddTrislabDatabaseOptions(builder.Configuration);
+        builder.Services.AddTrislabRateLimiting(builder.Configuration);
 
         var corsEnabled = options.EnableCors && IsCorsEnabled(builder.Configuration);
         var openApiEnabled = options.EnableOpenApi && IsOpenApiEnabled(builder.Configuration);
 
         if (corsEnabled)
         {
-            builder.Services.AddHeroCors(builder.Configuration);
+            builder.Services.AddTrislabCors(builder.Configuration);
         }
 
-        builder.Services.AddHeroVersioning();
+        builder.Services.AddTrislabVersioning();
 
         if (openApiEnabled)
         {
-            builder.Services.AddHeroOpenApi(builder.Configuration);
+            builder.Services.AddTrislabOpenApi(builder.Configuration);
         }
 
         builder.Services.AddHealthChecks().AddCheck("self", () => HealthCheckResult.Healthy());
 
         if (options.EnableJobs)
         {
-            builder.Services.AddHeroJobs();
+            builder.Services.AddTrislabJobs();
             builder.Services.AddHealthChecks().AddCheck<HangfireHealthCheck>("hangfire");
         }
 
         if (options.EnableMailing)
         {
-            builder.Services.AddHeroMailing();
+            builder.Services.AddTrislabMailing();
         }
 
         if (options.EnableCaching)
         {
-            builder.Services.AddHeroCaching(builder.Configuration);
+            builder.Services.AddTrislabCaching(builder.Configuration);
             var cacheConfig = builder.Configuration.GetSection(nameof(CachingOptions)).Get<CachingOptions>();
             if (cacheConfig is not null && !string.IsNullOrEmpty(cacheConfig.Redis))
             {
@@ -179,30 +179,30 @@ public static class Extensions
 
         if (options.EnableFeatureFlags)
         {
-            builder.Services.AddHeroFeatureFlags(builder.Configuration);
+            builder.Services.AddTrislabFeatureFlags(builder.Configuration);
         }
 
         if (options.EnableIdempotency)
         {
-            builder.Services.AddHeroIdempotency(builder.Configuration);
+            builder.Services.AddTrislabIdempotency(builder.Configuration);
         }
 
         if (options.EnableSse)
         {
-            builder.Services.AddHeroSse();
+            builder.Services.AddTrislabSse();
         }
 
         if (options.EnableRealtime)
         {
-            builder.Services.AddHeroRealtime(builder.Configuration);
+            builder.Services.AddTrislabRealtime(builder.Configuration);
         }
 
         if (options.EnableQuotas)
         {
-            builder.Services.AddHeroQuotas(builder.Configuration);
+            builder.Services.AddTrislabQuotas(builder.Configuration);
         }
 
-        builder.Services.AddHeroLocalization(builder.Configuration);
+        builder.Services.AddTrislabLocalization(builder.Configuration);
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         builder.Services.AddProblemDetails();
@@ -212,7 +212,7 @@ public static class Extensions
         // Front-end origin resolution for user-facing links in e-mails/notifications. There is no
         // fallback tier: the resolver throws when DefaultOrigin is unset. The API host fails fast on
         // it in Production (Program.cs); it is not validated here because the DbMigrator also calls
-        // AddHeroPlatform and never sends links. Other environments get one startup Error instead.
+        // AddTrislabPlatform and never sends links. Other environments get one startup Error instead.
         builder.Services.AddOptions<FrontendOptions>().BindConfiguration(nameof(FrontendOptions));
         builder.Services.AddScoped<IFrontendOriginResolver, FrontendOriginResolver>();
 
@@ -220,13 +220,13 @@ public static class Extensions
     }
 
 
-    public static WebApplication UseHeroPlatform(this WebApplication app, Action<FshPipelineOptions>? configure = null)
+    public static WebApplication UseTrislabPlatform(this WebApplication app, Action<TrislabPipelineOptions>? configure = null)
     {
         ArgumentNullException.ThrowIfNull(app);
 
         WarnOnMissingFrontendOrigin(app);
 
-        var options = new FshPipelineOptions();
+        var options = new TrislabPipelineOptions();
         configure?.Invoke(options);
 
         var corsEnabled = options.UseCors && IsCorsEnabled(app.Configuration);
@@ -244,12 +244,12 @@ public static class Extensions
         // the browser would block the call. Safe before routing because we use one global policy (no [EnableCors]).
         if (corsEnabled)
         {
-            app.UseHeroCors();
+            app.UseTrislabCors();
         }
 
         app.UseHttpsRedirection();
 
-        app.UseHeroSecurityHeaders();
+        app.UseTrislabSecurityHeaders();
 
         // Serve static files as early as possible to short-circuit pipeline
         if (options.ServeStaticFiles)
@@ -263,28 +263,28 @@ public static class Extensions
             app.UseStaticFiles();
         }
 
-        app.UseHeroJobDashboard(app.Configuration);
+        app.UseTrislabJobDashboard(app.Configuration);
         app.UseRouting();
 
         if (openApiEnabled)
         {
-            app.UseHeroOpenApi();
+            app.UseTrislabOpenApi();
         }
 
         app.UseAuthentication();
 
         // Must run after UseAuthentication so the user-locale-claim provider sees HttpContext.User,
         // and before UseAuthorization/endpoints so the request culture is set for the handlers.
-        app.UseHeroLocalization();
+        app.UseTrislabLocalization();
 
         // Let each module register its own middleware (e.g. Auditing registers AuditHttpMiddleware)
         app.UseModuleMiddlewares();
 
-        app.UseHeroRateLimiting();
+        app.UseTrislabRateLimiting();
 
         if (options.UseQuotas)
         {
-            app.UseHeroQuotas();
+            app.UseTrislabQuotas();
         }
 
         app.UseAuthorization();
@@ -295,16 +295,16 @@ public static class Extensions
         }
 
         // Always expose health endpoints
-        app.MapHeroHealthEndpoints();
+        app.MapTrislabHealthEndpoints();
 
         if (options.MapSseEndpoints)
         {
-            app.MapHeroSseEndpoints();
+            app.MapTrislabSseEndpoints();
         }
 
         if (options.MapRealtime)
         {
-            app.MapHeroRealtime();
+            app.MapTrislabRealtime();
         }
         app.UseMiddleware<CurrentUserMiddleware>();
         return app;
@@ -367,7 +367,7 @@ public static class Extensions
     }
 }
 
-public sealed class FshPlatformOptions
+public sealed class TrislabPlatformOptions
 {
     public bool EnableCors { get; set; } = true;
     public bool EnableOpenApi { get; set; } = true;
@@ -382,7 +382,7 @@ public sealed class FshPlatformOptions
     public bool EnableQuotas { get; set; } = false;
 }
 
-public sealed class FshPipelineOptions
+public sealed class TrislabPipelineOptions
 {
     public bool UseCors { get; set; } = true;
     public bool UseOpenApi { get; set; } = true;

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace FSH.Modules.Identity.Authorization;
+namespace Trislab.Modules.Identity.Authorization;
 
 public class PermissionAuthorizationRequirement : IAuthorizationRequirement;

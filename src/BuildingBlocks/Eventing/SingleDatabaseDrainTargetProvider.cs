@@ -1,6 +1,6 @@
-using FSH.Framework.Eventing.Abstractions;
+using Trislab.Framework.Eventing.Abstractions;
 
-namespace FSH.Framework.Eventing;
+namespace Trislab.Framework.Eventing;
 
 /// <summary>
 /// Default provider for single-database deployments: one pass over the configured connection.

@@ -26,14 +26,14 @@ src/Modules/{X}/Modules.{X}/Features/v1/{Area}/{Feature}/
 `Mediator` interfaces (`using Mediator;`). Records. A create command can return the raw `Guid`.
 
 ```csharp
-namespace FSH.Modules.{X}.Contracts.v1.{Area};
+namespace Trislab.Modules.{X}.Contracts.v1.{Area};
 
 public sealed record Create{Entity}Command(string Name, decimal PriceAmount, string PriceCurrency)
     : ICommand<Guid>;
 ```
 
 Read/list DTOs go in `Modules.{X}.Contracts/Dtos/`. Paginated queries return `PagedResponse<T>`
-(`FSH.Framework.Shared.Persistence`) — see `query-patterns`.
+(`Trislab.Framework.Shared.Persistence`) — see `query-patterns`.
 
 ## Step 2 — Handler (runtime `Features/`) — inject the DbContext, NOT a repository
 
@@ -57,7 +57,7 @@ public sealed class Create{Entity}CommandHandler(CatalogDbContext dbContext)
 }
 ```
 
-Throw `NotFoundException` / `CustomException(msg, errors, HttpStatusCode)` (`FSH.Framework.Core.Exceptions`) — the global handler maps them to ProblemDetails. **Every throw a client can see is localized**: keep the English text as the message (it is what the logs show) and attach the key with `.Localized`:
+Throw `NotFoundException` / `CustomException(msg, errors, HttpStatusCode)` (`Trislab.Framework.Core.Exceptions`) — the global handler maps them to ProblemDetails. **Every throw a client can see is localized**: keep the English text as the message (it is what the logs show) and attach the key with `.Localized`:
 
 ```csharp
 var entity = await dbContext.{Entities}.FindAsync([command.Id], cancellationToken).ConfigureAwait(false)

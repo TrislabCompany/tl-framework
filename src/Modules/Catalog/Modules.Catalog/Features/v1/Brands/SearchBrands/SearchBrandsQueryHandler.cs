@@ -1,13 +1,13 @@
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Catalog.Contracts.Dtos;
-using FSH.Modules.Catalog.Contracts.v1.Brands;
-using FSH.Modules.Catalog.Data;
-using FSH.Modules.Catalog.Domain;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Catalog.Contracts.Dtos;
+using Trislab.Modules.Catalog.Contracts.v1.Brands;
+using Trislab.Modules.Catalog.Data;
+using Trislab.Modules.Catalog.Domain;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Catalog.Features.v1.Brands.SearchBrands;
+namespace Trislab.Modules.Catalog.Features.v1.Brands.SearchBrands;
 
 public sealed class SearchBrandsQueryHandler(CatalogDbContext dbContext)
     : IQueryHandler<SearchBrandsQuery, PagedResponse<BrandDto>>

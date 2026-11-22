@@ -1,11 +1,11 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Catalog.Contracts.v1.Brands;
-using FSH.Modules.Catalog.Data;
-using FSH.Modules.Catalog.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Catalog.Contracts.v1.Brands;
+using Trislab.Modules.Catalog.Data;
+using Trislab.Modules.Catalog.Localization;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Catalog.Features.v1.Brands.DeleteBrand;
+namespace Trislab.Modules.Catalog.Features.v1.Brands.DeleteBrand;
 
 public sealed class DeleteBrandCommandHandler(CatalogDbContext dbContext)
     : ICommandHandler<DeleteBrandCommand, Unit>

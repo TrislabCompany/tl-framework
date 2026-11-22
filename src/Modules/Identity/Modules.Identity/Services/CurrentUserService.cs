@@ -1,11 +1,11 @@
-﻿using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Shared.Identity.Claims;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Localization;
+﻿using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Shared.Identity.Claims;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Localization;
 using System.Security.Claims;
 
-namespace FSH.Modules.Identity.Services;
+namespace Trislab.Modules.Identity.Services;
 
 internal sealed class CurrentUserService : ICurrentUserService
 {

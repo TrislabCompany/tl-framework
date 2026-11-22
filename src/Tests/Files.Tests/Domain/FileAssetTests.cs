@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Files.Contracts.v1.DTOs;
-using FSH.Modules.Files.Domain;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Modules.Files.Domain;
 
 namespace Files.Tests.Domain;
 

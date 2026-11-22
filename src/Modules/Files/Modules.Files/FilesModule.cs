@@ -1,26 +1,26 @@
 using Asp.Versioning;
 using FluentValidation;
-using FSH.Framework.Eventing;
-using FSH.Framework.Jobs.Services;
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Web.Modules;
-using FSH.Modules.Files.Authorization;
-using FSH.Modules.Files.Contracts;
-using FSH.Modules.Files.Contracts.Authorization;
-using FSH.Modules.Files.Data;
-using FSH.Modules.Files.Features.v1.ChangeVisibility;
-using FSH.Modules.Files.Features.v1.DeleteFile;
-using FSH.Modules.Files.Features.v1.FinalizeUpload;
-using FSH.Modules.Files.Features.v1.GetFileDownloadUrl;
-using FSH.Modules.Files.Features.v1.GetFileMetadata;
-using FSH.Modules.Files.Features.v1.ListMyFiles;
-using FSH.Modules.Files.Features.v1.ListSharedFiles;
-using FSH.Modules.Files.Features.v1.ListTrashedFiles;
-using FSH.Modules.Files.Features.v1.RequestUploadUrl;
-using FSH.Modules.Files.Features.v1.RestoreFile;
-using FSH.Modules.Files.Jobs;
-using FSH.Modules.Files.Services;
+using Trislab.Framework.Eventing;
+using Trislab.Framework.Jobs.Services;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Web.Modules;
+using Trislab.Modules.Files.Authorization;
+using Trislab.Modules.Files.Contracts;
+using Trislab.Modules.Files.Contracts.Authorization;
+using Trislab.Modules.Files.Data;
+using Trislab.Modules.Files.Features.v1.ChangeVisibility;
+using Trislab.Modules.Files.Features.v1.DeleteFile;
+using Trislab.Modules.Files.Features.v1.FinalizeUpload;
+using Trislab.Modules.Files.Features.v1.GetFileDownloadUrl;
+using Trislab.Modules.Files.Features.v1.GetFileMetadata;
+using Trislab.Modules.Files.Features.v1.ListMyFiles;
+using Trislab.Modules.Files.Features.v1.ListSharedFiles;
+using Trislab.Modules.Files.Features.v1.ListTrashedFiles;
+using Trislab.Modules.Files.Features.v1.RequestUploadUrl;
+using Trislab.Modules.Files.Features.v1.RestoreFile;
+using Trislab.Modules.Files.Jobs;
+using Trislab.Modules.Files.Services;
 using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -29,9 +29,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 
-[assembly: FshModule(typeof(FSH.Modules.Files.FilesModule), 350)]
+[assembly: TrislabModule(typeof(Trislab.Modules.Files.FilesModule), 350)]
 
-namespace FSH.Modules.Files;
+namespace Trislab.Modules.Files;
 
 /// <summary>
 /// Files module: presigned-URL file lifecycle (upload, finalize, serve, delete) shared across the
@@ -49,7 +49,7 @@ public sealed class FilesModule : IModule
         PermissionConstants.Register(FilesPermissions.All);
 
         builder.Services.Configure<FilesOptions>(builder.Configuration.GetSection("Files"));
-        builder.Services.AddHeroDbContext<FilesDbContext>();
+        builder.Services.AddTrislabDbContext<FilesDbContext>();
         builder.Services.AddScoped<IDbInitializer, FilesDbInitializer>();
 
         builder.Services.AddScoped<FileAccessPolicyRegistry>();

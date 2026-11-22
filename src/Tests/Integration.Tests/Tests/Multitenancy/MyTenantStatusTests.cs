@@ -9,7 +9,7 @@ namespace Integration.Tests.Tests.Multitenancy;
 /// dashboard's plan view + expiry banner: an authenticated tenant gets its own plan/validity/expiry
 /// state resolved from the caller context; an unauthenticated request is rejected.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class MyTenantStatusTests
 {
     private static readonly JsonSerializerOptions Json = new()
@@ -18,10 +18,10 @@ public sealed class MyTenantStatusTests
         PropertyNameCaseInsensitive = true,
     };
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public MyTenantStatusTests(FshWebApplicationFactory factory)
+    public MyTenantStatusTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

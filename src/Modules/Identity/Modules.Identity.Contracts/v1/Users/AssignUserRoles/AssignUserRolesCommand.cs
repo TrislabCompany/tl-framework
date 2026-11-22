@@ -1,7 +1,7 @@
-﻿using FSH.Modules.Identity.Contracts.DTOs;
+﻿using Trislab.Modules.Identity.Contracts.DTOs;
 using Mediator;
 
-namespace FSH.Modules.Identity.Contracts.v1.Users.AssignUserRoles;
+namespace Trislab.Modules.Identity.Contracts.v1.Users.AssignUserRoles;
 
 public sealed class AssignUserRolesCommand : ICommand<string>
 {

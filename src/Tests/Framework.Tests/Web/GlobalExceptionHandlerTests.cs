@@ -1,5 +1,5 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Web.Exceptions;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Web.Exceptions;
 using Framework.Tests.Localization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;

@@ -1,5 +1,5 @@
-using FSH.Modules.Identity.Contracts.v1.Users.DeleteUser;
-using FSH.Modules.Identity.Features.v1.Users.DeleteUser;
+using Trislab.Modules.Identity.Contracts.v1.Users.DeleteUser;
+using Trislab.Modules.Identity.Features.v1.Users.DeleteUser;
 using Identity.Tests.Support;
 using Shouldly;
 using Xunit;

@@ -1,4 +1,4 @@
-using FSH.Framework.Core.Localization;
+using Trislab.Framework.Core.Localization;
 using Shouldly;
 using System.Globalization;
 using System.Resources;

@@ -1,19 +1,19 @@
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Eventing.Outbox;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Auditing.Contracts;
-using FSH.Modules.Identity.Contracts.DTOs;
-using FSH.Modules.Identity.Contracts.Events;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Tokens.TokenGeneration;
-using FSH.Modules.Identity.Localization;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Eventing.Outbox;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Auditing.Contracts;
+using Trislab.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.Events;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Tokens.TokenGeneration;
+using Trislab.Modules.Identity.Localization;
 using Mediator;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
-namespace FSH.Modules.Identity.Features.v1.Tokens.TokenGeneration;
+namespace Trislab.Modules.Identity.Features.v1.Tokens.TokenGeneration;
 
 public sealed class GenerateTokenCommandHandler
     : ICommandHandler<GenerateTokenCommand, TokenResponse>

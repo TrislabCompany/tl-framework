@@ -1,11 +1,11 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Authorization;
-using FSH.Modules.Identity.Contracts.Authorization;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Identity.Domain;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Authorization;
+using Trislab.Modules.Identity.Contracts.Authorization;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Domain;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Identity;
@@ -21,7 +21,7 @@ namespace Integration.Tests.Tests.Roles;
 /// state immediately. This is distinct from <c>RolePermissionSyncerTests</c> (claim
 /// restoration into RoleClaims) — here we exercise the cache layer itself.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class PermissionCacheInvalidationTests
 {
     // Non-basic permission: a user with only a custom role won't have this unless the role grants it,
@@ -29,10 +29,10 @@ public sealed class PermissionCacheInvalidationTests
     private const string ProbePermission = IdentityPermissions.Groups.Create;
     private const string SecondaryPermission = IdentityPermissions.Groups.Delete;
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public PermissionCacheInvalidationTests(FshWebApplicationFactory factory)
+    public PermissionCacheInvalidationTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -282,8 +282,8 @@ public sealed class PermissionCacheInvalidationTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<FshUser>>();
-        var user = new FshUser
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
+        var user = new TrislabUser
         {
             FirstName = "Cache",
             LastName = "Probe",
@@ -311,11 +311,11 @@ public sealed class PermissionCacheInvalidationTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<FshRole>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<TrislabRole>>();
         var role = await roleManager.Roles.SingleAsync(r => r.Name == roleName);
 
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
-        db.RoleClaims.Add(new FshRoleClaim { RoleId = role.Id, ClaimType = ClaimConstants.Permission, ClaimValue = permission });
+        db.RoleClaims.Add(new TrislabRoleClaim { RoleId = role.Id, ClaimType = ClaimConstants.Permission, ClaimValue = permission });
         await db.SaveChangesAsync();
     }
 
@@ -330,7 +330,7 @@ public sealed class PermissionCacheInvalidationTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<FshRole>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<TrislabRole>>();
         var role = await roleManager.Roles.SingleAsync(r => r.Name == roleName);
 
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();

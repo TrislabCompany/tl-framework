@@ -1,11 +1,11 @@
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Identity.Domain;
-using FSH.Modules.Identity.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Identity.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -14,11 +14,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 
-namespace FSH.Modules.Identity.Services;
+namespace Trislab.Modules.Identity.Services;
 
 public sealed class IdentityService : IIdentityService
 {
-    private readonly UserManager<FshUser> _userManager;
+    private readonly UserManager<TrislabUser> _userManager;
     private readonly ILogger<IdentityService> _logger;
     private readonly IMultiTenantContextAccessor<AppTenantInfo>? _multiTenantContextAccessor;
     private readonly IGroupRoleService _groupRoleService;
@@ -27,7 +27,7 @@ public sealed class IdentityService : IIdentityService
     private readonly int _gracePeriodDays;
 
     public IdentityService(
-        UserManager<FshUser> userManager,
+        UserManager<TrislabUser> userManager,
         IMultiTenantContextAccessor<AppTenantInfo>? multiTenantContextAccessor,
         ILogger<IdentityService> logger,
         IGroupRoleService groupRoleService,
@@ -66,7 +66,7 @@ public sealed class IdentityService : IIdentityService
         return (user.Id, claims);
     }
 
-    private async Task VerifyTwoFactorOrThrowAsync(FshUser user, string? twoFactorCode)
+    private async Task VerifyTwoFactorOrThrowAsync(TrislabUser user, string? twoFactorCode)
     {
         if (string.IsNullOrWhiteSpace(twoFactorCode))
         {
@@ -185,7 +185,7 @@ public sealed class IdentityService : IIdentityService
         return tenant;
     }
 
-    private async Task<FshUser> FindAndValidateUserByCredentialsAsync(string email, string password)
+    private async Task<TrislabUser> FindAndValidateUserByCredentialsAsync(string email, string password)
     {
         var user = await _userManager.FindByEmailAsync(email.Trim().Normalize());
         if (user is null)
@@ -230,7 +230,7 @@ public sealed class IdentityService : IIdentityService
         return user;
     }
 
-    private async Task<FshUser> FindUserByRefreshTokenAsync(string refreshToken, string tenantId, CancellationToken ct)
+    private async Task<TrislabUser> FindUserByRefreshTokenAsync(string refreshToken, string tenantId, CancellationToken ct)
     {
         var hashedToken = HashToken(refreshToken);
 
@@ -254,7 +254,7 @@ public sealed class IdentityService : IIdentityService
         return user;
     }
 
-    private void ValidateRefreshTokenExpiry(FshUser user)
+    private void ValidateRefreshTokenExpiry(TrislabUser user)
     {
         var now = _timeProvider.GetUtcNow().UtcDateTime;
         if (user.RefreshTokenExpiryTime <= now)
@@ -267,7 +267,7 @@ public sealed class IdentityService : IIdentityService
         }
     }
 
-    private static void ValidateUserStatus(FshUser user)
+    private static void ValidateUserStatus(TrislabUser user)
     {
         if (!user.IsActive)
         {
@@ -304,14 +304,14 @@ public sealed class IdentityService : IIdentityService
         }
     }
 
-    private async Task<List<Claim>> BuildUserClaimsAsync(FshUser user, string tenantId, CancellationToken ct)
+    private async Task<List<Claim>> BuildUserClaimsAsync(TrislabUser user, string tenantId, CancellationToken ct)
     {
         var claims = CreateBasicClaims(user, tenantId);
         await AddRoleClaimsAsync(claims, user, ct);
         return claims;
     }
 
-    internal static List<Claim> CreateBasicClaims(FshUser user, string tenantId)
+    internal static List<Claim> CreateBasicClaims(TrislabUser user, string tenantId)
     {
         var fullName = $"{user.FirstName} {user.LastName}".Trim();
         var claims = new List<Claim>
@@ -343,7 +343,7 @@ public sealed class IdentityService : IIdentityService
         return claims;
     }
 
-    private async Task AddRoleClaimsAsync(List<Claim> claims, FshUser user, CancellationToken ct)
+    private async Task AddRoleClaimsAsync(List<Claim> claims, TrislabUser user, CancellationToken ct)
     {
         var directRoles = await _userManager.GetRolesAsync(user);
         var groupRoles = await _groupRoleService.GetUserGroupRolesAsync(user.Id, ct);

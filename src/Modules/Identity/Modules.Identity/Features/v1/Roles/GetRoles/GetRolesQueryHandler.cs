@@ -1,10 +1,10 @@
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Identity.Contracts.DTOs;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Roles.GetRoles;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Roles.GetRoles;
 using Mediator;
 
-namespace FSH.Modules.Identity.Features.v1.Roles.GetRoles;
+namespace Trislab.Modules.Identity.Features.v1.Roles.GetRoles;
 
 public sealed class GetRolesQueryHandler : IQueryHandler<GetRolesQuery, PagedResponse<RoleDto>>
 {

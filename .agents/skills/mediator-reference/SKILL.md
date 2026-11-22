@@ -53,8 +53,8 @@ builder.Services.AddMediator(o =>
     o.ServiceLifetime = ServiceLifetime.Scoped;
     o.Assemblies = [
         /* … */
-        typeof(FSH.Modules.{X}.Contracts.{X}ContractsMarker),   // Contracts assembly
-        typeof(FSH.Modules.{X}.{X}Module)];                     // runtime assembly
+        typeof(Trislab.Modules.{X}.Contracts.{X}ContractsMarker),   // Contracts assembly
+        typeof(Trislab.Modules.{X}.{X}Module)];                     // runtime assembly
 });
 ```
 
