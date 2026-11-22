@@ -36,7 +36,7 @@ playbook is the review procedure, not a second copy of the rules.
 **Cross-cutting**
 - **Logging** (`logging.md`) — no `$"..."` interpolation in log calls; the level fits (Error only when a person must act); no secrets, tokens, bodies or personal data (e-mail, names, IPs) in a log line; an exception logged once, with the exception object.
 - `CancellationToken` propagated into EF/IO calls.
-- Cross-module events go via the Outbox (`IOutboxStore.AddAsync`), not a direct bus publish.
+- Cross-module events go via the Outbox (`IOutboxWriter.AddAsync`), not a direct bus publish. The only sanctioned exception is Chat mentions, which carries its reason in a comment.
 
 **Contracts** (`api-conventions.md`)
 - Endpoints, `.Contracts` and integration events only gained fields; a rename, removal or type change is a new version or a new event type.
