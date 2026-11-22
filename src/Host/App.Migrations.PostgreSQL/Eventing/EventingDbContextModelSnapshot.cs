@@ -54,6 +54,13 @@ namespace App.Migrations.PostgreSQL.Eventing
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ClaimedBy")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTime?>("ClaimedUntilUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("CorrelationId")
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
@@ -90,6 +97,9 @@ namespace App.Migrations.PostgreSQL.Eventing
                         .HasColumnType("character varying(512)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IsDead", "ProcessedOnUtc", "ClaimedUntilUtc", "CreatedOnUtc")
+                        .HasDatabaseName("IX_OutboxMessages_Pending");
 
                     b.ToTable("OutboxMessages", "framework");
                 });
