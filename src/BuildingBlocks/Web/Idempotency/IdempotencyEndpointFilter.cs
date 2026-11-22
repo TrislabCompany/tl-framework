@@ -3,12 +3,12 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Caching;
-using FSH.Framework.Core.Common;
-using FSH.Framework.Core.Localization;
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Shared.Identity.Claims;
-using FSH.Framework.Shared.Multitenancy;
+using Trislab.Framework.Caching;
+using Trislab.Framework.Core.Common;
+using Trislab.Framework.Core.Localization;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Identity.Claims;
+using Trislab.Framework.Shared.Multitenancy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -20,7 +20,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using StackExchange.Redis;
 
-namespace FSH.Framework.Web.Idempotency;
+namespace Trislab.Framework.Web.Idempotency;
 
 /// <summary>
 /// Endpoint filter that provides idempotency for POST/PUT/PATCH requests.

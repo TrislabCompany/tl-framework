@@ -1,7 +1,7 @@
 using FluentValidation;
-using FSH.Modules.Catalog.Contracts.v1.Brands;
+using Trislab.Modules.Catalog.Contracts.v1.Brands;
 
-namespace FSH.Modules.Catalog.Features.v1.Brands.CreateBrand;
+namespace Trislab.Modules.Catalog.Features.v1.Brands.CreateBrand;
 
 public sealed class CreateBrandCommandValidator : AbstractValidator<CreateBrandCommand>
 {

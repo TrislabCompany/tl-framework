@@ -1,17 +1,17 @@
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Common;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Eventing.Outbox;
-using FSH.Framework.Jobs.Services;
-using FSH.Framework.Mailing;
-using FSH.Framework.Mailing.Services;
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Contracts.Events;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Identity.Domain;
-using FSH.Modules.Identity.Localization;
+using Trislab.Framework.Core.Common;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Eventing.Outbox;
+using Trislab.Framework.Jobs.Services;
+using Trislab.Framework.Mailing;
+using Trislab.Framework.Mailing.Services;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Contracts.Events;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Identity.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
@@ -22,10 +22,10 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 
-namespace FSH.Modules.Identity.Services;
+namespace Trislab.Modules.Identity.Services;
 
 internal sealed class UserRegistrationService(
-    UserManager<FshUser> userManager,
+    UserManager<TrislabUser> userManager,
     IdentityDbContext db,
     IJobService jobService,
     IMailService mailService,
@@ -183,13 +183,13 @@ internal sealed class UserRegistrationService(
                 .Localized<IdentityResources>("Identity.EmailClaimRequired");
     }
 
-    private async Task<FshUser> CreateUserFromPrincipalAsync(ClaimsPrincipal principal, string email)
+    private async Task<TrislabUser> CreateUserFromPrincipalAsync(ClaimsPrincipal principal, string email)
     {
         var (firstName, lastName, userName) = ExtractUserInfoFromPrincipal(principal, email);
 
         userName = await EnsureUniqueUserNameAsync(userName);
 
-        var user = new FshUser
+        var user = new TrislabUser
         {
             Email = email,
             UserName = userName,
@@ -253,7 +253,7 @@ internal sealed class UserRegistrationService(
         }
     }
 
-    private async Task<FshUser> CreateUserWithPasswordAsync(
+    private async Task<TrislabUser> CreateUserWithPasswordAsync(
         string firstName,
         string lastName,
         string email,
@@ -261,7 +261,7 @@ internal sealed class UserRegistrationService(
         string password,
         string phoneNumber)
     {
-        var user = new FshUser
+        var user = new TrislabUser
         {
             Email = email,
             FirstName = firstName,
@@ -291,7 +291,7 @@ internal sealed class UserRegistrationService(
     }
 
     private async Task AssignDefaultRoleAndGroupsAsync(
-        FshUser user,
+        TrislabUser user,
         string source,
         CancellationToken cancellationToken = default)
     {
@@ -313,7 +313,7 @@ internal sealed class UserRegistrationService(
         }
     }
 
-    private async Task SendConfirmationEmailAsync(FshUser user, string origin, CancellationToken cancellationToken)
+    private async Task SendConfirmationEmailAsync(TrislabUser user, string origin, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(user.Email))
         {
@@ -333,7 +333,7 @@ internal sealed class UserRegistrationService(
     }
 
     private async Task PublishUserRegisteredAsync(
-        FshUser user,
+        TrislabUser user,
         string source,
         CancellationToken cancellationToken = default)
     {
@@ -356,7 +356,7 @@ internal sealed class UserRegistrationService(
         await outboxStore.AddAsync(integrationEvent, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<string> GetEmailVerificationUriAsync(FshUser user, string origin)
+    private async Task<string> GetEmailVerificationUriAsync(TrislabUser user, string origin)
     {
         EnsureValidTenant();
 

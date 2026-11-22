@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<RootNamespace>FSH.Modules.Files</RootNamespace>
-		<AssemblyName>FSH.Modules.Files</AssemblyName>
+		<RootNamespace>Trislab.Modules.Files</RootNamespace>
+		<AssemblyName>Trislab.Modules.Files</AssemblyName>
 		<!-- FilesResources is an intentional empty localizer marker (see Localization/FilesResources.cs). -->
 		<NoWarn>$(NoWarn);CA1031;CA1812;CA1859;CA1002;CA2227;S3267;S2094</NoWarn>
 	</PropertyGroup>

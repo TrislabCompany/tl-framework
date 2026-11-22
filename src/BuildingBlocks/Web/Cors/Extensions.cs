@@ -6,13 +6,13 @@ using Microsoft.Net.Http.Headers;
 using System;
 using AspNetCorsOptions = Microsoft.AspNetCore.Cors.Infrastructure.CorsOptions;
 
-namespace FSH.Framework.Web.Cors;
+namespace Trislab.Framework.Web.Cors;
 
 public static class Extensions
 {
     private const string PolicyName = "FSHCorsPolicy";
 
-    public static IServiceCollection AddHeroCors(
+    public static IServiceCollection AddTrislabCors(
         this IServiceCollection services,
         IConfiguration configuration)
     {
@@ -67,7 +67,7 @@ public static class Extensions
         return services;
     }
 
-    public static void UseHeroCors(this WebApplication app)
+    public static void UseTrislabCors(this WebApplication app)
     {
         ArgumentNullException.ThrowIfNull(app);
         app.UseCors(PolicyName);

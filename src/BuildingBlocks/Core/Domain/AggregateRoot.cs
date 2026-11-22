@@ -1,4 +1,4 @@
-﻿namespace FSH.Framework.Core.Domain;
+﻿namespace Trislab.Framework.Core.Domain;
 
 /// <summary>
 /// Represents an aggregate root in the domain model.

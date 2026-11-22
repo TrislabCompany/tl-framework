@@ -3,16 +3,16 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Jobs.Services;
-using FSH.Framework.Mailing;
-using FSH.Framework.Mailing.Services;
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Multitenancy;
+using Trislab.Framework.Jobs.Services;
+using Trislab.Framework.Mailing;
+using Trislab.Framework.Mailing.Services;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Multitenancy;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
-using FSH.Modules.Multitenancy.Data;
-using FSH.Framework.Web.Modules;
-using FSH.Modules.Auditing;
+using Trislab.Modules.Multitenancy.Data;
+using Trislab.Framework.Web.Modules;
+using Trislab.Modules.Auditing;
 using Hangfire;
 using Hangfire.InMemory;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -28,7 +28,7 @@ using Testcontainers.PostgreSql;
 
 namespace Integration.Tests.Infrastructure;
 
-public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
+public sealed class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     internal const string S3AccessKey = "rustfsadmin";
     internal const string S3SecretKey = "rustfsadmin";
@@ -257,7 +257,7 @@ public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, I
             foreach (var h in existingHandlers) services.Remove(h);
             services.AddExceptionHandler<DetailedTestExceptionHandler>();
 
-            // AddHeroStorage reads `Storage:Provider` eagerly (before the test config overlay applies), so it
+            // AddTrislabStorage reads `Storage:Provider` eagerly (before the test config overlay applies), so it
             // wires LocalStorageService. Replace it here with the S3 stack pointed at the MinIO testcontainer.
             RewireStorageForS3(services);
         });
@@ -266,14 +266,14 @@ public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, I
     private void RewireStorageForS3(IServiceCollection services)
     {
         var toRemove = services
-            .Where(d => d.ServiceType == typeof(FSH.Framework.Storage.Services.IStorageService)
-                     || d.ServiceType == typeof(FSH.Framework.Storage.Local.LocalStorageService)
-                     || d.ServiceType == typeof(FSH.Framework.Storage.S3.S3StorageService)
+            .Where(d => d.ServiceType == typeof(Trislab.Framework.Storage.Services.IStorageService)
+                     || d.ServiceType == typeof(Trislab.Framework.Storage.Local.LocalStorageService)
+                     || d.ServiceType == typeof(Trislab.Framework.Storage.S3.S3StorageService)
                      || d.ServiceType == typeof(IAmazonS3))
             .ToList();
         foreach (var d in toRemove) services.Remove(d);
 
-        services.Configure<FSH.Framework.Storage.S3.S3StorageOptions>(opts =>
+        services.Configure<Trislab.Framework.Storage.S3.S3StorageOptions>(opts =>
         {
             opts.Bucket = S3Bucket;
             opts.ServiceUrl = S3ServiceUrl;
@@ -287,11 +287,11 @@ public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, I
         services.AddSingleton<IAmazonS3>(_ => CreateRustFsClient());
         // S3StorageService presigns through a keyed client; tests reach RustFS on one address, so it matches.
         services.AddKeyedSingleton<IAmazonS3>(
-            FSH.Framework.Storage.S3.S3StorageService.PresignClientKey,
+            Trislab.Framework.Storage.S3.S3StorageService.PresignClientKey,
             (_, _) => CreateRustFsClient());
-        services.AddTransient<FSH.Framework.Storage.S3.S3StorageService>();
-        services.AddTransient<FSH.Framework.Storage.Services.IStorageService>(sp =>
-            sp.GetRequiredService<FSH.Framework.Storage.S3.S3StorageService>());
+        services.AddTransient<Trislab.Framework.Storage.S3.S3StorageService>();
+        services.AddTransient<Trislab.Framework.Storage.Services.IStorageService>(sp =>
+            sp.GetRequiredService<Trislab.Framework.Storage.S3.S3StorageService>());
     }
 
     private AmazonS3Client CreateRustFsClient()
@@ -362,7 +362,7 @@ public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, I
             }
 
             // 5. Run the role-permission syncer through the production code path.
-            var syncer = scope.ServiceProvider.GetRequiredService<FSH.Modules.Identity.Authorization.RolePermissionSyncer>();
+            var syncer = scope.ServiceProvider.GetRequiredService<Trislab.Modules.Identity.Authorization.RolePermissionSyncer>();
             await syncer.SyncAsync(CancellationToken.None);
         }
     }

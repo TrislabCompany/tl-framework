@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Domain;
+using Trislab.Framework.Core.Domain;
 
-namespace FSH.Modules.Multitenancy.Domain;
+namespace Trislab.Modules.Multitenancy.Domain;
 
 public class TenantTheme : BaseEntity<Guid>, IHasTenant, IAuditableEntity
 {

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace FSH.Framework.Shared.Persistence;
+namespace Trislab.Framework.Shared.Persistence;
 
 /// <summary>
 /// Configuration options for database provider selection and connection information.

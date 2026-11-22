@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace FSH.Modules.Identity;
+namespace Trislab.Modules.Identity;
 
 /// <summary>
 /// TOTP settings (config section <c>"TwoFactorOptions"</c>). <see cref="Issuer"/> is the name an

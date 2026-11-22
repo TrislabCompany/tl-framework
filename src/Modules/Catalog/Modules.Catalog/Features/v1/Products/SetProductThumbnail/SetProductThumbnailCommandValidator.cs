@@ -1,7 +1,7 @@
 using FluentValidation;
-using FSH.Modules.Catalog.Contracts.v1.Products.SetProductThumbnail;
+using Trislab.Modules.Catalog.Contracts.v1.Products.SetProductThumbnail;
 
-namespace FSH.Modules.Catalog.Features.v1.Products.SetProductThumbnail;
+namespace Trislab.Modules.Catalog.Features.v1.Products.SetProductThumbnail;
 
 public sealed class SetProductThumbnailCommandValidator : AbstractValidator<SetProductThumbnailCommand>
 {

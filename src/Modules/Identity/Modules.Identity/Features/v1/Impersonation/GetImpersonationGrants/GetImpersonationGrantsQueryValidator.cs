@@ -1,9 +1,9 @@
 using FluentValidation;
-using FSH.Framework.Core.Localization;
-using FSH.Modules.Identity.Contracts.v1.Impersonation.GetImpersonationGrants;
+using Trislab.Framework.Core.Localization;
+using Trislab.Modules.Identity.Contracts.v1.Impersonation.GetImpersonationGrants;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Identity.Features.v1.Impersonation.GetImpersonationGrants;
+namespace Trislab.Modules.Identity.Features.v1.Impersonation.GetImpersonationGrants;
 
 public sealed class GetImpersonationGrantsQueryValidator : AbstractValidator<GetImpersonationGrantsQuery>
 {

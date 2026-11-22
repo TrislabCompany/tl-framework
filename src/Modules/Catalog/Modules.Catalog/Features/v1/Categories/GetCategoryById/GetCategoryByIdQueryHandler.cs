@@ -1,12 +1,12 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Catalog.Contracts.Dtos;
-using FSH.Modules.Catalog.Contracts.v1.Categories;
-using FSH.Modules.Catalog.Data;
-using FSH.Modules.Catalog.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Catalog.Contracts.Dtos;
+using Trislab.Modules.Catalog.Contracts.v1.Categories;
+using Trislab.Modules.Catalog.Data;
+using Trislab.Modules.Catalog.Localization;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Catalog.Features.v1.Categories.GetCategoryById;
+namespace Trislab.Modules.Catalog.Features.v1.Categories.GetCategoryById;
 
 public sealed class GetCategoryByIdQueryHandler(CatalogDbContext dbContext)
     : IQueryHandler<GetCategoryByIdQuery, CategoryDto>

@@ -1,4 +1,4 @@
-﻿namespace FSH.Framework.Shared.Constants;
+﻿namespace Trislab.Framework.Shared.Constants;
 
 public static class ActionConstants
 {

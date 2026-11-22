@@ -1,5 +1,5 @@
-using FSH.Framework.Storage;
-using FSH.Framework.Storage.Services;
+using Trislab.Framework.Storage;
+using Trislab.Framework.Storage.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -9,7 +9,7 @@ namespace Framework.Tests.Storage;
 /// <summary>
 /// Presigned URLs are handed to browsers, so they must point at <c>Storage:S3:PresignServiceUrl</c> when the
 /// API itself reaches the store on an internal address (compose: <c>http://rustfs:9000</c>). SigV4 presigning
-/// is offline, so these run through the real <c>AddHeroStorage</c> wiring without a store to talk to.
+/// is offline, so these run through the real <c>AddTrislabStorage</c> wiring without a store to talk to.
 /// </summary>
 public sealed class S3PresignEndpointTests
 {
@@ -80,7 +80,7 @@ public sealed class S3PresignEndpointTests
     }
 
     [Fact]
-    public void AddHeroStorage_Should_PassStartupValidation_When_PresignServiceUrlIsAbsoluteHttpUrl()
+    public void AddTrislabStorage_Should_PassStartupValidation_When_PresignServiceUrlIsAbsoluteHttpUrl()
     {
         // Arrange
         using var provider = BuildProvider(InternalServiceUrl, PublicPresignServiceUrl);
@@ -89,7 +89,7 @@ public sealed class S3PresignEndpointTests
         provider.GetRequiredService<IStartupValidator>().Validate();
 
         // Assert — sanity: the rule below rejects bad values without rejecting a good one.
-        provider.GetRequiredService<IOptions<FSH.Framework.Storage.S3.S3StorageOptions>>().Value
+        provider.GetRequiredService<IOptions<Trislab.Framework.Storage.S3.S3StorageOptions>>().Value
             .PresignServiceUrl.ShouldBe(PublicPresignServiceUrl);
     }
 
@@ -103,7 +103,7 @@ public sealed class S3PresignEndpointTests
     [InlineData("ftp://public.example.test")]
     [InlineData("https://public.example.test/s3")]
     [InlineData("https://public.example.test/?region=x")]
-    public void AddHeroStorage_Should_FailAtStartup_When_PresignServiceUrlIsNotAbsoluteHttpUrl(string presignServiceUrl)
+    public void AddTrislabStorage_Should_FailAtStartup_When_PresignServiceUrlIsNotAbsoluteHttpUrl(string presignServiceUrl)
     {
         // Arrange
         using var provider = BuildProvider(InternalServiceUrl, presignServiceUrl);
@@ -182,7 +182,7 @@ public sealed class S3PresignEndpointTests
 
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddHeroStorage(configuration);
+        services.AddTrislabStorage(configuration);
         return services.BuildServiceProvider();
     }
 }

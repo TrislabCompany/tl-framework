@@ -1,6 +1,6 @@
-using FSH.Modules.Auditing.Contracts;
+using Trislab.Modules.Auditing.Contracts;
 
-namespace FSH.Modules.Auditing;
+namespace Trislab.Modules.Auditing;
 
 /// <summary>
 /// Immutable, minimal scope implementation. Create per request/operation.

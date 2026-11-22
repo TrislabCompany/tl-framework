@@ -1,14 +1,14 @@
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Groups.AddUsersToGroup;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Identity.Domain;
-using FSH.Modules.Identity.Localization;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Groups.AddUsersToGroup;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Identity.Localization;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Identity.Features.v1.Groups.AddUsersToGroup;
+namespace Trislab.Modules.Identity.Features.v1.Groups.AddUsersToGroup;
 
 public sealed class AddUsersToGroupCommandHandler : ICommandHandler<AddUsersToGroupCommand, AddUsersToGroupResponse>
 {

@@ -1,4 +1,4 @@
-using FSH.Framework.Web;
+using Trislab.Framework.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -11,7 +11,7 @@ namespace Framework.Tests.Web;
 /// The sibling of <see cref="TrustedProxyOptionsBindingTests"/> for the one host shape that class cannot
 /// reach. It builds through <c>Host.CreateApplicationBuilder</c>, which never runs
 /// ConfigureWebDefaults, so the framework's loopback defaults are always still in place when
-/// AddHeroPlatform looks at them. A web host started with FORWARDEDHEADERS_ENABLED registers
+/// AddTrislabPlatform looks at them. A web host started with FORWARDEDHEADERS_ENABLED registers
 /// ForwardedHeadersOptionsSetup, which empties both trust lists — and an empty trust list is not
 /// "trust nobody" in ForwardedHeadersMiddleware, it is "check nobody": the middleware only validates
 /// the peer when at least one entry exists. That is the configuration this pins.
@@ -27,7 +27,7 @@ public sealed class ForwardedHeadersHostDefaultsTests
             Args = ["--FORWARDEDHEADERS_ENABLED=true"],
             EnvironmentName = "Development",
         });
-        builder.AddHeroPlatform();
+        builder.AddTrislabPlatform();
 
         // The premise of this whole test: ASP.NET registered its own setup for these options. If the
         // flag ever stops reaching host configuration, the assertions below would pass for the wrong

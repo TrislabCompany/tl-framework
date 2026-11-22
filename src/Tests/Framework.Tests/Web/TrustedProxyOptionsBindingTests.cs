@@ -1,5 +1,5 @@
-using FSH.Framework.Web;
-using FSH.Framework.Web.TrustedProxy;
+using Trislab.Framework.Web;
+using Trislab.Framework.Web.TrustedProxy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace Framework.Tests.Web;
 
 /// <summary>
-/// Pins the TrustedProxyOptions -> ForwardedHeadersOptions binding that AddHeroPlatform registers: which
+/// Pins the TrustedProxyOptions -> ForwardedHeadersOptions binding that AddTrislabPlatform registers: which
 /// upstreams end up trusted, that an unconfigured section keeps the framework's loopback-only default, and
 /// that a malformed entry surfaces a message naming the offending setting rather than a bare FormatException.
 /// </summary>
@@ -26,7 +26,7 @@ public sealed class TrustedProxyOptionsBindingTests
             DisableDefaults = true,
         });
         builder.Configuration.AddInMemoryCollection(settings);
-        builder.AddHeroPlatform();
+        builder.AddTrislabPlatform();
 
         using var provider = builder.Services.BuildServiceProvider();
         return provider.GetRequiredService<IOptions<ForwardedHeadersOptions>>().Value;

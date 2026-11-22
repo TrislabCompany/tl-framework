@@ -1,7 +1,7 @@
 using FluentValidation;
-using FSH.Modules.Webhooks.Contracts.v1.GetWebhookDeliveries;
+using Trislab.Modules.Webhooks.Contracts.v1.GetWebhookDeliveries;
 
-namespace FSH.Modules.Webhooks.Features.v1.GetWebhookDeliveries;
+namespace Trislab.Modules.Webhooks.Features.v1.GetWebhookDeliveries;
 
 public sealed class GetWebhookDeliveriesQueryValidator : AbstractValidator<GetWebhookDeliveriesQuery>
 {

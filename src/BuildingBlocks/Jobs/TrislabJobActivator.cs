@@ -1,19 +1,19 @@
 ﻿using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Common;
-using FSH.Framework.Core.Context;
-using FSH.Framework.Shared.Multitenancy;
+using Trislab.Framework.Core.Common;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Shared.Multitenancy;
 using Hangfire;
 using Hangfire.Server;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FSH.Framework.Jobs;
+namespace Trislab.Framework.Jobs;
 
-public class FshJobActivator : JobActivator
+public class TrislabJobActivator : JobActivator
 {
     private readonly IServiceScopeFactory _scopeFactory;
 
-    public FshJobActivator(IServiceScopeFactory scopeFactory) =>
+    public TrislabJobActivator(IServiceScopeFactory scopeFactory) =>
         _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
     public override JobActivatorScope BeginScope(PerformContext context) =>

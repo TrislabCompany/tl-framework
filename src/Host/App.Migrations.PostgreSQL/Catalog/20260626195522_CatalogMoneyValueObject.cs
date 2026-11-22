@@ -11,7 +11,7 @@ namespace App.Migrations.PostgreSQL.Catalog
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             // No-op: Product.Price moved from the Catalog-local Money to the promoted
-            // FSH.Framework.Core.Domain.Money, but the OwnsOne mapping keeps the same
+            // Trislab.Framework.Core.Domain.Money, but the OwnsOne mapping keeps the same
             // "PriceAmount" (numeric(18,4)) and "Currency" (varchar(3)) columns, so the
             // relational schema is unchanged. This migration only carries the model snapshot.
         }

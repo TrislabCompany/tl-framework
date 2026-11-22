@@ -1,8 +1,8 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Auditing.Contracts;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Auditing.Contracts;
 using System.Diagnostics;
 
-namespace FSH.Modules.Auditing;
+namespace Trislab.Modules.Auditing;
 
 /// <summary>
 /// Fluent entry-point to create and publish audit events.

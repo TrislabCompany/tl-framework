@@ -1,12 +1,12 @@
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Notifications.Contracts.v1.Commands;
-using FSH.Modules.Notifications.Data;
-using FSH.Modules.Notifications.Localization;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Notifications.Contracts.v1.Commands;
+using Trislab.Modules.Notifications.Data;
+using Trislab.Modules.Notifications.Localization;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Notifications.Features.v1.MarkNotificationRead;
+namespace Trislab.Modules.Notifications.Features.v1.MarkNotificationRead;
 
 public sealed class MarkNotificationReadCommandHandler(
     NotificationsDbContext db,

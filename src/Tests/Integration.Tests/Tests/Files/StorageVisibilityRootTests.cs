@@ -3,23 +3,23 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Domain;
-using FSH.Framework.Quota;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Quota;
-using FSH.Framework.Storage;
-using FSH.Framework.Storage.Services;
-using FSH.Modules.Catalog.Data;
-using FSH.Modules.Catalog.Domain;
-using FSH.Modules.Files.Contracts.v1.Commands;
-using FSH.Modules.Files.Contracts.v1.DTOs;
-using FSH.Modules.Files.Data;
-using FSH.Modules.Files.Domain;
-using FSH.Modules.Files.Features.v1.FinalizeUpload;
-using FSH.Modules.Files.Jobs;
-using FSH.Modules.Files.Services;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Multitenancy.Contracts.Dtos;
+using Trislab.Framework.Core.Domain;
+using Trislab.Framework.Quota;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Quota;
+using Trislab.Framework.Storage;
+using Trislab.Framework.Storage.Services;
+using Trislab.Modules.Catalog.Data;
+using Trislab.Modules.Catalog.Domain;
+using Trislab.Modules.Files.Contracts.v1.Commands;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Modules.Files.Data;
+using Trislab.Modules.Files.Domain;
+using Trislab.Modules.Files.Features.v1.FinalizeUpload;
+using Trislab.Modules.Files.Jobs;
+using Trislab.Modules.Files.Services;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Multitenancy.Contracts.Dtos;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -33,16 +33,16 @@ namespace Integration.Tests.Tests.Files;
 /// and <see cref="MigrateLegacyPublicFileKeysJob"/> moves public files uploaded before the change (and
 /// the URLs other modules persisted for them) so nothing breaks on upgrade. Runs against real RustFS.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class StorageVisibilityRootTests
 {
     private const string FilesBasePath = "/api/v1/files";
-    private const string Bucket = FshWebApplicationFactory.S3Bucket;
+    private const string Bucket = TrislabWebApplicationFactory.S3Bucket;
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public StorageVisibilityRootTests(FshWebApplicationFactory factory)
+    public StorageVisibilityRootTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -308,7 +308,7 @@ public sealed class StorageVisibilityRootTests
         {
             SetTenant(scope, TestConstants.RootTenantId);
             var flaky = new DeleteFailsOnceStorage(scope.ServiceProvider.GetRequiredService<IStorageService>());
-            var relocator = ActivatorUtilities.CreateInstance<FSH.Modules.Files.Services.FileStorageRelocator>(scope.ServiceProvider, flaky);
+            var relocator = ActivatorUtilities.CreateInstance<Trislab.Modules.Files.Services.FileStorageRelocator>(scope.ServiceProvider, flaky);
             await relocator.ApplyAsync(id, asset =>
             {
                 asset.ChangeVisibility(Visibility.Private);
@@ -491,32 +491,32 @@ public sealed class StorageVisibilityRootTests
         }
 
         public Task RemoveAsync(string path, CancellationToken cancellationToken = default) => inner.RemoveAsync(path, cancellationToken);
-        public Task<string> UploadAsync<T>(FSH.Framework.Shared.Storage.FileUploadRequest request, FSH.Framework.Storage.FileType fileType, CancellationToken cancellationToken = default)
+        public Task<string> UploadAsync<T>(Trislab.Framework.Shared.Storage.FileUploadRequest request, Trislab.Framework.Storage.FileType fileType, CancellationToken cancellationToken = default)
             where T : class => inner.UploadAsync<T>(request, fileType, cancellationToken);
-        public Task<FSH.Framework.Storage.DTOs.FileDownloadResponse?> DownloadAsync(string path, CancellationToken cancellationToken = default) => inner.DownloadAsync(path, cancellationToken);
+        public Task<Trislab.Framework.Storage.DTOs.FileDownloadResponse?> DownloadAsync(string path, CancellationToken cancellationToken = default) => inner.DownloadAsync(path, cancellationToken);
         public Task<bool> ExistsAsync(string path, CancellationToken cancellationToken = default) => inner.ExistsAsync(path, cancellationToken);
         public Task<long> GetSizeAsync(string path, CancellationToken cancellationToken = default) => inner.GetSizeAsync(path, cancellationToken);
-        public Task<FSH.Framework.Shared.Storage.PresignedUploadUrl> GenerateUploadUrlAsync(string storageKey, string contentType, long maxBytes, TimeSpan ttl, CancellationToken cancellationToken = default)
+        public Task<Trislab.Framework.Shared.Storage.PresignedUploadUrl> GenerateUploadUrlAsync(string storageKey, string contentType, long maxBytes, TimeSpan ttl, CancellationToken cancellationToken = default)
             => inner.GenerateUploadUrlAsync(storageKey, contentType, maxBytes, ttl, cancellationToken);
         public Task<Uri> GenerateDownloadUrlAsync(string storageKey, TimeSpan ttl, string? responseContentDisposition = null, CancellationToken cancellationToken = default)
             => inner.GenerateDownloadUrlAsync(storageKey, ttl, responseContentDisposition, cancellationToken);
-        public Task<FSH.Framework.Shared.Storage.StoredObjectMetadata?> HeadObjectAsync(string storageKey, CancellationToken cancellationToken = default) => inner.HeadObjectAsync(storageKey, cancellationToken);
+        public Task<Trislab.Framework.Shared.Storage.StoredObjectMetadata?> HeadObjectAsync(string storageKey, CancellationToken cancellationToken = default) => inner.HeadObjectAsync(storageKey, cancellationToken);
         public string BuildPublicUrl(string storageKey) => inner.BuildPublicUrl(storageKey);
     }
 
     /// <summary>An outbox write that fails, which aborts the move's transaction before it commits.</summary>
-    private sealed class ThrowingOutboxWriter : FSH.Framework.Eventing.Abstractions.IOutboxWriter
+    private sealed class ThrowingOutboxWriter : Trislab.Framework.Eventing.Abstractions.IOutboxWriter
     {
         public int Calls { get; private set; }
 
-        public Task AddAsync(FSH.Framework.Eventing.Abstractions.IIntegrationEvent @event, CancellationToken ct = default)
+        public Task AddAsync(Trislab.Framework.Eventing.Abstractions.IIntegrationEvent @event, CancellationToken ct = default)
         {
             Calls++;
             throw new InvalidOperationException("the transaction failed before commit");
         }
     }
 
-    private sealed class FixedCurrentUser(string tenantId, Guid userId) : FSH.Framework.Core.Context.ICurrentUser
+    private sealed class FixedCurrentUser(string tenantId, Guid userId) : Trislab.Framework.Core.Context.ICurrentUser
     {
         public string? Name => null;
         public Guid GetUserId() => userId;
@@ -541,7 +541,7 @@ public sealed class StorageVisibilityRootTests
     {
         // A fresh, tenant-less scope — the shape Hangfire's activator gives the enqueued job.
         using var scope = _factory.Services.CreateScope();
-        var options = Options.Create(new FSH.Modules.Files.FilesOptions { LegacyKeyMigrationBatchSize = batchSize });
+        var options = Options.Create(new Trislab.Modules.Files.FilesOptions { LegacyKeyMigrationBatchSize = batchSize });
         var job = ActivatorUtilities.CreateInstance<MigrateLegacyPublicFileKeysJob>(scope.ServiceProvider, options);
         await job.RunAsync(CancellationToken.None);
     }
@@ -565,17 +565,17 @@ public sealed class StorageVisibilityRootTests
             return inner.RemoveAsync(path, cancellationToken);
         }
 
-        public Task<string> UploadAsync<T>(FSH.Framework.Shared.Storage.FileUploadRequest request, FSH.Framework.Storage.FileType fileType, CancellationToken cancellationToken = default)
+        public Task<string> UploadAsync<T>(Trislab.Framework.Shared.Storage.FileUploadRequest request, Trislab.Framework.Storage.FileType fileType, CancellationToken cancellationToken = default)
             where T : class => inner.UploadAsync<T>(request, fileType, cancellationToken);
-        public Task<FSH.Framework.Storage.DTOs.FileDownloadResponse?> DownloadAsync(string path, CancellationToken cancellationToken = default) => inner.DownloadAsync(path, cancellationToken);
+        public Task<Trislab.Framework.Storage.DTOs.FileDownloadResponse?> DownloadAsync(string path, CancellationToken cancellationToken = default) => inner.DownloadAsync(path, cancellationToken);
         public Task<bool> ExistsAsync(string path, CancellationToken cancellationToken = default) => inner.ExistsAsync(path, cancellationToken);
         public Task<long> GetSizeAsync(string path, CancellationToken cancellationToken = default) => inner.GetSizeAsync(path, cancellationToken);
         public Task CopyAsync(string sourceKey, string destinationKey, CancellationToken cancellationToken = default) => inner.CopyAsync(sourceKey, destinationKey, cancellationToken);
-        public Task<FSH.Framework.Shared.Storage.PresignedUploadUrl> GenerateUploadUrlAsync(string storageKey, string contentType, long maxBytes, TimeSpan ttl, CancellationToken cancellationToken = default)
+        public Task<Trislab.Framework.Shared.Storage.PresignedUploadUrl> GenerateUploadUrlAsync(string storageKey, string contentType, long maxBytes, TimeSpan ttl, CancellationToken cancellationToken = default)
             => inner.GenerateUploadUrlAsync(storageKey, contentType, maxBytes, ttl, cancellationToken);
         public Task<Uri> GenerateDownloadUrlAsync(string storageKey, TimeSpan ttl, string? responseContentDisposition = null, CancellationToken cancellationToken = default)
             => inner.GenerateDownloadUrlAsync(storageKey, ttl, responseContentDisposition, cancellationToken);
-        public Task<FSH.Framework.Shared.Storage.StoredObjectMetadata?> HeadObjectAsync(string storageKey, CancellationToken cancellationToken = default) => inner.HeadObjectAsync(storageKey, cancellationToken);
+        public Task<Trislab.Framework.Shared.Storage.StoredObjectMetadata?> HeadObjectAsync(string storageKey, CancellationToken cancellationToken = default) => inner.HeadObjectAsync(storageKey, cancellationToken);
         public string BuildPublicUrl(string storageKey) => inner.BuildPublicUrl(storageKey);
     }
 

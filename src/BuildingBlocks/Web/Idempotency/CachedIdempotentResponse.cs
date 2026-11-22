@@ -1,4 +1,4 @@
-namespace FSH.Framework.Web.Idempotency;
+namespace Trislab.Framework.Web.Idempotency;
 
 /// <summary>
 /// A cached HTTP response for idempotent replay.

@@ -1,17 +1,17 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Storage.Services;
-using FSH.Modules.Files.Contracts.v1.DTOs;
-using FSH.Modules.Files.Data;
-using FSH.Modules.Files.Domain;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Storage.Services;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Modules.Files.Data;
+using Trislab.Modules.Files.Domain;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Modules.Files.Jobs;
+namespace Trislab.Modules.Files.Jobs;
 
 /// <summary>
 /// Hourly purge of FileAsset rows stuck in PendingUpload past their UploadDeadline, in every tenant.

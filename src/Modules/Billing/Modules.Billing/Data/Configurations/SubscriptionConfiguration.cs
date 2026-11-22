@@ -1,9 +1,9 @@
-using FSH.Modules.Billing.Contracts;
-using FSH.Modules.Billing.Domain;
+using Trislab.Modules.Billing.Contracts;
+using Trislab.Modules.Billing.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FSH.Modules.Billing.Data.Configurations;
+namespace Trislab.Modules.Billing.Data.Configurations;
 
 public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
 {

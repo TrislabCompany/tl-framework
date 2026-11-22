@@ -1,22 +1,22 @@
 using System.Diagnostics;
 using System.Net;
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Web.Realtime;
-using FSH.Modules.Chat.Contracts.Events;
-using FSH.Modules.Chat.Contracts.v1.Commands;
-using FSH.Modules.Chat.Contracts.v1.DTOs;
-using FSH.Modules.Chat.Data;
-using FSH.Modules.Chat.Domain;
-using FSH.Modules.Chat.Features.v1.Internal;
-using FSH.Modules.Chat.Localization;
-using FSH.Modules.Chat.Services;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Web.Realtime;
+using Trislab.Modules.Chat.Contracts.Events;
+using Trislab.Modules.Chat.Contracts.v1.Commands;
+using Trislab.Modules.Chat.Contracts.v1.DTOs;
+using Trislab.Modules.Chat.Data;
+using Trislab.Modules.Chat.Domain;
+using Trislab.Modules.Chat.Features.v1.Internal;
+using Trislab.Modules.Chat.Localization;
+using Trislab.Modules.Chat.Services;
 using Mediator;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Chat.Features.v1.Messages.SendMessage;
+namespace Trislab.Modules.Chat.Features.v1.Messages.SendMessage;
 
 public sealed class SendMessageCommandHandler(
     ChatDbContext db,

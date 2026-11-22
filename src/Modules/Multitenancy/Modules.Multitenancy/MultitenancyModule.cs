@@ -5,30 +5,30 @@ using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using Finbuckle.MultiTenant.EntityFrameworkCore.Stores;
 using Finbuckle.MultiTenant.Extensions;
 using Finbuckle.MultiTenant.Stores;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Web.Modules;
-using FSH.Modules.Multitenancy.Contracts;
-using FSH.Modules.Multitenancy.Data;
-using FSH.Modules.Multitenancy.Features.v1.AdjustTenantValidity;
-using FSH.Modules.Multitenancy.Features.v1.ChangeTenantActivation;
-using FSH.Modules.Multitenancy.Features.v1.CreateTenant;
-using FSH.Modules.Multitenancy.Features.v1.GetMyTenantStatus;
-using FSH.Modules.Multitenancy.Features.v1.GetTenantMigrations;
-using FSH.Modules.Multitenancy.Features.v1.GetTenants;
-using FSH.Modules.Multitenancy.Features.v1.GetTenantStatus;
-using FSH.Modules.Multitenancy.Features.v1.GetTenantTheme;
-using FSH.Modules.Multitenancy.Features.v1.ResetTenantTheme;
-using FSH.Modules.Multitenancy.Features.v1.TenantProvisioning.GetTenantProvisioningStatus;
-using FSH.Modules.Multitenancy.Features.v1.TenantProvisioning.RetryTenantProvisioning;
-using FSH.Modules.Multitenancy.Features.v1.RenewTenant;
-using FSH.Modules.Multitenancy.Features.v1.UpdateTenantTheme;
-using FSH.Modules.Multitenancy.Localization;
-using FSH.Modules.Multitenancy.Provisioning;
-using FSH.Modules.Multitenancy.Services;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Web.Modules;
+using Trislab.Modules.Multitenancy.Contracts;
+using Trislab.Modules.Multitenancy.Data;
+using Trislab.Modules.Multitenancy.Features.v1.AdjustTenantValidity;
+using Trislab.Modules.Multitenancy.Features.v1.ChangeTenantActivation;
+using Trislab.Modules.Multitenancy.Features.v1.CreateTenant;
+using Trislab.Modules.Multitenancy.Features.v1.GetMyTenantStatus;
+using Trislab.Modules.Multitenancy.Features.v1.GetTenantMigrations;
+using Trislab.Modules.Multitenancy.Features.v1.GetTenants;
+using Trislab.Modules.Multitenancy.Features.v1.GetTenantStatus;
+using Trislab.Modules.Multitenancy.Features.v1.GetTenantTheme;
+using Trislab.Modules.Multitenancy.Features.v1.ResetTenantTheme;
+using Trislab.Modules.Multitenancy.Features.v1.TenantProvisioning.GetTenantProvisioningStatus;
+using Trislab.Modules.Multitenancy.Features.v1.TenantProvisioning.RetryTenantProvisioning;
+using Trislab.Modules.Multitenancy.Features.v1.RenewTenant;
+using Trislab.Modules.Multitenancy.Features.v1.UpdateTenantTheme;
+using Trislab.Modules.Multitenancy.Localization;
+using Trislab.Modules.Multitenancy.Provisioning;
+using Trislab.Modules.Multitenancy.Services;
 using Hangfire;
 using Hangfire.Common;
 using Microsoft.AspNetCore.Builder;
@@ -41,7 +41,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
-namespace FSH.Modules.Multitenancy;
+namespace Trislab.Modules.Multitenancy;
 
 public sealed class MultitenancyModule : IModule
 {
@@ -49,8 +49,8 @@ public sealed class MultitenancyModule : IModule
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        FSH.Framework.Shared.Constants.PermissionConstants.Register(
-            FSH.Modules.Multitenancy.Contracts.Authorization.MultitenancyPermissions.All);
+        Trislab.Framework.Shared.Constants.PermissionConstants.Register(
+            Trislab.Modules.Multitenancy.Contracts.Authorization.MultitenancyPermissions.All);
 
         builder.Services.Configure<TenantBillingOptions>(
             builder.Configuration.GetSection(TenantBillingOptions.SectionName));
@@ -65,10 +65,10 @@ public sealed class MultitenancyModule : IModule
         // Singleton — the buffer survives the request scope that calls Store(...)
         // so the background Hangfire-scheduled seed scope can still TryConsume(...).
         builder.Services.AddSingleton<
-            FSH.Framework.Shared.Multitenancy.ITenantInitialPasswordBuffer,
+            Trislab.Framework.Shared.Multitenancy.ITenantInitialPasswordBuffer,
             Services.TenantInitialPasswordBuffer>();
 
-        builder.Services.AddHeroDbContext<TenantDbContext>();
+        builder.Services.AddTrislabDbContext<TenantDbContext>();
 
         // Replace (not Add) the no-op event tenant scope with a Finbuckle-backed one so background
         // event dispatch establishes the tenant before tenant-filtered handler DbContexts are built.

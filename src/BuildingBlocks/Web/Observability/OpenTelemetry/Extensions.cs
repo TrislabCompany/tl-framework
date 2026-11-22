@@ -1,4 +1,4 @@
-using FSH.Framework.Caching.Telemetry;
+using Trislab.Framework.Caching.Telemetry;
 using Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -12,15 +12,15 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System.Diagnostics;
-using static FSH.Framework.Web.Observability.OpenTelemetry.OpenTelemetryOptions;
+using static Trislab.Framework.Web.Observability.OpenTelemetry.OpenTelemetryOptions;
 
-namespace FSH.Framework.Web.Observability.OpenTelemetry;
+namespace Trislab.Framework.Web.Observability.OpenTelemetry;
 
 public static class Extensions
 {
     private const string HealthEndpointPath = "/api/health";
     private const string AlivenessEndpointPath = "/alive";
-    public static IHostApplicationBuilder AddHeroOpenTelemetry(this IHostApplicationBuilder builder)
+    public static IHostApplicationBuilder AddTrislabOpenTelemetry(this IHostApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
@@ -103,7 +103,7 @@ public static class Extensions
                 metrics.AddMeter(CachingTelemetry.MeterName);
 
                 // Auditing pipeline metrics (published, dropped, flush, dead-letter).
-                metrics.AddMeter("FSH.Modules.Auditing");
+                metrics.AddMeter("Trislab.Modules.Auditing");
 
                 // Eventing outbox metrics (dead-letter, redrive) — string literal matches
                 // EventingTelemetry.MeterName; Web does not reference the Eventing project.

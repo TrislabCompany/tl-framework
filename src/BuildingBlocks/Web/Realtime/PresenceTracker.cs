@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace FSH.Framework.Web.Realtime;
+namespace Trislab.Framework.Web.Realtime;
 
 /// <summary>
 /// Concurrent in-memory implementation of <see cref="IPresenceTracker"/>. Keys are user ids,

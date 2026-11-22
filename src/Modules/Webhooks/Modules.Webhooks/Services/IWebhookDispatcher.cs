@@ -1,4 +1,4 @@
-namespace FSH.Modules.Webhooks.Services;
+namespace Trislab.Modules.Webhooks.Services;
 
 /// <summary>
 /// Production-side webhook dispatch entry point. Enqueues a background job that delivers the

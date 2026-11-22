@@ -1,4 +1,4 @@
-namespace FSH.Modules.Billing.Contracts;
+namespace Trislab.Modules.Billing.Contracts;
 
 public enum InvoiceStatus
 {

@@ -1,12 +1,12 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Modules.Chat.Contracts.Authorization;
-using FSH.Modules.Chat.Contracts.v1.Queries;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Modules.Chat.Contracts.Authorization;
+using Trislab.Modules.Chat.Contracts.v1.Queries;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Chat.Features.v1.Messages.ListChannelMessages;
+namespace Trislab.Modules.Chat.Features.v1.Messages.ListChannelMessages;
 
 public static class ListChannelMessagesEndpoint
 {

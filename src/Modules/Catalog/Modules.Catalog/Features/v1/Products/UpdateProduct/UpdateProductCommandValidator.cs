@@ -1,7 +1,7 @@
 using FluentValidation;
-using FSH.Modules.Catalog.Contracts.v1.Products;
+using Trislab.Modules.Catalog.Contracts.v1.Products;
 
-namespace FSH.Modules.Catalog.Features.v1.Products.UpdateProduct;
+namespace Trislab.Modules.Catalog.Features.v1.Products.UpdateProduct;
 
 public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
 {

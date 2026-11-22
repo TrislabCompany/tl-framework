@@ -1,4 +1,4 @@
-namespace FSH.Framework.Web.TrustedProxy;
+namespace Trislab.Framework.Web.TrustedProxy;
 
 /// <summary>
 /// Trusted reverse-proxy configuration for X-Forwarded-* processing. Behind an ingress

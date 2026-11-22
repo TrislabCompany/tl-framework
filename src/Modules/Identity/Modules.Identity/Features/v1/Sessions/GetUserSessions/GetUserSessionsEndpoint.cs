@@ -1,13 +1,13 @@
-using FSH.Modules.Identity.Contracts.Authorization;
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Modules.Identity.Contracts.DTOs;
-using FSH.Modules.Identity.Contracts.v1.Sessions.GetUserSessions;
+using Trislab.Modules.Identity.Contracts.Authorization;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.v1.Sessions.GetUserSessions;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Identity.Features.v1.Sessions.GetUserSessions;
+namespace Trislab.Modules.Identity.Features.v1.Sessions.GetUserSessions;
 
 public static class GetUserSessionsEndpoint
 {

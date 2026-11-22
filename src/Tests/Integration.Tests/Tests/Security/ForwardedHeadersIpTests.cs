@@ -1,7 +1,7 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Data;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Data;
 using Integration.Tests.Infrastructure;
 
 namespace Integration.Tests.Tests.Security;
@@ -16,14 +16,14 @@ namespace Integration.Tests.Tests.Security;
 /// TestServer has no socket, so the connection IP is stamped via the X-Test-Remote-Ip header (see
 /// TestRemoteIpStartupFilter).
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class ForwardedHeadersIpTests
 {
     private const string ForwardedClientIp = "203.0.113.7";
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
 
-    public ForwardedHeadersIpTests(FshWebApplicationFactory factory)
+    public ForwardedHeadersIpTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
     }

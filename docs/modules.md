@@ -25,7 +25,7 @@ The building blocks in `src/BuildingBlocks` are not modules: every module depend
 
 `.agents/skills/add-module/SKILL.md` is the step-by-step recipe. In short:
 
-1. Create `src/Modules/<Name>/Modules.<Name>` and `Modules.<Name>.Contracts`, with a class that implements `IModule` and the attribute `[assembly: FshModule(typeof(<Name>Module), <order>)]`, and add both projects to `src/App.slnx`.
+1. Create `src/Modules/<Name>/Modules.<Name>` and `Modules.<Name>.Contracts`, with a class that implements `IModule` and the attribute `[assembly: TrislabModule(typeof(<Name>Module), <order>)]`, and add both projects to `src/App.slnx`.
 2. Reference the runtime project from `App.Api`, `App.DbMigrator` and `App.Migrations.PostgreSQL`.
 3. Register it in four places: in both `src/Host/App.Api/Program.cs` and `src/Host/App.DbMigrator/Program.cs`, a Contracts type and a module type in the Mediator assemblies, and the module's assembly in `moduleAssemblies`. A missing Mediator type leaves its handlers silently undiscovered.
 4. Add a folder `<Name>/` to `App.Migrations.PostgreSQL` and the first migration ([deployment.md](deployment.md#3-migrations)).

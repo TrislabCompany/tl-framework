@@ -1,8 +1,8 @@
-using FSH.Framework.Eventing.Abstractions;
+using Trislab.Framework.Eventing.Abstractions;
 using System.Collections.Concurrent;
 using System.Text.Json;
 
-namespace FSH.Framework.Eventing.Serialization;
+namespace Trislab.Framework.Eventing.Serialization;
 
 /// <summary>
 /// System.Text.Json-based event serializer.

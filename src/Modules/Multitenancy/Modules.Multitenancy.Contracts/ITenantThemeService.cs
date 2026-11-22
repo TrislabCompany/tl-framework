@@ -1,6 +1,6 @@
-using FSH.Modules.Multitenancy.Contracts.Dtos;
+using Trislab.Modules.Multitenancy.Contracts.Dtos;
 
-namespace FSH.Modules.Multitenancy.Contracts;
+namespace Trislab.Modules.Multitenancy.Contracts;
 
 public interface ITenantThemeService
 {

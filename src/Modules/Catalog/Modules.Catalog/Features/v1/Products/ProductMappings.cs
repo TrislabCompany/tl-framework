@@ -1,7 +1,7 @@
-using FSH.Modules.Catalog.Contracts.Dtos;
-using FSH.Modules.Catalog.Domain;
+using Trislab.Modules.Catalog.Contracts.Dtos;
+using Trislab.Modules.Catalog.Domain;
 
-namespace FSH.Modules.Catalog.Features.v1.Products;
+namespace Trislab.Modules.Catalog.Features.v1.Products;
 
 internal static class ProductMappings
 {

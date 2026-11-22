@@ -1,6 +1,6 @@
 using Microsoft.Net.Http.Headers;
 
-namespace FSH.Modules.Auditing;
+namespace Trislab.Modules.Auditing;
 
 internal static class ContentTypeHelper
 {

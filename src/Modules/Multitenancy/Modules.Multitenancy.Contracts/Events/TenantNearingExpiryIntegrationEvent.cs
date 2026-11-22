@@ -1,6 +1,6 @@
-using FSH.Framework.Eventing.Abstractions;
+using Trislab.Framework.Eventing.Abstractions;
 
-namespace FSH.Modules.Multitenancy.Contracts.Events;
+namespace Trislab.Modules.Multitenancy.Contracts.Events;
 
 /// <summary>
 /// Raised by the daily expiry scan when an active tenant is within the configured lead time of its

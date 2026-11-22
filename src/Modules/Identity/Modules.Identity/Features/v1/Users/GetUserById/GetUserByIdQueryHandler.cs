@@ -1,9 +1,9 @@
-using FSH.Modules.Identity.Contracts.DTOs;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Users.GetUser;
+using Trislab.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Users.GetUser;
 using Mediator;
 
-namespace FSH.Modules.Identity.Features.v1.Users.GetUserById;
+namespace Trislab.Modules.Identity.Features.v1.Users.GetUserById;
 
 public sealed class GetUserByIdQueryHandler : IQueryHandler<GetUserQuery, UserDto>
 {

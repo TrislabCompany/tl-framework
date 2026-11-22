@@ -1,18 +1,18 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Persistence;
-using FSH.Framework.Quota;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Quota;
-using FSH.Framework.Storage.Services;
-using FSH.Modules.Files.Data;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Quota;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Quota;
+using Trislab.Framework.Storage.Services;
+using Trislab.Modules.Files.Data;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FSH.Modules.Files.Jobs;
+namespace Trislab.Modules.Files.Jobs;
 
 /// <summary>
 /// Daily purge of soft-deleted FileAsset rows past the retention window, in every tenant. Hard-deletes

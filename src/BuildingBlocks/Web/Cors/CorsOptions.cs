@@ -1,4 +1,4 @@
-﻿namespace FSH.Framework.Web.Cors;
+﻿namespace Trislab.Framework.Web.Cors;
 
 public sealed class CorsOptions
 {

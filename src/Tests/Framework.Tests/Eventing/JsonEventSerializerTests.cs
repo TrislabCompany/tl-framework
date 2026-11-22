@@ -1,5 +1,5 @@
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Eventing.Serialization;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Eventing.Serialization;
 
 namespace Framework.Tests.Eventing;
 

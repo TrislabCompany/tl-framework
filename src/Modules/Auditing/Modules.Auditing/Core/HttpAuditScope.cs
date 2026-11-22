@@ -1,12 +1,12 @@
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Context;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Auditing.Contracts;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Auditing.Contracts;
 using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
 using System.Security.Claims;
 
-namespace FSH.Modules.Auditing;
+namespace Trislab.Modules.Auditing;
 
 /// <summary>
 /// Ambient-aware audit scope. Prefers HTTP context when present (the
@@ -53,7 +53,7 @@ public sealed class HttpAuditScope : IAuditScope
         ?? _currentUser?.Name;
 
     // Activity.Current is populated by both ASP.NET Core (HTTP) and the
-    // FshJobActivator (Hangfire), so this works in both contexts.
+    // TrislabJobActivator (Hangfire), so this works in both contexts.
     public string? TraceId => Activity.Current?.TraceId.ToString();
     public string? SpanId => Activity.Current?.SpanId.ToString();
 

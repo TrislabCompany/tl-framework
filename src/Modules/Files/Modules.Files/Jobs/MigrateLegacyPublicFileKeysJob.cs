@@ -1,19 +1,19 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Storage;
-using FSH.Modules.Files.Contracts.v1.DTOs;
-using FSH.Modules.Files.Data;
-using FSH.Modules.Files.Domain;
-using FSH.Modules.Files.Services;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Storage;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Modules.Files.Data;
+using Trislab.Modules.Files.Domain;
+using Trislab.Modules.Files.Services;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FSH.Modules.Files.Jobs;
+namespace Trislab.Modules.Files.Jobs;
 
 /// <summary>
 /// Upgrade step for #1410. Bucket policies now grant anonymous read on <c>public/*</c> only, and files

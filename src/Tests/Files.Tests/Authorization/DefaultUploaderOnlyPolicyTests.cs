@@ -1,5 +1,5 @@
-using FSH.Modules.Files.Authorization;
-using FSH.Modules.Files.Contracts;
+using Trislab.Modules.Files.Authorization;
+using Trislab.Modules.Files.Contracts;
 
 namespace Files.Tests.Authorization;
 

@@ -1,7 +1,7 @@
 using System.Text.Json;
-using FSH.Modules.Auditing.Contracts;
-using FSH.Modules.Auditing.Contracts.Dtos;
-using FSH.Framework.Shared.Persistence;
+using Trislab.Modules.Auditing.Contracts;
+using Trislab.Modules.Auditing.Contracts.Dtos;
+using Trislab.Framework.Shared.Persistence;
 using Integration.Tests.Infrastructure;
 
 namespace Integration.Tests.Tests.Auditing;

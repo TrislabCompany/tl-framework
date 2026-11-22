@@ -1,7 +1,7 @@
-using FSH.Modules.Chat.Contracts.v1.DTOs;
+using Trislab.Modules.Chat.Contracts.v1.DTOs;
 using Mediator;
 
-namespace FSH.Modules.Chat.Contracts.v1.Commands;
+namespace Trislab.Modules.Chat.Contracts.v1.Commands;
 
 public sealed record SendMessageAttachmentInput(
     Guid? FileAssetId,

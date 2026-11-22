@@ -3,12 +3,12 @@ using Integration.Tests.Infrastructure.Extensions;
 
 namespace Integration.Tests.Tests.Groups;
 
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class SystemGroupProtectionTests
 {
     private readonly AuthHelper _auth;
 
-    public SystemGroupProtectionTests(FshWebApplicationFactory factory)
+    public SystemGroupProtectionTests(TrislabWebApplicationFactory factory)
     {
         _auth = new AuthHelper(factory);
     }

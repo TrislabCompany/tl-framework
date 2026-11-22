@@ -1,9 +1,9 @@
 using Finbuckle.MultiTenant.EntityFrameworkCore.Extensions;
-using FSH.Modules.Webhooks.Domain;
+using Trislab.Modules.Webhooks.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FSH.Modules.Webhooks.Data;
+namespace Trislab.Modules.Webhooks.Data;
 
 public sealed class WebhookDeliveryConfiguration : IEntityTypeConfiguration<WebhookDelivery>
 {

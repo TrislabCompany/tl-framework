@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Domain;
+using Trislab.Framework.Core.Domain;
 
-namespace FSH.Modules.Notifications.Domain;
+namespace Trislab.Modules.Notifications.Domain;
 
 /// <summary>
 /// A single inbox row for the bell-icon UI. One notification per (user, event). Source modules

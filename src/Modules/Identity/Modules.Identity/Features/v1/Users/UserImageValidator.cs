@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
-using FSH.Framework.Core.Localization;
-using FSH.Framework.Shared.Storage;
-using FSH.Framework.Storage;
+using Trislab.Framework.Core.Localization;
+using Trislab.Framework.Shared.Storage;
+using Trislab.Framework.Storage;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Identity.Features.v1.Users;
+namespace Trislab.Modules.Identity.Features.v1.Users;
 
 public sealed class UserImageValidator : AbstractValidator<FileUploadRequest>
 {

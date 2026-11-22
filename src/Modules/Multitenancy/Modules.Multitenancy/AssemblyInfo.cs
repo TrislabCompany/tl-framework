@@ -1,3 +1,3 @@
-using FSH.Framework.Web.Modules;
+using Trislab.Framework.Web.Modules;
 
-[assembly: FshModule(typeof(FSH.Modules.Multitenancy.MultitenancyModule), 200)]
+[assembly: TrislabModule(typeof(Trislab.Modules.Multitenancy.MultitenancyModule), 200)]

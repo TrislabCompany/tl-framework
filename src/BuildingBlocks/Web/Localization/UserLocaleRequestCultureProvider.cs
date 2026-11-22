@@ -1,9 +1,9 @@
 using System.Security.Claims;
-using FSH.Framework.Core.Localization;
+using Trislab.Framework.Core.Localization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 
-namespace FSH.Framework.Web.Localization;
+namespace Trislab.Framework.Web.Localization;
 
 /// <summary>
 /// Resolves the request culture from the authenticated user's <c>locale</c> claim

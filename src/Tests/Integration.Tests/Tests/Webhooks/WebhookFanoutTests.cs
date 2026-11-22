@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Webhooks.Services;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Webhooks.Services;
 using Integration.Tests.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -24,13 +24,13 @@ namespace Integration.Tests.Tests.Webhooks;
 /// bus, so a singleton recorder is visible to it. Publishing goes through the real bus, which closes
 /// the open generic for our event type.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class WebhookFanoutTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public WebhookFanoutTests(FshWebApplicationFactory factory)
+    public WebhookFanoutTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

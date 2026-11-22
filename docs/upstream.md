@@ -14,7 +14,7 @@ This template is built on the [fullstackhero .NET starter kit](https://github.co
    - **Skipped:** we don't want it, for example because we replaced that part. Give the reason.
    - **Not applicable:** it only touches what this template removed (section 2).
 4. **Port a change** in a branch from our `main`, in one of two ways:
-   - **By patch,** where our code still matches theirs: `git -C <their clone> format-patch -1 <commit> --stdout`, with the paths renamed as in section 2, then `git am -3`. Then resolve the conflicts by hand.
+   - **By patch,** where our code still matches theirs: `git -C <their clone> format-patch -1 <commit> --stdout`, with the paths renamed as in section 2 and the names renamed by `pwsh scripts/rename-from-fsh.ps1 -Patch <file>`, then `git am -3`. Then resolve the conflicts by hand.
    - **By hand,** where we refactored that part: write the same fix or feature in our code.
 
    One PR may port several commits. Name each upstream commit in the PR description and in the commit message (`Sync fullstackhero <commit>: <subject>`). The PR passes `ci / ci` like any other, and a migration from upstream keeps its name and order.
@@ -31,6 +31,7 @@ A security fix goes first: an upstream commit that fixes a vulnerability, a CVE 
 | `.agents/rules/` | `.claude/rules/`, each file with `paths:` front matter (keep it when porting a rule change) |
 | `.agents/workflows/` | `code-reviewer` and `architecture-guard` are subagents in `.claude/agents/`; `migration-helper` is `.agents/skills/create-migration/reference.md`; `feature-scaffolder` and `module-creator` are sections of `add-full-slice` and `add-module` |
 | `src/Host/FSH.Starter.Api`, `FSH.Starter.AppHost`, `FSH.Starter.DbMigrator`, `FSH.Starter.Migrations.PostgreSQL` | `src/Host/App.Api`, `App.AppHost`, `App.DbMigrator`, `App.Migrations.PostgreSQL` |
+| `FSH.Framework.*`, `FSH.Modules.*` (namespaces and assemblies); `AddHero*`, `UseHero*`, `MapHero*`, `ConfigureHero*`; `Fsh<Type>` (`FshUser`, `FshModule`, …); `@fullstackhero/admin` and `@fullstackhero/dashboard` | `Trislab.Framework.*`, `Trislab.Modules.*`; `AddTrislab*`, …; `Trislab<Type>`; `@trislabcompany/framework-admin` and `framework-dashboard`. `scripts/rename-from-fsh.ps1` holds the rules, and runs over each patch. Project files and folders keep upstream's names, and wire names stay `fsh` (metric and activity names, the `X-FSH-App` header, the JWT issuer, localStorage keys, CSS classes, the Data Protection names), so stored data and patches still match |
 | `deploy/`, `src/Tools/` (the `fsh` CLI), `templates/`, `.template.config/`, `superpowers/`, `docs/superpowers/`, `GEMINI.md`, `README-template.md`, `CONTRIBUTING.md`, `SECURITY.md` | Removed: a commit that touches only these is Not applicable |
 | `src/BuildingBlocks/Storage`, `Jobs` (Hangfire), `Mailing`; Identity's `IdentityDbInitializer`; both hosts' `Program.cs`; `appsettings*.json`; `Directory.Packages.props`; the clients' `vite.config.ts`, `env.ts`, `docker/` and Dockerfiles; the integration test factories | Changed for the platform: expect conflicts, and keep our behaviour ([architecture.md](architecture.md), [configuration.md](configuration.md)) |
 

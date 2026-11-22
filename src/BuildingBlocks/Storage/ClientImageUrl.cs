@@ -1,4 +1,4 @@
-namespace FSH.Framework.Storage;
+namespace Trislab.Framework.Storage;
 
 /// <summary>
 /// The shape of an image URL a client may store directly (an avatar or logo it already hosts, or a

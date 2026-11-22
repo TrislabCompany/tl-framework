@@ -1,7 +1,7 @@
-﻿using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Core.Localization;
-using FSH.Framework.Shared.Constants;
-using FSH.Modules.Identity.Contracts.Services;
+﻿using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Core.Localization;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Modules.Identity.Contracts.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +16,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace FSH.Modules.Identity.Authorization.Jwt;
+namespace Trislab.Modules.Identity.Authorization.Jwt;
 
 public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions>
 {

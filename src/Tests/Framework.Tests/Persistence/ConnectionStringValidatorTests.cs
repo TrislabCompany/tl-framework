@@ -1,5 +1,5 @@
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Persistence;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Persistence;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

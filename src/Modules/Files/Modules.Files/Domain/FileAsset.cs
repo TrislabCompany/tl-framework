@@ -1,11 +1,11 @@
 using System.Net;
-using FSH.Framework.Core.Domain;
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Files.Contracts.v1.DTOs;
-using FSH.Modules.Files.Domain.Events;
-using FSH.Modules.Files.Localization;
+using Trislab.Framework.Core.Domain;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Modules.Files.Domain.Events;
+using Trislab.Modules.Files.Localization;
 
-namespace FSH.Modules.Files.Domain;
+namespace Trislab.Modules.Files.Domain;
 
 /// <summary>
 /// A file asset tracked by the Files module. Owns a presigned upload lifecycle (PendingUpload →

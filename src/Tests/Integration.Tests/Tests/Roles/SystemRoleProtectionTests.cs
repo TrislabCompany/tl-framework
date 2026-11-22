@@ -3,12 +3,12 @@ using Integration.Tests.Infrastructure.Extensions;
 
 namespace Integration.Tests.Tests.Roles;
 
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class SystemRoleProtectionTests
 {
     private readonly AuthHelper _auth;
 
-    public SystemRoleProtectionTests(FshWebApplicationFactory factory)
+    public SystemRoleProtectionTests(TrislabWebApplicationFactory factory)
     {
         _auth = new AuthHelper(factory);
     }

@@ -1,22 +1,22 @@
 using Finbuckle.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.Stores;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Multitenancy.Contracts;
-using FSH.Modules.Multitenancy.Contracts.Dtos;
-using FSH.Modules.Multitenancy.Contracts.v1.GetTenants;
-using FSH.Modules.Multitenancy.Data;
-using FSH.Modules.Multitenancy.Features.v1.GetTenants;
-using FSH.Modules.Multitenancy.Localization;
-using FSH.Modules.Multitenancy.Provisioning;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Multitenancy.Contracts;
+using Trislab.Modules.Multitenancy.Contracts.Dtos;
+using Trislab.Modules.Multitenancy.Contracts.v1.GetTenants;
+using Trislab.Modules.Multitenancy.Data;
+using Trislab.Modules.Multitenancy.Features.v1.GetTenants;
+using Trislab.Modules.Multitenancy.Localization;
+using Trislab.Modules.Multitenancy.Provisioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FSH.Modules.Multitenancy.Services;
+namespace Trislab.Modules.Multitenancy.Services;
 
 public sealed class TenantService : ITenantService
 {

@@ -1,8 +1,8 @@
-using FSH.Modules.Billing.Contracts.v1.Invoices;
-using FSH.Modules.Billing.Services;
+using Trislab.Modules.Billing.Contracts.v1.Invoices;
+using Trislab.Modules.Billing.Services;
 using Mediator;
 
-namespace FSH.Modules.Billing.Features.v1.Invoices.VoidInvoice;
+namespace Trislab.Modules.Billing.Features.v1.Invoices.VoidInvoice;
 
 public sealed class VoidInvoiceCommandHandler(IBillingService billing)
     : ICommandHandler<VoidInvoiceCommand, Guid>

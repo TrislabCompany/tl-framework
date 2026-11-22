@@ -1,7 +1,7 @@
-using FSH.Framework.Core;
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Web;
+using Trislab.Framework.Core;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Web;
 using NetArchTest.Rules;
 using Shouldly;
 using System.Reflection;
@@ -20,10 +20,10 @@ public class BuildingBlocksIndependenceTests
 
     private static readonly Assembly[] BuildingBlockAssemblies =
     [
-        typeof(IFshCore).Assembly,               // Core
+        typeof(ITrislabCore).Assembly,               // Core
         typeof(IConnectionStringValidator).Assembly,  // Persistence
         typeof(IAppTenantInfo).Assembly,         // Shared
-        typeof(IFshWeb).Assembly                 // Web
+        typeof(ITrislabWeb).Assembly                 // Web
     ];
 
     [Fact]
@@ -35,9 +35,9 @@ public class BuildingBlocksIndependenceTests
                 .InAssembly(assembly)
                 .ShouldNot()
                 .HaveDependencyOnAny(
-                    "FSH.Modules.Auditing",
-                    "FSH.Modules.Identity",
-                    "FSH.Modules.Multitenancy")
+                    "Trislab.Modules.Auditing",
+                    "Trislab.Modules.Identity",
+                    "Trislab.Modules.Multitenancy")
                 .GetResult();
 
             var failingTypes = result.FailingTypeNames ?? [];

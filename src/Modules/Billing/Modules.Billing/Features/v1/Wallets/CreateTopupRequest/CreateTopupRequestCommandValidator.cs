@@ -1,7 +1,7 @@
 using FluentValidation;
-using FSH.Modules.Billing.Contracts.v1.Wallets;
+using Trislab.Modules.Billing.Contracts.v1.Wallets;
 
-namespace FSH.Modules.Billing.Features.v1.Wallets.CreateTopupRequest;
+namespace Trislab.Modules.Billing.Features.v1.Wallets.CreateTopupRequest;
 
 public sealed class CreateTopupRequestCommandValidator : AbstractValidator<CreateTopupRequestCommand>
 {

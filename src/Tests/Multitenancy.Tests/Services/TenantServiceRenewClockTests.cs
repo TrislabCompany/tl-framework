@@ -1,9 +1,9 @@
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Multitenancy;
-using FSH.Modules.Multitenancy.Provisioning;
-using FSH.Modules.Multitenancy.Services;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Multitenancy;
+using Trislab.Modules.Multitenancy.Provisioning;
+using Trislab.Modules.Multitenancy.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;

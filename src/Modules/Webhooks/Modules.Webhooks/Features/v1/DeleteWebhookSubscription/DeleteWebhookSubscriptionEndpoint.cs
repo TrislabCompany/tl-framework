@@ -1,12 +1,12 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Modules.Webhooks.Contracts.Authorization;
-using FSH.Modules.Webhooks.Contracts.v1.DeleteWebhookSubscription;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Modules.Webhooks.Contracts.Authorization;
+using Trislab.Modules.Webhooks.Contracts.v1.DeleteWebhookSubscription;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Webhooks.Features.v1.DeleteWebhookSubscription;
+namespace Trislab.Modules.Webhooks.Features.v1.DeleteWebhookSubscription;
 
 public static class DeleteWebhookSubscriptionEndpoint
 {

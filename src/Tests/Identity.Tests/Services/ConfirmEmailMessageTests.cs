@@ -2,13 +2,13 @@ using System.Globalization;
 using System.Text;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Eventing.Outbox;
-using FSH.Framework.Jobs.Services;
-using FSH.Framework.Mailing.Services;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Domain;
-using FSH.Modules.Identity.Localization;
-using FSH.Modules.Identity.Services;
+using Trislab.Framework.Eventing.Outbox;
+using Trislab.Framework.Jobs.Services;
+using Trislab.Framework.Mailing.Services;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Identity.Localization;
+using Trislab.Modules.Identity.Services;
 using Identity.Tests.Support;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
@@ -30,9 +30,9 @@ public sealed class ConfirmEmailMessageTests
     public async Task ConfirmEmailAsync_returns_the_success_message_in_the_request_language(string culture, string expected)
     {
         // Arrange
-        var user = new FshUser { Id = "u1", Email = "u@codefi.com.br", UserName = "u", EmailConfirmed = false };
-        var userManager = Substitute.For<UserManager<FshUser>>(
-            Substitute.For<IUserStore<FshUser>>(), null, null, null, null, null, null, null, null);
+        var user = new TrislabUser { Id = "u1", Email = "u@codefi.com.br", UserName = "u", EmailConfirmed = false };
+        var userManager = Substitute.For<UserManager<TrislabUser>>(
+            Substitute.For<IUserStore<TrislabUser>>(), null, null, null, null, null, null, null, null);
         userManager.Users.Returns(new[] { user }.AsAsyncQueryable());
         userManager.ConfirmEmailAsync(user, "token").Returns(IdentityResult.Success);
 

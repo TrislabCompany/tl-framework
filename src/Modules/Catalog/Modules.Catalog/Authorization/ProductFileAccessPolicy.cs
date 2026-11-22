@@ -1,6 +1,6 @@
-using FSH.Modules.Files.Contracts;
+using Trislab.Modules.Files.Contracts;
 
-namespace FSH.Modules.Catalog.Authorization;
+namespace Trislab.Modules.Catalog.Authorization;
 
 /// <summary>
 /// IFileAccessPolicy for product images (OwnerType=Product).

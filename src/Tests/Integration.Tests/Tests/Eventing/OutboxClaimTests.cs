@@ -1,8 +1,8 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Eventing.Outbox;
-using FSH.Framework.Eventing.Persistence;
-using FSH.Framework.Shared.Multitenancy;
+using Trislab.Framework.Eventing.Outbox;
+using Trislab.Framework.Eventing.Persistence;
+using Trislab.Framework.Shared.Multitenancy;
 using Integration.Tests.Infrastructure;
 
 namespace Integration.Tests.Tests.Eventing;
@@ -12,14 +12,14 @@ namespace Integration.Tests.Tests.Eventing;
 /// and publish every integration event twice. Claiming is a concurrency behaviour, so it needs a
 /// real Postgres — SKIP LOCKED has no in-memory equivalent.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class OutboxClaimTests
 {
     private static readonly TimeSpan Lease = TimeSpan.FromMinutes(5);
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
 
-    public OutboxClaimTests(FshWebApplicationFactory factory)
+    public OutboxClaimTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
     }

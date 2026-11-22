@@ -10,11 +10,11 @@ paths:
 
 ## Pattern — opt-in per HttpClient
 
-`AddHeroResilience(config)` is an `IHttpClientBuilder` extension that adds `AddStandardResilienceHandler` configured from `HttpResilienceOptions` (retry, total-request timeout, attempt timeout, circuit breaker). It is **NOT global** — chain it onto the specific outbound client that needs it:
+`AddTrislabResilience(config)` is an `IHttpClientBuilder` extension that adds `AddStandardResilienceHandler` configured from `HttpResilienceOptions` (retry, total-request timeout, attempt timeout, circuit breaker). It is **NOT global** — chain it onto the specific outbound client that needs it:
 
 ```csharp
 builder.Services.AddHttpClient("Webhooks", ...)
-    .AddHeroResilience(builder.Configuration);
+    .AddTrislabResilience(builder.Configuration);
 ```
 
 Defaults (`HttpResilienceOptions`): 3 retries, 30s total, 10s per attempt, 50% failure ratio, throughput 10. No-ops when `Enabled=false`.

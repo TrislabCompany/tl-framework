@@ -44,12 +44,12 @@ Module support folders: `Domain/`, `Data/`, `Services/`, `Events/`, `Authorizati
 
 ## IModule registration
 
-Each module implements `IModule`, declared via an **assembly-level** `[FshModule]` attribute (positional `(Type moduleType, int order = 0)`) — **not** a class-level `[FshModule(Order = n)]`:
+Each module implements `IModule`, declared via an **assembly-level** `[TrislabModule]` attribute (positional `(Type moduleType, int order = 0)`) — **not** a class-level `[TrislabModule(Order = n)]`:
 
 ```csharp
-[assembly: FshModule(typeof(FSH.Modules.Identity.IdentityModule), 1)]   // above the namespace
+[assembly: TrislabModule(typeof(Trislab.Modules.Identity.IdentityModule), 1)]   // above the namespace
 
-namespace FSH.Modules.Identity;
+namespace Trislab.Modules.Identity;
 
 public sealed class IdentityModule : IModule
 {
@@ -59,7 +59,7 @@ public sealed class IdentityModule : IModule
 }
 ```
 
-`ModuleLoader.AddModules` (`src/BuildingBlocks/Web/Modules/ModuleLoader.cs`) discovers `[FshModule]` attributes, orders by `Order` then name, instantiates each, and calls `ConfigureServices`. Endpoints map under `api/v{version:apiVersion}/{module}`.
+`ModuleLoader.AddModules` (`src/BuildingBlocks/Web/Modules/ModuleLoader.cs`) discovers `[TrislabModule]` attributes, orders by `Order` then name, instantiates each, and calls `ConfigureServices`. Endpoints map under `api/v{version:apiVersion}/{module}`.
 
 ## ⚠️ The four-place registration footgun
 
@@ -82,17 +82,17 @@ After wiring, the fastest sanity check is: build, hit the endpoint, confirm the 
 
 ## Middleware ordering (critical)
 
-In `src/BuildingBlocks/Web/Extensions.cs` (`UseHeroPlatform`):
+In `src/BuildingBlocks/Web/Extensions.cs` (`UseTrislabPlatform`):
 
 1. ExceptionHandler → ResponseCompression
 2. **CORS before HTTPS redirect** (so OPTIONS preflight isn't 307-redirected)
 3. HttpsRedirection → SecurityHeaders → static files → Routing
 4. **`UseAuthentication`**
-5. **`UseHeroLocalization`** — request localization, sits **between `UseAuthentication` and `UseAuthorization`** so the user-`locale`-claim culture provider can read `HttpContext.User`
+5. **`UseTrislabLocalization`** — request localization, sits **between `UseAuthentication` and `UseAuthorization`** so the user-`locale`-claim culture provider can read `HttpContext.User`
 6. **`UseModuleMiddlewares`** — each module's `ConfigureMiddleware`, runs **after** auth
 7. RateLimiting → Quotas → `UseAuthorization` → `MapModules`
 
-`app.UseHeroMultiTenantDatabases()` (Finbuckle `UseMultiTenant()`) runs in `Program.cs` **before** `UseHeroPlatform`, i.e. **before `UseAuthentication`**. Finbuckle's `ClaimStrategy` authenticates on its own, so authenticated requests resolve by tenant claim and anonymous ones by the `tenant` header. See `modules/multitenancy.md`.
+`app.UseTrislabMultiTenantDatabases()` (Finbuckle `UseMultiTenant()`) runs in `Program.cs` **before** `UseTrislabPlatform`, i.e. **before `UseAuthentication`**. Finbuckle's `ClaimStrategy` authenticates on its own, so authenticated requests resolve by tenant claim and anonymous ones by the `tenant` header. See `modules/multitenancy.md`.
 
 ## Static/global state
 
@@ -105,4 +105,4 @@ No global mutable static collections enumerated under concurrency. `Audit` (Audi
 - Validate critical options via `IValidatableObject` — `JwtOptions` requires `SigningKey` ≥32 chars and **rejects placeholder strings containing `"replace-with"`**; `DatabaseOptions` rejects empty connection strings.
 - **Platform settings** (`Program.cs`, first line after the builder): `AddPlatformSettings()` from `Platform/PlatformConfiguration.cs` maps `DATABASE_URL`, `REDIS_URL`, `MESSAGING_URL`, `S3_*` and the secrets onto the options. It is the only code that reads those names; the migrator compiles the same file. See `docs/configuration.md`.
 - **Production fail-fast** (`Program.cs`, before service registration): missing `DatabaseOptions:ConnectionString` (`DATABASE_URL`) or `JwtOptions:SigningKey` (`JWT_SIGNING_KEY`) throws. Every other service falls back to what needs no service. Local values for the AppHost are in `appsettings.Development.json` and `AppHost.cs`; the storage keys are Aspire secret parameters.
-- Platform composition is one call each: `builder.AddHeroPlatform(o => { o.Enable... })` (DI) and `app.UseHeroPlatform(...)` (middleware). Feature flags toggle Caching/Jobs/Mailing/Quotas/Sse/Realtime/OpenTelemetry/CORS/Idempotency.
+- Platform composition is one call each: `builder.AddTrislabPlatform(o => { o.Enable... })` (DI) and `app.UseTrislabPlatform(...)` (middleware). Feature flags toggle Caching/Jobs/Mailing/Quotas/Sse/Realtime/OpenTelemetry/CORS/Idempotency.

@@ -1,4 +1,4 @@
-using FSH.Framework.Web.Cors;
+using Trislab.Framework.Web.Cors;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -30,7 +30,7 @@ public sealed class CorsPolicyTests
             .Build();
 
         var services = new ServiceCollection();
-        services.AddHeroCors(configuration);
+        services.AddTrislabCors(configuration);
 
         // Act
         var policy = services

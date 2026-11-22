@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace FSH.Modules.Chat.Services;
+namespace Trislab.Modules.Chat.Services;
 
 /// <summary>
 /// Pulls <c>@username</c> tokens out of a message body. Conservative pattern matches Slack/Discord:

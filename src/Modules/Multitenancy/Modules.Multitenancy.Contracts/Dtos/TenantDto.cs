@@ -1,4 +1,4 @@
-﻿namespace FSH.Modules.Multitenancy.Contracts.Dtos;
+﻿namespace Trislab.Modules.Multitenancy.Contracts.Dtos;
 
 public sealed class TenantDto
 {

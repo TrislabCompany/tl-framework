@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace FSH.Framework.Mailing;
+namespace Trislab.Framework.Mailing;
 
 /// <summary>
 /// The shared HTML shell and the single encoder for outbound mail. Bodies are sent as

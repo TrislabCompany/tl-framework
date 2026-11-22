@@ -1,8 +1,8 @@
-using FSH.Framework.Web.Realtime;
-using FSH.Modules.Chat.Data;
+using Trislab.Framework.Web.Realtime;
+using Trislab.Modules.Chat.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Chat.Services;
+namespace Trislab.Modules.Chat.Services;
 
 /// <summary>
 /// Returns the channel ids the user is currently a member of. AppHub calls this on

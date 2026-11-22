@@ -1,10 +1,10 @@
-using FSH.Framework.Persistence;
-using FSH.Modules.Billing.Contracts;
-using FSH.Modules.Billing.Domain;
+using Trislab.Framework.Persistence;
+using Trislab.Modules.Billing.Contracts;
+using Trislab.Modules.Billing.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Modules.Billing.Data;
+namespace Trislab.Modules.Billing.Data;
 
 public sealed class BillingDbInitializer(
     BillingDbContext dbContext,

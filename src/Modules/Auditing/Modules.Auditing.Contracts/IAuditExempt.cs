@@ -1,4 +1,4 @@
-namespace FSH.Modules.Auditing.Contracts;
+namespace Trislab.Modules.Auditing.Contracts;
 
 /// <summary>
 /// Opt-out marker for the entity-change audit trail. An entity implementing this is skipped by the

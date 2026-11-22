@@ -1,15 +1,15 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Multitenancy.Contracts.Events;
-using FSH.Modules.Multitenancy.Data;
-using FSH.Modules.Multitenancy.Domain;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Multitenancy.Contracts.Events;
+using Trislab.Modules.Multitenancy.Data;
+using Trislab.Modules.Multitenancy.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FSH.Modules.Multitenancy.Services;
+namespace Trislab.Modules.Multitenancy.Services;
 
 /// <summary>
 /// Daily scan that notifies tenants approaching or past their <c>ValidUpto</c>. For each active,

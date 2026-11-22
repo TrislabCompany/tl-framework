@@ -1,6 +1,6 @@
 using System.Globalization;
-using FSH.Framework.Core.Localization;
-using FSH.Framework.Web.Localization;
+using Trislab.Framework.Core.Localization;
+using Trislab.Framework.Web.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
@@ -8,7 +8,7 @@ using Microsoft.Extensions.Localization;
 namespace Framework.Tests.Localization;
 
 // Proves the whole resx wiring: SharedResources marker + co-located resx + ResourcesPath="" in
-// AddHeroLocalization resolve to the embedded catalog under the current UI culture. If the manifest
+// AddTrislabLocalization resolve to the embedded catalog under the current UI culture. If the manifest
 // name or ResourcesPath is wrong, ResourceNotFound flips true and IStringLocalizer leaks the raw key.
 public sealed class SharedResourcesLocalizationTests
 {
@@ -17,7 +17,7 @@ public sealed class SharedResourcesLocalizationTests
         var configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddHeroLocalization(configuration);
+        services.AddTrislabLocalization(configuration);
         return services.BuildServiceProvider().GetRequiredService<IStringLocalizer<SharedResources>>();
     }
 
@@ -57,7 +57,7 @@ public sealed class SharedResourcesLocalizationTests
         var configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddHeroLocalization(configuration);
+        services.AddTrislabLocalization(configuration);
         var localizer = services.BuildServiceProvider()
             .GetRequiredService<IStringLocalizerFactory>()
             .Create(typeof(FallbackProbeResources));

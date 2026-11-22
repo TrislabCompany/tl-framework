@@ -1,4 +1,4 @@
-namespace FSH.Framework.Eventing.Inbox;
+namespace Trislab.Framework.Eventing.Inbox;
 
 /// <summary>
 /// Abstraction for idempotent consumer tracking.

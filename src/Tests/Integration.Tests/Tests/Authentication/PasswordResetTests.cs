@@ -1,7 +1,7 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Domain;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Domain;
 using Integration.Tests.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
@@ -14,13 +14,13 @@ namespace Integration.Tests.Tests.Authentication;
 /// so the token is generated through <see cref="UserManager{TUser}"/> exactly as the
 /// production service does, then exercised through the public endpoint.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class PasswordResetTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public PasswordResetTests(FshWebApplicationFactory factory)
+    public PasswordResetTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -118,8 +118,8 @@ public sealed class PasswordResetTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<FshUser>>();
-        var user = new FshUser
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
+        var user = new TrislabUser
         {
             FirstName = "Reset",
             LastName = "User",
@@ -140,7 +140,7 @@ public sealed class PasswordResetTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<FshUser>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
         var user = await userManager.FindByEmailAsync(email);
         user.ShouldNotBeNull();
         var raw = await userManager.GeneratePasswordResetTokenAsync(user);

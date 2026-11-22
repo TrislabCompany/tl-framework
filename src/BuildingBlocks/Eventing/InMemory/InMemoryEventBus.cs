@@ -1,12 +1,12 @@
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Eventing.Inbox;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Eventing.Inbox;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 
-namespace FSH.Framework.Eventing.InMemory;
+namespace Trislab.Framework.Eventing.InMemory;
 
 /// <summary>
 /// In-memory event bus implementation used for single-process deployments.

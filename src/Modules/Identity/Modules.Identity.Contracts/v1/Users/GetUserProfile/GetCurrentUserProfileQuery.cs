@@ -1,6 +1,6 @@
-using FSH.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.DTOs;
 using Mediator;
 
-namespace FSH.Modules.Identity.Contracts.v1.Users.GetUserProfile;
+namespace Trislab.Modules.Identity.Contracts.v1.Users.GetUserProfile;
 
 public sealed record GetCurrentUserProfileQuery(string UserId) : IQuery<UserDto>;

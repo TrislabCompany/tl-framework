@@ -1,5 +1,5 @@
-using FSH.Modules.Identity.Domain;
-using FSH.Modules.Identity.Services;
+using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Identity.Services;
 
 namespace Identity.Tests.Services;
 
@@ -9,7 +9,7 @@ namespace Identity.Tests.Services;
 /// </summary>
 public sealed class CreateBasicClaimsTests
 {
-    private static FshUser User(string? locale) =>
+    private static TrislabUser User(string? locale) =>
         new() { Id = "u1", Email = "u@codefi.com.br", UserName = "u", FirstName = "First", LastName = "Last", Locale = locale };
 
     [Fact]

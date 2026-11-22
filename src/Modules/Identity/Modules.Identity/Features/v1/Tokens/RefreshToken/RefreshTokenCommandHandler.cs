@@ -1,15 +1,15 @@
-using FSH.Framework.Core.Context;
-using FSH.Modules.Auditing.Contracts;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Identity.Contracts.v1.Tokens.RefreshToken;
-using FSH.Modules.Identity.Localization;
+using Trislab.Framework.Core.Context;
+using Trislab.Modules.Auditing.Contracts;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Identity.Contracts.v1.Tokens.RefreshToken;
+using Trislab.Modules.Identity.Localization;
 using Mediator;
 using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace FSH.Modules.Identity.Features.v1.Tokens.RefreshToken;
+namespace Trislab.Modules.Identity.Features.v1.Tokens.RefreshToken;
 
 public sealed class RefreshTokenCommandHandler
     : ICommandHandler<RefreshTokenCommand, RefreshTokenCommandResponse>

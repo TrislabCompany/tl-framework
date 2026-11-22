@@ -1,9 +1,9 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Identity.Domain;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -46,7 +46,7 @@ public class IdentityDbContextModelTests
     {
         using var context = CreateContext();
 
-        var locale = context.Model.FindEntityType(typeof(FshUser))?.FindProperty(nameof(FshUser.Locale));
+        var locale = context.Model.FindEntityType(typeof(TrislabUser))?.FindProperty(nameof(TrislabUser.Locale));
 
         locale.ShouldNotBeNull();
         locale.GetMaxLength().ShouldBe(

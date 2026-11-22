@@ -1,6 +1,6 @@
 using System.Net;
-using FSH.Framework.Web.Origin;
-using FSH.Modules.Identity.Services;
+using Trislab.Framework.Web.Origin;
+using Trislab.Modules.Identity.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using NSubstitute;

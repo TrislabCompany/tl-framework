@@ -3,12 +3,12 @@ using Integration.Tests.Infrastructure;
 namespace Integration.Tests.Tests.Health;
 
 /// <summary>The endpoints the platform relies on: its probes, and the info the front ends' /api proxy reaches.</summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class PlatformProbesTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
 
-    public PlatformProbesTests(FshWebApplicationFactory factory)
+    public PlatformProbesTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
     }

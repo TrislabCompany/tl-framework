@@ -1,7 +1,7 @@
 using FluentValidation;
-using FSH.Modules.Billing.Contracts.v1.Subscriptions;
+using Trislab.Modules.Billing.Contracts.v1.Subscriptions;
 
-namespace FSH.Modules.Billing.Features.v1.Subscriptions.AssignSubscription;
+namespace Trislab.Modules.Billing.Features.v1.Subscriptions.AssignSubscription;
 
 public sealed class AssignSubscriptionCommandValidator : AbstractValidator<AssignSubscriptionCommand>
 {

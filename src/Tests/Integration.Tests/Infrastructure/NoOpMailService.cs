@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
-using FSH.Framework.Mailing;
-using FSH.Framework.Mailing.Services;
+using Trislab.Framework.Mailing;
+using Trislab.Framework.Mailing.Services;
 
 namespace Integration.Tests.Infrastructure;
 

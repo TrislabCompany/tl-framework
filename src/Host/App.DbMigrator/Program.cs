@@ -3,23 +3,23 @@ using System.Reflection;
 using Amazon.S3;
 using Amazon.S3.Util;
 using App.Api.Platform;
-using FSH.Framework.Eventing;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Web;
-using FSH.Framework.Web.Modules;
-using FSH.Modules.Auditing;
-using FSH.Modules.Billing;
-using FSH.Modules.Catalog;
-using FSH.Modules.Identity;
-using FSH.Modules.Identity.Contracts.v1.Tokens.TokenGeneration;
-using FSH.Modules.Identity.Features.v1.Tokens.TokenGeneration;
-using FSH.Modules.Multitenancy;
-using FSH.Modules.Multitenancy.Contracts;
-using FSH.Modules.Multitenancy.Contracts.v1.GetTenantStatus;
-using FSH.Modules.Multitenancy.Data;
-using FSH.Modules.Multitenancy.Features.v1.GetTenantStatus;
-using FSH.Modules.Tickets;
-using FSH.Modules.Webhooks;
+using Trislab.Framework.Eventing;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Web;
+using Trislab.Framework.Web.Modules;
+using Trislab.Modules.Auditing;
+using Trislab.Modules.Billing;
+using Trislab.Modules.Catalog;
+using Trislab.Modules.Identity;
+using Trislab.Modules.Identity.Contracts.v1.Tokens.TokenGeneration;
+using Trislab.Modules.Identity.Features.v1.Tokens.TokenGeneration;
+using Trislab.Modules.Multitenancy;
+using Trislab.Modules.Multitenancy.Contracts;
+using Trislab.Modules.Multitenancy.Contracts.v1.GetTenantStatus;
+using Trislab.Modules.Multitenancy.Data;
+using Trislab.Modules.Multitenancy.Features.v1.GetTenantStatus;
+using Trislab.Modules.Tickets;
+using Trislab.Modules.Webhooks;
 using App.DbMigrator;
 using App.DbMigrator.DemoSeed;
 using Finbuckle.MultiTenant.Abstractions;
@@ -91,22 +91,22 @@ builder.Services.AddMediator(o =>
         typeof(GenerateTokenCommandHandler),
         typeof(GetTenantStatusQuery),
         typeof(GetTenantStatusQueryHandler),
-        typeof(FSH.Modules.Auditing.Contracts.AuditEnvelope),
-        typeof(FSH.Modules.Auditing.Persistence.AuditDbContext),
-        typeof(FSH.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription.CreateWebhookSubscriptionCommand),
-        typeof(FSH.Modules.Webhooks.WebhooksModule),
-        typeof(FSH.Modules.Billing.Contracts.BillingContractsMarker),
-        typeof(FSH.Modules.Billing.BillingModule),
-        typeof(FSH.Modules.Catalog.Contracts.CatalogContractsMarker),
-        typeof(FSH.Modules.Catalog.CatalogModule),
-        typeof(FSH.Modules.Tickets.Contracts.TicketsContractsMarker),
-        typeof(FSH.Modules.Tickets.TicketsModule),
-        typeof(FSH.Modules.Files.Contracts.v1.Commands.RequestUploadUrlCommand),
-        typeof(FSH.Modules.Files.FilesModule),
-        typeof(FSH.Modules.Chat.Contracts.v1.Commands.CreateChannelCommand),
-        typeof(FSH.Modules.Chat.ChatModule),
-        typeof(FSH.Modules.Notifications.Contracts.v1.Commands.MarkNotificationReadCommand),
-        typeof(FSH.Modules.Notifications.NotificationsModule),
+        typeof(Trislab.Modules.Auditing.Contracts.AuditEnvelope),
+        typeof(Trislab.Modules.Auditing.Persistence.AuditDbContext),
+        typeof(Trislab.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription.CreateWebhookSubscriptionCommand),
+        typeof(Trislab.Modules.Webhooks.WebhooksModule),
+        typeof(Trislab.Modules.Billing.Contracts.BillingContractsMarker),
+        typeof(Trislab.Modules.Billing.BillingModule),
+        typeof(Trislab.Modules.Catalog.Contracts.CatalogContractsMarker),
+        typeof(Trislab.Modules.Catalog.CatalogModule),
+        typeof(Trislab.Modules.Tickets.Contracts.TicketsContractsMarker),
+        typeof(Trislab.Modules.Tickets.TicketsModule),
+        typeof(Trislab.Modules.Files.Contracts.v1.Commands.RequestUploadUrlCommand),
+        typeof(Trislab.Modules.Files.FilesModule),
+        typeof(Trislab.Modules.Chat.Contracts.v1.Commands.CreateChannelCommand),
+        typeof(Trislab.Modules.Chat.ChatModule),
+        typeof(Trislab.Modules.Notifications.Contracts.v1.Commands.MarkNotificationReadCommand),
+        typeof(Trislab.Modules.Notifications.NotificationsModule),
     ];
 });
 
@@ -115,18 +115,18 @@ var moduleAssemblies = new Assembly[]
     typeof(IdentityModule).Assembly,
     typeof(MultitenancyModule).Assembly,
     typeof(AuditingModule).Assembly,
-    typeof(FSH.Modules.Files.FilesModule).Assembly,
+    typeof(Trislab.Modules.Files.FilesModule).Assembly,
     typeof(WebhooksModule).Assembly,
     typeof(BillingModule).Assembly,
     typeof(CatalogModule).Assembly,
     typeof(TicketsModule).Assembly,
-    typeof(FSH.Modules.Chat.ChatModule).Assembly,
-    typeof(FSH.Modules.Notifications.NotificationsModule).Assembly,
+    typeof(Trislab.Modules.Chat.ChatModule).Assembly,
+    typeof(Trislab.Modules.Notifications.NotificationsModule).Assembly,
 };
 
 // Disable runtime-only concerns; persistence + multitenancy stay on so DbInitializers resolve. Caching
 // stays on because some modules' ctor wiring touches IDistributedCache (in-memory fallback if no Redis).
-builder.AddHeroPlatform(o =>
+builder.AddTrislabPlatform(o =>
 {
     o.EnableOpenTelemetry = false;
     o.EnableCors = false;
@@ -149,7 +149,7 @@ builder.AddModules(moduleAssemblies);
 
 // TenantProvisioningService needs IJobService, but Hangfire's is gated behind EnableJobs (off here).
 // Provide a throwing no-op so the DI graph resolves; the migration code paths don't enqueue jobs.
-builder.Services.AddSingleton<FSH.Framework.Jobs.Services.IJobService, NoOpJobService>();
+builder.Services.AddSingleton<Trislab.Framework.Jobs.Services.IJobService, NoOpJobService>();
 
 // Strip every BackgroundService (+ TenantStoreInitializerHostedService) before StartAsync: left running they
 // poll/write tables BEFORE Step 1/2 create them (42P01). StartupValidator + Serilog flush IHostedServices stay.

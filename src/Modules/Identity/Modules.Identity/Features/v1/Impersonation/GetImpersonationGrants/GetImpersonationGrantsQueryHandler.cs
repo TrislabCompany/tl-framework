@@ -1,12 +1,12 @@
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Impersonation;
-using FSH.Modules.Identity.Contracts.v1.Impersonation.GetImpersonationGrants;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Impersonation;
+using Trislab.Modules.Identity.Contracts.v1.Impersonation.GetImpersonationGrants;
 using Mediator;
 
-namespace FSH.Modules.Identity.Features.v1.Impersonation.GetImpersonationGrants;
+namespace Trislab.Modules.Identity.Features.v1.Impersonation.GetImpersonationGrants;
 
 public sealed class GetImpersonationGrantsQueryHandler(
     IImpersonationGrantService grantService,

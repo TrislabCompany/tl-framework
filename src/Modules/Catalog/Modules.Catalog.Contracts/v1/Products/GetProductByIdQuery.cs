@@ -1,6 +1,6 @@
-using FSH.Modules.Catalog.Contracts.Dtos;
+using Trislab.Modules.Catalog.Contracts.Dtos;
 using Mediator;
 
-namespace FSH.Modules.Catalog.Contracts.v1.Products;
+namespace Trislab.Modules.Catalog.Contracts.v1.Products;
 
 public sealed record GetProductByIdQuery(Guid ProductId) : IQuery<ProductDto>;

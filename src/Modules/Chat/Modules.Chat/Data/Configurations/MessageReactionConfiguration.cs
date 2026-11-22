@@ -1,8 +1,8 @@
-using FSH.Modules.Chat.Domain;
+using Trislab.Modules.Chat.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FSH.Modules.Chat.Data.Configurations;
+namespace Trislab.Modules.Chat.Data.Configurations;
 
 public sealed class MessageReactionConfiguration : IEntityTypeConfiguration<MessageReaction>
 {

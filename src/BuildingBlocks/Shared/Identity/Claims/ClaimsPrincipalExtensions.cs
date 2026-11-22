@@ -1,7 +1,7 @@
-﻿using FSH.Framework.Shared.Constants;
+﻿using Trislab.Framework.Shared.Constants;
 using System.Security.Claims;
 
-namespace FSH.Framework.Shared.Identity.Claims;
+namespace Trislab.Framework.Shared.Identity.Claims;
 
 public static class ClaimsPrincipalExtensions
 {

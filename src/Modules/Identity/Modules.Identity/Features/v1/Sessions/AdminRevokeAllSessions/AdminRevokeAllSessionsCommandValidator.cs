@@ -1,9 +1,9 @@
 using FluentValidation;
-using FSH.Framework.Core.Localization;
-using FSH.Modules.Identity.Contracts.v1.Sessions.AdminRevokeAllSessions;
+using Trislab.Framework.Core.Localization;
+using Trislab.Modules.Identity.Contracts.v1.Sessions.AdminRevokeAllSessions;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Identity.Features.v1.Sessions.AdminRevokeAllSessions;
+namespace Trislab.Modules.Identity.Features.v1.Sessions.AdminRevokeAllSessions;
 
 public sealed class AdminRevokeAllSessionsCommandValidator : AbstractValidator<AdminRevokeAllSessionsCommand>
 {

@@ -1,7 +1,7 @@
-using FSH.Framework.Persistence.Specifications;
+using Trislab.Framework.Persistence.Specifications;
 using System.Linq.Expressions;
 
-namespace FSH.Framework.Persistence;
+namespace Trislab.Framework.Persistence;
 
 /// <summary>
 /// Base specification that composes a query for <typeparamref name="T"/> and

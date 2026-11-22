@@ -1,10 +1,10 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Framework.Shared.Identity.Claims;
-using FSH.Modules.Identity.Contracts.Services;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Framework.Shared.Identity.Claims;
+using Trislab.Modules.Identity.Contracts.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 
-namespace FSH.Modules.Identity.Authorization;
+namespace Trislab.Modules.Identity.Authorization;
 
 public sealed class RequiredPermissionAuthorizationHandler(IUserService userService) : AuthorizationHandler<PermissionAuthorizationRequirement>
 {
@@ -21,7 +21,7 @@ public sealed class RequiredPermissionAuthorizationHandler(IUserService userServ
             _ => null,
         };
 
-        // IMPORTANT: resolve IRequiredPermissionMetadata from FSH.Framework.Shared.Identity.Authorization (the
+        // IMPORTANT: resolve IRequiredPermissionMetadata from Trislab.Framework.Shared.Identity.Authorization (the
         // interface the attribute implements) — a duplicate would silently fail-open every .RequirePermission().
         // Read every instance, not just the most specific one: a route group's .RequirePermission(A) and an
         // endpoint's .RequirePermission(B) are both gates, so the caller must hold the union of them (#1429).

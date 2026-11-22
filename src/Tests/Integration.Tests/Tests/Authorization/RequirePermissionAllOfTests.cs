@@ -1,7 +1,7 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Domain;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Domain;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Identity;
@@ -14,13 +14,13 @@ namespace Integration.Tests.Tests.Authorization;
 /// Probed through test-only endpoints from <see cref="TestPermissionEndpointStartupFilter"/>, because no
 /// production endpoint lists more than one permission or gates a group.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class RequirePermissionAllOfTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public RequirePermissionAllOfTests(FshWebApplicationFactory factory)
+    public RequirePermissionAllOfTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -161,8 +161,8 @@ public sealed class RequirePermissionAllOfTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<FshUser>>();
-        var user = new FshUser
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
+        var user = new TrislabUser
         {
             FirstName = "AllOf",
             LastName = "Probe",

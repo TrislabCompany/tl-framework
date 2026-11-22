@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace FSH.Modules.Identity.Contracts.DTOs;
+namespace Trislab.Modules.Identity.Contracts.DTOs;
 
 public class UserDto
 {

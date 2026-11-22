@@ -1,13 +1,13 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Webhooks.Contracts.v1.TestWebhookSubscription;
-using FSH.Modules.Webhooks.Data;
-using FSH.Modules.Webhooks.Localization;
-using FSH.Modules.Webhooks.Services;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Webhooks.Contracts.v1.TestWebhookSubscription;
+using Trislab.Modules.Webhooks.Data;
+using Trislab.Modules.Webhooks.Localization;
+using Trislab.Modules.Webhooks.Services;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
-namespace FSH.Modules.Webhooks.Features.v1.TestWebhookSubscription;
+namespace Trislab.Modules.Webhooks.Features.v1.TestWebhookSubscription;
 
 public sealed class TestWebhookSubscriptionCommandHandler(
     WebhookDbContext dbContext,

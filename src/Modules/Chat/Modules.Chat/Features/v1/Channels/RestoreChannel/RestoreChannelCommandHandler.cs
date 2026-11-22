@@ -1,11 +1,11 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Chat.Contracts.v1.Commands;
-using FSH.Modules.Chat.Data;
-using FSH.Modules.Chat.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Chat.Contracts.v1.Commands;
+using Trislab.Modules.Chat.Data;
+using Trislab.Modules.Chat.Localization;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Chat.Features.v1.Channels.RestoreChannel;
+namespace Trislab.Modules.Chat.Features.v1.Channels.RestoreChannel;
 
 public sealed class RestoreChannelCommandHandler(ChatDbContext db)
     : ICommandHandler<RestoreChannelCommand, Unit>

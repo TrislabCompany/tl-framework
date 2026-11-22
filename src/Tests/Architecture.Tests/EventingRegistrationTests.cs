@@ -1,6 +1,6 @@
-using FSH.Framework.Eventing;
-using FSH.Framework.Eventing.Inbox;
-using FSH.Framework.Eventing.Outbox;
+using Trislab.Framework.Eventing;
+using Trislab.Framework.Eventing.Inbox;
+using Trislab.Framework.Eventing.Outbox;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;

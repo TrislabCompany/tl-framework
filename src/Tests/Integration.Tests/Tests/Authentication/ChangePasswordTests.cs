@@ -1,7 +1,7 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Identity.Domain;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Identity.Domain;
 using Integration.Tests.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 
@@ -12,13 +12,13 @@ namespace Integration.Tests.Tests.Authentication;
 /// end-to-end (new password authenticates, old one is rejected) and that a wrong
 /// current password is refused without mutating anything.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class ChangePasswordTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public ChangePasswordTests(FshWebApplicationFactory factory)
+    public ChangePasswordTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -104,8 +104,8 @@ public sealed class ChangePasswordTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<FshUser>>();
-        var user = new FshUser
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
+        var user = new TrislabUser
         {
             FirstName = "Change",
             LastName = "User",

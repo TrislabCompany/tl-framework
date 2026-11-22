@@ -1,8 +1,8 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Multitenancy;
-using FSH.Modules.Multitenancy.Data;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Multitenancy;
+using Trislab.Modules.Multitenancy.Data;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Testcontainers.PostgreSql;
 
@@ -14,7 +14,7 @@ namespace Integration.Tests.Tests.Health;
 /// <c>Unhealthy</c> against an unmigrated database and <c>Healthy</c> after the schema is
 /// brought to head (the exact transition <c>App.DbMigrator</c> performs in production).
 /// Uses a real Postgres testcontainer + an in-memory <see cref="IMultiTenantStore{TTenantInfo}"/>
-/// to keep the test independent of the shared <c>FshWebApplicationFactory</c> — avoiding
+/// to keep the test independent of the shared <c>TrislabWebApplicationFactory</c> — avoiding
 /// the global Hangfire state that would otherwise leak across test classes.
 /// </summary>
 public sealed class TenantMigrationsHealthCheckTests : IAsyncLifetime

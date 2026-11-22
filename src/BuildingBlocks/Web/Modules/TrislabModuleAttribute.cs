@@ -1,9 +1,9 @@
 using System;
 
-namespace FSH.Framework.Web.Modules;
+namespace Trislab.Framework.Web.Modules;
 
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-public sealed class FshModuleAttribute : Attribute
+public sealed class TrislabModuleAttribute : Attribute
 {
     public Type ModuleType { get; }
 
@@ -13,7 +13,7 @@ public sealed class FshModuleAttribute : Attribute
     /// </summary>
     public int Order { get; }
 
-    public FshModuleAttribute(Type moduleType, int order = 0)
+    public TrislabModuleAttribute(Type moduleType, int order = 0)
     {
         ModuleType = moduleType ?? throw new ArgumentNullException(nameof(moduleType));
         Order = order;

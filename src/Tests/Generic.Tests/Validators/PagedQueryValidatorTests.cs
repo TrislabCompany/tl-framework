@@ -1,9 +1,9 @@
-using FSH.Framework.Core.Localization;
-using FSH.Modules.Auditing.Contracts.v1.GetAudits;
-using FSH.Modules.Auditing.Features.v1.GetAudits;
-using FSH.Modules.Auditing.Localization;
-using FSH.Modules.Identity.Contracts.v1.Users.SearchUsers;
-using FSH.Modules.Identity.Features.v1.Users.SearchUsers;
+using Trislab.Framework.Core.Localization;
+using Trislab.Modules.Auditing.Contracts.v1.GetAudits;
+using Trislab.Modules.Auditing.Features.v1.GetAudits;
+using Trislab.Modules.Auditing.Localization;
+using Trislab.Modules.Identity.Contracts.v1.Users.SearchUsers;
+using Trislab.Modules.Identity.Features.v1.Users.SearchUsers;
 using Generic.Tests.Support;
 using Microsoft.Extensions.Localization;
 

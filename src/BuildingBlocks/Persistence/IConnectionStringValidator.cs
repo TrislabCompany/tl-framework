@@ -1,4 +1,4 @@
-﻿namespace FSH.Framework.Persistence;
+﻿namespace Trislab.Framework.Persistence;
 
 /// <summary>
 /// Interface for validating database connection strings.

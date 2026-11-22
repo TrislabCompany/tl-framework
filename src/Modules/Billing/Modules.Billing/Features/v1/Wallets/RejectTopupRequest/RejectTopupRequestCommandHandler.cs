@@ -1,15 +1,15 @@
 using System.Net;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Billing.Contracts;
-using FSH.Modules.Billing.Contracts.v1.Wallets;
-using FSH.Modules.Billing.Data;
-using FSH.Modules.Billing.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Billing.Contracts;
+using Trislab.Modules.Billing.Contracts.v1.Wallets;
+using Trislab.Modules.Billing.Data;
+using Trislab.Modules.Billing.Localization;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Billing.Features.v1.Wallets.RejectTopupRequest;
+namespace Trislab.Modules.Billing.Features.v1.Wallets.RejectTopupRequest;
 
 public sealed class RejectTopupRequestCommandHandler(
     BillingDbContext db,

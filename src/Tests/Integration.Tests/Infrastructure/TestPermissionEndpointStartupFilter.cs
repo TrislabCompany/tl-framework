@@ -1,5 +1,5 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Modules.Identity.Contracts.Authorization;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Modules.Identity.Contracts.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

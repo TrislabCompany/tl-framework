@@ -1,10 +1,10 @@
 using FluentValidation;
-using FSH.Framework.Core.Localization;
-using FSH.Framework.Web.Validation;
-using FSH.Modules.Identity.Contracts.v1.Users.SearchUsers;
+using Trislab.Framework.Core.Localization;
+using Trislab.Framework.Web.Validation;
+using Trislab.Modules.Identity.Contracts.v1.Users.SearchUsers;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Identity.Features.v1.Users.SearchUsers;
+namespace Trislab.Modules.Identity.Features.v1.Users.SearchUsers;
 
 public sealed class SearchUsersQueryValidator : AbstractValidator<SearchUsersQuery>
 {

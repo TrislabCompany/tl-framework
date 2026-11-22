@@ -1,11 +1,11 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Tickets.Contracts.v1.Tickets;
-using FSH.Modules.Tickets.Localization;
-using FSH.Modules.Tickets.Data;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Tickets.Contracts.v1.Tickets;
+using Trislab.Modules.Tickets.Localization;
+using Trislab.Modules.Tickets.Data;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Tickets.Features.v1.Tickets.CloseTicket;
+namespace Trislab.Modules.Tickets.Features.v1.Tickets.CloseTicket;
 
 public sealed class CloseTicketCommandHandler(TicketsDbContext dbContext)
     : ICommandHandler<CloseTicketCommand, Guid>

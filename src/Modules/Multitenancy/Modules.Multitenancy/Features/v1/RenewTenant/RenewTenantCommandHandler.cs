@@ -1,12 +1,12 @@
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Modules.Billing.Contracts.v1.Plans;
-using FSH.Modules.Multitenancy.Contracts;
-using FSH.Modules.Multitenancy.Contracts.Events;
-using FSH.Modules.Multitenancy.Contracts.v1.RenewTenant;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Modules.Billing.Contracts.v1.Plans;
+using Trislab.Modules.Multitenancy.Contracts;
+using Trislab.Modules.Multitenancy.Contracts.Events;
+using Trislab.Modules.Multitenancy.Contracts.v1.RenewTenant;
 using Mediator;
 using Microsoft.Extensions.Options;
 
-namespace FSH.Modules.Multitenancy.Features.v1.RenewTenant;
+namespace Trislab.Modules.Multitenancy.Features.v1.RenewTenant;
 
 public sealed class RenewTenantCommandHandler(
     ITenantService tenantService,

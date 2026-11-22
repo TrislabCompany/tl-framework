@@ -1,7 +1,7 @@
 using FluentValidation;
-using FSH.Modules.Chat.Contracts.v1.Queries;
+using Trislab.Modules.Chat.Contracts.v1.Queries;
 
-namespace FSH.Modules.Chat.Features.v1.Channels.ListMyChannels;
+namespace Trislab.Modules.Chat.Features.v1.Channels.ListMyChannels;
 
 public sealed class ListMyChannelsQueryValidator : AbstractValidator<ListMyChannelsQuery>
 {

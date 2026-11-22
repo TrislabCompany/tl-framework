@@ -1,8 +1,8 @@
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Quota;
+using Trislab.Framework.Shared.Quota;
 using System.Diagnostics.CodeAnalysis;
 
-namespace FSH.Framework.Shared.Multitenancy;
+namespace Trislab.Framework.Shared.Multitenancy;
 
 public class AppTenantInfo : TenantInfo, IAppTenantInfo
 {

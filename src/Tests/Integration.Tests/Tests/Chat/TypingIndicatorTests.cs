@@ -1,9 +1,9 @@
 using System.Net.Http.Json;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Chat.Contracts.v1.DTOs;
-using FSH.Modules.Identity.Domain;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Chat.Contracts.v1.DTOs;
+using Trislab.Modules.Identity.Domain;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Identity;
@@ -12,17 +12,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Integration.Tests.Tests.Chat;
 
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class TypingIndicatorTests
 {
     private const string ChatBasePath = "/api/v1/chat";
     private const string HubPath = "/api/v1/realtime/hub";
     private static readonly TimeSpan EventTimeout = TimeSpan.FromSeconds(5);
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public TypingIndicatorTests(FshWebApplicationFactory factory)
+    public TypingIndicatorTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -170,7 +170,7 @@ public sealed class TypingIndicatorTests
             .GetAsync(TestConstants.RootTenantId);
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
             new MultiTenantContext<AppTenantInfo>(tenant);
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<FshUser>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
         var user = await userManager.FindByIdAsync(registered.UserId);
         user.ShouldNotBeNull();
         if (!user.EmailConfirmed)

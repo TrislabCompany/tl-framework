@@ -1,15 +1,15 @@
 using Asp.Versioning;
-using FSH.Framework.Persistence;
-using FSH.Framework.Web.Modules;
-using FSH.Modules.Auditing.Contracts;
-using FSH.Modules.Auditing.Features.v1.GetAuditById;
-using FSH.Modules.Auditing.Features.v1.GetAudits;
-using FSH.Modules.Auditing.Features.v1.GetAuditsByCorrelation;
-using FSH.Modules.Auditing.Features.v1.GetAuditsByTrace;
-using FSH.Modules.Auditing.Features.v1.GetAuditSummary;
-using FSH.Modules.Auditing.Features.v1.GetExceptionAudits;
-using FSH.Modules.Auditing.Features.v1.GetSecurityAudits;
-using FSH.Modules.Auditing.Persistence;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Web.Modules;
+using Trislab.Modules.Auditing.Contracts;
+using Trislab.Modules.Auditing.Features.v1.GetAuditById;
+using Trislab.Modules.Auditing.Features.v1.GetAudits;
+using Trislab.Modules.Auditing.Features.v1.GetAuditsByCorrelation;
+using Trislab.Modules.Auditing.Features.v1.GetAuditsByTrace;
+using Trislab.Modules.Auditing.Features.v1.GetAuditSummary;
+using Trislab.Modules.Auditing.Features.v1.GetExceptionAudits;
+using Trislab.Modules.Auditing.Features.v1.GetSecurityAudits;
+using Trislab.Modules.Auditing.Persistence;
 using Hangfire;
 using Hangfire.Common;
 using Microsoft.AspNetCore.Builder;
@@ -22,7 +22,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 
-namespace FSH.Modules.Auditing;
+namespace Trislab.Modules.Auditing;
 
 public class AuditingModule : IModule
 {
@@ -30,8 +30,8 @@ public class AuditingModule : IModule
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        FSH.Framework.Shared.Constants.PermissionConstants.Register(
-            FSH.Modules.Auditing.Contracts.Authorization.AuditingPermissions.All);
+        Trislab.Framework.Shared.Constants.PermissionConstants.Register(
+            Trislab.Modules.Auditing.Contracts.Authorization.AuditingPermissions.All);
 
         var httpOpts = builder.Configuration.GetSection("Auditing").Get<AuditHttpOptions>() ?? new AuditHttpOptions();
         builder.Services.AddSingleton(httpOpts);
@@ -42,7 +42,7 @@ public class AuditingModule : IModule
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<IAuditClient, DefaultAuditClient>();
         builder.Services.AddScoped<ISecurityAudit, SecurityAudit>();
-        builder.Services.AddHeroDbContext<AuditDbContext>();
+        builder.Services.AddTrislabDbContext<AuditDbContext>();
         builder.Services.AddScoped<IDbInitializer, AuditDbInitializer>();
         builder.Services.AddSingleton<IAuditSerializer, SystemTextJsonAuditSerializer>();
         builder.Services.AddHealthChecks()

@@ -1,4 +1,4 @@
-using FSH.Modules.Chat.Localization;
+using Trislab.Modules.Chat.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 

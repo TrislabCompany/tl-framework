@@ -1,5 +1,5 @@
-using FSH.Modules.Billing.Contracts;
-using FSH.Modules.Billing.Domain;
+using Trislab.Modules.Billing.Contracts;
+using Trislab.Modules.Billing.Domain;
 using Shouldly;
 using Xunit;
 

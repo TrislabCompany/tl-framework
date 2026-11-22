@@ -1,8 +1,8 @@
-using FSH.Framework.Shared.Storage;
+using Trislab.Framework.Shared.Storage;
 using Mediator;
 using System.Text.Json.Serialization;
 
-namespace FSH.Modules.Identity.Contracts.v1.Users.UpdateUser;
+namespace Trislab.Modules.Identity.Contracts.v1.Users.UpdateUser;
 
 public class UpdateUserCommand : ICommand<Unit>
 {

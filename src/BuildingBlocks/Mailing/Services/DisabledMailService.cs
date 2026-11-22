@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Framework.Mailing.Services;
+namespace Trislab.Framework.Mailing.Services;
 
 /// <summary>
 /// Used when mail is off: no SMTP password (SMTP_PASSWORD in a stamp) and no SendGrid.

@@ -1,15 +1,15 @@
 using System.Collections.ObjectModel;
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Persistence;
-using FSH.Modules.Notifications.Contracts.v1.DTOs;
-using FSH.Modules.Notifications.Contracts.v1.Queries;
-using FSH.Modules.Notifications.Data;
-using FSH.Modules.Notifications.Features.v1.Internal;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Persistence;
+using Trislab.Modules.Notifications.Contracts.v1.DTOs;
+using Trislab.Modules.Notifications.Contracts.v1.Queries;
+using Trislab.Modules.Notifications.Data;
+using Trislab.Modules.Notifications.Features.v1.Internal;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Notifications.Features.v1.ListNotifications;
+namespace Trislab.Modules.Notifications.Features.v1.ListNotifications;
 
 public sealed class ListNotificationsQueryHandler(
     NotificationsDbContext db,

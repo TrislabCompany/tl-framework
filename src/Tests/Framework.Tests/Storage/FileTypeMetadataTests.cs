@@ -1,4 +1,4 @@
-using FSH.Framework.Storage;
+using Trislab.Framework.Storage;
 
 namespace Framework.Tests.Storage;
 

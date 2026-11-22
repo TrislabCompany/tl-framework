@@ -1,10 +1,10 @@
-using FSH.Framework.Eventing.Abstractions;
+using Trislab.Framework.Eventing.Abstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using System.Text;
 
-namespace FSH.Framework.Eventing.RabbitMq;
+namespace Trislab.Framework.Eventing.RabbitMq;
 
 /// <summary>
 /// RabbitMQ-based event bus implementation for distributed deployments.

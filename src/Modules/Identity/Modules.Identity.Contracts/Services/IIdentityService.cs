@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace FSH.Modules.Identity.Contracts.Services;
+namespace Trislab.Modules.Identity.Contracts.Services;
 
 public interface IIdentityService
 {

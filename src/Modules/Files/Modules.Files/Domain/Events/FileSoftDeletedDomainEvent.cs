@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Domain;
+using Trislab.Framework.Core.Domain;
 
-namespace FSH.Modules.Files.Domain.Events;
+namespace Trislab.Modules.Files.Domain.Events;
 
 public sealed record FileSoftDeletedDomainEvent(
     Guid FileAssetId,

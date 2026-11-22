@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
-using FSH.Framework.Mailing;
-using FSH.Framework.Mailing.Services;
-using FSH.Modules.Notifications.IntegrationEventHandlers;
+using Trislab.Framework.Mailing;
+using Trislab.Framework.Mailing.Services;
+using Trislab.Modules.Notifications.IntegrationEventHandlers;
 using Microsoft.Extensions.Logging;
 
 namespace Notifications.Tests.IntegrationEventHandlers;

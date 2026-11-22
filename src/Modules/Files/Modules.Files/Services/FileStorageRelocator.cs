@@ -1,17 +1,17 @@
 using System.Diagnostics;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Storage.Services;
-using FSH.Modules.Files.Contracts.Events;
-using FSH.Modules.Files.Contracts.v1.DTOs;
-using FSH.Modules.Files.Data;
-using FSH.Modules.Files.Domain;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Storage.Services;
+using Trislab.Modules.Files.Contracts.Events;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Modules.Files.Data;
+using Trislab.Modules.Files.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Modules.Files.Services;
+namespace Trislab.Modules.Files.Services;
 
 /// <summary>
 /// Changes a <see cref="FileAsset"/> and, when its object is no longer under the storage root for its

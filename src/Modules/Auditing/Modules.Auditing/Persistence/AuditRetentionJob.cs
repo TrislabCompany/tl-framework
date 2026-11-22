@@ -1,12 +1,12 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Auditing.Contracts;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Auditing.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Modules.Auditing.Persistence;
+namespace Trislab.Modules.Auditing.Persistence;
 
 /// <summary>
 /// Daily Hangfire job that prunes the audit table per

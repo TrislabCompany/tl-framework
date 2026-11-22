@@ -1,9 +1,9 @@
 using FluentValidation;
-using FSH.Modules.Auditing.Contracts.v1.GetAuditsByTrace;
-using FSH.Modules.Auditing.Localization;
+using Trislab.Modules.Auditing.Contracts.v1.GetAuditsByTrace;
+using Trislab.Modules.Auditing.Localization;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Auditing.Features.v1.GetAuditsByTrace;
+namespace Trislab.Modules.Auditing.Features.v1.GetAuditsByTrace;
 
 public sealed class GetAuditsByTraceQueryValidator : AbstractValidator<GetAuditsByTraceQuery>
 {

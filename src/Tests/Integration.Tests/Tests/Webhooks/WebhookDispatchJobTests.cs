@@ -1,9 +1,9 @@
 using System.Reflection;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Webhooks.Data;
-using FSH.Modules.Webhooks.Services;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Webhooks.Data;
+using Trislab.Modules.Webhooks.Services;
 using Hangfire;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
@@ -13,13 +13,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Integration.Tests.Tests.Webhooks;
 
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class WebhookDispatchJobTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public WebhookDispatchJobTests(FshWebApplicationFactory factory)
+    public WebhookDispatchJobTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

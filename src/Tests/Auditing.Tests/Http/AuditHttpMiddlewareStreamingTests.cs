@@ -1,5 +1,5 @@
-using FSH.Modules.Auditing;
-using FSH.Modules.Auditing.Contracts;
+using Trislab.Modules.Auditing;
+using Trislab.Modules.Auditing.Contracts;
 using Microsoft.AspNetCore.Http;
 
 namespace Auditing.Tests.Http;

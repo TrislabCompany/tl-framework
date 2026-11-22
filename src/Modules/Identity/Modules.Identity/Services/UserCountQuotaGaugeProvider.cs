@@ -1,11 +1,11 @@
-using FSH.Framework.Quota;
-using FSH.Framework.Shared.Quota;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Identity.Domain;
+using Trislab.Framework.Quota;
+using Trislab.Framework.Shared.Quota;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Identity.Services;
+namespace Trislab.Modules.Identity.Services;
 
 /// <summary>
 /// Reports the live user count for a tenant as a quota gauge. Uses the tenant-scoped
@@ -15,9 +15,9 @@ namespace FSH.Modules.Identity.Services;
 /// </summary>
 internal sealed class UserCountQuotaGaugeProvider : IQuotaGaugeProvider
 {
-    private readonly UserManager<FshUser> _userManager;
+    private readonly UserManager<TrislabUser> _userManager;
 
-    public UserCountQuotaGaugeProvider(UserManager<FshUser> userManager)
+    public UserCountQuotaGaugeProvider(UserManager<TrislabUser> userManager)
     {
         ArgumentNullException.ThrowIfNull(userManager);
         _userManager = userManager;

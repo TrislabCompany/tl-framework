@@ -1,7 +1,7 @@
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace FSH.Framework.Persistence;
+namespace Trislab.Framework.Persistence;
 
 /// <summary>
 /// Tracks the open transaction on each connection in the current DI scope.

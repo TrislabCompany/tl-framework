@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace FSH.Framework.Jobs;
+namespace Trislab.Framework.Jobs;
 
 public sealed class HangfireOptions
 {

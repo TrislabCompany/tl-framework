@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace FSH.Framework.Storage;
+namespace Trislab.Framework.Storage;
 
 /// <summary>
 /// The key layout <see cref="Services.IStorageService.UploadAsync{T}"/> writes —

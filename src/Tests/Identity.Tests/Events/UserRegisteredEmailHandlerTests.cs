@@ -1,7 +1,7 @@
-using FSH.Framework.Mailing;
-using FSH.Framework.Mailing.Services;
-using FSH.Modules.Identity.Contracts.Events;
-using FSH.Modules.Identity.Events;
+using Trislab.Framework.Mailing;
+using Trislab.Framework.Mailing.Services;
+using Trislab.Modules.Identity.Contracts.Events;
+using Trislab.Modules.Identity.Events;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 

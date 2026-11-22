@@ -2,13 +2,13 @@ using Integration.Tests.Infrastructure;
 
 namespace Integration.Tests.Tests.Auditing;
 
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class AuditTrailTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public AuditTrailTests(FshWebApplicationFactory factory)
+    public AuditTrailTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

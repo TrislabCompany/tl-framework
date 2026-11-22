@@ -1,13 +1,13 @@
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Storage;
-using FSH.Framework.Storage;
-using FSH.Framework.Storage.Services;
-using FSH.Modules.Identity.Contracts.DTOs;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Domain;
-using FSH.Modules.Identity.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Storage;
+using Trislab.Framework.Storage;
+using Trislab.Framework.Storage.Services;
+using Trislab.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Identity.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
@@ -15,11 +15,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace FSH.Modules.Identity.Services;
+namespace Trislab.Modules.Identity.Services;
 
 internal sealed class UserProfileService(
-    UserManager<FshUser> userManager,
-    SignInManager<FshUser> signInManager,
+    UserManager<TrislabUser> userManager,
+    SignInManager<TrislabUser> signInManager,
     IStorageService storageService,
     IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
     IRequestContextService requestContext,
@@ -99,7 +99,7 @@ internal sealed class UserProfileService(
         // dereferencing Data or the common no-image update path NREs.
         if (image?.Data != null)
         {
-            var imageString = await storageService.UploadAsync<FshUser>(image, FileType.Image, cancellationToken);
+            var imageString = await storageService.UploadAsync<TrislabUser>(image, FileType.Image, cancellationToken);
             user.ImageUrl = new Uri(imageString, UriKind.RelativeOrAbsolute);
             if (deleteCurrentImage && imageUri != null)
             {
@@ -153,7 +153,7 @@ internal sealed class UserProfileService(
         // ImageUrl is also settable through SetImageUrlAsync, so the previous value may be a URL the
         // client chose. Only an avatar this service uploaded itself is ours to delete; anything else
         // (a Files-module object, an external URL, a crafted path) is left alone.
-        if (replacedBlob is not null && StorageUploadKeys.IsUploadOf<FshUser>(replacedBlob))
+        if (replacedBlob is not null && StorageUploadKeys.IsUploadOf<TrislabUser>(replacedBlob))
         {
             await storageService.RemoveAsync(replacedBlob, cancellationToken);
         }
@@ -161,7 +161,7 @@ internal sealed class UserProfileService(
         await signInManager.RefreshSignInAsync(user);
     }
 
-    private static void EnsureProfileUnchanged(FshUser user, IReadOnlyList<string>? expectedConcurrencyStamps)
+    private static void EnsureProfileUnchanged(TrislabUser user, IReadOnlyList<string>? expectedConcurrencyStamps)
     {
         // A null list means the caller sent no If-Match and accepts the stored version as-is.
         // ponytail: keep the precondition optional for backward compatibility; a future major can
@@ -184,7 +184,7 @@ internal sealed class UserProfileService(
     // plain hash of name plus phone is brute-forceable over the small phone-number space.
     // ponytail: the stamp also rotates on a password or 2FA change, so those move the tag too;
     // swap for a server-wide HMAC key if that ever needs to stop.
-    private static string ComputeProfileVersion(FshUser user) =>
+    private static string ComputeProfileVersion(TrislabUser user) =>
         Convert.ToHexStringLower(HMACSHA256.HashData(
             Encoding.UTF8.GetBytes(user.SecurityStamp ?? string.Empty),
             JsonSerializer.SerializeToUtf8Bytes(
@@ -206,7 +206,7 @@ internal sealed class UserProfileService(
         // A client may point its avatar at any image URL, but not adopt an object UploadAsync created:
         // the next "delete current image" would then remove it, which is how a user could delete another
         // user's avatar. Re-sending the avatar it already has is fine.
-        if (StorageUploadKeys.IsUploadOf<FshUser>(imageUrl)
+        if (StorageUploadKeys.IsUploadOf<TrislabUser>(imageUrl)
             && !string.Equals(imageUrl, user.ImageUrl?.OriginalString, StringComparison.Ordinal))
         {
             throw new CustomException("Profile image URL not allowed", (IEnumerable<string>?)null, HttpStatusCode.BadRequest)
@@ -230,7 +230,7 @@ internal sealed class UserProfileService(
     public async Task<bool> ExistsWithEmailAsync(string email, string? exceptId = null, CancellationToken cancellationToken = default)
     {
         EnsureValidTenant();
-        return await userManager.FindByEmailAsync(email.Normalize()) is FshUser user && user.Id != exceptId;
+        return await userManager.FindByEmailAsync(email.Normalize()) is TrislabUser user && user.Id != exceptId;
     }
 
     public async Task<bool> ExistsWithNameAsync(string name, CancellationToken cancellationToken = default)
@@ -242,7 +242,7 @@ internal sealed class UserProfileService(
     public async Task<bool> ExistsWithPhoneNumberAsync(string phoneNumber, string? exceptId = null, CancellationToken cancellationToken = default)
     {
         EnsureValidTenant();
-        return await userManager.Users.FirstOrDefaultAsync(x => x.PhoneNumber == phoneNumber, cancellationToken) is FshUser user && user.Id != exceptId;
+        return await userManager.Users.FirstOrDefaultAsync(x => x.PhoneNumber == phoneNumber, cancellationToken) is TrislabUser user && user.Id != exceptId;
     }
 
     private void EnsureValidTenant()

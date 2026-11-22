@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
-using FSH.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Multitenancy;
 
-namespace FSH.Modules.Multitenancy.Services;
+namespace Trislab.Modules.Multitenancy.Services;
 
 internal sealed class TenantInitialPasswordBuffer : ITenantInitialPasswordBuffer
 {

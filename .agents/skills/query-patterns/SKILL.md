@@ -8,7 +8,7 @@ user-invocable: false
 
 The dominant pattern is **raw `IQueryable` on the module DbContext** (`AsNoTracking`) with manual
 pagination. There is **no generic repository** and **no `PaginatedListAsync`/`EntitiesByPaginationFilterSpec`/
-`PaginationFilter`**. Paged results are `PagedResponse<T>` (`FSH.Framework.Shared.Persistence`) — there is no `PagedList<T>`.
+`PaginationFilter`**. Paged results are `PagedResponse<T>` (`Trislab.Framework.Shared.Persistence`) — there is no `PagedList<T>`.
 
 ## Paginated search query
 

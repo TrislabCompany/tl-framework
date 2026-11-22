@@ -1,6 +1,6 @@
-using FSH.Framework.Shared.Quota;
+using Trislab.Framework.Shared.Quota;
 
-namespace FSH.Modules.Billing.Contracts.Dtos;
+namespace Trislab.Modules.Billing.Contracts.Dtos;
 
 public sealed record UsageSnapshotDto(
     Guid Id,

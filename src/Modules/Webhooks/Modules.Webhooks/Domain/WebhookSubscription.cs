@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Domain;
+using Trislab.Framework.Core.Domain;
 
-namespace FSH.Modules.Webhooks.Domain;
+namespace Trislab.Modules.Webhooks.Domain;
 
 public sealed class WebhookSubscription : BaseEntity<Guid>
 {

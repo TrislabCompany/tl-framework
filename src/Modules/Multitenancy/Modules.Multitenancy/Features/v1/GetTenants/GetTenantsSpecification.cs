@@ -1,11 +1,11 @@
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Multitenancy.Contracts.Authorization;
-using FSH.Modules.Multitenancy.Contracts.Dtos;
-using FSH.Modules.Multitenancy.Contracts.v1.GetTenants;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Multitenancy.Contracts.Authorization;
+using Trislab.Modules.Multitenancy.Contracts.Dtos;
+using Trislab.Modules.Multitenancy.Contracts.v1.GetTenants;
 using System.Linq.Expressions;
 
-namespace FSH.Modules.Multitenancy.Features.v1.GetTenants;
+namespace Trislab.Modules.Multitenancy.Features.v1.GetTenants;
 
 internal sealed class GetTenantsSpecification : Specification<AppTenantInfo, TenantDto>
 {

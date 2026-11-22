@@ -1,14 +1,14 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Multitenancy.Contracts.Authorization;
-using FSH.Modules.Multitenancy.Contracts.Dtos;
-using FSH.Modules.Multitenancy.Contracts.v1.GetTenantStatus;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Multitenancy.Contracts.Authorization;
+using Trislab.Modules.Multitenancy.Contracts.Dtos;
+using Trislab.Modules.Multitenancy.Contracts.v1.GetTenantStatus;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Multitenancy.Features.v1.GetTenantStatus;
+namespace Trislab.Modules.Multitenancy.Features.v1.GetTenantStatus;
 
 public static class GetTenantStatusEndpoint
 {

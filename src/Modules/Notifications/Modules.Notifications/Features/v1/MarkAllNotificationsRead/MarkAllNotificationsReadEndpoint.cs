@@ -1,12 +1,12 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Modules.Notifications.Contracts.Authorization;
-using FSH.Modules.Notifications.Contracts.v1.Commands;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Modules.Notifications.Contracts.Authorization;
+using Trislab.Modules.Notifications.Contracts.v1.Commands;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Notifications.Features.v1.MarkAllNotificationsRead;
+namespace Trislab.Modules.Notifications.Features.v1.MarkAllNotificationsRead;
 
 public static class MarkAllNotificationsReadEndpoint
 {

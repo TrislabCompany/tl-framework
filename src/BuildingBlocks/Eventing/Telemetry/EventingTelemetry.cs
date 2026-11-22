@@ -1,6 +1,6 @@
 using System.Diagnostics.Metrics;
 
-namespace FSH.Framework.Eventing.Telemetry;
+namespace Trislab.Framework.Eventing.Telemetry;
 
 /// <summary>
 /// OpenTelemetry metrics for the eventing building block. Register with

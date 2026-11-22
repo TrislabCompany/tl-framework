@@ -1,7 +1,7 @@
 using AutoFixture;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Users.ToggleUserStatus;
-using FSH.Modules.Identity.Features.v1.Users.ToggleUserStatus;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Users.ToggleUserStatus;
+using Trislab.Modules.Identity.Features.v1.Users.ToggleUserStatus;
 using NSubstitute;
 using Shouldly;
 using Xunit;

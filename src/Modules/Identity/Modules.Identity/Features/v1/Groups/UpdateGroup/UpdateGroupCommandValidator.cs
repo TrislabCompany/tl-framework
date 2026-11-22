@@ -1,9 +1,9 @@
 using FluentValidation;
-using FSH.Framework.Core.Localization;
-using FSH.Modules.Identity.Contracts.v1.Groups.UpdateGroup;
+using Trislab.Framework.Core.Localization;
+using Trislab.Modules.Identity.Contracts.v1.Groups.UpdateGroup;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Identity.Features.v1.Groups.UpdateGroup;
+namespace Trislab.Modules.Identity.Features.v1.Groups.UpdateGroup;
 
 public sealed class UpdateGroupCommandValidator : AbstractValidator<UpdateGroupCommand>
 {

@@ -1,13 +1,13 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Modules.Identity.Contracts.Authorization;
-using FSH.Modules.Identity.Contracts.DTOs;
-using FSH.Modules.Identity.Contracts.v1.Permissions.GetPermissionCatalog;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Modules.Identity.Contracts.Authorization;
+using Trislab.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.v1.Permissions.GetPermissionCatalog;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Identity.Features.v1.Permissions.GetPermissionCatalog;
+namespace Trislab.Modules.Identity.Features.v1.Permissions.GetPermissionCatalog;
 
 public static class GetPermissionCatalogEndpoint
 {

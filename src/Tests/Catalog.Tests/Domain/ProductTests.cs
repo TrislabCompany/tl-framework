@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Domain;
-using FSH.Modules.Catalog.Domain;
-using FSH.Modules.Catalog.Domain.Events;
+using Trislab.Framework.Core.Domain;
+using Trislab.Modules.Catalog.Domain;
+using Trislab.Modules.Catalog.Domain.Events;
 
 namespace Catalog.Tests.Domain;
 

@@ -1,6 +1,6 @@
-using FSH.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Constants;
 
-namespace FSH.Modules.Multitenancy.Contracts.Authorization;
+namespace Trislab.Modules.Multitenancy.Contracts.Authorization;
 
 public static class MultitenancyPermissions
 {
@@ -15,7 +15,7 @@ public static class MultitenancyPermissions
         public const string UpdateTheme         = $"Permissions.{Resource}.UpdateTheme";
     }
 
-    public static IReadOnlyList<FshPermission> All { get; } =
+    public static IReadOnlyList<TrislabPermission> All { get; } =
     [
         new("View Tenants",               ActionConstants.View,                Tenants.Resource, IsRoot: true),
         new("Create Tenants",             ActionConstants.Create,              Tenants.Resource, IsRoot: true),

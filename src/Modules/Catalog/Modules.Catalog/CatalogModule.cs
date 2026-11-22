@@ -1,40 +1,40 @@
 using Asp.Versioning;
-using FSH.Framework.Eventing;
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Web.Modules;
-using FSH.Modules.Catalog.Authorization;
-using FSH.Modules.Catalog.Contracts.Authorization;
-using FSH.Modules.Catalog.Data;
-using FSH.Modules.Files.Contracts;
-using FSH.Modules.Catalog.Features.v1.Brands.CreateBrand;
-using FSH.Modules.Catalog.Features.v1.Brands.DeleteBrand;
-using FSH.Modules.Catalog.Features.v1.Brands.GetBrandById;
-using FSH.Modules.Catalog.Features.v1.Brands.ListTrashedBrands;
-using FSH.Modules.Catalog.Features.v1.Brands.RestoreBrand;
-using FSH.Modules.Catalog.Features.v1.Brands.SearchBrands;
-using FSH.Modules.Catalog.Features.v1.Brands.UpdateBrand;
-using FSH.Modules.Catalog.Features.v1.Categories.CreateCategory;
-using FSH.Modules.Catalog.Features.v1.Categories.DeleteCategory;
-using FSH.Modules.Catalog.Features.v1.Categories.GetCategoryById;
-using FSH.Modules.Catalog.Features.v1.Categories.GetCategoryTree;
-using FSH.Modules.Catalog.Features.v1.Categories.ListTrashedCategories;
-using FSH.Modules.Catalog.Features.v1.Categories.RestoreCategory;
-using FSH.Modules.Catalog.Features.v1.Categories.SearchCategories;
-using FSH.Modules.Catalog.Features.v1.Categories.UpdateCategory;
-using FSH.Modules.Catalog.Features.v1.Products.AddProductImage;
-using FSH.Modules.Catalog.Features.v1.Products.AdjustProductStock;
-using FSH.Modules.Catalog.Features.v1.Products.ChangeProductPrice;
-using FSH.Modules.Catalog.Features.v1.Products.CreateProduct;
-using FSH.Modules.Catalog.Features.v1.Products.DeleteProduct;
-using FSH.Modules.Catalog.Features.v1.Products.GetProductById;
-using FSH.Modules.Catalog.Features.v1.Products.ListTrashedProducts;
-using FSH.Modules.Catalog.Features.v1.Products.RemoveProductImage;
-using FSH.Modules.Catalog.Features.v1.Products.ReorderProductImages;
-using FSH.Modules.Catalog.Features.v1.Products.RestoreProduct;
-using FSH.Modules.Catalog.Features.v1.Products.SearchProducts;
-using FSH.Modules.Catalog.Features.v1.Products.SetProductThumbnail;
-using FSH.Modules.Catalog.Features.v1.Products.UpdateProduct;
+using Trislab.Framework.Eventing;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Web.Modules;
+using Trislab.Modules.Catalog.Authorization;
+using Trislab.Modules.Catalog.Contracts.Authorization;
+using Trislab.Modules.Catalog.Data;
+using Trislab.Modules.Files.Contracts;
+using Trislab.Modules.Catalog.Features.v1.Brands.CreateBrand;
+using Trislab.Modules.Catalog.Features.v1.Brands.DeleteBrand;
+using Trislab.Modules.Catalog.Features.v1.Brands.GetBrandById;
+using Trislab.Modules.Catalog.Features.v1.Brands.ListTrashedBrands;
+using Trislab.Modules.Catalog.Features.v1.Brands.RestoreBrand;
+using Trislab.Modules.Catalog.Features.v1.Brands.SearchBrands;
+using Trislab.Modules.Catalog.Features.v1.Brands.UpdateBrand;
+using Trislab.Modules.Catalog.Features.v1.Categories.CreateCategory;
+using Trislab.Modules.Catalog.Features.v1.Categories.DeleteCategory;
+using Trislab.Modules.Catalog.Features.v1.Categories.GetCategoryById;
+using Trislab.Modules.Catalog.Features.v1.Categories.GetCategoryTree;
+using Trislab.Modules.Catalog.Features.v1.Categories.ListTrashedCategories;
+using Trislab.Modules.Catalog.Features.v1.Categories.RestoreCategory;
+using Trislab.Modules.Catalog.Features.v1.Categories.SearchCategories;
+using Trislab.Modules.Catalog.Features.v1.Categories.UpdateCategory;
+using Trislab.Modules.Catalog.Features.v1.Products.AddProductImage;
+using Trislab.Modules.Catalog.Features.v1.Products.AdjustProductStock;
+using Trislab.Modules.Catalog.Features.v1.Products.ChangeProductPrice;
+using Trislab.Modules.Catalog.Features.v1.Products.CreateProduct;
+using Trislab.Modules.Catalog.Features.v1.Products.DeleteProduct;
+using Trislab.Modules.Catalog.Features.v1.Products.GetProductById;
+using Trislab.Modules.Catalog.Features.v1.Products.ListTrashedProducts;
+using Trislab.Modules.Catalog.Features.v1.Products.RemoveProductImage;
+using Trislab.Modules.Catalog.Features.v1.Products.ReorderProductImages;
+using Trislab.Modules.Catalog.Features.v1.Products.RestoreProduct;
+using Trislab.Modules.Catalog.Features.v1.Products.SearchProducts;
+using Trislab.Modules.Catalog.Features.v1.Products.SetProductThumbnail;
+using Trislab.Modules.Catalog.Features.v1.Products.UpdateProduct;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -42,9 +42,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 
-[assembly: FshModule(typeof(FSH.Modules.Catalog.CatalogModule), 600)]
+[assembly: TrislabModule(typeof(Trislab.Modules.Catalog.CatalogModule), 600)]
 
-namespace FSH.Modules.Catalog;
+namespace Trislab.Modules.Catalog;
 
 public sealed class CatalogModule : IModule
 {
@@ -54,7 +54,7 @@ public sealed class CatalogModule : IModule
 
         PermissionConstants.Register(CatalogPermissions.All);
 
-        builder.Services.AddHeroDbContext<CatalogDbContext>();
+        builder.Services.AddTrislabDbContext<CatalogDbContext>();
         builder.Services.AddScoped<IDbInitializer, CatalogDbInitializer>();
 
         // OwnerType=Product policy for Files module attachments (product images).

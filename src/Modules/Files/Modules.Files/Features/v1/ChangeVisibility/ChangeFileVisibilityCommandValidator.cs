@@ -1,9 +1,9 @@
 using FluentValidation;
-using FSH.Modules.Files.Contracts.v1.Commands;
-using FSH.Modules.Files.Localization;
+using Trislab.Modules.Files.Contracts.v1.Commands;
+using Trislab.Modules.Files.Localization;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Files.Features.v1.ChangeVisibility;
+namespace Trislab.Modules.Files.Features.v1.ChangeVisibility;
 
 public sealed class ChangeFileVisibilityCommandValidator : AbstractValidator<ChangeFileVisibilityCommand>
 {

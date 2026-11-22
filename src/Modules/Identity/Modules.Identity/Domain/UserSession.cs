@@ -1,7 +1,7 @@
-using FSH.Framework.Core.Domain;
-using FSH.Modules.Identity.Domain.Events;
+using Trislab.Framework.Core.Domain;
+using Trislab.Modules.Identity.Domain.Events;
 
-namespace FSH.Modules.Identity.Domain;
+namespace Trislab.Modules.Identity.Domain;
 
 public class UserSession : IHasDomainEvents
 {
@@ -26,7 +26,7 @@ public class UserSession : IHasDomainEvents
     public string? RevokedReason { get; private set; }
 
     // Navigation property (init for EF Core materialization)
-    public virtual FshUser? User { get; init; }
+    public virtual TrislabUser? User { get; init; }
 
     // IHasDomainEvents implementation
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();

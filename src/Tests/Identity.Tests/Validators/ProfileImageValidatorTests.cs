@@ -1,7 +1,7 @@
-using FSH.Framework.Shared.Storage;
-using FSH.Modules.Identity.Contracts.v1.Users.SetProfileImage;
-using FSH.Modules.Identity.Features.v1.Users;
-using FSH.Modules.Identity.Features.v1.Users.SetProfileImage;
+using Trislab.Framework.Shared.Storage;
+using Trislab.Modules.Identity.Contracts.v1.Users.SetProfileImage;
+using Trislab.Modules.Identity.Features.v1.Users;
+using Trislab.Modules.Identity.Features.v1.Users.SetProfileImage;
 using Identity.Tests.Support;
 using Shouldly;
 using Xunit;

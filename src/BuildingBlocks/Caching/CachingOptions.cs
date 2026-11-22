@@ -1,4 +1,4 @@
-namespace FSH.Framework.Caching;
+namespace Trislab.Framework.Caching;
 
 /// <summary>
 /// Configuration for the HybridCache-backed caching building block.
@@ -20,7 +20,7 @@ public sealed class CachingOptions
     /// <c>{prefix}:DataProtection-Keys</c> first, or DP-protected data (webhook signing secrets,
     /// cookies, reset tokens) stops unprotecting — and starts a cold cache. During a rolling deploy
     /// old and new pods sit on different SignalR channels until the rollout finishes.
-    /// See <see cref="FSH.Framework.Core.Common.RedisKeyPrefix"/>.
+    /// See <see cref="Trislab.Framework.Core.Common.RedisKeyPrefix"/>.
     /// </summary>
     public string KeyPrefix { get; set; } = string.Empty;
 

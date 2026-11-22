@@ -1,4 +1,4 @@
-namespace FSH.Framework.Storage;
+namespace Trislab.Framework.Storage;
 
 /// <summary>
 /// Checks that an upload's bytes start with the signature its extension promises.

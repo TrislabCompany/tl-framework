@@ -1,9 +1,9 @@
 using FluentValidation;
-using FSH.Framework.Core.Localization;
-using FSH.Modules.Identity.Contracts.v1.Groups.RemoveUserFromGroup;
+using Trislab.Framework.Core.Localization;
+using Trislab.Modules.Identity.Contracts.v1.Groups.RemoveUserFromGroup;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Identity.Features.v1.Groups.RemoveUserFromGroup;
+namespace Trislab.Modules.Identity.Features.v1.Groups.RemoveUserFromGroup;
 
 public sealed class RemoveUserFromGroupCommandValidator : AbstractValidator<RemoveUserFromGroupCommand>
 {

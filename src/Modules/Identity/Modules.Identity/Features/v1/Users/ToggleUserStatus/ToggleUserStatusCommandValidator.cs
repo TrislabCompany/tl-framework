@@ -1,9 +1,9 @@
 using FluentValidation;
-using FSH.Framework.Core.Localization;
-using FSH.Modules.Identity.Contracts.v1.Users.ToggleUserStatus;
+using Trislab.Framework.Core.Localization;
+using Trislab.Modules.Identity.Contracts.v1.Users.ToggleUserStatus;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Identity.Features.v1.Users.ToggleUserStatus;
+namespace Trislab.Modules.Identity.Features.v1.Users.ToggleUserStatus;
 
 public sealed class ToggleUserStatusCommandValidator : AbstractValidator<ToggleUserStatusCommand>
 {

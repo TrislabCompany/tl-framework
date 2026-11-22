@@ -1,6 +1,6 @@
-﻿using FSH.Framework.Shared.Quota;
+﻿using Trislab.Framework.Shared.Quota;
 
-namespace FSH.Framework.Shared.Multitenancy;
+namespace Trislab.Framework.Shared.Multitenancy;
 
 public interface IAppTenantInfo
 {

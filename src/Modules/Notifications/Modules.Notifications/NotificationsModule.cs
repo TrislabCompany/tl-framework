@@ -1,15 +1,15 @@
 using Asp.Versioning;
 using FluentValidation;
-using FSH.Framework.Eventing;
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Constants;
-using FSH.Framework.Web.Modules;
-using FSH.Modules.Notifications.Contracts.Authorization;
-using FSH.Modules.Notifications.Data;
-using FSH.Modules.Notifications.Features.v1.GetUnreadCount;
-using FSH.Modules.Notifications.Features.v1.ListNotifications;
-using FSH.Modules.Notifications.Features.v1.MarkAllNotificationsRead;
-using FSH.Modules.Notifications.Features.v1.MarkNotificationRead;
+using Trislab.Framework.Eventing;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Web.Modules;
+using Trislab.Modules.Notifications.Contracts.Authorization;
+using Trislab.Modules.Notifications.Data;
+using Trislab.Modules.Notifications.Features.v1.GetUnreadCount;
+using Trislab.Modules.Notifications.Features.v1.ListNotifications;
+using Trislab.Modules.Notifications.Features.v1.MarkAllNotificationsRead;
+using Trislab.Modules.Notifications.Features.v1.MarkNotificationRead;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -17,7 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 
-namespace FSH.Modules.Notifications;
+namespace Trislab.Modules.Notifications;
 
 /// <summary>
 /// Notifications module: per-user inbox driven by integration events from other modules. Module
@@ -32,7 +32,7 @@ public sealed class NotificationsModule : IModule
 
         PermissionConstants.Register(NotificationPermissions.All);
 
-        builder.Services.AddHeroDbContext<NotificationsDbContext>();
+        builder.Services.AddTrislabDbContext<NotificationsDbContext>();
         builder.Services.AddScoped<IDbInitializer, NotificationsDbInitializer>();
         builder.Services.AddValidatorsFromAssembly(typeof(NotificationsModule).Assembly);
 

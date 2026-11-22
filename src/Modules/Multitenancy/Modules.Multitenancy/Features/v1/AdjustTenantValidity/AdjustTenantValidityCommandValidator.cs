@@ -1,10 +1,10 @@
 using FluentValidation;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Multitenancy.Contracts.v1.AdjustTenantValidity;
-using FSH.Modules.Multitenancy.Localization;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Multitenancy.Contracts.v1.AdjustTenantValidity;
+using Trislab.Modules.Multitenancy.Localization;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Multitenancy.Features.v1.AdjustTenantValidity;
+namespace Trislab.Modules.Multitenancy.Features.v1.AdjustTenantValidity;
 
 public sealed class AdjustTenantValidityCommandValidator : AbstractValidator<AdjustTenantValidityCommand>
 {

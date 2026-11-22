@@ -1,8 +1,8 @@
-using FSH.Framework.Persistence;
+using Trislab.Framework.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Modules.Notifications.Data;
+namespace Trislab.Modules.Notifications.Data;
 
 public sealed class NotificationsDbInitializer(
     NotificationsDbContext dbContext,

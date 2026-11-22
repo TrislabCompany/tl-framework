@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.DataProtection;
 
-namespace FSH.Modules.Webhooks.Services;
+namespace Trislab.Modules.Webhooks.Services;
 
 /// <summary>
 /// Encrypts/decrypts webhook signing secrets at rest. The secret is the HMAC key used to sign

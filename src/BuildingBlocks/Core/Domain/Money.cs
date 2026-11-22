@@ -1,4 +1,4 @@
-namespace FSH.Framework.Core.Domain;
+namespace Trislab.Framework.Core.Domain;
 
 public sealed record Money
 {

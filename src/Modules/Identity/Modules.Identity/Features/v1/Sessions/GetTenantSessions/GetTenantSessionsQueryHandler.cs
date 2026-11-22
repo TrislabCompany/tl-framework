@@ -1,11 +1,11 @@
-using FSH.Framework.Persistence;
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Identity.Contracts.DTOs;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Sessions.GetTenantSessions;
+using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Sessions.GetTenantSessions;
 using Mediator;
 
-namespace FSH.Modules.Identity.Features.v1.Sessions.GetTenantSessions;
+namespace Trislab.Modules.Identity.Features.v1.Sessions.GetTenantSessions;
 
 public sealed class GetTenantSessionsQueryHandler(ISessionService sessionService)
     : IQueryHandler<GetTenantSessionsQuery, PagedResponse<UserSessionDto>>

@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Identity;
-using FSH.Modules.Identity.Contracts.v1.TwoFactor;
-using FSH.Modules.Identity.Domain;
-using FSH.Modules.Identity.Features.v1.TwoFactor.Enroll;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Identity;
+using Trislab.Modules.Identity.Contracts.v1.TwoFactor;
+using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Identity.Features.v1.TwoFactor.Enroll;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using NSubstitute;
@@ -19,16 +19,16 @@ public sealed class EnrollTwoFactorCommandHandlerTests
     private const string SharedKey = "JBSWY3DPEHPK3PXP";
     private static readonly Guid UserId = Guid.Parse("7f1c2a4e-3b5d-4c6e-8f9a-0b1c2d3e4f50");
 
-    private readonly UserManager<FshUser> _userManager;
+    private readonly UserManager<TrislabUser> _userManager;
     private readonly ICurrentUser _currentUser;
 
     public EnrollTwoFactorCommandHandlerTests()
     {
-        _userManager = Substitute.For<UserManager<FshUser>>(
-            Substitute.For<IUserStore<FshUser>>(), null, null, null, null, null, null, null, null);
+        _userManager = Substitute.For<UserManager<TrislabUser>>(
+            Substitute.For<IUserStore<TrislabUser>>(), null, null, null, null, null, null, null, null);
         _currentUser = Substitute.For<ICurrentUser>();
 
-        var user = new FshUser { Id = UserId.ToString(), Email = "jane@example.com" };
+        var user = new TrislabUser { Id = UserId.ToString(), Email = "jane@example.com" };
         _currentUser.IsAuthenticated().Returns(true);
         _currentUser.GetUserId().Returns(UserId);
         _userManager.FindByIdAsync(UserId.ToString()).Returns(user);

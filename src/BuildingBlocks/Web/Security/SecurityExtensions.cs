@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 
-namespace FSH.Framework.Web.Security;
+namespace Trislab.Framework.Web.Security;
 
 public static class SecurityExtensions
 {
-    public static IApplicationBuilder UseHeroSecurityHeaders(this IApplicationBuilder app)
+    public static IApplicationBuilder UseTrislabSecurityHeaders(this IApplicationBuilder app)
     {
         ArgumentNullException.ThrowIfNull(app);
         return app.UseMiddleware<SecurityHeadersMiddleware>();

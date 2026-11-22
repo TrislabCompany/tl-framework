@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Context;
+using Trislab.Framework.Core.Context;
 
-namespace FSH.Modules.Identity.Contracts.Services;
+namespace Trislab.Modules.Identity.Contracts.Services;
 
 /// <summary>
 /// Service interface for accessing HTTP request context information.

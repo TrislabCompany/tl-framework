@@ -1,11 +1,11 @@
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Chat.Contracts.v1.Commands;
-using FSH.Modules.Chat.Data;
-using FSH.Modules.Chat.Domain;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Chat.Contracts.v1.Commands;
+using Trislab.Modules.Chat.Data;
+using Trislab.Modules.Chat.Domain;
 using Mediator;
 
-namespace FSH.Modules.Chat.Features.v1.Channels.CreateChannel;
+namespace Trislab.Modules.Chat.Features.v1.Channels.CreateChannel;
 
 public sealed class CreateChannelCommandHandler(
     ChatDbContext db,

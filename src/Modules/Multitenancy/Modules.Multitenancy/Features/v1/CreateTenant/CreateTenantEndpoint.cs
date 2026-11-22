@@ -1,15 +1,15 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Multitenancy.Contracts.Authorization;
-using FSH.Framework.Web.Idempotency;
-using FSH.Modules.Multitenancy.Contracts.v1.CreateTenant;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Multitenancy.Contracts.Authorization;
+using Trislab.Framework.Web.Idempotency;
+using Trislab.Modules.Multitenancy.Contracts.v1.CreateTenant;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Multitenancy.Features.v1.CreateTenant;
+namespace Trislab.Modules.Multitenancy.Features.v1.CreateTenant;
 
 public static class CreateTenantEndpoint
 {

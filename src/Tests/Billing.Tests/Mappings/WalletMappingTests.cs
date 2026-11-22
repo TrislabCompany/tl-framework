@@ -1,7 +1,7 @@
-using FSH.Framework.Core.Domain;
-using FSH.Modules.Billing.Domain;
-using FSH.Modules.Billing.Mappings;
-using FSH.Modules.Billing.Contracts;
+using Trislab.Framework.Core.Domain;
+using Trislab.Modules.Billing.Domain;
+using Trislab.Modules.Billing.Mappings;
+using Trislab.Modules.Billing.Contracts;
 using Shouldly;
 using Xunit;
 

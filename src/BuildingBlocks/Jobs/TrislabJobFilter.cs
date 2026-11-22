@@ -1,21 +1,21 @@
 ﻿using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Common;
-using FSH.Framework.Shared.Identity.Claims;
-using FSH.Framework.Shared.Multitenancy;
+using Trislab.Framework.Core.Common;
+using Trislab.Framework.Shared.Identity.Claims;
+using Trislab.Framework.Shared.Multitenancy;
 using Hangfire.Client;
 using Hangfire.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FSH.Framework.Jobs;
+namespace Trislab.Framework.Jobs;
 
-public class FshJobFilter : IClientFilter
+public class TrislabJobFilter : IClientFilter
 {
     private static readonly ILog Logger = LogProvider.GetCurrentClassLogger();
 
     private readonly IServiceProvider _services;
 
-    public FshJobFilter(IServiceProvider services) => _services = services;
+    public TrislabJobFilter(IServiceProvider services) => _services = services;
 
     public void OnCreating(CreatingContext context)
     {

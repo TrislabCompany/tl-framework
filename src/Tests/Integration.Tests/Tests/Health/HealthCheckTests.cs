@@ -2,12 +2,12 @@ using Integration.Tests.Infrastructure;
 
 namespace Integration.Tests.Tests.Health;
 
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class HealthCheckTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
 
-    public HealthCheckTests(FshWebApplicationFactory factory)
+    public HealthCheckTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
     }

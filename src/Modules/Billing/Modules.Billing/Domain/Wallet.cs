@@ -1,7 +1,7 @@
-using FSH.Framework.Core.Domain;
-using FSH.Modules.Billing.Contracts;
+using Trislab.Framework.Core.Domain;
+using Trislab.Modules.Billing.Contracts;
 
-namespace FSH.Modules.Billing.Domain;
+namespace Trislab.Modules.Billing.Domain;
 
 public sealed class Wallet : AggregateRoot<Guid>
 {

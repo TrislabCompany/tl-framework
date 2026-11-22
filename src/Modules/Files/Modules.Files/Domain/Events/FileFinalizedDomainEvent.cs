@@ -1,7 +1,7 @@
-using FSH.Framework.Core.Domain;
-using FSH.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Framework.Core.Domain;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
 
-namespace FSH.Modules.Files.Domain.Events;
+namespace Trislab.Modules.Files.Domain.Events;
 
 public sealed record FileFinalizedDomainEvent(
     Guid FileAssetId,

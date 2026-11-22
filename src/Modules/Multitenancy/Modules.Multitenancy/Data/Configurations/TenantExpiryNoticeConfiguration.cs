@@ -1,9 +1,9 @@
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Multitenancy.Domain;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Multitenancy.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FSH.Modules.Multitenancy.Data.Configurations;
+namespace Trislab.Modules.Multitenancy.Data.Configurations;
 
 public sealed class TenantExpiryNoticeConfiguration : IEntityTypeConfiguration<TenantExpiryNotice>
 {

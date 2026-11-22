@@ -1,8 +1,8 @@
-using FSH.Modules.Identity.Domain.Events;
+using Trislab.Modules.Identity.Domain.Events;
 using Mediator;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Modules.Identity.Events;
+namespace Trislab.Modules.Identity.Events;
 
 /// <summary>
 /// Handles the PasswordChangedEvent domain event.

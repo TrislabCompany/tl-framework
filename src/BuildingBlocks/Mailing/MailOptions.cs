@@ -1,6 +1,6 @@
 ﻿using MailKit.Security;
 
-namespace FSH.Framework.Mailing;
+namespace Trislab.Framework.Mailing;
 
 public sealed class MailOptions
 {

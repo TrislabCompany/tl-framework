@@ -1,8 +1,8 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using FSH.Framework.Mailing;
-using FSH.Framework.Mailing.Services;
+using Trislab.Framework.Mailing;
+using Trislab.Framework.Mailing.Services;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +25,7 @@ public sealed class SmtpConnectionSecurityTests
             ["MailOptions:From"] = "noreply@x.com",
             ["MailOptions:Smtp:Host"] = "127.0.0.1",
             ["MailOptions:Smtp:Port"] = port.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            // Without a password AddHeroMailing registers the disabled service; no user name, so no AUTH.
+            // Without a password AddTrislabMailing registers the disabled service; no user name, so no AUTH.
             ["MailOptions:Smtp:Password"] = "unused",
         };
         if (security is not null)
@@ -36,7 +36,7 @@ public sealed class SmtpConnectionSecurityTests
         var services = new ServiceCollection();
         services.AddSingleton<IConfiguration>(new ConfigurationBuilder().AddInMemoryCollection(settings).Build());
         services.AddLogging();
-        services.AddHeroMailing();
+        services.AddTrislabMailing();
         return services.BuildServiceProvider();
     }
 

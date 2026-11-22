@@ -1,7 +1,7 @@
-using FSH.Framework.Core.Domain;
-using FSH.Modules.Chat.Contracts.v1.DTOs;
+using Trislab.Framework.Core.Domain;
+using Trislab.Modules.Chat.Contracts.v1.DTOs;
 
-namespace FSH.Modules.Chat.Domain;
+namespace Trislab.Modules.Chat.Domain;
 
 public sealed class ChannelMember : BaseEntity<Guid>
 {

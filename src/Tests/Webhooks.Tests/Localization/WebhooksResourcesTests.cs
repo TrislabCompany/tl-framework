@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Linq;
-using FSH.Modules.Webhooks.Localization;
+using Trislab.Modules.Webhooks.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 

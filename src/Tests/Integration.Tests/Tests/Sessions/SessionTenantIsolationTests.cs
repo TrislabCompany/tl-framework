@@ -1,4 +1,4 @@
-using FSH.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.DTOs;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 
@@ -9,13 +9,13 @@ namespace Integration.Tests.Tests.Sessions;
 /// an admin in one tenant must never see another tenant's sessions. UserSessions
 /// rows carry the ambient tenant filter, so cross-tenant reads should come back empty.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class SessionTenantIsolationTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public SessionTenantIsolationTests(FshWebApplicationFactory factory)
+    public SessionTenantIsolationTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

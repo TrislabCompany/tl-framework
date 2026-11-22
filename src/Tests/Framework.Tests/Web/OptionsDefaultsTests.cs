@@ -1,6 +1,6 @@
-using FSH.Framework.Web.Idempotency;
-using FSH.Framework.Web.RateLimiting;
-using FSH.Framework.Web.Security;
+using Trislab.Framework.Web.Idempotency;
+using Trislab.Framework.Web.RateLimiting;
+using Trislab.Framework.Web.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -86,7 +86,7 @@ public sealed class OptionsDefaultsTests
     [InlineData("ReservationTtl", "48:00:00", "ReservationTtl must not exceed DefaultTtl")]
     [InlineData("MaxKeyLength", "0", "MaxKeyLength must be greater than zero")]
     [InlineData("HeaderName", "", "HeaderName is required")]
-    public void AddHeroIdempotency_Should_FailAtStartup_When_OptionsAreInvalid(string key, string value, string expectedFailure)
+    public void AddTrislabIdempotency_Should_FailAtStartup_When_OptionsAreInvalid(string key, string value, string expectedFailure)
     {
         // Arrange
         var configuration = new ConfigurationBuilder()
@@ -94,7 +94,7 @@ public sealed class OptionsDefaultsTests
             .Build();
         var services = new ServiceCollection();
         services.AddSingleton<IConfiguration>(configuration);
-        services.AddHeroIdempotency(configuration);
+        services.AddTrislabIdempotency(configuration);
         var provider = services.BuildServiceProvider();
 
         // Act — through IStartupValidator, which is what .ValidateOnStart() registers and what the host
@@ -108,7 +108,7 @@ public sealed class OptionsDefaultsTests
     }
 
     [Fact]
-    public void AddHeroIdempotency_Should_Bind_When_OptionsAreValid()
+    public void AddTrislabIdempotency_Should_Bind_When_OptionsAreValid()
     {
         // Arrange
         var configuration = new ConfigurationBuilder()
@@ -116,7 +116,7 @@ public sealed class OptionsDefaultsTests
             .Build();
         var services = new ServiceCollection();
         services.AddSingleton<IConfiguration>(configuration);
-        services.AddHeroIdempotency(configuration);
+        services.AddTrislabIdempotency(configuration);
         var provider = services.BuildServiceProvider();
 
         // Act

@@ -1,7 +1,7 @@
 using AutoFixture;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Users.UpdateUser;
-using FSH.Modules.Identity.Features.v1.Users.UpdateUser;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Users.UpdateUser;
+using Trislab.Modules.Identity.Features.v1.Users.UpdateUser;
 using NSubstitute;
 using Shouldly;
 using Xunit;
@@ -62,7 +62,7 @@ public sealed class UpdateUserCommandHandlerTests
             Arg.Any<string>(),
             Arg.Any<string>(),
             Arg.Any<string>(),
-            Arg.Any<FSH.Framework.Shared.Storage.FileUploadRequest>(),
+            Arg.Any<Trislab.Framework.Shared.Storage.FileUploadRequest>(),
             Arg.Any<bool>(),
             Arg.Any<string?>(),
             Arg.Is<IReadOnlyList<string>?>(actual => actual != null && actual.SequenceEqual(stamps)));
@@ -111,7 +111,7 @@ public sealed class UpdateUserCommandHandlerTests
         // Arrange
         var command = _fixture.Create<UpdateUserCommand>();
         var expectedExceptionMessage = "Update failed";
-        _userService.UpdateAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<FSH.Framework.Shared.Storage.FileUploadRequest>(), Arg.Any<bool>(), Arg.Any<string?>(), Arg.Any<IReadOnlyList<string>?>())
+        _userService.UpdateAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<Trislab.Framework.Shared.Storage.FileUploadRequest>(), Arg.Any<bool>(), Arg.Any<string?>(), Arg.Any<IReadOnlyList<string>?>())
             .Returns(x => throw new InvalidOperationException(expectedExceptionMessage));
 
         // Act & Assert

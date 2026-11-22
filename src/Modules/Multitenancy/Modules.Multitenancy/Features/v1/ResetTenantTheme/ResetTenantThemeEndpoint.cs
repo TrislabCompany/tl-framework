@@ -1,13 +1,13 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Multitenancy.Contracts.Authorization;
-using FSH.Modules.Multitenancy.Contracts.v1.ResetTenantTheme;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Multitenancy.Contracts.Authorization;
+using Trislab.Modules.Multitenancy.Contracts.v1.ResetTenantTheme;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Multitenancy.Features.v1.ResetTenantTheme;
+namespace Trislab.Modules.Multitenancy.Features.v1.ResetTenantTheme;
 
 public static class ResetTenantThemeEndpoint
 {

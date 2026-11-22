@@ -1,4 +1,4 @@
-namespace FSH.Modules.Catalog.Contracts.Dtos;
+namespace Trislab.Modules.Catalog.Contracts.Dtos;
 
 /// <summary>
 /// A product image projection. <c>Url</c> is the durable, persisted public URL captured at attach

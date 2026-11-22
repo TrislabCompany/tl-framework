@@ -1,5 +1,5 @@
-using FSH.Framework.Mailing;
-using FSH.Framework.Mailing.Services;
+using Trislab.Framework.Mailing;
+using Trislab.Framework.Mailing.Services;
 using MimeKit;
 
 namespace Framework.Tests.Mailing;

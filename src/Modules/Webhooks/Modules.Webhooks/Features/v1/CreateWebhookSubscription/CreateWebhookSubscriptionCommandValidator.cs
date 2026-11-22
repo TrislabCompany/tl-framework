@@ -1,10 +1,10 @@
 using FluentValidation;
-using FSH.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription;
-using FSH.Modules.Webhooks.Localization;
-using FSH.Modules.Webhooks.Services;
+using Trislab.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription;
+using Trislab.Modules.Webhooks.Localization;
+using Trislab.Modules.Webhooks.Services;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Webhooks.Features.v1.CreateWebhookSubscription;
+namespace Trislab.Modules.Webhooks.Features.v1.CreateWebhookSubscription;
 
 public sealed class CreateWebhookSubscriptionCommandValidator : AbstractValidator<CreateWebhookSubscriptionCommand>
 {

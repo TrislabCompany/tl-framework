@@ -1,10 +1,10 @@
 using FluentValidation;
-using FSH.Framework.Core.Localization;
-using FSH.Framework.Storage;
-using FSH.Modules.Identity.Contracts.v1.Users.SetProfileImage;
+using Trislab.Framework.Core.Localization;
+using Trislab.Framework.Storage;
+using Trislab.Modules.Identity.Contracts.v1.Users.SetProfileImage;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Identity.Features.v1.Users.SetProfileImage;
+namespace Trislab.Modules.Identity.Features.v1.Users.SetProfileImage;
 
 public sealed class SetProfileImageCommandValidator : AbstractValidator<SetProfileImageCommand>
 {

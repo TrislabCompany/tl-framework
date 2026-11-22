@@ -1,9 +1,9 @@
-using FSH.Modules.Identity.Contracts.DTOs;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Users.GetUserProfile;
+using Trislab.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Users.GetUserProfile;
 using Mediator;
 
-namespace FSH.Modules.Identity.Features.v1.Users.GetUserProfile;
+namespace Trislab.Modules.Identity.Features.v1.Users.GetUserProfile;
 
 public sealed class GetCurrentUserProfileQueryHandler : IQueryHandler<GetCurrentUserProfileQuery, UserDto>
 {

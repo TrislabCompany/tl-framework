@@ -1,21 +1,21 @@
 using System.Net;
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Quota;
-using FSH.Framework.Shared.Quota;
-using FSH.Framework.Storage.Services;
-using FSH.Modules.Files.Contracts;
-using FSH.Modules.Files.Contracts.v1.Commands;
-using FSH.Modules.Files.Contracts.v1.DTOs;
-using FSH.Modules.Files.Data;
-using FSH.Modules.Files.Domain;
-using FSH.Modules.Files.Localization;
-using FSH.Modules.Files.Services;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Quota;
+using Trislab.Framework.Shared.Quota;
+using Trislab.Framework.Storage.Services;
+using Trislab.Modules.Files.Contracts;
+using Trislab.Modules.Files.Contracts.v1.Commands;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Modules.Files.Data;
+using Trislab.Modules.Files.Domain;
+using Trislab.Modules.Files.Localization;
+using Trislab.Modules.Files.Services;
 using Mediator;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Options;
 
-namespace FSH.Modules.Files.Features.v1.RequestUploadUrl;
+namespace Trislab.Modules.Files.Features.v1.RequestUploadUrl;
 
 public sealed class RequestUploadUrlCommandHandler(
     FilesDbContext db,

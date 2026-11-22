@@ -8,7 +8,7 @@
 		<!-- The chiseled runtime image ships without ICU and sets DOTNET_SYSTEM_GLOBALIZATION_INVARIANT,
 		     where only predefined cultures may be created, so request localization's new CultureInfo(...)
 		     kills startup. Named cultures are all it needs: resource lookup goes by name, and formatting is
-		     pinned to InvariantCulture by design (see UseHeroLocalization). -->
+		     pinned to InvariantCulture by design (see UseTrislabLocalization). -->
 		<PredefinedCulturesOnly>false</PredefinedCulturesOnly>
 	</PropertyGroup>
 

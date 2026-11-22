@@ -1,9 +1,9 @@
 using FluentValidation;
-using FSH.Framework.Core.Localization;
-using FSH.Modules.Identity.Contracts.v1.Impersonation.StartImpersonation;
+using Trislab.Framework.Core.Localization;
+using Trislab.Modules.Identity.Contracts.v1.Impersonation.StartImpersonation;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Identity.Features.v1.Impersonation.StartImpersonation;
+namespace Trislab.Modules.Identity.Features.v1.Impersonation.StartImpersonation;
 
 public sealed class StartImpersonationCommandValidator : AbstractValidator<StartImpersonationCommand>
 {

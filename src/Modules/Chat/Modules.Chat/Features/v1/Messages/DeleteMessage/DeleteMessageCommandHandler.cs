@@ -1,17 +1,17 @@
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Web.Realtime;
-using FSH.Modules.Chat.Contracts.Authorization;
-using FSH.Modules.Chat.Contracts.v1.Commands;
-using FSH.Modules.Chat.Data;
-using FSH.Modules.Chat.Features.v1.Internal;
-using FSH.Modules.Chat.Localization;
-using FSH.Modules.Identity.Contracts.Services;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Web.Realtime;
+using Trislab.Modules.Chat.Contracts.Authorization;
+using Trislab.Modules.Chat.Contracts.v1.Commands;
+using Trislab.Modules.Chat.Data;
+using Trislab.Modules.Chat.Features.v1.Internal;
+using Trislab.Modules.Chat.Localization;
+using Trislab.Modules.Identity.Contracts.Services;
 using Mediator;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Chat.Features.v1.Messages.DeleteMessage;
+namespace Trislab.Modules.Chat.Features.v1.Messages.DeleteMessage;
 
 public sealed class DeleteMessageCommandHandler(
     ChatDbContext db,

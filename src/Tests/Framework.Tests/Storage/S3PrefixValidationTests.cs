@@ -1,4 +1,4 @@
-using FSH.Framework.Storage;
+using Trislab.Framework.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -19,7 +19,7 @@ public sealed class S3PrefixValidationTests
     [InlineData("apps/fsh")]
     [InlineData("publicity")]
     [InlineData("files/public")]
-    public void AddHeroStorage_Should_PassStartupValidation_When_PrefixDoesNotStartWithAVisibilityRoot(string? prefix)
+    public void AddTrislabStorage_Should_PassStartupValidation_When_PrefixDoesNotStartWithAVisibilityRoot(string? prefix)
     {
         // Arrange
         using var provider = BuildProvider(prefix);
@@ -28,7 +28,7 @@ public sealed class S3PrefixValidationTests
         provider.GetRequiredService<IStartupValidator>().Validate();
 
         // Assert
-        provider.GetRequiredService<IOptions<FSH.Framework.Storage.S3.S3StorageOptions>>().Value.Prefix.ShouldBe(prefix);
+        provider.GetRequiredService<IOptions<Trislab.Framework.Storage.S3.S3StorageOptions>>().Value.Prefix.ShouldBe(prefix);
     }
 
     [Theory]
@@ -39,7 +39,7 @@ public sealed class S3PrefixValidationTests
     [InlineData("public/apps")]
     [InlineData("/private/apps")]
     [InlineData("  public  ")]
-    public void AddHeroStorage_Should_FailAtStartup_When_PrefixStartsWithAVisibilityRoot(string prefix)
+    public void AddTrislabStorage_Should_FailAtStartup_When_PrefixStartsWithAVisibilityRoot(string prefix)
     {
         // Arrange
         using var provider = BuildProvider(prefix);
@@ -54,7 +54,7 @@ public sealed class S3PrefixValidationTests
 
     // The rule belongs to the S3 provider; a host on local storage (the DbMigrator, dev) never sees it.
     [Fact]
-    public void AddHeroStorage_Should_NotValidatePrefix_When_ProviderIsLocal()
+    public void AddTrislabStorage_Should_NotValidatePrefix_When_ProviderIsLocal()
     {
         // Arrange
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
@@ -64,7 +64,7 @@ public sealed class S3PrefixValidationTests
         }).Build();
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddHeroStorage(configuration);
+        services.AddTrislabStorage(configuration);
         using var provider = services.BuildServiceProvider();
 
         // Act — local storage registers no S3 options validation, so there may be no validator at all.
@@ -89,7 +89,7 @@ public sealed class S3PrefixValidationTests
 
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddHeroStorage(configuration);
+        services.AddTrislabStorage(configuration);
         return services.BuildServiceProvider();
     }
 }

@@ -10,9 +10,9 @@ public sealed class AuthHelper
         PropertyNameCaseInsensitive = true
     };
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
 
-    public AuthHelper(FshWebApplicationFactory factory)
+    public AuthHelper(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
     }

@@ -1,15 +1,15 @@
 using System.Net;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Quota;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Quota;
-using FSH.Framework.Shared.Storage;
-using FSH.Framework.Storage.DTOs;
-using FSH.Framework.Storage.Services;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Quota;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Quota;
+using Trislab.Framework.Shared.Storage;
+using Trislab.Framework.Storage.DTOs;
+using Trislab.Framework.Storage.Services;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Framework.Storage;
+namespace Trislab.Framework.Storage;
 
 /// <summary>
 /// Decorates <see cref="IStorageService"/> so every upload charges the tenant's

@@ -1,7 +1,7 @@
 using FluentValidation;
-using FSH.Modules.Chat.Contracts.v1.Queries;
+using Trislab.Modules.Chat.Contracts.v1.Queries;
 
-namespace FSH.Modules.Chat.Features.v1.Search;
+namespace Trislab.Modules.Chat.Features.v1.Search;
 
 public sealed class SearchMessagesQueryValidator : AbstractValidator<SearchMessagesQuery>
 {

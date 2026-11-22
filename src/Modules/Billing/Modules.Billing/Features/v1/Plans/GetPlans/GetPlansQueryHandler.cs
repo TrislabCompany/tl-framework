@@ -1,10 +1,10 @@
-using FSH.Modules.Billing.Contracts.Dtos;
-using FSH.Modules.Billing.Contracts.v1.Plans;
-using FSH.Modules.Billing.Data;
+using Trislab.Modules.Billing.Contracts.Dtos;
+using Trislab.Modules.Billing.Contracts.v1.Plans;
+using Trislab.Modules.Billing.Data;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Billing.Features.v1.Plans.GetPlans;
+namespace Trislab.Modules.Billing.Features.v1.Plans.GetPlans;
 
 public sealed class GetPlansQueryHandler(BillingDbContext dbContext)
     : IQueryHandler<GetPlansQuery, IReadOnlyList<BillingPlanDto>>

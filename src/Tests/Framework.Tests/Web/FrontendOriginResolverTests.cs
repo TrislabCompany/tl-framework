@@ -1,6 +1,6 @@
 using System.Net;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Web.Frontend;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Web.Frontend;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;

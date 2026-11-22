@@ -1,4 +1,4 @@
-using FSH.Framework.Web.Idempotency;
+using Trislab.Framework.Web.Idempotency;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

@@ -1,11 +1,11 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Webhooks.Data;
-using FSH.Modules.Webhooks.Domain;
-using FSH.Modules.Webhooks.Services;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Webhooks.Data;
+using Trislab.Modules.Webhooks.Domain;
+using Trislab.Modules.Webhooks.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

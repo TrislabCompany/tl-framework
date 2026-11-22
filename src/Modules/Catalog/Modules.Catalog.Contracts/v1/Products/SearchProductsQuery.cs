@@ -1,8 +1,8 @@
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Catalog.Contracts.Dtos;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Catalog.Contracts.Dtos;
 using Mediator;
 
-namespace FSH.Modules.Catalog.Contracts.v1.Products;
+namespace Trislab.Modules.Catalog.Contracts.v1.Products;
 
 /// <summary>
 /// Search for products with pagination and sorting.

@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Domain;
+using Trislab.Framework.Core.Domain;
 
-namespace FSH.Modules.Tickets.Domain;
+namespace Trislab.Modules.Tickets.Domain;
 
 /// <summary>
 /// A comment posted on a ticket. Created via Ticket.AddComment so that

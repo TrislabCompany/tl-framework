@@ -1,6 +1,6 @@
-using FSH.Modules.Auditing;
-using FSH.Modules.Identity;
-using FSH.Modules.Multitenancy;
+using Trislab.Modules.Auditing;
+using Trislab.Modules.Identity;
+using Trislab.Modules.Multitenancy;
 using NetArchTest.Rules;
 using Shouldly;
 using System.Reflection;

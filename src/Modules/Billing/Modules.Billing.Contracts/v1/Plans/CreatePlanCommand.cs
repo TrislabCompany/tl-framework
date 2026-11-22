@@ -1,7 +1,7 @@
-using FSH.Framework.Shared.Quota;
+using Trislab.Framework.Shared.Quota;
 using Mediator;
 
-namespace FSH.Modules.Billing.Contracts.v1.Plans;
+namespace Trislab.Modules.Billing.Contracts.v1.Plans;
 
 public sealed record CreatePlanCommand(
     string Key,

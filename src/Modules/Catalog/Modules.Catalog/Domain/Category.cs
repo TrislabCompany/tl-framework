@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Domain;
+using Trislab.Framework.Core.Domain;
 
-namespace FSH.Modules.Catalog.Domain;
+namespace Trislab.Modules.Catalog.Domain;
 
 public sealed class Category : AggregateRoot<Guid>, ISoftDeletable
 {

@@ -1,4 +1,4 @@
-using FSH.Modules.Webhooks.Services;
+using Trislab.Modules.Webhooks.Services;
 using Microsoft.AspNetCore.DataProtection;
 
 namespace Webhooks.Tests.Services;

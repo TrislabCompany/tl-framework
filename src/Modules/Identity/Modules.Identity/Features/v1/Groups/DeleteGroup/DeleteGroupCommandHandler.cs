@@ -1,13 +1,13 @@
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Groups.DeleteGroup;
-using FSH.Modules.Identity.Data;
-using FSH.Modules.Identity.Localization;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Groups.DeleteGroup;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Localization;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Identity.Features.v1.Groups.DeleteGroup;
+namespace Trislab.Modules.Identity.Features.v1.Groups.DeleteGroup;
 
 public sealed class DeleteGroupCommandHandler : ICommandHandler<DeleteGroupCommand, Unit>
 {

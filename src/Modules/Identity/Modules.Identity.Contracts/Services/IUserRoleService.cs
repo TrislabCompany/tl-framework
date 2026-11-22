@@ -1,6 +1,6 @@
-using FSH.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Identity.Contracts.DTOs;
 
-namespace FSH.Modules.Identity.Contracts.Services;
+namespace Trislab.Modules.Identity.Contracts.Services;
 
 /// <summary>
 /// Service for user role management.

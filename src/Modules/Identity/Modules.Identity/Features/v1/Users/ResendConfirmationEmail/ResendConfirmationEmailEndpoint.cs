@@ -1,14 +1,14 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Framework.Web.Frontend;
-using FSH.Modules.Identity.Contracts.Authorization;
-using FSH.Modules.Identity.Contracts.v1.Users.ResendConfirmationEmail;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Framework.Web.Frontend;
+using Trislab.Modules.Identity.Contracts.Authorization;
+using Trislab.Modules.Identity.Contracts.v1.Users.ResendConfirmationEmail;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Identity.Features.v1.Users.ResendConfirmationEmail;
+namespace Trislab.Modules.Identity.Features.v1.Users.ResendConfirmationEmail;
 
 public static class ResendConfirmationEmailEndpoint
 {

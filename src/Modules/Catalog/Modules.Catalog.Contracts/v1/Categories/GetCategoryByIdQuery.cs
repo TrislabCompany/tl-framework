@@ -1,6 +1,6 @@
-using FSH.Modules.Catalog.Contracts.Dtos;
+using Trislab.Modules.Catalog.Contracts.Dtos;
 using Mediator;
 
-namespace FSH.Modules.Catalog.Contracts.v1.Categories;
+namespace Trislab.Modules.Catalog.Contracts.v1.Categories;
 
 public sealed record GetCategoryByIdQuery(Guid CategoryId) : IQuery<CategoryDto>;

@@ -1,4 +1,4 @@
-namespace FSH.Modules.Identity.Data;
+namespace Trislab.Modules.Identity.Data;
 
 public class PasswordPolicyOptions
 {

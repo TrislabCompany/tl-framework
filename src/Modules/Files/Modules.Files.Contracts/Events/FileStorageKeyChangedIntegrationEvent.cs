@@ -1,7 +1,7 @@
-using FSH.Framework.Eventing.Abstractions;
-using FSH.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
 
-namespace FSH.Modules.Files.Contracts.Events;
+namespace Trislab.Modules.Files.Contracts.Events;
 
 /// <summary>
 /// Raised when a FileAsset's object moves to a new storage key — its visibility changed, or a file

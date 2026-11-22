@@ -1,4 +1,4 @@
-using FSH.Framework.Core.Exceptions;
+using Trislab.Framework.Core.Exceptions;
 using Shouldly;
 using System.Reflection;
 using Xunit;

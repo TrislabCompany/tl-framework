@@ -1,13 +1,13 @@
-using FSH.Framework.Shared.Identity.Authorization;
-using FSH.Modules.Files.Contracts.Authorization;
-using FSH.Modules.Files.Contracts.v1.Commands;
-using FSH.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Trislab.Modules.Files.Contracts.Authorization;
+using Trislab.Modules.Files.Contracts.v1.Commands;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace FSH.Modules.Files.Features.v1.ChangeVisibility;
+namespace Trislab.Modules.Files.Features.v1.ChangeVisibility;
 
 public static class ChangeFileVisibilityEndpoint
 {

@@ -1,12 +1,12 @@
-using FSH.Modules.Auditing.Contracts;
-using FSH.Modules.Auditing.Contracts.Dtos;
-using FSH.Modules.Auditing.Contracts.v1.GetExceptionAudits;
-using FSH.Modules.Auditing.Persistence;
+using Trislab.Modules.Auditing.Contracts;
+using Trislab.Modules.Auditing.Contracts.Dtos;
+using Trislab.Modules.Auditing.Contracts.v1.GetExceptionAudits;
+using Trislab.Modules.Auditing.Persistence;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
-using static FSH.Modules.Auditing.Persistence.AuditJsonbFunctions;
+using static Trislab.Modules.Auditing.Persistence.AuditJsonbFunctions;
 
-namespace FSH.Modules.Auditing.Features.v1.GetExceptionAudits;
+namespace Trislab.Modules.Auditing.Features.v1.GetExceptionAudits;
 
 public sealed class GetExceptionAuditsQueryHandler : IQueryHandler<GetExceptionAuditsQuery, IReadOnlyList<AuditSummaryDto>>
 {

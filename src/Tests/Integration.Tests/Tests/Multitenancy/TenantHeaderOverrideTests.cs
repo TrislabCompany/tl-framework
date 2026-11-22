@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Json;
-using FSH.Framework.Caching;
+using Trislab.Framework.Caching;
 using Integration.Tests.Infrastructure;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +21,7 @@ namespace Integration.Tests.Tests.Multitenancy;
 /// These tests pin the contract enforced by the RootOperatorHeaderOverride
 /// delegate strategy in <c>MultitenancyModule</c>.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class TenantHeaderOverrideTests : IAsyncLifetime
 {
     private static readonly JsonSerializerOptions Json = new()
@@ -30,7 +30,7 @@ public sealed class TenantHeaderOverrideTests : IAsyncLifetime
         PropertyNameCaseInsensitive = true,
     };
 
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
     private string _tenantA = default!;
@@ -38,7 +38,7 @@ public sealed class TenantHeaderOverrideTests : IAsyncLifetime
     private string _tenantB = default!;
     private string _tenantBAdminEmail = default!;
 
-    public TenantHeaderOverrideTests(FshWebApplicationFactory factory)
+    public TenantHeaderOverrideTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

@@ -1,4 +1,4 @@
-namespace FSH.Framework.Web.RateLimiting;
+namespace Trislab.Framework.Web.RateLimiting;
 
 public sealed class RateLimitingOptions
 {

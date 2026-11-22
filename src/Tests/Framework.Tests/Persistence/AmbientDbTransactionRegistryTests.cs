@@ -1,4 +1,4 @@
-using FSH.Framework.Persistence;
+using Trislab.Framework.Persistence;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Shouldly;
 

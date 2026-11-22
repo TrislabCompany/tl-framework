@@ -1,11 +1,11 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Webhooks.Contracts.v1.DeleteWebhookSubscription;
-using FSH.Modules.Webhooks.Data;
-using FSH.Modules.Webhooks.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Webhooks.Contracts.v1.DeleteWebhookSubscription;
+using Trislab.Modules.Webhooks.Data;
+using Trislab.Modules.Webhooks.Localization;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Webhooks.Features.v1.DeleteWebhookSubscription;
+namespace Trislab.Modules.Webhooks.Features.v1.DeleteWebhookSubscription;
 
 public sealed class DeleteWebhookSubscriptionCommandHandler(
     WebhookDbContext dbContext) : ICommandHandler<DeleteWebhookSubscriptionCommand>

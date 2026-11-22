@@ -1,11 +1,11 @@
-using FSH.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription;
-using FSH.Modules.Webhooks.Contracts.v1.DeleteWebhookSubscription;
-using FSH.Modules.Webhooks.Contracts.v1.TestWebhookSubscription;
-using FSH.Modules.Webhooks.Localization;
+using Trislab.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription;
+using Trislab.Modules.Webhooks.Contracts.v1.DeleteWebhookSubscription;
+using Trislab.Modules.Webhooks.Contracts.v1.TestWebhookSubscription;
+using Trislab.Modules.Webhooks.Localization;
 using Microsoft.Extensions.Localization;
-using FSH.Modules.Webhooks.Features.v1.CreateWebhookSubscription;
-using FSH.Modules.Webhooks.Features.v1.DeleteWebhookSubscription;
-using FSH.Modules.Webhooks.Features.v1.TestWebhookSubscription;
+using Trislab.Modules.Webhooks.Features.v1.CreateWebhookSubscription;
+using Trislab.Modules.Webhooks.Features.v1.DeleteWebhookSubscription;
+using Trislab.Modules.Webhooks.Features.v1.TestWebhookSubscription;
 using Webhooks.Tests.Support;
 
 namespace Webhooks.Tests.Validators;

@@ -1,11 +1,11 @@
 using Asp.Versioning;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FSH.Framework.Web.Versioning;
+namespace Trislab.Framework.Web.Versioning;
 
 public static class Extensions
 {
-    public static IServiceCollection AddHeroVersioning(this IServiceCollection services)
+    public static IServiceCollection AddTrislabVersioning(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
         services

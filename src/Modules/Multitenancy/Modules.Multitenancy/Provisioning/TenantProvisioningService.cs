@@ -1,16 +1,16 @@
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Jobs.Services;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Multitenancy.Contracts.Dtos;
-using FSH.Modules.Multitenancy.Data;
-using FSH.Modules.Multitenancy.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Jobs.Services;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Multitenancy.Contracts.Dtos;
+using Trislab.Modules.Multitenancy.Data;
+using Trislab.Modules.Multitenancy.Localization;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Modules.Multitenancy.Provisioning;
+namespace Trislab.Modules.Multitenancy.Provisioning;
 
 public sealed class TenantProvisioningService : ITenantProvisioningService
 {

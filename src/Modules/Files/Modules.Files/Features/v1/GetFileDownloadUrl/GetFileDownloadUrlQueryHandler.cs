@@ -1,18 +1,18 @@
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Storage.Services;
-using FSH.Modules.Files.Contracts;
-using FSH.Modules.Files.Contracts.v1.DTOs;
-using FSH.Modules.Files.Contracts.v1.Queries;
-using FSH.Modules.Files.Data;
-using FSH.Modules.Files.Localization;
-using FSH.Modules.Files.Services;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Storage.Services;
+using Trislab.Modules.Files.Contracts;
+using Trislab.Modules.Files.Contracts.v1.DTOs;
+using Trislab.Modules.Files.Contracts.v1.Queries;
+using Trislab.Modules.Files.Data;
+using Trislab.Modules.Files.Localization;
+using Trislab.Modules.Files.Services;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
-namespace FSH.Modules.Files.Features.v1.GetFileDownloadUrl;
+namespace Trislab.Modules.Files.Features.v1.GetFileDownloadUrl;
 
 public sealed class GetFileDownloadUrlQueryHandler(
     FilesDbContext db,

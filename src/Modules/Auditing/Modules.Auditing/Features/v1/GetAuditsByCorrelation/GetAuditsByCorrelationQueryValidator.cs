@@ -1,9 +1,9 @@
 using FluentValidation;
-using FSH.Modules.Auditing.Contracts.v1.GetAuditsByCorrelation;
-using FSH.Modules.Auditing.Localization;
+using Trislab.Modules.Auditing.Contracts.v1.GetAuditsByCorrelation;
+using Trislab.Modules.Auditing.Localization;
 using Microsoft.Extensions.Localization;
 
-namespace FSH.Modules.Auditing.Features.v1.GetAuditsByCorrelation;
+namespace Trislab.Modules.Auditing.Features.v1.GetAuditsByCorrelation;
 
 public sealed class GetAuditsByCorrelationQueryValidator : AbstractValidator<GetAuditsByCorrelationQuery>
 {

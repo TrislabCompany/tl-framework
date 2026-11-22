@@ -1,11 +1,11 @@
 using System.Net.Http.Headers;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Persistence;
-using FSH.Modules.Webhooks.Contracts.Dtos;
-using FSH.Modules.Webhooks.Data;
-using FSH.Modules.Webhooks.Services;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Shared.Persistence;
+using Trislab.Modules.Webhooks.Contracts.Dtos;
+using Trislab.Modules.Webhooks.Data;
+using Trislab.Modules.Webhooks.Services;
 using Integration.Tests.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -15,10 +15,10 @@ namespace Integration.Tests.Tests.Webhooks;
 
 /// <summary>
 /// Exercises the delivery-log read path (<c>GET /subscriptions/{id}/deliveries</c> →
-/// <see cref="FSH.Modules.Webhooks.Features.v1.GetWebhookDeliveries.GetWebhookDeliveriesQueryHandler"/>),
+/// <see cref="Trislab.Modules.Webhooks.Features.v1.GetWebhookDeliveries.GetWebhookDeliveriesQueryHandler"/>),
 /// the synchronous test-send flow
 /// (<c>POST /subscriptions/{id}/test</c> →
-/// <see cref="FSH.Modules.Webhooks.Features.v1.TestWebhookSubscription.TestWebhookSubscriptionCommandHandler"/>
+/// <see cref="Trislab.Modules.Webhooks.Features.v1.TestWebhookSubscription.TestWebhookSubscriptionCommandHandler"/>
 /// → <see cref="WebhookDeliveryService"/>), and tenant isolation of the delivery rows.
 ///
 /// To make the test-send actually produce a delivery row WITHOUT a real network call, we swap the
@@ -27,13 +27,13 @@ namespace Integration.Tests.Tests.Webhooks;
 /// HTTP status code so we can cover both the success row and the failure row branches of
 /// <see cref="WebhookDeliveryService"/>.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class WebhookDeliveryTests
 {
-    private readonly FshWebApplicationFactory _factory;
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public WebhookDeliveryTests(FshWebApplicationFactory factory)
+    public WebhookDeliveryTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);

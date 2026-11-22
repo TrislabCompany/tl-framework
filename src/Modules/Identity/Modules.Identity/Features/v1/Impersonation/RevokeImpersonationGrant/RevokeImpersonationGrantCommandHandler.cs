@@ -1,15 +1,15 @@
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Auditing.Contracts;
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Impersonation;
-using FSH.Modules.Identity.Contracts.v1.Impersonation.RevokeImpersonationGrant;
-using FSH.Modules.Identity.Localization;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Auditing.Contracts;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Impersonation;
+using Trislab.Modules.Identity.Contracts.v1.Impersonation.RevokeImpersonationGrant;
+using Trislab.Modules.Identity.Localization;
 using Mediator;
 using Microsoft.Extensions.Logging;
 
-namespace FSH.Modules.Identity.Features.v1.Impersonation.RevokeImpersonationGrant;
+namespace Trislab.Modules.Identity.Features.v1.Impersonation.RevokeImpersonationGrant;
 
 public sealed class RevokeImpersonationGrantCommandHandler(
     IImpersonationGrantService grantService,

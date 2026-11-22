@@ -1,7 +1,7 @@
-using FSH.Framework.Core.Domain;
-using FSH.Modules.Catalog.Domain.Events;
+using Trislab.Framework.Core.Domain;
+using Trislab.Modules.Catalog.Domain.Events;
 
-namespace FSH.Modules.Catalog.Domain;
+namespace Trislab.Modules.Catalog.Domain;
 
 public sealed class Product : AggregateRoot<Guid>, ISoftDeletable
 {

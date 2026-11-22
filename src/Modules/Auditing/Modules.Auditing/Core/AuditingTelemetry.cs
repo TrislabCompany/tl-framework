@@ -1,6 +1,6 @@
 using System.Diagnostics.Metrics;
 
-namespace FSH.Modules.Auditing;
+namespace Trislab.Modules.Auditing;
 
 /// <summary>
 /// OpenTelemetry instruments for the auditing pipeline. Exposed as static
@@ -10,7 +10,7 @@ namespace FSH.Modules.Auditing;
 /// </summary>
 public static class AuditingTelemetry
 {
-    public const string MeterName = "FSH.Modules.Auditing";
+    public const string MeterName = "Trislab.Modules.Auditing";
 
     internal static readonly Meter Meter = new(MeterName);
 

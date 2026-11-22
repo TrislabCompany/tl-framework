@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Domain;
+using Trislab.Framework.Core.Domain;
 
-namespace FSH.Modules.Chat.Domain.Events;
+namespace Trislab.Modules.Chat.Domain.Events;
 
 public sealed record MessageEditedDomainEvent(
     Guid ChannelId,

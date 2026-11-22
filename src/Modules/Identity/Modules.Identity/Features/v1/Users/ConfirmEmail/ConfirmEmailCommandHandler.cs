@@ -1,8 +1,8 @@
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Contracts.v1.Users.ConfirmEmail;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Contracts.v1.Users.ConfirmEmail;
 using Mediator;
 
-namespace FSH.Modules.Identity.Features.v1.Users.ConfirmEmail;
+namespace Trislab.Modules.Identity.Features.v1.Users.ConfirmEmail;
 
 public sealed class ConfirmEmailCommandHandler : ICommandHandler<ConfirmEmailCommand, string>
 {

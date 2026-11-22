@@ -1,13 +1,13 @@
 using System.Net;
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Catalog.Contracts.v1.Brands;
-using FSH.Modules.Catalog.Data;
-using FSH.Modules.Catalog.Domain;
-using FSH.Modules.Catalog.Localization;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Catalog.Contracts.v1.Brands;
+using Trislab.Modules.Catalog.Data;
+using Trislab.Modules.Catalog.Domain;
+using Trislab.Modules.Catalog.Localization;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Catalog.Features.v1.Brands.CreateBrand;
+namespace Trislab.Modules.Catalog.Features.v1.Brands.CreateBrand;
 
 public sealed class CreateBrandCommandHandler(CatalogDbContext dbContext)
     : ICommandHandler<CreateBrandCommand, Guid>

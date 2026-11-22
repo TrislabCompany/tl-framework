@@ -1,7 +1,7 @@
-using FSH.Modules.Notifications.Contracts.v1.DTOs;
-using FSH.Modules.Notifications.Domain;
+using Trislab.Modules.Notifications.Contracts.v1.DTOs;
+using Trislab.Modules.Notifications.Domain;
 
-namespace FSH.Modules.Notifications.Features.v1.Internal;
+namespace Trislab.Modules.Notifications.Features.v1.Internal;
 
 internal static class NotificationMappers
 {

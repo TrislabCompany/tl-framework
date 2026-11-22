@@ -11,12 +11,12 @@ namespace Integration.Tests.Tests.Tickets;
 /// so these assert intended behavior. Intra-tenant lifecycle / state-machine
 /// coverage lives in <see cref="TicketsEndpointTests"/>.
 /// </summary>
-[Collection(FshCollectionDefinition.Name)]
+[Collection(TrislabCollectionDefinition.Name)]
 public sealed class TicketTenantIsolationTests
 {
     private readonly AuthHelper _auth;
 
-    public TicketTenantIsolationTests(FshWebApplicationFactory factory)
+    public TicketTenantIsolationTests(TrislabWebApplicationFactory factory)
     {
         _auth = new AuthHelper(factory);
     }

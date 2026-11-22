@@ -1,13 +1,13 @@
 using Finbuckle.MultiTenant.Abstractions;
-using FSH.Framework.Core.Context;
-using FSH.Framework.Core.Exceptions;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Modules.Billing.Contracts.v1.Wallets;
-using FSH.Modules.Billing.Data;
-using FSH.Modules.Billing.Domain;
+using Trislab.Framework.Core.Context;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Billing.Contracts.v1.Wallets;
+using Trislab.Modules.Billing.Data;
+using Trislab.Modules.Billing.Domain;
 using Mediator;
 
-namespace FSH.Modules.Billing.Features.v1.Wallets.CreateTopupRequest;
+namespace Trislab.Modules.Billing.Features.v1.Wallets.CreateTopupRequest;
 
 public sealed class CreateTopupRequestCommandHandler(
     BillingDbContext db,

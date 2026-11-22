@@ -1,5 +1,5 @@
-using FSH.Framework.Core.Exceptions;
-using FSH.Modules.Auditing.Contracts;
+using Trislab.Framework.Core.Exceptions;
+using Trislab.Modules.Auditing.Contracts;
 
 namespace Auditing.Tests.Contracts;
 

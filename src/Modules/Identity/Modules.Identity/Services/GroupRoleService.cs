@@ -1,8 +1,8 @@
-using FSH.Modules.Identity.Contracts.Services;
-using FSH.Modules.Identity.Data;
+using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace FSH.Modules.Identity.Services;
+namespace Trislab.Modules.Identity.Services;
 
 public sealed class GroupRoleService : IGroupRoleService
 {

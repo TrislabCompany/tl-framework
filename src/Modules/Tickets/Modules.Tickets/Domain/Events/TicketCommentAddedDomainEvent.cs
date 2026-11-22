@@ -1,6 +1,6 @@
-using FSH.Framework.Core.Domain;
+using Trislab.Framework.Core.Domain;
 
-namespace FSH.Modules.Tickets.Domain.Events;
+namespace Trislab.Modules.Tickets.Domain.Events;
 
 public sealed record TicketCommentAddedDomainEvent(
     Guid TicketId,
