@@ -117,7 +117,7 @@ dotnet run --project src/Host/App.DbMigrator -- list-pending
 | Background jobs (Hangfire), recurring jobs | `jobs.md` |
 | Outbound HTTP resilience (Polly) | `resilience.md` |
 | Files/blobs, presigned uploads, providers | `storage.md` |
-| CORS, security headers, rate limiting, idempotency, quotas | `security.md` |
+| CORS, security headers, rate limiting, idempotency, quotas, front-end link origins | `security.md` |
 | SignalR / SSE backend | `realtime.md` |
 | Logging (levels, never-logged data), correlation, OpenTelemetry | `logging.md` |
 | Unit test conventions, what to test, NetArchTest | `testing.md` |
