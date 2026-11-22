@@ -34,19 +34,31 @@ public static class Extensions
 
         if (string.Equals(provider, "s3", StringComparison.OrdinalIgnoreCase))
         {
-            services.Configure<S3StorageOptions>(configuration.GetSection("Storage:S3"));
+            services
+                .AddOptions<S3StorageOptions>()
+                .Bind(configuration.GetSection("Storage:S3"))
+                .Validate(o => string.IsNullOrWhiteSpace(o.PresignServiceUrl) || IsRootHttpUrl(o.PresignServiceUrl), "Storage:S3:PresignServiceUrl must be an absolute http(s) URL with no path, e.g. https://s3.example.com.")
+                .ValidateOnStart();
 
             services.AddSingleton<IAmazonS3>(sp =>
-                CreateS3Client(sp.GetRequiredService<IOptions<S3StorageOptions>>().Value, serviceUrlOverride: null));
+            {
+                var options = sp.GetRequiredService<IOptions<S3StorageOptions>>().Value;
 
-            // Signs presigned URLs. Signing needs no network call, so this client only has to know
-            // the host the browser uses, which differs from ServiceUrl behind the /storage proxy.
+                if (string.IsNullOrWhiteSpace(options.Bucket))
+                {
+                    throw new InvalidOperationException("Storage:S3:Bucket is required when using S3 storage.");
+                }
+
+                return CreateS3Client(options, options.ServiceUrl);
+            });
+
+            // A second client only so presigned URLs are signed for the host browsers use. Signing itself is
+            // offline, and without explicit keys the only call this client makes is the one-time fetch of
+            // ambient credentials. All real I/O stays on the client above.
             services.AddKeyedSingleton<IAmazonS3>(S3StorageService.PresignClientKey, (sp, _) =>
             {
                 var options = sp.GetRequiredService<IOptions<S3StorageOptions>>().Value;
-                return string.IsNullOrWhiteSpace(options.PublicServiceUrl)
-                    ? sp.GetRequiredService<IAmazonS3>()
-                    : CreateS3Client(options, options.PublicServiceUrl);
+                return CreateS3Client(options, options.PresignEndpoint);
             });
 
             services.AddTransient<S3StorageService>();
@@ -61,15 +73,9 @@ public static class Extensions
         return services;
     }
 
-    private static AmazonS3Client CreateS3Client(S3StorageOptions options, string? serviceUrlOverride)
+    private static AmazonS3Client CreateS3Client(S3StorageOptions options, string? serviceUrl)
     {
-        if (string.IsNullOrWhiteSpace(options.Bucket))
-        {
-            throw new InvalidOperationException("Storage:S3:Bucket is required when using S3 storage.");
-        }
-
         var config = new AmazonS3Config();
-        var serviceUrl = serviceUrlOverride ?? options.ServiceUrl;
 
         if (!string.IsNullOrWhiteSpace(serviceUrl))
         {
@@ -93,6 +99,15 @@ public static class Extensions
             ? new AmazonS3Client(new BasicAWSCredentials(options.AccessKey, options.SecretKey), config)
             : new AmazonS3Client(config);
     }
+
+    // A path would be signed into every URL (https://host/s3/bucket/key): a proxy that strips it breaks
+    // the signature, and one that keeps it makes the store read "s3" as the bucket.
+    private static bool IsRootHttpUrl(string value) =>
+        Uri.TryCreate(value.Trim(), UriKind.Absolute, out var uri)
+        && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+        && uri.AbsolutePath == "/"
+        && string.IsNullOrEmpty(uri.Query)
+        && string.IsNullOrEmpty(uri.Fragment);
 
     private static void RegisterStorageService<TInner>(
         IServiceCollection services,

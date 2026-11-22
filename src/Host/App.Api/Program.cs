@@ -44,6 +44,19 @@ if (builder.Environment.IsProduction())
     var config = builder.Configuration;
     Require(config, "DatabaseOptions:ConnectionString", "DATABASE_URL");
     Require(config, "JwtOptions:SigningKey", "JWT_SIGNING_KEY");
+
+    // Password-reset and confirmation links are built from FrontendOptions:DefaultOrigin when the request
+    // has no allowed Origin. The stamps don't set it yet (docs/upstream.md row 57), so it is optional here,
+    // and those flows answer 500 until it is set. When it is set, it must be an absolute http(s) URL:
+    // on Unix, Uri.TryCreate also accepts "/path" as a file:// URI.
+    var defaultOrigin = config["FrontendOptions:DefaultOrigin"];
+    if (!string.IsNullOrWhiteSpace(defaultOrigin)
+        && (!Uri.TryCreate(defaultOrigin, UriKind.Absolute, out Uri? origin)
+            || (origin.Scheme != Uri.UriSchemeHttp && origin.Scheme != Uri.UriSchemeHttps)))
+    {
+        throw new InvalidOperationException(
+            "FrontendOptions:DefaultOrigin must be an absolute http(s) URL, such as \"https://app.example.com\".");
+    }
 }
 
 builder.Services.AddMediator(o =>

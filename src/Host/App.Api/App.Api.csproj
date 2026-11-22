@@ -4,6 +4,12 @@
 		<RootNamespace>App.Api</RootNamespace>
 		<AssemblyName>App.Api</AssemblyName>
 		<IsPackable>false</IsPackable>
+
+		<!-- The chiseled runtime image ships without ICU and sets DOTNET_SYSTEM_GLOBALIZATION_INVARIANT,
+		     where only predefined cultures may be created, so request localization's new CultureInfo(...)
+		     kills startup. Named cultures are all it needs: resource lookup goes by name, and formatting is
+		     pinned to InvariantCulture by design (see UseHeroLocalization). -->
+		<PredefinedCulturesOnly>false</PredefinedCulturesOnly>
 	</PropertyGroup>
 
 	<ItemGroup>

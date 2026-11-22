@@ -182,10 +182,10 @@ internal sealed class IdentityDbInitializer(
             return;
         }
 
-        if (await userManager.Users.FirstOrDefaultAsync(u => u.Email == multiTenantContextAccessor.MultiTenantContext.TenantInfo!.AdminEmail, cancellationToken)
+        if (await userManager.Users.FirstOrDefaultAsync(u => u.Email == multiTenantContextAccessor.MultiTenantContext.TenantInfo.AdminEmail, cancellationToken)
             is not FshUser adminUser)
         {
-            var initialPassword = ResolveInitialAdminPassword(multiTenantContextAccessor.MultiTenantContext.TenantInfo!.Id!);
+            var initialPassword = ResolveInitialAdminPassword(multiTenantContextAccessor.MultiTenantContext.TenantInfo.Id);
             if (initialPassword is null)
             {
                 // No password (SEED_ADMIN_PASSWORD in a stamp): no admin account rather than one with a guessable password.
@@ -205,7 +205,7 @@ internal sealed class IdentityDbInitializer(
                 UserName = adminUserName,
                 EmailConfirmed = true,
                 PhoneNumberConfirmed = true,
-                NormalizedEmail = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.AdminEmail!.ToUpperInvariant(),
+                NormalizedEmail = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.AdminEmail.ToUpperInvariant(),
                 NormalizedUserName = adminUserName.ToUpperInvariant(),
                 // No default avatar: the asset was never shipped, and baking an absolute
                 // {OriginUrl}/… URL at seed time pinned it to the seeder's localhost origin

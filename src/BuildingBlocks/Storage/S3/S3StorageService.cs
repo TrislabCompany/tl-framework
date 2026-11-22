@@ -13,16 +13,17 @@ namespace FSH.Framework.Storage.S3;
 
 internal sealed partial class S3StorageService : IStorageService
 {
-    /// <summary>The service key of the client that signs presigned URLs (see <see cref="S3StorageOptions.PublicServiceUrl"/>).</summary>
-    public const string PresignClientKey = "fsh-s3-presign";
+    internal const string PresignClientKey = "FSH.Storage.S3.Presign";
 
     private readonly IAmazonS3 _s3;
-    private readonly IAmazonS3 _presigner;
+    private readonly IAmazonS3 _presignS3;
     private readonly S3StorageOptions _options;
     private readonly ILogger<S3StorageService> _logger;
     private readonly FileExtensionContentTypeProvider _contentTypeProvider;
 
-    private const string UploadBasePath = "uploads";
+    // UploadAsync always hands back a durable public URL, so these objects live under the public root
+    // that bucket policies open to anonymous reads. Keys written before the root existed stay "uploads/…".
+    private const string UploadBasePath = StorageVisibilityRoot.Public + "uploads";
 
     // Source-generated, compiled once — the inline Regex.Replace calls re-parsed the pattern on every upload.
     [GeneratedRegex("[^a-z0-9]")]
@@ -33,12 +34,12 @@ internal sealed partial class S3StorageService : IStorageService
 
     public S3StorageService(
         IAmazonS3 s3,
-        [FromKeyedServices(PresignClientKey)] IAmazonS3 presigner,
+        [FromKeyedServices(PresignClientKey)] IAmazonS3 presignS3,
         IOptions<S3StorageOptions> options,
         ILogger<S3StorageService> logger)
     {
         _s3 = s3;
-        _presigner = presigner;
+        _presignS3 = presignS3;
         _options = options.Value ?? throw new ArgumentNullException(nameof(options));
         _logger = logger;
         _contentTypeProvider = new FileExtensionContentTypeProvider();
@@ -107,6 +108,30 @@ internal sealed partial class S3StorageService : IStorageService
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Unexpected error deleting S3 object {Path}", path);
+        }
+    }
+
+    public async Task CopyAsync(string sourceKey, string destinationKey, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(sourceKey);
+        ArgumentException.ThrowIfNullOrWhiteSpace(destinationKey);
+
+        var source = NormalizeKey(sourceKey);
+        var destination = NormalizeKey(destinationKey);
+
+        // CopyObject keeps Content-Type and user metadata (MetadataDirective COPY is the default).
+        await _s3.CopyObjectAsync(new CopyObjectRequest
+        {
+            SourceBucket = _options.Bucket,
+            SourceKey = source,
+            DestinationBucket = _options.Bucket,
+            DestinationKey = destination
+        }, cancellationToken).ConfigureAwait(false);
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug("Copied S3 object in bucket {Bucket} from {SourceKey} to {DestinationKey}",
+                _options.Bucket, source, destination);
         }
     }
 
@@ -258,7 +283,7 @@ internal sealed partial class S3StorageService : IStorageService
             Protocol = ResolvePresignProtocol()
         };
 
-        var url = await _presigner.GetPreSignedURLAsync(request).ConfigureAwait(false);
+        var url = await _presignS3.GetPreSignedURLAsync(request).ConfigureAwait(false);
 
         var requiredHeaders = new Dictionary<string, string>(StringComparer.Ordinal)
         {
@@ -298,7 +323,7 @@ internal sealed partial class S3StorageService : IStorageService
             request.ResponseHeaderOverrides.ContentDisposition = responseContentDisposition;
         }
 
-        var url = await _presigner.GetPreSignedURLAsync(request).ConfigureAwait(false);
+        var url = await _presignS3.GetPreSignedURLAsync(request).ConfigureAwait(false);
         return new Uri(url);
     }
 
@@ -351,12 +376,12 @@ internal sealed partial class S3StorageService : IStorageService
     }
 
     // MinIO and other S3-compatibles often serve plain HTTP, but the SDK defaults presigned URLs to
-    // HTTPS regardless of ServiceURL scheme (un-PUTable there). Infer protocol from ServiceURL.
+    // HTTPS regardless of ServiceURL scheme (un-PUTable there). Infer protocol from the presign endpoint.
     private Protocol ResolvePresignProtocol()
     {
-        var presignUrl = string.IsNullOrWhiteSpace(_options.PublicServiceUrl) ? _options.ServiceUrl : _options.PublicServiceUrl;
-        if (!string.IsNullOrWhiteSpace(presignUrl)
-            && Uri.TryCreate(presignUrl, UriKind.Absolute, out var uri)
+        var endpoint = _options.PresignEndpoint;
+        if (!string.IsNullOrWhiteSpace(endpoint)
+            && Uri.TryCreate(endpoint, UriKind.Absolute, out var uri)
             && string.Equals(uri.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase))
         {
             return Protocol.HTTP;
