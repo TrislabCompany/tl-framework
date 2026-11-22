@@ -83,7 +83,7 @@ public static class Extensions
         {
            new HangfireCustomBasicAuthenticationFilter
            {
-                User = hangfireOptions.UserName!,
+                User = hangfireOptions.UserName,
                 Pass = hangfireOptions.Password
            }
         };
