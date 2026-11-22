@@ -40,6 +40,5 @@
     <ProjectReference Include="..\..\Samples\Chat\Modules.Chat\Modules.Chat.csproj" />
     <ProjectReference Include="..\..\Samples\Chat\Modules.Chat.Contracts\Modules.Chat.Contracts.csproj" />
     <ProjectReference Include="..\..\Host\App.Api\App.Api.csproj" />
-    <ProjectReference Include="..\..\Host\App.Migrations.PostgreSQL\App.Migrations.PostgreSQL.csproj" />
   </ItemGroup>
 </Project>

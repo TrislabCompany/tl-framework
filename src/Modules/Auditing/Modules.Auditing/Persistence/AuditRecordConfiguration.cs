@@ -9,7 +9,7 @@ public class AuditRecordConfiguration : IEntityTypeConfiguration<AuditRecord>
     public void Configure(EntityTypeBuilder<AuditRecord> builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
-        builder.ToTable("AuditRecords", "audit");
+        builder.ToTable("AuditRecords", AuditDbContext.Schema);
         builder.IsMultiTenant();
         builder.HasKey(x => x.Id);
         builder.Property(x => x.EventType).HasConversion<int>();

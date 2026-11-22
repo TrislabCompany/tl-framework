@@ -51,7 +51,7 @@ public sealed class ChatModule : IModule
 
         PermissionConstants.Register(ChatPermissions.All);
 
-        builder.Services.AddTrislabDbContext<ChatDbContext>();
+        builder.Services.AddTrislabDbContext<ChatDbContext>(ChatDbContext.Schema);
         builder.Services.AddScoped<IDbInitializer, ChatDbInitializer>();
         builder.Services.AddValidatorsFromAssembly(typeof(ChatModule).Assembly);
 

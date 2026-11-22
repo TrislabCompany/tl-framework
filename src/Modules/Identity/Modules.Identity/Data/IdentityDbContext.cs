@@ -71,7 +71,6 @@ public class IdentityDbContext : MultiTenantIdentityDbContext<TrislabUser,
             optionsBuilder.ConfigureTrislabDatabase(
                 _settings.Provider,
                 TenantInfo.ConnectionString,
-                _settings.MigrationsAssembly,
                 _environment.IsDevelopment());
         }
     }

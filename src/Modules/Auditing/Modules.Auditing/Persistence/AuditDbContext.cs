@@ -16,6 +16,8 @@ namespace Trislab.Modules.Auditing.Persistence;
 
 public sealed class AuditDbContext : BaseDbContext
 {
+    public const string Schema = "audit";
+
     public AuditDbContext(
     IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
     DbContextOptions<AuditDbContext> options,

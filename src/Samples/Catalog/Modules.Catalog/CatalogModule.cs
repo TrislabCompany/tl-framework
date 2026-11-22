@@ -54,7 +54,7 @@ public sealed class CatalogModule : IModule
 
         PermissionConstants.Register(CatalogPermissions.All);
 
-        builder.Services.AddTrislabDbContext<CatalogDbContext>();
+        builder.Services.AddTrislabDbContext<CatalogDbContext>(CatalogDbContext.Schema);
         builder.Services.AddScoped<IDbInitializer, CatalogDbInitializer>();
 
         // OwnerType=Product policy for Files module attachments (product images).

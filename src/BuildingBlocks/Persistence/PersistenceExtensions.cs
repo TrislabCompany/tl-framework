@@ -44,12 +44,15 @@ public static class PersistenceExtensions
     /// </summary>
     /// <typeparam name="TContext">The type of the DbContext to configure.</typeparam>
     /// <param name="services">The service collection to add the context to.</param>
+    /// <param name="schema">The module's schema. Its migrations history table lives there; the
+    /// migrations themselves live in the context's own assembly.</param>
     /// <returns>The service collection for method chaining.</returns>
     /// <exception cref="ArgumentNullException">Thrown when services is null.</exception>
-    public static IServiceCollection AddTrislabDbContext<TContext>(this IServiceCollection services)
+    public static IServiceCollection AddTrislabDbContext<TContext>(this IServiceCollection services, string schema)
         where TContext : DbContext
     {
         ArgumentNullException.ThrowIfNull(services);
+        ArgumentException.ThrowIfNullOrWhiteSpace(schema);
 
         services.AddDbContext<TContext>((sp, options) =>
         {
@@ -61,7 +64,7 @@ public static class PersistenceExtensions
             var connection = sp.GetRequiredService<IScopedDbConnectionProvider>()
                 .GetConnection(dbConfig.Provider, dbConfig.ConnectionString);
 
-            options.ConfigureTrislabDatabase(dbConfig.Provider, connection, dbConfig.MigrationsAssembly, env.IsDevelopment());
+            options.ConfigureTrislabDatabase(dbConfig.Provider, connection, env.IsDevelopment(), schema);
             options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
             options.AddInterceptors(sp.GetRequiredService<AmbientDbTransactionRegistry>());
         });

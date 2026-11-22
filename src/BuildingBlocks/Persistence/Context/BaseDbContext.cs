@@ -71,7 +71,6 @@ public class BaseDbContext(IMultiTenantContextAccessor<AppTenantInfo> multiTenan
             optionsBuilder.ConfigureTrislabDatabase(
                 _settings.Provider,
                 tenantConnectionString,
-                _settings.MigrationsAssembly,
                 environment.IsDevelopment());
             return;
         }
@@ -79,7 +78,6 @@ public class BaseDbContext(IMultiTenantContextAccessor<AppTenantInfo> multiTenan
         optionsBuilder.ConfigureTrislabDatabase(
             _settings.Provider,
             connectionProvider.GetConnection(_settings.Provider, tenantConnectionString),
-            _settings.MigrationsAssembly,
             environment.IsDevelopment());
     }
 

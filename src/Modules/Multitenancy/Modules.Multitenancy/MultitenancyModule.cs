@@ -68,7 +68,7 @@ public sealed class MultitenancyModule : IModule
             Trislab.Framework.Shared.Multitenancy.ITenantInitialPasswordBuffer,
             Services.TenantInitialPasswordBuffer>();
 
-        builder.Services.AddTrislabDbContext<TenantDbContext>();
+        builder.Services.AddTrislabDbContext<TenantDbContext>(TenantDbContext.Schema);
 
         // Replace (not Add) the no-op event tenant scope with a Finbuckle-backed one so background
         // event dispatch establishes the tenant before tenant-filtered handler DbContexts are built.

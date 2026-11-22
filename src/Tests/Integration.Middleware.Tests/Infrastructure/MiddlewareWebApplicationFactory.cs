@@ -147,7 +147,6 @@ public sealed class MiddlewareWebApplicationFactory : WebApplicationFactory<Prog
             {
                 ["DatabaseOptions:Provider"] = "POSTGRESQL",
                 ["DatabaseOptions:ConnectionString"] = _postgres.GetConnectionString(),
-                ["DatabaseOptions:MigrationsAssembly"] = "App.Migrations.PostgreSQL",
                 ["CachingOptions:Redis"] = "",
                 ["JwtOptions:Issuer"] = TestConstants.JwtIssuer,
                 ["JwtOptions:Audience"] = TestConstants.JwtAudience,

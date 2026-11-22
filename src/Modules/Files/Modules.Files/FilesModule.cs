@@ -49,7 +49,7 @@ public sealed class FilesModule : IModule
         PermissionConstants.Register(FilesPermissions.All);
 
         builder.Services.Configure<FilesOptions>(builder.Configuration.GetSection("Files"));
-        builder.Services.AddTrislabDbContext<FilesDbContext>();
+        builder.Services.AddTrislabDbContext<FilesDbContext>(FilesDbContext.Schema);
         builder.Services.AddScoped<IDbInitializer, FilesDbInitializer>();
 
         builder.Services.AddScoped<FileAccessPolicyRegistry>();

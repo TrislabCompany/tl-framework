@@ -36,7 +36,7 @@ public sealed class TicketsModule : IModule
 
         PermissionConstants.Register(TicketsPermissions.All);
 
-        builder.Services.AddTrislabDbContext<TicketsDbContext>();
+        builder.Services.AddTrislabDbContext<TicketsDbContext>(TicketsDbContext.Schema);
         builder.Services.AddScoped<IDbInitializer, TicketsDbInitializer>();
 
         builder.Services.AddHealthChecks()

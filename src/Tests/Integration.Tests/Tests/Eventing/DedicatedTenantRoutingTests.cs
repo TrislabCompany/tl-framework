@@ -248,7 +248,6 @@ public sealed class DedicatedTenantRoutingTests(TrislabWebApplicationFactory fac
             {
                 options.Provider = "POSTGRESQL";
                 options.ConnectionString = connection;
-                options.MigrationsAssembly = "App.Migrations.PostgreSQL";
             });
             services.AddScoped<IScopedDbConnectionProvider, ScopedDbConnectionProvider>();
             services.AddScoped<AmbientDbTransactionRegistry>();
@@ -258,13 +257,13 @@ public sealed class DedicatedTenantRoutingTests(TrislabWebApplicationFactory fac
                 .WithDistributedCacheStore(TimeSpan.FromMinutes(60))
                 .WithStore<EFCoreStore<TenantDbContext, AppTenantInfo>>(ServiceLifetime.Scoped);
             services.AddEventingCore(configuration);
-            services.AddTrislabDbContext<CatalogDbContext>();
+            services.AddTrislabDbContext<CatalogDbContext>(CatalogDbContext.Schema);
             services.Replace(ServiceDescriptor.Singleton<IEventTenantScope, FinbuckleEventTenantScope>());
             services.Replace(ServiceDescriptor.Singleton<IEventingDrainScope, FinbuckleEventingDrainScope>());
             services.AddScoped<IIntegrationEventHandler<FileFinalizedIntegrationEvent>, FileEventMarkerHandler>();
             if (webhooks)
             {
-                services.AddTrislabDbContext<WebhookDbContext>();
+                services.AddTrislabDbContext<WebhookDbContext>(WebhookDbContext.Schema);
                 services.AddSingleton<IWebhookDispatcher>(recorder);
                 services.AddScoped(typeof(IIntegrationEventHandler<>), typeof(WebhookFanoutHandler<>));
             }
