@@ -85,11 +85,11 @@ const passwordSchema = z
   })
   .refine((v) => v.next === v.confirm, {
     path: ["confirm"],
-    message: "Passwords don't match.",
+    error: "Passwords don't match.",
   })
   .refine((v) => v.next !== v.current, {
     path: ["next"],
-    message: "New password must differ from the current one.",
+    error: "New password must differ from the current one.",
   });
 
 type PasswordValues = z.infer<typeof passwordSchema>;

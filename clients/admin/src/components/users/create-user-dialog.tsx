@@ -32,14 +32,14 @@ const schema = z
       .string()
       .trim()
       .regex(USERNAME_RE, "3–32 chars. Letters, digits, dot, dash, underscore. Start with a letter."),
-    email: z.string().trim().email("Enter a valid email."),
+    email: z.string().trim().pipe(z.email("Enter a valid email.")),
     phoneNumber: z.string().trim().max(32).optional(),
     password: z.string().min(8, "At least 8 characters."),
     confirmPassword: z.string().min(8),
   })
   .refine((d) => d.password === d.confirmPassword, {
     path: ["confirmPassword"],
-    message: "Passwords don't match.",
+    error: "Passwords don't match.",
   });
 
 type FormValues = z.infer<typeof schema>;
