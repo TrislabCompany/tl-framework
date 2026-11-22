@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using FSH.Modules.Multitenancy.Data;
 using FSH.Framework.Web.Modules;
+using FSH.Modules.Auditing;
 using Hangfire;
 using Hangfire.InMemory;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -33,6 +34,12 @@ public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, I
     internal const string S3SecretKey = "rustfsadmin";
     internal const string S3Bucket = "fsh-integration-test-uploads";
 
+    /// <summary>The shared host's Hangfire storage; see <see cref="PrimaryHostStaticsRestorer"/>.</summary>
+    internal static JobStorage? PrimaryJobStorage { get; private set; }
+
+    /// <summary>The shared host's audit configurator; see <see cref="PrimaryHostStaticsRestorer"/>.</summary>
+    internal static AuditingConfigurator? PrimaryAuditingConfigurator { get; private set; }
+
     private static readonly SemaphoreSlim _migrationLock = new(1, 1);
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:17.11-alpine@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b")
         .WithDatabase("fsh_integration_tests")
@@ -52,13 +59,15 @@ public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, I
         .WithCleanUp(true)
         .Build();
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await Task.WhenAll(_postgres.StartAsync(), _minio.StartAsync());
         await CreateS3BucketAsync();
 
         // Force host creation via the Server property (no leaked HttpClient)
         _ = Server;
+        PrimaryJobStorage = Services.GetRequiredService<JobStorage>();
+        PrimaryAuditingConfigurator = Services.GetServices<IHostedService>().OfType<AuditingConfigurator>().Single();
 
         // Migrate + seed the root tenant. The semaphore stops test classes sharing the DB
         // from migrating simultaneously.
@@ -73,11 +82,27 @@ public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, I
         }
     }
 
-    public new async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         await base.DisposeAsync();
         await _postgres.DisposeAsync();
         await _minio.DisposeAsync();
+    }
+
+    /// <summary>
+    /// Removes tenants a test created from the shared tenant store. Use it for tenants that point at an
+    /// unreachable database: later tests that walk every tenant (the legacy public-key migration job, for
+    /// one) would otherwise count them as failures. Test order is not guaranteed, so clean up after yourself.
+    /// </summary>
+    public async Task RemoveTenantsAsync(IEnumerable<string> tenantIds)
+    {
+        ArgumentNullException.ThrowIfNull(tenantIds);
+        using var scope = Services.CreateScope();
+        var store = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+        foreach (var tenantId in tenantIds)
+        {
+            await store.RemoveAsync(tenantId);
+        }
     }
 
     /// <summary>The MinIO endpoint URL exposed to the host configuration; useful for tests that need to PUT bytes directly.</summary>
@@ -206,6 +231,7 @@ public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, I
             }
 
             services.AddHangfire(config => config.UseInMemoryStorage());
+            services.AddHostedService<PrimaryHostStaticsRestorer>();
             services.AddHangfireServer(options =>
             {
                 options.SchedulePollingInterval = TimeSpan.FromSeconds(1);
