@@ -56,7 +56,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     }
 
     [Theory]
-    [InlineData("sl-SI", "Não encontrado")]
+    [InlineData("sl-SI", "Ni najdeno")]
     [InlineData("en-US", "Not Found")]
     public async Task NotFound_title_is_localized(string culture, string expected)
     {
@@ -65,7 +65,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     }
 
     [Theory]
-    [InlineData("sl-SI", "Ocorreu um erro inesperado")]
+    [InlineData("sl-SI", "Prišlo je do nepričakovane napake")]
     [InlineData("en-US", "An unexpected error occurred")]
     public async Task Unexpected_title_is_localized(string culture, string expected)
     {
@@ -75,7 +75,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
 
     // CustomException Title is now the status-mapped catalog key (404 -> Error.NotFound), localized.
     [Theory]
-    [InlineData("sl-SI", "Não encontrado")]
+    [InlineData("sl-SI", "Ni najdeno")]
     [InlineData("en-US", "Not Found")]
     public async Task CustomException_title_is_localized_by_status(string culture, string expected)
     {
@@ -85,7 +85,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
 
     // Detail resolves from MessageKey under the request culture (using an existing Core key).
     [Theory]
-    [InlineData("sl-SI", "Não autorizado")]
+    [InlineData("sl-SI", "Brez pooblastila")]
     [InlineData("en-US", "Unauthorized")]
     public async Task CustomException_detail_is_localized_from_key(string culture, string expected)
     {
@@ -107,7 +107,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     // Parameterless UnauthorizedException carries Error.AuthenticationFailed, so generic auth failures
     // localize their Detail without any call-site key (English fallback stays "Authentication failed.").
     [Theory]
-    [InlineData("sl-SI", "Falha na autenticação.")]
+    [InlineData("sl-SI", "Preverjanje pristnosti ni uspelo.")]
     [InlineData("en-US", "Authentication failed.")]
     public async Task Parameterless_unauthorized_detail_is_localized(string culture, string expected)
     {
@@ -127,7 +127,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     // BCL-subclass exceptions (kept as their base type so audit severity classification is unaffected)
     // still localize their Detail from MessageKey through the shared handler path.
     [Theory]
-    [InlineData("sl-SI", "Falha na autenticação.")]
+    [InlineData("sl-SI", "Preverjanje pristnosti ni uspelo.")]
     [InlineData("en-US", "Authentication failed.")]
     public async Task LocalizedUnauthorizedAccess_detail_is_localized(string culture, string expected)
     {
@@ -140,7 +140,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     }
 
     [Theory]
-    [InlineData("sl-SI", "Não encontrado")]
+    [InlineData("sl-SI", "Ni najdeno")]
     [InlineData("en-US", "Not Found")]
     public async Task LocalizedKeyNotFound_detail_is_localized(string culture, string expected)
     {
@@ -215,7 +215,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     // own detail. There are 41 Conflict throw sites across Billing and Catalog.
     [Theory]
     [InlineData("en-US", "Conflict")]
-    [InlineData("sl-SI", "Conflito")]
+    [InlineData("sl-SI", "Navzkrižje")]
     public async Task Conflict_is_titled_as_a_conflict_not_as_unexpected(string culture, string expected)
     {
         var exception = new CustomException("Brand name already taken.", [], HttpStatusCode.Conflict);
@@ -229,7 +229,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     // own key it fell back to the type name and went out titled "CustomException" in every culture.
     [Theory]
     [InlineData("en-US", "Precondition Failed")]
-    [InlineData("sl-SI", "Pré-condição não atendida")]
+    [InlineData("sl-SI", "Predpogoj ni izpolnjen")]
     public async Task PreconditionFailed_has_its_own_title(string culture, string expected)
     {
         var exception = new CustomException("The profile changed.", [], HttpStatusCode.PreconditionFailed);
@@ -261,7 +261,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
     private enum Untranslated { Member }
 
     // Without this, a sl-SI reader gets a translated sentence ending in an English enum name:
-    // "um chamado no status Closed".
+    // "zahtevek v stanju Closed".
     [Fact]
     public async Task An_enum_argument_is_translated_through_the_same_catalog()
     {
@@ -270,7 +270,7 @@ public sealed class GlobalExceptionHandlerLocalizationTests
 
         var (_, detail) = await HandleAsync(exception, "sl-SI");
 
-        detail.ShouldBe("O valor de Take deve estar entre 1 e Não autorizado.");
+        detail.ShouldBe("Vrednost Take mora biti med 1 in Brez pooblastila.");
     }
 
     [Fact]
@@ -281,6 +281,6 @@ public sealed class GlobalExceptionHandlerLocalizationTests
 
         var (_, detail) = await HandleAsync(exception, "sl-SI");
 
-        detail.ShouldBe("O valor de Take deve estar entre 1 e Member.");
+        detail.ShouldBe("Vrednost Take mora biti med 1 in Member.");
     }
 }

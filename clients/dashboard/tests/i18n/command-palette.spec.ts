@@ -17,19 +17,19 @@ test.describe("command palette search terms", () => {
     await page.goto("/?culture=sl-SI");
     // The sl-SI catalog loads before the first render, after the load event: a shortcut pressed
     // before the shell mounts has no listener to reach.
-    await expect(page.getByRole("button", { name: "Abrir menu do perfil" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Odpri meni profila" })).toBeVisible();
     await page.keyboard.press("Control+k");
 
-    const search = page.getByPlaceholder("Digite um comando ou busque…");
+    const search = page.getByPlaceholder("Vnesite ukaz ali iščite…");
     await expect(search).toBeVisible();
 
-    // "noite" appears in no label — only in the sl-SI keywords for the dark theme.
-    await search.fill("noite");
-    await expect(page.getByRole("option", { name: "Mudar para escuro" })).toBeVisible();
+    // "noč" appears in no label — only in the sl-SI keywords for the dark theme.
+    await search.fill("noč");
+    await expect(page.getByRole("option", { name: "Preklopi na temno" })).toBeVisible();
 
     // And the catalog really switched: the English keyword is not also matching.
     await search.fill("night");
-    await expect(page.getByRole("option", { name: "Mudar para escuro" })).toBeHidden();
+    await expect(page.getByRole("option", { name: "Preklopi na temno" })).toBeHidden();
   });
 
   test("en-US keywords still match", async ({ page }) => {

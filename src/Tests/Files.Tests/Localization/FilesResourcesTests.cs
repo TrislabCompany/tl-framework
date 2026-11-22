@@ -72,7 +72,7 @@ public sealed class FilesResourcesTests
             var sl = localizer["Files.FileNotFound"];
             sl.ResourceNotFound.ShouldBeFalse(
                 "resx did not resolve 'Files.FileNotFound' for sl-SI — check the .sl-SI catalog manifest name.");
-            sl.Value.ShouldBe("Arquivo não encontrado.");
+            sl.Value.ShouldBe("Datoteka ni najdena.");
 
             sl.Value.ShouldNotBe(en.Value);
         }

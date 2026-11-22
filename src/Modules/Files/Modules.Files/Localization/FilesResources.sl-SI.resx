@@ -59,75 +59,75 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Files.CannotFinalizeInStatus" xml:space="preserve">
-    <value>Não é possível finalizar o arquivo no status {0}.</value>
+    <value>Datoteke v stanju {0} ni mogoče dokončati.</value>
   </data>
   <data name="Files.CannotChangeVisibilityInStatus" xml:space="preserve">
-    <value>Não é possível alterar a visibilidade enquanto o arquivo está no status {0}.</value>
+    <value>Vidnosti ni mogoče spremeniti, ko je datoteka v stanju {0}.</value>
   </data>
   <data name="Files.UnknownVisibility" xml:space="preserve">
-    <value>Valor de visibilidade desconhecido '{0}'.</value>
+    <value>Neznana vrednost vidnosti »{0}«.</value>
   </data>
   <data name="Files.FileNotFound" xml:space="preserve">
-    <value>Arquivo não encontrado.</value>
+    <value>Datoteka ni najdena.</value>
   </data>
   <data name="Files.NoAccessPolicy" xml:space="preserve">
-    <value>Nenhuma política de acesso a arquivos registrada.</value>
+    <value>Pravilnik za dostop do datotek ni registriran.</value>
   </data>
   <data name="Files.NotAllowedToChangeVisibility" xml:space="preserve">
-    <value>Você não tem permissão para alterar a visibilidade deste arquivo.</value>
+    <value>Nimate dovoljenja za spreminjanje vidnosti te datoteke.</value>
   </data>
   <data name="Files.NotAllowedToDelete" xml:space="preserve">
-    <value>Você não tem permissão para excluir este arquivo.</value>
+    <value>Nimate dovoljenja za brisanje te datoteke.</value>
   </data>
   <data name="Files.NotYourPendingFile" xml:space="preserve">
-    <value>Este arquivo pendente não pertence a você.</value>
+    <value>Ta datoteka v čakanju ni vaša.</value>
   </data>
   <data name="Files.AlreadyFinalized" xml:space="preserve">
-    <value>O arquivo já foi finalizado.</value>
+    <value>Datoteka je že dokončana.</value>
   </data>
   <data name="Files.UploadNotReceived" xml:space="preserve">
-    <value>O upload não foi recebido.</value>
+    <value>Nalaganje ni bilo prejeto.</value>
   </data>
   <data name="Files.UploadedSizeExceedsDeclared" xml:space="preserve">
-    <value>O tamanho enviado ({0}) excede o tamanho declarado ({1}).</value>
+    <value>Velikost naložene datoteke ({0}) presega navedeno velikost ({1}).</value>
   </data>
   <data name="Files.ContentTypeMismatch" xml:space="preserve">
-    <value>O tipo de conteúdo enviado não corresponde.</value>
+    <value>Vrsta vsebine naložene datoteke se ne ujema.</value>
   </data>
   <data name="Files.UnknownCategory" xml:space="preserve">
-    <value>Categoria desconhecida '{0}'.</value>
+    <value>Neznana kategorija »{0}«.</value>
   </data>
   <data name="Files.ExtensionNotAllowed" xml:space="preserve">
-    <value>A extensão '{0}' não é permitida para a categoria '{1}'.</value>
+    <value>Končnica »{0}« ni dovoljena za kategorijo »{1}«.</value>
   </data>
   <data name="Files.FileExceedsMaxSize" xml:space="preserve">
-    <value>O arquivo excede o tamanho máximo de {0} bytes para a categoria '{1}'.</value>
+    <value>Datoteka presega največjo velikost {0} bajtov za kategorijo »{1}«.</value>
   </data>
   <data name="Files.NoPolicyForOwnerType" xml:space="preserve">
-    <value>Nenhuma política de acesso a arquivos registrada para o tipo de proprietário '{0}'.</value>
+    <value>Pravilnik za dostop do datotek ni registriran za vrsto lastnika »{0}«.</value>
   </data>
   <data name="Files.NotAllowedToAttach" xml:space="preserve">
-    <value>Você não tem permissão para anexar arquivos a este proprietário.</value>
+    <value>Nimate dovoljenja za pripenjanje datotek temu lastniku.</value>
   </data>
   <data name="Files.StorageQuotaExceeded" xml:space="preserve">
-    <value>Cota de armazenamento excedida ({0}/{1} bytes).</value>
+    <value>Kvota shrambe je presežena ({0}/{1} bajtov).</value>
   </data>
   <data name="Files.VisibilityInvalid" xml:space="preserve">
-    <value>A visibilidade deve ser Pública ou Privada.</value>
+    <value>Vidnost mora biti javna ali zasebna.</value>
   </data>
   <data name="FileAssetStatus.PendingUpload" xml:space="preserve">
-    <value>Aguardando envio</value>
+    <value>Nalaganje v čakanju</value>
   </data>
   <data name="FileAssetStatus.Available" xml:space="preserve">
-    <value>Disponível</value>
+    <value>Na voljo</value>
   </data>
   <data name="FileAssetStatus.Quarantined" xml:space="preserve">
-    <value>Em quarentena</value>
+    <value>V karanteni</value>
   </data>
   <data name="Visibility.Public" xml:space="preserve">
-    <value>Público</value>
+    <value>Javno</value>
   </data>
   <data name="Visibility.Private" xml:space="preserve">
-    <value>Privado</value>
+    <value>Zasebno</value>
   </data>
 </root>

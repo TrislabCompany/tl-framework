@@ -85,8 +85,8 @@ test.describe("impersonation handoff locale", () => {
     // the operator's language: the button's own aria-label (common:profileMenu.open)
     // is already Slovenian, so the English name must not resolve at all.
     await expect(page.getByRole("button", { name: /open profile menu/i })).toHaveCount(0);
-    await page.getByRole("button", { name: "Abrir menu do perfil" }).click();
-    await expect(page.getByText("Idioma", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Odpri meni profila" }).click();
+    await expect(page.getByText("Jezik", { exact: true })).toBeVisible();
 
     // The API side of the same fix: the culture the backend negotiates from.
     await expect.poll(() => observed.length).toBeGreaterThan(0);

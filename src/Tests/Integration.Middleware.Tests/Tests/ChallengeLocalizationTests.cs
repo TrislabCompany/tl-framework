@@ -40,7 +40,7 @@ public sealed class ChallengeLocalizationTests
     }
 
     [Fact]
-    public async Task Challenge_Should_ReturnSlovenianProblemDetails_When_AcceptLanguageIsPtBR()
+    public async Task Challenge_Should_ReturnSlovenianProblemDetails_When_AcceptLanguageIsSlSI()
     {
         // Arrange
         using var client = _factory.CreateClient();
@@ -50,8 +50,8 @@ public sealed class ChallengeLocalizationTests
 
         // Assert
         status.ShouldBe(HttpStatusCode.Unauthorized);
-        title.ShouldBe("Não autorizado");
-        detail.ShouldBe("É necessário autenticar-se para acessar este recurso.");
+        title.ShouldBe("Brez pooblastila");
+        detail.ShouldBe("Za dostop do tega vira je potrebna prijava.");
     }
 
     [Fact]

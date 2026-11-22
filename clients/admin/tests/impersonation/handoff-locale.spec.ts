@@ -94,9 +94,9 @@ test.describe("impersonation handoff carries the operator locale", () => {
     await page.goto("/impersonation?culture=sl-SI");
 
     await startImpersonationViaReopen(page, {
-      reopen: "Reabrir",
-      reason: "Motivo",
-      start: "Iniciar personificação de 15 min",
+      reopen: "Znova odpri",
+      reason: "Razlog",
+      start: "Začni prevzem identitete za 15 min",
     });
 
     await expect.poll(() => page.evaluate(() => window.__openedUrls?.length ?? 0)).toBe(1);

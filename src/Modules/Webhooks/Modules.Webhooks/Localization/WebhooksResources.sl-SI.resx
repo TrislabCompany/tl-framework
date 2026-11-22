@@ -59,15 +59,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Webhooks.SubscriptionNotFound" xml:space="preserve">
-    <value>Inscrição de webhook {0} não encontrada.</value>
+    <value>Naročnina na webhook {0} ni najdena.</value>
   </data>
   <data name="Validation.WebhookUrlInvalid" xml:space="preserve">
-    <value>Uma URL absoluta válida é obrigatória.</value>
+    <value>Potreben je veljaven absolutni URL.</value>
   </data>
   <data name="Validation.WebhookUrlBlockedTarget" xml:space="preserve">
-    <value>A URL não pode apontar para um endereço privado, de loopback, link-local ou de metadados.</value>
+    <value>URL ne sme ciljati na zasebni naslov, naslov povratne zanke, lokalni naslov povezave ali naslov metapodatkov.</value>
   </data>
   <data name="Validation.WebhookEventsRequired" xml:space="preserve">
-    <value>É obrigatório pelo menos um tipo de evento.</value>
+    <value>Potrebna je vsaj ena vrsta dogodka.</value>
   </data>
 </root>

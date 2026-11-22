@@ -70,7 +70,7 @@ public sealed class WebhooksResourcesTests
             var sl = localizer["Webhooks.SubscriptionNotFound"];
             sl.ResourceNotFound.ShouldBeFalse(
                 "resx did not resolve 'Webhooks.SubscriptionNotFound' for sl-SI — check the .sl-SI catalog manifest name.");
-            sl.Value.ShouldBe("Inscrição de webhook {0} não encontrada.");
+            sl.Value.ShouldBe("Naročnina na webhook {0} ni najdena.");
 
             sl.Value.ShouldNotBe(en.Value);
         }

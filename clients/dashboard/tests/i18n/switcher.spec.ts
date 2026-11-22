@@ -9,7 +9,7 @@ import {
 import { installShellMocks } from "../helpers/shell-mocks";
 
 // Task 10 — the topbar language switcher. Switching to Slovenščina must:
-//  (a) localize the UI in place (the "Language" section label becomes "Idioma"),
+//  (a) localize the UI in place (the "Language" section label becomes "Jezik"),
 //  (b) PUT the chosen locale to /identity/profile with the name preserved
 //      (a locale-only save must not wipe FirstName/LastName), and
 //  (c) trigger a token refresh so the new `locale` JWT claim is minted.
@@ -102,7 +102,7 @@ test.describe("language switcher", () => {
     expect(putBodies[0]?.lastName).toBe("Nguyen");
 
     // (a) the section label localized in place (menu kept open on select).
-    await expect(page.getByText("Idioma", { exact: true })).toBeVisible();
+    await expect(page.getByText("Jezik", { exact: true })).toBeVisible();
 
     // (c) the token refresh fired to re-mint the locale claim.
     await expect.poll(() => refreshCalled).toBe(true);
@@ -362,7 +362,7 @@ test.describe("language switcher", () => {
 
     await expect.poll(() => sentIfMatch.length).toBe(2);
     expect(sentIfMatch[1]).toBe('"stamp-2"');
-    await expect(page.getByText("Perfil alterado em outro lugar")).toHaveCount(0);
+    await expect(page.getByText("Profil je bil spremenjen drugje")).toHaveCount(0);
   });
 });
 
@@ -426,7 +426,7 @@ test.describe("language switcher during impersonation", () => {
     await page.getByRole("menuitem", { name: "Slovenščina" }).click();
 
     // The switch still applies client-side…
-    await expect(page.getByText("Idioma", { exact: true })).toBeVisible();
+    await expect(page.getByText("Jezik", { exact: true })).toBeVisible();
     // …but nothing was written to the impersonated user, and no token re-mint
     // fired (the locale claim belongs to the operator's own session). Both are
     // negatives about requests that would be issued asynchronously, so they only
@@ -492,7 +492,7 @@ test.describe("language switcher when the token re-mint fails", () => {
     await page.waitForLoadState("networkidle");
 
     expect(new URL(page.url()).pathname).not.toBe("/login");
-    await expect(page.getByText("Idioma", { exact: true })).toBeVisible();
+    await expect(page.getByText("Jezik", { exact: true })).toBeVisible();
     expect(await page.evaluate(() => window.localStorage.getItem("fsh.dashboard.accessToken"))).not.toBeNull();
   });
 });
@@ -529,8 +529,8 @@ test.describe("language switcher when the save fails", () => {
     await page.getByRole("button", { name: /open profile menu/i }).click();
     await page.getByRole("menuitem", { name: "Slovenščina" }).click();
     // The switch still applies locally…
-    await expect(page.getByText("Idioma", { exact: true })).toBeVisible();
+    await expect(page.getByText("Jezik", { exact: true })).toBeVisible();
     // …and the user is told it did not stick.
-    await expect(page.getByText("Idioma não salvo")).toBeVisible();
+    await expect(page.getByText("Jezik ni shranjen")).toBeVisible();
   });
 });

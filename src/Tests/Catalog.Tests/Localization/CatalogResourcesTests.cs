@@ -70,7 +70,7 @@ public sealed class CatalogResourcesTests
             var sl = localizer["Catalog.CategoryCannotBeOwnParent"];
             sl.ResourceNotFound.ShouldBeFalse(
                 "resx did not resolve 'Catalog.CategoryCannotBeOwnParent' for sl-SI — check the .sl-SI catalog manifest name.");
-            sl.Value.ShouldBe("Uma categoria não pode ser pai de si mesma.");
+            sl.Value.ShouldBe("Kategorija ne more biti sama sebi nadrejena.");
 
             sl.Value.ShouldNotBe(en.Value);
         }
@@ -96,7 +96,7 @@ public sealed class CatalogResourcesTests
             CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
             var sl = localizer["Catalog.StockAdjustmentNegative", -4, 3];
             sl.ResourceNotFound.ShouldBeFalse();
-            sl.Value.ShouldBe("O ajuste de estoque de -4 resultaria em estoque negativo (atual: 3).");
+            sl.Value.ShouldBe("Prilagoditev zaloge za -4 bi povzročila negativno zalogo (trenutno: 3).");
         }
         finally
         {

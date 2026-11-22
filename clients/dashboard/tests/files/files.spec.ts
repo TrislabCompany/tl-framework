@@ -157,7 +157,7 @@ test.describe("files — preview metadata", () => {
     await page.getByText("quarterly-report.pdf").last().click();
 
     const dialog = page.getByRole("dialog");
-    await expect(dialog.getByText("Criado")).toBeVisible();
-    await expect(dialog.getByText(/MAI/)).toBeVisible();
+    await expect(dialog.getByText("Ustvarjeno")).toBeVisible();
+    await expect(dialog.getByText(/MAJ/)).toBeVisible();
   });
 });

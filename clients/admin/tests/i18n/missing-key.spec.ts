@@ -11,7 +11,7 @@ const instance = createInstance({
   lng: "sl-SI",
   fallbackLng: "en-US",
   resources: {
-    "sl-SI": { translation: { greeting: "Olá" } },
+    "sl-SI": { translation: { greeting: "Pozdravljeni" } },
     "en-US": { translation: {} },
   },
   interpolation: { escapeValue: false },
@@ -36,6 +36,6 @@ test.describe("missing key fallback", () => {
   });
 
   test("a translated key is untouched", () => {
-    expect(instance.t("greeting")).toBe("Olá");
+    expect(instance.t("greeting")).toBe("Pozdravljeni");
   });
 });

@@ -36,7 +36,7 @@ async function pickAvatar(page: import("@playwright/test").Page) {
   await expect(page.locator("html")).toHaveAttribute("lang", "sl-SI");
 
   const chooser = page.waitForEvent("filechooser");
-  await page.getByRole("button", { name: "Escolher imagem" }).click();
+  await page.getByRole("button", { name: "Izberi sliko" }).click();
   await (await chooser).setFiles({ name: "avatar.png", mimeType: "image/png", buffer: PNG_BYTES });
 }
 
@@ -67,7 +67,7 @@ test.describe("upload failures are localized", () => {
 
     await pickAvatar(page);
 
-    await expect(page.getByText("Erro de rede durante o envio.")).toBeVisible();
+    await expect(page.getByText("Omrežna napaka med nalaganjem.")).toBeVisible();
   });
 
   test("a storage PUT the bucket rejects reports the status it came back with", async ({ page }) => {
@@ -78,7 +78,7 @@ test.describe("upload failures are localized", () => {
 
     await pickAvatar(page);
 
-    await expect(page.getByText(/^Envio recusado pelo armazenamento \(403/)).toBeVisible();
+    await expect(page.getByText(/^Shramba je zavrnila nalaganje \(403/)).toBeVisible();
   });
 
   test("a presign request that never reaches the API falls back to the catalog, not to the platform", async ({
@@ -91,7 +91,7 @@ test.describe("upload failures are localized", () => {
 
     await pickAvatar(page);
 
-    await expect(page.getByText("Falha no envio")).toBeVisible();
+    await expect(page.getByText("Nalaganje ni uspelo")).toBeVisible();
     await expect(page.getByText(/Failed to fetch/)).toHaveCount(0);
   });
 });

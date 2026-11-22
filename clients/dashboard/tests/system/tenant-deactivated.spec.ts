@@ -44,8 +44,8 @@ test.describe("tenant deactivated mid-session", () => {
     page,
   }) => {
     await mockProblemDetails(page, "**/api/v1/catalog/products**", 403, {
-      title: "Proibido",
-      detail: "Esta organização foi desativada. Entre em contato com o administrador.",
+      title: "Prepovedano",
+      detail: "Ta najemnik je deaktiviran. Obrnite se na skrbnika.",
       code: TENANT_DEACTIVATED_CODE,
     });
 
@@ -53,7 +53,7 @@ test.describe("tenant deactivated mid-session", () => {
     await page.goto("/catalog/products?culture=sl-SI");
 
     await expect(page).toHaveURL(/\/tenant-deactivated/);
-    await expect(page.getByRole("heading", { name: /organização desativada/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /najemnik je deaktiviran/i })).toBeVisible();
   });
 
   // An unrelated 403 (a permission denial) must NOT hijack the app into the

@@ -24,9 +24,9 @@ public sealed class SharedResourcesLocalizationTests
     // Catalogs are named for specific cultures (SharedResources.sl-SI.resx), matching the front-end.
     // The consequence is deliberate and pinned here: only sl-SI is served Slovenian. A bare `sl` or
     // an unsupported variant like pt-PT walks its parent chain, finds no catalog of its own and lands
-    // on the neutral (English) one, rather than being silently handed Brazilian strings.
+    // on the neutral (English) one, rather than being silently handed Slovenian strings.
     [Theory]
-    [InlineData("sl-SI", "Não encontrado")]   // specific sl-SI resolves directly
+    [InlineData("sl-SI", "Ni najdeno")]   // specific sl-SI resolves directly
     [InlineData("sl", "Not Found")]           // bare sl has no catalog -> neutral English
     [InlineData("pt-PT", "Not Found")]         // unsupported variant -> neutral English, NOT sl-SI
     [InlineData("en-US", "Not Found")]        // en-US falls back to the neutral (default) catalog
@@ -68,7 +68,7 @@ public sealed class SharedResourcesLocalizationTests
             CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
 
             // Without this, a sl-SI satellite that never got built would pass the fallback assertion below.
-            localizer["Probe.Translated"].Value.ShouldBe("Traduzido em português");
+            localizer["Probe.Translated"].Value.ShouldBe("Prevedeno v slovenščino");
 
             var englishOnly = localizer["Probe.EnglishOnly"];
             englishOnly.ResourceNotFound.ShouldBeFalse();

@@ -73,7 +73,7 @@ public sealed class TicketsResourcesTests
             var sl = localizer["Tickets.ClosedCannotResolve"];
             sl.ResourceNotFound.ShouldBeFalse(
                 "resx did not resolve 'Tickets.ClosedCannotResolve' for sl-SI — check the .sl-SI catalog manifest name.");
-            sl.Value.ShouldBe("Um chamado fechado não pode ser resolvido. Reabra-o primeiro.");
+            sl.Value.ShouldBe("Zaprtega zahtevka ni mogoče rešiti – najprej ga znova odprite.");
 
             sl.Value.ShouldNotBe(en.Value);
         }
@@ -95,12 +95,12 @@ public sealed class TicketsResourcesTests
             localizer["Tickets.TicketNotFound", "abc"].Value.ShouldBe("Ticket abc not found.");
 
             CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
-            localizer["Tickets.TicketNotFound", "abc"].Value.ShouldBe("Chamado abc não encontrado.");
+            localizer["Tickets.TicketNotFound", "abc"].Value.ShouldBe("Zahtevek abc ni najden.");
             // The status argument arrives already localized: GlobalExceptionHandler resolves an enum
             // argument through this same catalog before formatting, so asserting the raw "Open" here
             // would pin a sentence no user ever sees.
             localizer["Tickets.OnlyResolvedCanClose", localizer["TicketStatus.Open"].Value].Value
-                .ShouldBe("Somente um chamado resolvido pode ser fechado. O status atual é Aberto. Resolva-o primeiro.");
+                .ShouldBe("Zapreti je mogoče samo rešen zahtevek – trenutno stanje je Odprt. Najprej ga rešite.");
         }
         finally
         {

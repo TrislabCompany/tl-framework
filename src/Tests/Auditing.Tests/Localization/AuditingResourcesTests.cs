@@ -70,7 +70,7 @@ public sealed class AuditingResourcesTests
             var sl = localizer["Validation.DateRangeOrder"];
             sl.ResourceNotFound.ShouldBeFalse(
                 "resx did not resolve 'Validation.DateRangeOrder' for sl-SI — check the .sl-SI catalog manifest name.");
-            sl.Value.ShouldBe("FromUtc deve ser menor ou igual a ToUtc.");
+            sl.Value.ShouldBe("FromUtc mora biti manjši ali enak ToUtc.");
 
             sl.Value.ShouldNotBe(en.Value);
         }

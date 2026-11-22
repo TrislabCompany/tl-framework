@@ -13,9 +13,9 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Probe.Translated" xml:space="preserve">
-    <value>Traduzido em português</value>
+    <value>Prevedeno v slovenščino</value>
   </data>
   <data name="Probe.ItemNotFound" xml:space="preserve">
-    <value>Item {0} não foi encontrado</value>
+    <value>Elementa {0} ni bilo mogoče najti</value>
   </data>
 </root>

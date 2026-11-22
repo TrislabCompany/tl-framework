@@ -56,7 +56,7 @@ test.describe("catalog parity", () => {
   }
 
   // A translation that drops or renames an interpolation renders the placeholder as literal text
-  // ("Olá, {{name}}") or silently loses the value, and neither shows up as a missing key. i18next
+  // ("Pozdravljeni, {{name}}") or silently loses the value, and neither shows up as a missing key. i18next
   // resolves `{{name}}` and `{{count, number}}` alike, so the variable name is taken up to the
   // first comma and the formatter ignored.
   const placeholders = (value: string): string[] =>

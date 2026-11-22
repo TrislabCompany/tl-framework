@@ -72,7 +72,7 @@ public sealed class MultitenancyResourcesTests
             var sl = localizer["Multitenancy.RootTenantCannotBeDeactivated"];
             sl.ResourceNotFound.ShouldBeFalse(
                 "resx did not resolve 'Multitenancy.RootTenantCannotBeDeactivated' for sl-SI — check the .sl-SI catalog manifest name.");
-            sl.Value.ShouldBe("O tenant raiz não pode ser desativado.");
+            sl.Value.ShouldBe("Korenskega najemnika ni mogoče deaktivirati.");
 
             sl.Value.ShouldNotBe(en.Value);
         }

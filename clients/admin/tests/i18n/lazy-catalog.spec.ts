@@ -59,7 +59,7 @@ test.describe("lazy sl-SI catalog", () => {
 
     await page.goto("/login?culture=sl-SI");
 
-    await expect(page.getByText("Administração da Plataforma").first()).toBeVisible();
+    await expect(page.getByText("Skrbnik platforme").first()).toBeVisible();
     expect(await page.evaluate(() => (window as unknown as { __sawEnglish: boolean }).__sawEnglish)).toBe(false);
   });
 

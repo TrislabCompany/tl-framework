@@ -107,7 +107,7 @@ public sealed class ExceptionLocalizationPipelineTests
 
     // The production symptom: a localized exception answered in English despite Accept-Language: sl-SI.
     [Theory]
-    [InlineData("sl-SI", "Não encontrado")]
+    [InlineData("sl-SI", "Ni najdeno")]
     [InlineData("en-US", "Not Found")]
     public async Task Detail_is_localized_from_the_negotiated_request_culture(string acceptLanguage, string expected)
     {
@@ -123,7 +123,7 @@ public sealed class ExceptionLocalizationPipelineTests
     // catalog the key is looked up in the shared one and the English fallback comes back; without
     // the arguments the placeholder reaches the client unformatted.
     [Theory]
-    [InlineData("sl-SI", "Item 42 não foi encontrado")]
+    [InlineData("sl-SI", "Elementa 42 ni bilo mogoče najti")]
     [InlineData("en-US", "Item 42 was not found")]
     public async Task Detail_is_localized_from_the_module_catalog_named_by_the_factory(string acceptLanguage, string expected)
     {
@@ -138,7 +138,7 @@ public sealed class ExceptionLocalizationPipelineTests
     // Title comes from the status-mapped catalog key through the injected IStringLocalizer, a separate
     // resolution path from Detail IStringLocalizerFactory. Both read the ambient culture, so both broke.
     [Theory]
-    [InlineData("sl-SI", "Não encontrado")]
+    [InlineData("sl-SI", "Ni najdeno")]
     [InlineData("en-US", "Not Found")]
     public async Task Title_is_localized_from_the_negotiated_request_culture(string acceptLanguage, string expected)
     {
@@ -150,7 +150,7 @@ public sealed class ExceptionLocalizationPipelineTests
     // A raw exception takes the 500 branch, whose Title and Detail come straight off the injected
     // localizer with no MessageKey involved.
     [Theory]
-    [InlineData("sl-SI", "Ocorreu um erro inesperado")]
+    [InlineData("sl-SI", "Prišlo je do nepričakovane napake")]
     [InlineData("en-US", "An unexpected error occurred")]
     public async Task Unexpected_error_is_localized_from_the_negotiated_request_culture(string acceptLanguage, string expected)
     {

@@ -70,7 +70,7 @@ public sealed class ChatResourcesTests
             var sl = localizer["Chat.ChannelNotFound"];
             sl.ResourceNotFound.ShouldBeFalse(
                 "resx did not resolve 'Chat.ChannelNotFound' for sl-SI — check the .sl-SI catalog manifest name.");
-            sl.Value.ShouldBe("Canal não encontrado.");
+            sl.Value.ShouldBe("Kanal ni najden.");
 
             sl.Value.ShouldNotBe(en.Value);
         }

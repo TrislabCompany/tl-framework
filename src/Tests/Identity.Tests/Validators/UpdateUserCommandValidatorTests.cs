@@ -123,7 +123,7 @@ public sealed class UpdateUserCommandValidatorTests
 
         // Assert — custom WithMessage resolves from the .sl-SI catalog.
         result.Errors.Single(e => e.PropertyName == "Id").ErrorMessage
-            .ShouldBe("O ID do usuário é obrigatório.");
+            .ShouldBe("ID uporabnika je obvezen.");
     }
 
     [Fact]
@@ -138,6 +138,6 @@ public sealed class UpdateUserCommandValidatorTests
         // resource key leaking through, and by any wrong-but-non-English string, so it stayed
         // green through exactly the failures it existed to catch.
         var message = result.Errors.Single(e => e.PropertyName == "PhoneNumber").ErrorMessage;
-        message.ShouldBe("'Phone Number' deve ser menor ou igual a 15 caracteres. Você digitou 16 caracteres.");
+        message.ShouldBe("'Phone Number' mora imeti dolžino manjšo ali enako 15. Vnesli ste 16 znakov.");
     }
 }

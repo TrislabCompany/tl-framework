@@ -59,21 +59,21 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Error.Auditing.CrossTenantAccessForbidden" xml:space="preserve">
-    <value>O acesso a auditorias de outros inquilinos requer Permissions.AuditTrails.ViewCrossTenant.</value>
+    <value>Dostop do revizijske sledi več najemnikov zahteva Permissions.AuditTrails.ViewCrossTenant.</value>
   </data>
   <data name="Error.Auditing.CrossTenantSummaryForbidden" xml:space="preserve">
-    <value>O resumo de auditorias de outros inquilinos requer Permissions.AuditTrails.ViewCrossTenant.</value>
+    <value>Povzetek revizijske sledi več najemnikov zahteva Permissions.AuditTrails.ViewCrossTenant.</value>
   </data>
   <data name="Validation.DateRangeOrder" xml:space="preserve">
-    <value>FromUtc deve ser menor ou igual a ToUtc.</value>
+    <value>FromUtc mora biti manjši ali enak ToUtc.</value>
   </data>
   <data name="Validation.WindowExceeded" xml:space="preserve">
-    <value>A janela de consulta de auditoria não pode exceder {0} dias.</value>
+    <value>Okno poizvedbe po reviziji ne sme presegati {0} dni.</value>
   </data>
   <data name="Validation.SummaryWindowExceeded" xml:space="preserve">
-    <value>A janela do resumo de auditoria não pode exceder {0} dias.</value>
+    <value>Okno povzetka revizije ne sme presegati {0} dni.</value>
   </data>
   <data name="Auditing.AuditRecordNotFound" xml:space="preserve">
-    <value>Registro de auditoria {0} não encontrado.</value>
+    <value>Revizijski zapis {0} ni najden.</value>
   </data>
 </root>

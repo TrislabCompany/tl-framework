@@ -59,33 +59,33 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Chat.ChannelNotFound" xml:space="preserve">
-    <value>Canal não encontrado.</value>
+    <value>Kanal ni najden.</value>
   </data>
   <data name="Chat.ChannelAdminRoleRequired" xml:space="preserve">
-    <value>É necessário ser administrador do canal.</value>
+    <value>Potrebna je vloga skrbnika kanala.</value>
   </data>
   <data name="Chat.OnlyAdminsCanAddMembersToPrivateChannel" xml:space="preserve">
-    <value>Apenas administradores do canal podem adicionar membros a canais privados.</value>
+    <value>Člane v zasebne kanale lahko dodajajo samo skrbniki kanala.</value>
   </data>
   <data name="Chat.MessageNotFound" xml:space="preserve">
-    <value>Mensagem não encontrada.</value>
+    <value>Sporočilo ni najdeno.</value>
   </data>
   <data name="Chat.MessageNotFoundInChannel" xml:space="preserve">
-    <value>Mensagem não encontrada neste canal.</value>
+    <value>Sporočilo ni najdeno v tem kanalu.</value>
   </data>
   <data name="Chat.ParentMessageNotFound" xml:space="preserve">
-    <value>Mensagem pai não encontrada.</value>
+    <value>Nadrejeno sporočilo ni najdeno.</value>
   </data>
   <data name="Chat.ParentMessageDifferentChannel" xml:space="preserve">
-    <value>A mensagem pai pertence a outro canal.</value>
+    <value>Nadrejeno sporočilo pripada drugemu kanalu.</value>
   </data>
   <data name="Chat.CannotReplyToReply" xml:space="preserve">
-    <value>Não é possível responder a uma resposta; as threads têm apenas um nível.</value>
+    <value>Na odgovor ni mogoče odgovoriti – niti so samo enonivojske.</value>
   </data>
   <data name="Chat.CannotDmYourself" xml:space="preserve">
-    <value>Não é possível iniciar uma conversa direta consigo mesmo.</value>
+    <value>Neposrednega sporočila ni mogoče poslati samemu sebi.</value>
   </data>
   <data name="Validation.BodyOrAttachmentRequired" xml:space="preserve">
-    <value>É necessário informar um texto ou um anexo.</value>
+    <value>Obvezno je besedilo ali priloga.</value>
   </data>
 </root>

@@ -46,7 +46,7 @@ test.describe("lazy sl-SI catalog", () => {
 
     await page.goto("/login?culture=sl-SI");
 
-    await expect(page.getByText("Administração fullstackhero").first()).toBeVisible();
+    await expect(page.getByText("Administracija fullstackhero").first()).toBeVisible();
     expect(await page.evaluate(() => (window as unknown as { __sawEnglish: boolean }).__sawEnglish)).toBe(false);
   });
 

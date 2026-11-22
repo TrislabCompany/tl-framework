@@ -72,7 +72,7 @@ public sealed class BillingResourcesTests
             var sl = localizer["Billing.OnlyRootOperatorMayGenerateInvoices"];
             sl.ResourceNotFound.ShouldBeFalse(
                 "resx did not resolve 'Billing.OnlyRootOperatorMayGenerateInvoices' for sl-SI — check the .sl-SI catalog manifest name.");
-            sl.Value.ShouldBe("Apenas o operador raiz pode gerar faturas entre tenants.");
+            sl.Value.ShouldBe("Račune za vse najemnike lahko ustvari samo korenski operater.");
 
             sl.Value.ShouldNotBe(en.Value);
         }

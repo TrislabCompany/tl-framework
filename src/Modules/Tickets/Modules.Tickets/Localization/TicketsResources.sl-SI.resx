@@ -59,39 +59,39 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Tickets.TicketNotFound" xml:space="preserve">
-    <value>Chamado {0} não encontrado.</value>
+    <value>Zahtevek {0} ni najden.</value>
   </data>
   <data name="Tickets.ClosedCannotResolve" xml:space="preserve">
-    <value>Um chamado fechado não pode ser resolvido. Reabra-o primeiro.</value>
+    <value>Zaprtega zahtevka ni mogoče rešiti – najprej ga znova odprite.</value>
   </data>
   <data name="Tickets.OnlyResolvedCanClose" xml:space="preserve">
-    <value>Somente um chamado resolvido pode ser fechado. O status atual é {0}. Resolva-o primeiro.</value>
+    <value>Zapreti je mogoče samo rešen zahtevek – trenutno stanje je {0}. Najprej ga rešite.</value>
   </data>
   <data name="Tickets.ClosedCannotEdit" xml:space="preserve">
-    <value>Um chamado fechado não pode ser editado. Reabra-o primeiro.</value>
+    <value>Zaprtega zahtevka ni mogoče urejati – najprej ga znova odprite.</value>
   </data>
   <data name="Tickets.ClosedCannotComment" xml:space="preserve">
-    <value>Um chamado fechado não aceita novos comentários. Reabra-o primeiro.</value>
+    <value>Zaprt zahtevek ne sprejema novih komentarjev – najprej ga znova odprite.</value>
   </data>
   <data name="Tickets.CannotAssignInStatus" xml:space="preserve">
-    <value>Não é possível atribuir um chamado no status {0}. Reabra-o primeiro.</value>
+    <value>Zahtevka v stanju {0} ni mogoče dodeliti – najprej ga znova odprite.</value>
   </data>
   <data name="Tickets.CommentAuthorRequired" xml:space="preserve">
-    <value>Não é possível publicar um comentário sem um autor autenticado.</value>
+    <value>Komentarja ni mogoče objaviti brez prijavljenega avtorja.</value>
   </data>
   <data name="Tickets.ReporterRequired" xml:space="preserve">
-    <value>Não é possível criar um chamado sem um solicitante autenticado.</value>
+    <value>Zahtevka ni mogoče ustvariti brez prijavljenega prijavitelja.</value>
   </data>
   <data name="TicketStatus.Open" xml:space="preserve">
-    <value>Aberto</value>
+    <value>Odprt</value>
   </data>
   <data name="TicketStatus.InProgress" xml:space="preserve">
-    <value>Em andamento</value>
+    <value>V obdelavi</value>
   </data>
   <data name="TicketStatus.Resolved" xml:space="preserve">
-    <value>Resolvido</value>
+    <value>Rešen</value>
   </data>
   <data name="TicketStatus.Closed" xml:space="preserve">
-    <value>Fechado</value>
+    <value>Zaprt</value>
   </data>
 </root>

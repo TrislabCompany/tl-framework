@@ -59,51 +59,51 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Billing.InvoiceNotFound" xml:space="preserve">
-    <value>Fatura {0} não encontrada.</value>
+    <value>Račun {0} ni najden.</value>
   </data>
   <data name="Billing.PlanNotFound" xml:space="preserve">
-    <value>Plano {0} não encontrado.</value>
+    <value>Paket {0} ni najden.</value>
   </data>
   <data name="Billing.PlanNotFoundForTenant" xml:space="preserve">
-    <value>Plano {0} não encontrado para o tenant {1}.</value>
+    <value>Paket {0} ni najden za najemnika {1}.</value>
   </data>
   <data name="Billing.ActivePlanNotFound" xml:space="preserve">
-    <value>Plano ativo com a chave '{0}' não encontrado.</value>
+    <value>Aktivni paket s ključem »{0}« ni najden.</value>
   </data>
   <data name="Billing.TopupRequestNotFound" xml:space="preserve">
-    <value>Solicitação de recarga {0} não encontrada.</value>
+    <value>Zahtevek za polnitev {0} ni najden.</value>
   </data>
   <data name="Billing.TopupRequestNotFoundOrNotPending" xml:space="preserve">
-    <value>Solicitação de recarga {0} não encontrada ou não está pendente.</value>
+    <value>Zahtevek za polnitev {0} ni najden ali ni v čakanju.</value>
   </data>
   <data name="Billing.OnlyRootOperatorMayGenerateInvoices" xml:space="preserve">
-    <value>Apenas o operador raiz pode gerar faturas entre tenants.</value>
+    <value>Račune za vse najemnike lahko ustvari samo korenski operater.</value>
   </data>
   <data name="Billing.CannotRejectTopupForOtherTenant" xml:space="preserve">
-    <value>Você só pode rejeitar solicitações de recarga do seu próprio tenant.</value>
+    <value>Zahtevke za polnitev lahko zavrnete samo za svojega najemnika.</value>
   </data>
   <data name="Billing.CannotApproveTopupForOtherTenant" xml:space="preserve">
-    <value>Você só pode aprovar solicitações de recarga do seu próprio tenant.</value>
+    <value>Zahtevke za polnitev lahko odobrite samo za svojega najemnika.</value>
   </data>
   <data name="Billing.TopupRequestCannotBeRejected" xml:space="preserve">
-    <value>Não é possível rejeitar a solicitação de recarga {0} porque ela está {1} (somente solicitações Pendentes podem ser rejeitadas).</value>
+    <value>Zahtevka za polnitev {0} ni mogoče zavrniti, ker je v stanju {1} (zavrnete lahko samo zahtevke v čakanju).</value>
   </data>
   <data name="Billing.WalletCurrencyMismatch" xml:space="preserve">
-    <value>Não é possível creditar uma recarga em {0} numa carteira em {1}.</value>
+    <value>Polnitve v valuti {0} ni mogoče odobriti denarnici v valuti {1}.</value>
   </data>
   <data name="TopupRequestStatus.Pending" xml:space="preserve">
-    <value>Pendente</value>
+    <value>V čakanju</value>
   </data>
   <data name="TopupRequestStatus.Invoiced" xml:space="preserve">
-    <value>Faturada</value>
+    <value>Zaračunano</value>
   </data>
   <data name="TopupRequestStatus.Completed" xml:space="preserve">
-    <value>Concluída</value>
+    <value>Dokončano</value>
   </data>
   <data name="TopupRequestStatus.Rejected" xml:space="preserve">
-    <value>Rejeitada</value>
+    <value>Zavrnjeno</value>
   </data>
   <data name="TopupRequestStatus.Cancelled" xml:space="preserve">
-    <value>Cancelada</value>
+    <value>Preklicano</value>
   </data>
 </root>

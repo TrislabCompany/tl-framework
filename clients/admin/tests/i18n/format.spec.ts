@@ -30,8 +30,8 @@ test.describe("format.ts", () => {
       const formatModuleUrl = "/src/lib/format.ts";
       const m = await import(/* @vite-ignore */ formatModuleUrl);
       return {
-        curPt: m.formatCurrency(1234.5, "BRL", "sl-SI"),
-        curEn: m.formatCurrency(1234.5, "BRL", "en-US"),
+        curPt: m.formatCurrency(12345.5, "EUR", "sl-SI"),
+        curEn: m.formatCurrency(12345.5, "EUR", "en-US"),
         numPt: m.formatNumber(1234567.89, "sl-SI"),
         numEn: m.formatNumber(1234567.89, "en-US"),
         datePt: m.formatDate("2026-01-15T12:00:00Z", "sl-SI"),
@@ -42,10 +42,11 @@ test.describe("format.ts", () => {
       };
     });
 
-    // Currency: BRL symbol + locale-specific grouping/decimal separators.
-    expect(out.curPt).toContain("R$");
-    expect(out.curPt).toContain("1.234,50");
-    expect(out.curEn).toContain("1,234.50");
+    // Currency: EUR symbol + locale-specific grouping/decimal separators. The amount has five
+    // integer digits because Slovenian does not group four-digit numbers (CLDR minimum grouping).
+    expect(out.curPt).toContain("€");
+    expect(out.curPt).toContain("12.345,50");
+    expect(out.curEn).toContain("12,345.50");
 
     // Number grouping differs by locale.
     expect(out.numPt).toBe("1.234.567,89");
@@ -86,16 +87,16 @@ test.describe("format.ts", () => {
 
   test("a list count is grouped and pluralized by the locale, not by English rules", async ({ page }) => {
     // Two separate defects met in this one chip. The count reached i18next as a raw number, so a
-    // Slovenian UI read "1234" beside currency and dates that were correctly grouped. And the
-    // header pluralized by appending "s" to the unit, which is an English rule: "organização" + "s"
+    // Slovenian UI read "12345" beside currency and dates that were correctly grouped. And the
+    // header pluralized by appending "s" to the unit, which is an English rule: "najemnik" + "s"
     // is not a word. Both are the catalog's job now, so both are asserted on the rendered chip.
-    await mockJsonResponse(page, "**/api/v1/tenants**", paged([], { totalCount: 1234, pageSize: 20 }));
+    await mockJsonResponse(page, "**/api/v1/tenants**", paged([], { totalCount: 12345, pageSize: 20 }));
 
     await page.goto("/tenants?culture=sl-SI");
     await expect(page.locator("html")).toHaveAttribute("lang", "sl-SI");
 
-    await expect(page.getByText("1.234 organizações", { exact: true })).toBeVisible();
-    await expect(page.getByText("1.234 organizações registradas nesta instância.")).toBeVisible();
+    await expect(page.getByText("12.345 najemnikov", { exact: true })).toBeVisible();
+    await expect(page.getByText("12.345 najemnikov, registriranih na tej instanci.")).toBeVisible();
   });
 
   // `resolveLocale` reads `i18n.language` at call time, so a date formatted on a previous render
@@ -194,10 +195,10 @@ test.describe("format.ts", () => {
 
     await page.getByRole("button", { name: /open profile menu/i }).click();
     await page.getByRole("menuitem", { name: "Slovenščina" }).click();
-    await expect(page.getByText("Idioma", { exact: true })).toBeVisible();
+    await expect(page.getByText("Jezik", { exact: true })).toBeVisible();
 
-    // "01 de mai. de 2026". Not a remount: the route never changed and the list was read once.
-    await expect(main).toContainText("mai.");
+    // "1. maj 2026". Not a remount: the route never changed and the list was read once.
+    await expect(main).toContainText("maj");
     await expect(main).not.toContainText("May");
     expect(invoiceReads).toBe(1);
   });

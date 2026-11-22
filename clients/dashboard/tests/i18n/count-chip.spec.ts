@@ -46,7 +46,7 @@ test.describe("count chip — sl-SI", () => {
 
     await page.goto("/tickets?culture=sl-SI");
 
-    await expect(page.getByText("3 chamados", { exact: true })).toBeVisible();
+    await expect(page.getByText("3 zahtevki", { exact: true })).toBeVisible();
     // The failure mode is a literal `unit.<translated word>` on screen.
     await expect(page.getByText(/^unit\./)).toHaveCount(0);
   });
@@ -56,7 +56,7 @@ test.describe("count chip — sl-SI", () => {
 
     await page.goto("/tickets?culture=sl-SI");
 
-    await expect(page.getByText("1 chamado", { exact: true })).toBeVisible();
+    await expect(page.getByText("1 zahtevek", { exact: true })).toBeVisible();
   });
 });
 

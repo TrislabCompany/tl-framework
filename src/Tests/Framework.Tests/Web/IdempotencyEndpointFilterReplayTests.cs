@@ -946,8 +946,8 @@ public sealed class IdempotencyEndpointFilterReplayTests
 
             var problem = result.ShouldBeOfType<ProblemHttpResult>().ProblemDetails;
             problem.Status.ShouldBe(StatusCodes.Status409Conflict);
-            problem.Title.ShouldBe("Conflito");
-            problem.Detail.ShouldBe("Uma requisição com esta Idempotency-Key já está sendo processada. Tente de novo em instantes.");
+            problem.Title.ShouldBe("Navzkrižje");
+            problem.Detail.ShouldBe("Zahteva s tem ključem Idempotency-Key se že obdeluje. Poskusite znova čez trenutek.");
             problem.Extensions["code"].ShouldBe("Idempotency.RequestInProgress");
         }
         finally

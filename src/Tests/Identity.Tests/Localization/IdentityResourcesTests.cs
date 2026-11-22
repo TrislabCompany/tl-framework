@@ -70,7 +70,7 @@ public sealed class IdentityResourcesTests
             var sl = localizer["Identity.UserNotFound"];
             sl.ResourceNotFound.ShouldBeFalse(
                 "resx did not resolve 'Identity.UserNotFound' for sl-SI — check the .sl-SI catalog manifest name.");
-            sl.Value.ShouldBe("Usuário não encontrado.");
+            sl.Value.ShouldBe("Uporabnik ni najden.");
 
             sl.Value.ShouldNotBe(en.Value);
         }

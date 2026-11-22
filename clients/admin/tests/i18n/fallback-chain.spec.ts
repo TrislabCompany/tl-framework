@@ -16,7 +16,7 @@ const instance = createInstance({
   defaultNS: "users",
   resources: {
     "en-US": { users: { title: "Users", greeting: "Hello" } },
-    "sl-SI": { users: { title: "Usuários" } },
+    "sl-SI": { users: { title: "Uporabniki" } },
   },
   interpolation: { escapeValue: false },
   parseMissingKeyHandler: missingKeyFallback,
@@ -32,7 +32,7 @@ test.describe("fallback chain", () => {
   });
 
   test("a translated key still renders in sl-SI", () => {
-    expect(instance.t("title")).toBe("Usuários");
+    expect(instance.t("title")).toBe("Uporabniki");
   });
 
   test("the chain always ends in en-US, without repeating it", () => {

@@ -59,99 +59,99 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Multitenancy.TenantDeactivated" xml:space="preserve">
-    <value>Este tenant foi desativado. Entre em contato com seu administrador.</value>
+    <value>Ta najemnik je bil deaktiviran. Obrnite se na skrbnika.</value>
   </data>
   <data name="Multitenancy.TenantSubscriptionExpired" xml:space="preserve">
-    <value>A assinatura deste tenant expirou. Renove para continuar.</value>
+    <value>Naročnina tega najemnika je potekla. Za nadaljevanje jo podaljšajte.</value>
   </data>
   <data name="Multitenancy.TenantNotFoundDuringProvisioning" xml:space="preserve">
-    <value>Tenant {0} não encontrado durante o provisionamento.</value>
+    <value>Najemnik {0} ni najden med pripravo.</value>
   </data>
   <data name="Multitenancy.TenantNotFoundForProvisioning" xml:space="preserve">
-    <value>Tenant {0} não encontrado para provisionamento.</value>
+    <value>Najemnik {0} ni najden za pripravo.</value>
   </data>
   <data name="Multitenancy.ProvisioningAlreadyRunning" xml:space="preserve">
-    <value>O provisionamento já está em execução para o tenant {0}.</value>
+    <value>Priprava za najemnika {0} že poteka.</value>
   </data>
   <data name="Multitenancy.ProvisioningNotFound" xml:space="preserve">
-    <value>Provisionamento não encontrado para o tenant {0}.</value>
+    <value>Priprava za najemnika {0} ni najdena.</value>
   </data>
   <data name="Multitenancy.TenantNotProvisioned" xml:space="preserve">
-    <value>O tenant {0} não está provisionado. Status: {1}.</value>
+    <value>Najemnik {0} ni pripravljen. Stanje: {1}.</value>
   </data>
   <data name="Multitenancy.ProvisioningCorrelationNotFound" xml:space="preserve">
-    <value>Provisionamento {0} para o tenant {1} não encontrado.</value>
+    <value>Priprava {0} za najemnika {1} ni najdena.</value>
   </data>
   <data name="Multitenancy.TenantAlreadyActivated" xml:space="preserve">
-    <value>o tenant {0} já está ativado</value>
+    <value>najemnik {0} je že aktiviran</value>
   </data>
   <data name="Multitenancy.TenantAlreadyDeactivated" xml:space="preserve">
-    <value>o tenant {0} já está desativado</value>
+    <value>najemnik {0} je že deaktiviran</value>
   </data>
   <data name="Multitenancy.AtLeastOneActiveTenantRequired" xml:space="preserve">
-    <value>É necessário pelo menos um tenant ativo.</value>
+    <value>Potreben je vsaj en aktiven najemnik.</value>
   </data>
   <data name="Multitenancy.RootTenantCannotBeDeactivated" xml:space="preserve">
-    <value>O tenant raiz não pode ser desativado.</value>
+    <value>Korenskega najemnika ni mogoče deaktivirati.</value>
   </data>
   <data name="Multitenancy.TenantNotFound" xml:space="preserve">
-    <value>AppTenantInfo {0} não encontrado.</value>
+    <value>AppTenantInfo {0} ni najden.</value>
   </data>
   <data name="Multitenancy.OnlyRootCanSetDefaultTheme" xml:space="preserve">
-    <value>Apenas o tenant raiz pode definir o tema padrão.</value>
+    <value>Privzeto temo lahko nastavi samo korenski najemnik</value>
   </data>
   <data name="Multitenancy.TenantThemeNotFound" xml:space="preserve">
-    <value>Tema do tenant {0} não encontrado.</value>
+    <value>Tema za najemnika {0} ni najdena</value>
   </data>
   <data name="Validation.RootTenantValidityImmutable" xml:space="preserve">
-    <value>A validade do tenant operador raiz não pode ser ajustada.</value>
+    <value>Veljavnosti korenskega najemnika operaterja ni mogoče prilagoditi.</value>
   </data>
   <data name="Validation.ValidUptoRequired" xml:space="preserve">
-    <value>Uma data 'validUpto' válida é obrigatória.</value>
+    <value>Potreben je veljaven datum »validUpto«.</value>
   </data>
   <data name="Validation.TenantAlreadyExists" xml:space="preserve">
-    <value>O tenant {0} já existe.</value>
+    <value>Najemnik {0} že obstaja.</value>
   </data>
   <data name="Validation.ConnectionStringInvalid" xml:space="preserve">
-    <value>String de conexão inválida.</value>
+    <value>Povezovalni niz je neveljaven.</value>
   </data>
   <data name="Validation.AdminPasswordMinLength" xml:space="preserve">
-    <value>A senha do administrador deve ter pelo menos 8 caracteres.</value>
+    <value>Skrbniško geslo mora imeti vsaj 8 znakov.</value>
   </data>
   <data name="Validation.PlanKeySlug" xml:space="preserve">
-    <value>A chave do plano deve ser um slug minúsculo (a-z, 0-9, hífen).</value>
+    <value>Ključ paketa mora biti slug z malimi črkami (a-z, 0-9, vezaj).</value>
   </data>
   <data name="Validation.ThemeRequired" xml:space="preserve">
-    <value>O tema é obrigatório.</value>
+    <value>Tema je obvezna.</value>
   </data>
   <data name="Validation.ColorMustBeHex" xml:space="preserve">
-    <value>{0} deve ser uma cor hexadecimal válida.</value>
+    <value>{0} mora biti veljavna šestnajstiška barva.</value>
   </data>
   <data name="Validation.FontFamilyWebSafe" xml:space="preserve">
-    <value>{0} deve ser uma fonte web-safe válida.</value>
+    <value>{0} mora biti veljavna spletno varna pisava.</value>
   </data>
   <data name="Validation.FontSizeBaseRange" xml:space="preserve">
-    <value>FontSizeBase deve estar entre 10 e 24.</value>
+    <value>FontSizeBase mora biti med 10 in 24.</value>
   </data>
   <data name="Validation.LineHeightBaseRange" xml:space="preserve">
-    <value>LineHeightBase deve estar entre 1.0 e 2.5.</value>
+    <value>LineHeightBase mora biti med 1,0 in 2,5.</value>
   </data>
   <data name="Validation.BorderRadiusInvalid" xml:space="preserve">
-    <value>BorderRadius deve ser um valor CSS válido (ex.: '4px', '0.5rem').</value>
+    <value>BorderRadius mora biti veljavna vrednost CSS (npr. »4px«, »0.5rem«).</value>
   </data>
   <data name="Validation.DefaultElevationRange" xml:space="preserve">
-    <value>DefaultElevation deve estar entre 0 e 24.</value>
+    <value>DefaultElevation mora biti med 0 in 24.</value>
   </data>
   <data name="TenantProvisioningStatus.Pending" xml:space="preserve">
-    <value>Pendente</value>
+    <value>V čakanju</value>
   </data>
   <data name="TenantProvisioningStatus.Running" xml:space="preserve">
-    <value>Em execução</value>
+    <value>V teku</value>
   </data>
   <data name="TenantProvisioningStatus.Completed" xml:space="preserve">
-    <value>Concluído</value>
+    <value>Dokončano</value>
   </data>
   <data name="TenantProvisioningStatus.Failed" xml:space="preserve">
-    <value>Falhou</value>
+    <value>Neuspelo</value>
   </data>
 </root>

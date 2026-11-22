@@ -69,10 +69,10 @@ public sealed class SharedResourcesKeyParityTests
             {
                 entry.Key,
                 Neutral = PlaceholderSignature(entry.Value),
-                PtBR = PlaceholderSignature(sl[entry.Key]),
+                SlSI = PlaceholderSignature(sl[entry.Key]),
             })
-            .Where(x => !string.Equals(x.Neutral, x.PtBR, StringComparison.Ordinal))
-            .Select(x => $"{x.Key}: neutral [{x.Neutral}] vs sl-SI [{x.PtBR}]")
+            .Where(x => !string.Equals(x.Neutral, x.SlSI, StringComparison.Ordinal))
+            .Select(x => $"{x.Key}: neutral [{x.Neutral}] vs sl-SI [{x.SlSI}]")
             .ToList();
 
         divergent.ShouldBeEmpty();

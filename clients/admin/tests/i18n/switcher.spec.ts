@@ -4,7 +4,7 @@ import { installAdminShellMocks, ADMIN_PERMS, paged } from "../helpers/shell-moc
 import { mockJsonResponse } from "../helpers/api-mocks";
 
 // Task 10 — the topbar language switcher. Switching to Slovenščina must:
-//  (a) localize the UI in place (the "Language" section label becomes "Idioma"),
+//  (a) localize the UI in place (the "Language" section label becomes "Jezik"),
 //  (b) PUT the chosen locale to /identity/profile, and
 //  (c) trigger a token refresh so the new `locale` JWT claim is minted.
 
@@ -103,7 +103,7 @@ test.describe("language switcher", () => {
     expect(putBody.lastName).toBe("Admin");
 
     // (a) the section label localized in place (menu kept open on select).
-    await expect(page.getByText("Idioma", { exact: true })).toBeVisible();
+    await expect(page.getByText("Jezik", { exact: true })).toBeVisible();
 
     // (c) the token refresh fired to re-mint the locale claim.
     await expect.poll(() => refreshCalled).toBe(true);
@@ -257,7 +257,7 @@ test.describe("language switcher", () => {
     await expect(page.getByText("Language", { exact: true })).toBeVisible();
 
     await page.getByRole("menuitem", { name: "Slovenščina" }).click();
-    await expect(page.getByText("Idioma", { exact: true })).toBeVisible();
+    await expect(page.getByText("Jezik", { exact: true })).toBeVisible();
     await page.getByRole("menuitem", { name: "English (US)" }).click();
     await expect(page.getByText("Language", { exact: true })).toBeVisible();
 
@@ -313,7 +313,7 @@ test.describe("language switcher", () => {
     await page.waitForLoadState("networkidle");
 
     expect(new URL(page.url()).pathname).not.toBe("/login");
-    await expect(page.getByText("Idioma", { exact: true })).toBeVisible();
+    await expect(page.getByText("Jezik", { exact: true })).toBeVisible();
     expect(
       await page.evaluate(() => window.localStorage.getItem("fsh.admin.accessToken")),
     ).not.toBeNull();
@@ -397,8 +397,8 @@ test.describe("language switcher when the save fails", () => {
     await page.getByRole("button", { name: /open profile menu/i }).click();
     await page.getByRole("menuitem", { name: "Slovenščina" }).click();
     // The switch still applies locally…
-    await expect(page.getByText("Idioma", { exact: true })).toBeVisible();
+    await expect(page.getByText("Jezik", { exact: true })).toBeVisible();
     // …and the user is told it did not stick.
-    await expect(page.getByText("Idioma não salvo")).toBeVisible();
+    await expect(page.getByText("Jezik ni shranjen")).toBeVisible();
   });
 });

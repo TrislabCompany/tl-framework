@@ -13,7 +13,7 @@ import { ToneIconTile, type ToneIconTileTone } from "./tone-icon-tile";
 /** The `unit.*` plural keys common.json declares. A union rather than `string` because the chip
  *  translates the token itself: handing it an already translated word builds a key that exists in
  *  no catalogue and the header renders the raw key. The count cannot be pluralized here either —
- *  the previous `${unit}s` is an English rule, and "organização" + "s" is not a word. */
+ *  the previous `${unit}s` is an English rule, and "najemnik" + "s" is not a word. */
 export type EntityUnit =
   | "account"
   | "event"
