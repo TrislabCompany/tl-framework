@@ -56,10 +56,10 @@ public sealed class UserLocaleTests
         var sut = CreateSut();
 
         // Act
-        await sut.UpdateAsync("u1", "First", "Last", string.Empty, null!, false, "pt-BR", null, CancellationToken.None);
+        await sut.UpdateAsync("u1", "First", "Last", string.Empty, null!, false, "sl-SI", null, CancellationToken.None);
 
         // Assert
-        user.Locale.ShouldBe("pt-BR");
+        user.Locale.ShouldBe("sl-SI");
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public sealed class UserLocaleTests
     public async Task GetAsync_projects_the_persisted_locale_onto_the_dto()
     {
         // Arrange
-        var user = new FshUser { Id = "u1", Email = "u@codefi.com.br", UserName = "u", Locale = "pt-BR" };
+        var user = new FshUser { Id = "u1", Email = "u@codefi.com.br", UserName = "u", Locale = "sl-SI" };
         _userManager.Users.Returns(new[] { user }.AsAsyncQueryable());
         var sut = CreateSut();
 
@@ -90,6 +90,6 @@ public sealed class UserLocaleTests
         var dto = await sut.GetAsync("u1", CancellationToken.None);
 
         // Assert
-        dto.Locale.ShouldBe("pt-BR");
+        dto.Locale.ShouldBe("sl-SI");
     }
 }

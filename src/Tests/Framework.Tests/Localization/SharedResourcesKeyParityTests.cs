@@ -4,8 +4,8 @@ using System.Text.RegularExpressions;
 
 namespace Framework.Tests.Localization;
 
-// A pt-BR entry is optional: a key the .pt-BR catalog lacks falls back to English at runtime, so a
-// contributor never has to write Portuguese. What fails is a pt-BR key the neutral catalog does not
+// A sl-SI entry is optional: a key the .sl-SI catalog lacks falls back to English at runtime, so a
+// contributor never has to write Slovenian. What fails is a sl-SI key the neutral catalog does not
 // have (left behind by a rename or delete, it never resolves) and a translation whose placeholders
 // drift. Enumerates each culture's own embedded resx (includeParentCultures: false).
 public sealed class SharedResourcesKeyParityTests
@@ -43,13 +43,13 @@ public sealed class SharedResourcesKeyParityTests
                 .OrderBy(i => int.Parse(i, CultureInfo.InvariantCulture)));
 
     [Fact]
-    public void Every_ptBR_key_exists_in_the_neutral_catalog()
+    public void Every_slSI_key_exists_in_the_neutral_catalog()
     {
         var neutral = KeysFor(string.Empty);   // SharedResources.resx (English / fallback)
-        var pt = KeysFor("pt-BR");                 // SharedResources.pt-BR.resx
+        var sl = KeysFor("sl-SI");                 // SharedResources.sl-SI.resx
 
         neutral.ShouldNotBeEmpty();
-        pt.Except(neutral, StringComparer.Ordinal)
+        sl.Except(neutral, StringComparer.Ordinal)
             .OrderBy(k => k, StringComparer.Ordinal)
             .ShouldBeEmpty();
     }
@@ -58,21 +58,21 @@ public sealed class SharedResourcesKeyParityTests
     // swallows the argument or throws FormatException at the point the message is built —
     // and neither shows up as a missing key.
     [Fact]
-    public void Neutral_and_ptBR_messages_take_the_same_arguments()
+    public void Neutral_and_slSI_messages_take_the_same_arguments()
     {
         var neutral = EntriesFor(string.Empty);
-        var pt = EntriesFor("pt-BR");
+        var sl = EntriesFor("sl-SI");
 
         var divergent = neutral
-            .Where(entry => pt.ContainsKey(entry.Key))
+            .Where(entry => sl.ContainsKey(entry.Key))
             .Select(entry => new
             {
                 entry.Key,
                 Neutral = PlaceholderSignature(entry.Value),
-                PtBR = PlaceholderSignature(pt[entry.Key]),
+                SlSI = PlaceholderSignature(sl[entry.Key]),
             })
-            .Where(x => !string.Equals(x.Neutral, x.PtBR, StringComparison.Ordinal))
-            .Select(x => $"{x.Key}: neutral [{x.Neutral}] vs pt-BR [{x.PtBR}]")
+            .Where(x => !string.Equals(x.Neutral, x.SlSI, StringComparison.Ordinal))
+            .Select(x => $"{x.Key}: neutral [{x.Neutral}] vs sl-SI [{x.SlSI}]")
             .ToList();
 
         divergent.ShouldBeEmpty();

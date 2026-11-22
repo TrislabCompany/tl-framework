@@ -45,13 +45,13 @@ public sealed class UserLocaleRequestCultureProviderTests
 
     // Full culture-provider chain: Query -> user locale claim -> Accept-Language -> configured default -> en-US.
     [Theory]
-    [InlineData("pt-BR", "en-US", null, "pt-BR")]    // supported claim wins over the header
-    [InlineData(null, "pt-BR", null, "pt-BR")]       // header used when there is no claim
+    [InlineData("sl-SI", "en-US", null, "sl-SI")]    // supported claim wins over the header
+    [InlineData(null, "sl-SI", null, "sl-SI")]       // header used when there is no claim
     [InlineData(null, null, null, "en-US")]          // nothing set -> default fallback
-    [InlineData("xx-YY", "pt-BR", null, "pt-BR")]    // unsupported claim ignored -> falls to header
-    [InlineData(null, "pt-BR", "en-US", "en-US")]    // explicit query override wins over everything
-    [InlineData(null, "pt", null, "en-US")]          // bare pt is not a supported tag -> default
-    [InlineData(null, "pt-PT", null, "en-US")]       // unsupported variant -> default, never pt-BR
+    [InlineData("xx-YY", "sl-SI", null, "sl-SI")]    // unsupported claim ignored -> falls to header
+    [InlineData(null, "sl-SI", "en-US", "en-US")]    // explicit query override wins over everything
+    [InlineData(null, "sl", null, "en-US")]          // bare sl is not a supported tag -> default
+    [InlineData(null, "pt-PT", null, "en-US")]       // unsupported variant -> default, never sl-SI
     public async Task Resolves_expected_culture_through_chain(string? claim, string? header, string? query, string expected)
     {
         var options = BuildOptions();
@@ -82,9 +82,9 @@ public sealed class UserLocaleRequestCultureProviderTests
     // the real RequestLocalizationMiddleware, because this property comes out of the interaction
     // between DefaultRequestCulture and a null SupportedCultures, not out of our provider.
     [Theory]
-    [InlineData("pt-BR", null, null, "pt-BR")]       // claim
-    [InlineData(null, "pt-BR", null, "pt-BR")]       // header
-    [InlineData(null, null, "pt-BR", "pt-BR")]       // query override
+    [InlineData("sl-SI", null, null, "sl-SI")]       // claim
+    [InlineData(null, "sl-SI", null, "sl-SI")]       // header
+    [InlineData(null, null, "sl-SI", "sl-SI")]       // query override
     [InlineData(null, null, null, "en-US")]          // nothing set
     public async Task Formatting_culture_stays_invariant_while_ui_culture_negotiates(
         string? claim, string? header, string? query, string expectedUiCulture)
@@ -107,7 +107,7 @@ public sealed class UserLocaleRequestCultureProviderTests
         var previous = (CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture);
         try
         {
-            CultureInfo.CurrentCulture = new CultureInfo("pt-BR");
+            CultureInfo.CurrentCulture = new CultureInfo("sl-SI");
             await middleware.Invoke(context);
         }
         finally
@@ -125,7 +125,7 @@ public sealed class UserLocaleRequestCultureProviderTests
 
     // The custom provider in isolation: emit the claim only when supported, otherwise fall through (null).
     [Theory]
-    [InlineData("pt-BR", "pt-BR")]
+    [InlineData("sl-SI", "sl-SI")]
     [InlineData("en-US", "en-US")]
     [InlineData("xx-YY", null)]
     [InlineData(null, null)]

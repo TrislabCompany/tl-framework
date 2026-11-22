@@ -59,213 +59,213 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Identity.GroupNotFound" xml:space="preserve">
-    <value>Grupo com ID '{0}' não encontrado.</value>
+    <value>Skupina z ID »{0}« ni najdena.</value>
   </data>
   <data name="Identity.UsersNotFound" xml:space="preserve">
-    <value>Usuários não encontrados: {0}</value>
+    <value>Uporabniki niso najdeni: {0}</value>
   </data>
   <data name="Identity.GroupNameAlreadyExists" xml:space="preserve">
-    <value>Já existe um grupo com o nome '{0}'.</value>
+    <value>Skupina z imenom »{0}« že obstaja.</value>
   </data>
   <data name="Identity.RolesNotFoundWithIds" xml:space="preserve">
-    <value>Funções não encontradas: {0}</value>
+    <value>Vloge niso najdene: {0}</value>
   </data>
   <data name="Identity.SystemGroupsCannotBeDeleted" xml:space="preserve">
-    <value>Grupos do sistema não podem ser excluídos.</value>
+    <value>Sistemskih skupin ni mogoče izbrisati.</value>
   </data>
   <data name="Identity.UserNotMemberOfGroup" xml:space="preserve">
-    <value>O usuário '{0}' não é membro do grupo '{1}'.</value>
+    <value>Uporabnik »{0}« ni član skupine »{1}«.</value>
   </data>
   <data name="Identity.CannotRemoveFromDefaultGroup" xml:space="preserve">
-    <value>Usuários não podem ser removidos de um grupo padrão.</value>
+    <value>Uporabnikov ni mogoče odstraniti iz privzete skupine.</value>
   </data>
   <data name="Identity.SystemGroupsCannotBeModified" xml:space="preserve">
-    <value>Grupos do sistema não podem ser modificados.</value>
+    <value>Sistemskih skupin ni mogoče spreminjati.</value>
   </data>
   <data name="Identity.RoleNotFound" xml:space="preserve">
-    <value>Função não encontrada.</value>
+    <value>Vloga ni najdena.</value>
   </data>
   <data name="Identity.RolesNotFound" xml:space="preserve">
-    <value>Funções não encontradas.</value>
+    <value>Vloge niso najdene.</value>
   </data>
   <data name="Identity.SystemRoleCannotBeModified" xml:space="preserve">
-    <value>Funções do sistema não podem ser modificadas.</value>
+    <value>Sistemskih vlog ni mogoče spreminjati.</value>
   </data>
   <data name="Identity.CannotRenameToSystemRole" xml:space="preserve">
-    <value>Não é possível renomear uma função para o nome de uma função do sistema.</value>
+    <value>Vloge ni mogoče preimenovati v ime sistemske vloge.</value>
   </data>
   <data name="Identity.CannotCreateWithSystemRoleName" xml:space="preserve">
-    <value>Não é possível criar uma função usando o nome de uma função do sistema.</value>
+    <value>Vloge ni mogoče ustvariti z imenom sistemske vloge.</value>
   </data>
   <data name="Identity.SystemRolesCannotBeDeleted" xml:space="preserve">
-    <value>Funções do sistema não podem ser excluídas.</value>
+    <value>Sistemskih vlog ni mogoče izbrisati.</value>
   </data>
   <data name="Identity.SystemRolePermissionsManaged" xml:space="preserve">
-    <value>As permissões de funções do sistema são gerenciadas pelo framework e não podem ser modificadas.</value>
+    <value>Dovoljenja sistemskih vlog upravlja ogrodje in jih ni mogoče spreminjati.</value>
   </data>
   <data name="Identity.OperationFailed" xml:space="preserve">
-    <value>A operação falhou.</value>
+    <value>Operacija ni uspela.</value>
   </data>
   <data name="Identity.NotAnImpersonationSession" xml:space="preserve">
-    <value>A sessão atual não é uma sessão de personificação.</value>
+    <value>Trenutna seja ni seja prevzema identitete.</value>
   </data>
   <data name="Identity.OriginalActorNotFound" xml:space="preserve">
-    <value>Ator original não encontrado.</value>
+    <value>Izvirni izvajalec ni najden.</value>
   </data>
   <data name="Identity.ImpersonationGrantNotFound" xml:space="preserve">
-    <value>Concessão de personificação não encontrada.</value>
+    <value>Odobritev prevzema identitete ni najdena.</value>
   </data>
   <data name="Identity.CrossTenantImpersonationRestricted" xml:space="preserve">
-    <value>A personificação entre tenants é restrita a operadores da plataforma.</value>
+    <value>Prevzem identitete med najemniki je omejen na operaterje platforme.</value>
   </data>
   <data name="Identity.CannotImpersonateYourself" xml:space="preserve">
-    <value>Não é possível personificar a si mesmo.</value>
+    <value>Ne morete prevzeti lastne identitete.</value>
   </data>
   <data name="Identity.EndImpersonationFirst" xml:space="preserve">
-    <value>Encerre a personificação atual antes de iniciar uma nova.</value>
+    <value>Pred začetkom novega prevzema identitete končajte trenutnega.</value>
   </data>
   <data name="Identity.TargetUserNotFound" xml:space="preserve">
-    <value>Usuário alvo não encontrado.</value>
+    <value>Ciljni uporabnik ni najden.</value>
   </data>
   <data name="Identity.UserNotFound" xml:space="preserve">
-    <value>Usuário não encontrado.</value>
+    <value>Uporabnik ni najden.</value>
   </data>
   <data name="Identity.UserNotFoundById" xml:space="preserve">
-    <value>Usuário {0} não encontrado.</value>
+    <value>Uporabnik {0} ni najden.</value>
   </data>
   <data name="Identity.CurrentPasswordIncorrect" xml:space="preserve">
-    <value>A senha atual está incorreta.</value>
+    <value>Trenutno geslo ni pravilno.</value>
   </data>
   <data name="Identity.FailedToGenerateAuthenticatorKey" xml:space="preserve">
-    <value>Falha ao gerar a chave do autenticador.</value>
+    <value>Ustvarjanje ključa za preverjanje pristnosti ni uspelo.</value>
   </data>
   <data name="Identity.AuthenticatorCodeInvalid" xml:space="preserve">
-    <value>O código do autenticador é inválido.</value>
+    <value>Koda za preverjanje pristnosti je neveljavna.</value>
   </data>
   <data name="Identity.InvalidRefreshToken" xml:space="preserve">
-    <value>Token de atualização inválido.</value>
+    <value>Neveljaven žeton za osvežitev.</value>
   </data>
   <data name="Identity.SessionRevoked" xml:space="preserve">
-    <value>A sessão foi revogada.</value>
+    <value>Seja je bila preklicana.</value>
   </data>
   <data name="Identity.AccessTokenSubjectMismatch" xml:space="preserve">
-    <value>O assunto do token de acesso não corresponde.</value>
+    <value>Subjekt dostopnega žetona se ne ujema.</value>
   </data>
   <data name="Identity.TwoFactorRequired" xml:space="preserve">
-    <value>two_factor_required: É necessário um código de autenticador para concluir o login.</value>
+    <value>two_factor_required: Za dokončanje prijave je potrebna koda za preverjanje pristnosti.</value>
   </data>
   <data name="Identity.TwoFactorInvalid" xml:space="preserve">
-    <value>two_factor_invalid: O código do autenticador é inválido ou expirou.</value>
+    <value>two_factor_invalid: Koda za preverjanje pristnosti je neveljavna ali potekla.</value>
   </data>
   <data name="Identity.AccountLocked" xml:space="preserve">
-    <value>A conta está temporariamente bloqueada devido a muitas tentativas de login malsucedidas. Tente novamente mais tarde.</value>
+    <value>Račun je začasno zaklenjen zaradi preveč neuspelih poskusov prijave. Poskusite znova pozneje.</value>
   </data>
   <data name="Identity.RefreshTokenInvalidOrExpired" xml:space="preserve">
-    <value>O token de atualização é inválido ou expirou.</value>
+    <value>Žeton za osvežitev je neveljaven ali potekel.</value>
   </data>
   <data name="Identity.UserDeactivated" xml:space="preserve">
-    <value>O usuário está desativado.</value>
+    <value>Uporabnik je deaktiviran.</value>
   </data>
   <data name="Identity.EmailNotConfirmed" xml:space="preserve">
-    <value>E-mail não confirmado.</value>
+    <value>E-pošta ni potrjena.</value>
   </data>
   <data name="Identity.TenantDeactivated" xml:space="preserve">
-    <value>O tenant {0} está desativado.</value>
+    <value>Najemnik {0} je deaktiviran.</value>
   </data>
   <data name="Identity.TenantValidityExpired" xml:space="preserve">
-    <value>A validade do tenant {0} expirou.</value>
+    <value>Veljavnost najemnika {0} je potekla.</value>
   </data>
   <data name="Identity.ErrorResettingPassword" xml:space="preserve">
-    <value>Erro ao redefinir a senha.</value>
+    <value>Napaka pri ponastavitvi gesla.</value>
   </data>
   <data name="Identity.FailedToChangePassword" xml:space="preserve">
-    <value>Falha ao alterar a senha.</value>
+    <value>Sprememba gesla ni uspela.</value>
   </data>
   <data name="Identity.UpdateProfileFailed" xml:space="preserve">
-    <value>Falha ao atualizar o perfil.</value>
+    <value>Posodobitev profila ni uspela.</value>
   </data>
   <data name="Identity.ProfileChangedSinceLoaded" xml:space="preserve">
-    <value>O perfil mudou desde que você o carregou. Recarregue e aplique suas alterações de novo.</value>
+    <value>Profil se je spremenil, odkar ste ga naložili. Ponovno ga naložite in znova uveljavite spremembe.</value>
   </data>
   <data name="Identity.UpdateProfileImageFailed" xml:space="preserve">
-    <value>Falha ao atualizar a imagem do perfil.</value>
+    <value>Posodobitev slike profila ni uspela.</value>
   </data>
   <data name="Identity.EmailConfirmationError" xml:space="preserve">
-    <value>Ocorreu um erro ao confirmar o e-mail.</value>
+    <value>Pri potrjevanju e-pošte je prišlo do napake.</value>
   </data>
   <data name="Identity.EmailConfirmationFailedFor" xml:space="preserve">
-    <value>Ocorreu um erro ao confirmar {0}.</value>
+    <value>Pri potrjevanju {0} je prišlo do napake.</value>
   </data>
   <data name="Identity.EmailConfirmed" xml:space="preserve">
-    <value>Seu e-mail {0} foi confirmado. Agora você já pode entrar.</value>
+    <value>Vaša e-pošta {0} je potrjena. Zdaj se lahko prijavite.</value>
   </data>
   <data name="Identity.EmailConfirmationFailedWithErrors" xml:space="preserve">
-    <value>Ocorreu um erro ao confirmar o e-mail de {0}: {1}</value>
+    <value>Pri potrjevanju e-pošte za {0} je prišlo do napake: {1}</value>
   </data>
   <data name="Identity.EmailAlreadyConfirmed" xml:space="preserve">
-    <value>O e-mail de {0} já está confirmado.</value>
+    <value>E-pošta za {0} je že potrjena.</value>
   </data>
   <data name="Identity.PhoneConfirmationError" xml:space="preserve">
-    <value>Ocorreu um erro ao confirmar o número de telefone.</value>
+    <value>Pri potrjevanju telefonske številke je prišlo do napake.</value>
   </data>
   <data name="Identity.PhoneConfirmationFailedFor" xml:space="preserve">
-    <value>Ocorreu um erro ao confirmar o número de telefone {0}.</value>
+    <value>Pri potrjevanju telefonske številke {0} je prišlo do napake.</value>
   </data>
   <data name="Identity.EmailClaimRequired" xml:space="preserve">
-    <value>A claim de e-mail é obrigatória para autenticação externa.</value>
+    <value>Za zunanjo prijavo je potrebna trditev e-pošte.</value>
   </data>
   <data name="Identity.FailedToCreateUserFromPrincipal" xml:space="preserve">
-    <value>Falha ao criar o usuário a partir do principal externo.</value>
+    <value>Ustvarjanje uporabnika iz zunanjega nosilca ni uspelo.</value>
   </data>
   <data name="Identity.PasswordsDoNotMatch" xml:space="preserve">
-    <value>As senhas não coincidem.</value>
+    <value>Gesli se ne ujemata.</value>
   </data>
   <data name="Identity.UnableToRegisterUser" xml:space="preserve">
-    <value>Não foi possível registrar o usuário.</value>
+    <value>Uporabnika ni mogoče registrirati.</value>
   </data>
   <data name="Identity.AdminCannotRemoveOwnRole" xml:space="preserve">
-    <value>Administradores não podem remover a própria função de administrador.</value>
+    <value>Skrbniki ne morejo odstraniti lastne skrbniške vloge.</value>
   </data>
   <data name="Identity.RootAdminCannotBeDemoted" xml:space="preserve">
-    <value>O administrador do tenant raiz não pode ser rebaixado.</value>
+    <value>Skrbniku korenskega najemnika ni mogoče odvzeti pravic.</value>
   </data>
   <data name="Identity.TenantMustRetainOneAdmin" xml:space="preserve">
-    <value>O tenant deve manter pelo menos um administrador.</value>
+    <value>Najemnik mora obdržati vsaj enega skrbnika.</value>
   </data>
   <data name="Identity.OnlyAdminsCanChangeStatus" xml:space="preserve">
-    <value>Apenas administradores podem alterar o status do usuário.</value>
+    <value>Stanje uporabnika lahko spreminjajo samo skrbniki.</value>
   </data>
   <data name="Identity.CannotDeactivateSelf" xml:space="preserve">
-    <value>Usuários não podem desativar a si mesmos.</value>
+    <value>Uporabniki ne morejo deaktivirati samih sebe.</value>
   </data>
   <data name="Identity.AdminsCannotBeDeactivated" xml:space="preserve">
-    <value>Administradores não podem ser desativados.</value>
+    <value>Skrbnikov ni mogoče deaktivirati.</value>
   </data>
   <data name="Identity.TenantMustHaveActiveAdmin" xml:space="preserve">
-    <value>O tenant deve ter pelo menos um administrador ativo.</value>
+    <value>Najemnik mora imeti vsaj enega aktivnega skrbnika.</value>
   </data>
   <data name="Identity.ToggleStatusFailed" xml:space="preserve">
-    <value>Falha ao alternar o status.</value>
+    <value>Preklop stanja ni uspel.</value>
   </data>
   <data name="Identity.InvalidCredentials" xml:space="preserve">
-    <value>Credenciais inválidas.</value>
+    <value>Neveljavne poverilnice.</value>
   </data>
   <data name="Identity.CannotViewOthersSessions" xml:space="preserve">
-    <value>Não é possível visualizar sessões de outro usuário</value>
+    <value>Sej drugega uporabnika ni mogoče ogledati</value>
   </data>
   <data name="Identity.CannotRevokeOthersSession" xml:space="preserve">
-    <value>Não é possível revogar a sessão de outro usuário</value>
+    <value>Seje drugega uporabnika ni mogoče preklicati</value>
   </data>
   <data name="Identity.CannotRevokeOthersSessions" xml:space="preserve">
-    <value>Não é possível revogar sessões de outro usuário</value>
+    <value>Sej drugega uporabnika ni mogoče preklicati</value>
   </data>
   <data name="Identity.RoleManagerNotResolved" xml:space="preserve">
-    <value>RoleManager&lt;FshRole&gt; não resolvido. Verifique o registro do Identity.</value>
+    <value>RoleManager&lt;FshRole&gt; ni razrešen. Preverite registracijo Identity.</value>
   </data>
   <data name="Identity.RoleStoreNotConfigured" xml:space="preserve">
-    <value>Repositório de funções não configurado. Garanta .AddRoles&lt;FshRole&gt;() e os stores do EF.</value>
+    <value>Shramba vlog ni nastavljena. Zagotovite .AddRoles&lt;FshRole&gt;() in shrambe EF.</value>
   </data>
   <data name="Identity.InScopeInitializationOnly" xml:space="preserve">
-    <value>Método reservado para inicialização em escopo.</value>
+    <value>Metoda je rezervirana samo za inicializacijo znotraj obsega</value>
   </data>
 </root>

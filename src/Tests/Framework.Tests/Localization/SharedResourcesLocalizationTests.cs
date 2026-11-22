@@ -21,14 +21,14 @@ public sealed class SharedResourcesLocalizationTests
         return services.BuildServiceProvider().GetRequiredService<IStringLocalizer<SharedResources>>();
     }
 
-    // Catalogs are named for specific cultures (SharedResources.pt-BR.resx), matching the front-end.
-    // The consequence is deliberate and pinned here: only pt-BR is served Portuguese. A bare `pt` or
+    // Catalogs are named for specific cultures (SharedResources.sl-SI.resx), matching the front-end.
+    // The consequence is deliberate and pinned here: only sl-SI is served Slovenian. A bare `sl` or
     // an unsupported variant like pt-PT walks its parent chain, finds no catalog of its own and lands
-    // on the neutral (English) one, rather than being silently handed Brazilian strings.
+    // on the neutral (English) one, rather than being silently handed Slovenian strings.
     [Theory]
-    [InlineData("pt-BR", "Não encontrado")]   // specific pt-BR resolves directly
-    [InlineData("pt", "Not Found")]           // bare pt has no catalog -> neutral English
-    [InlineData("pt-PT", "Not Found")]         // unsupported variant -> neutral English, NOT pt-BR
+    [InlineData("sl-SI", "Ni najdeno")]   // specific sl-SI resolves directly
+    [InlineData("sl", "Not Found")]           // bare sl has no catalog -> neutral English
+    [InlineData("pt-PT", "Not Found")]         // unsupported variant -> neutral English, NOT sl-SI
     [InlineData("en-US", "Not Found")]        // en-US falls back to the neutral (default) catalog
     public void Localizer_resolves_error_key_per_culture(string culture, string expected)
     {
@@ -49,10 +49,10 @@ public sealed class SharedResourcesLocalizationTests
         }
     }
 
-    // A pt-BR translation is optional for contributors, which only holds if a key the .pt-BR resx
+    // A sl-SI translation is optional for contributors, which only holds if a key the .sl-SI resx
     // lacks still resolves (to English) under the production wiring instead of leaking the raw key.
     [Fact]
-    public void Key_missing_from_the_ptBR_catalog_falls_back_to_English()
+    public void Key_missing_from_the_slSI_catalog_falls_back_to_English()
     {
         var configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
         var services = new ServiceCollection();
@@ -65,10 +65,10 @@ public sealed class SharedResourcesLocalizationTests
         var previous = CultureInfo.CurrentUICulture;
         try
         {
-            CultureInfo.CurrentUICulture = new CultureInfo("pt-BR");
+            CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
 
-            // Without this, a pt-BR satellite that never got built would pass the fallback assertion below.
-            localizer["Probe.Translated"].Value.ShouldBe("Traduzido em português");
+            // Without this, a sl-SI satellite that never got built would pass the fallback assertion below.
+            localizer["Probe.Translated"].Value.ShouldBe("Prevedeno v slovenščino");
 
             var englishOnly = localizer["Probe.EnglishOnly"];
             englishOnly.ResourceNotFound.ShouldBeFalse();

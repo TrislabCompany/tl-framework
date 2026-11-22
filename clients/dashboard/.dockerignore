@@ -6,7 +6,6 @@ dist
 tests
 test-results
 playwright-report
-playwright.config.ts
 public/config.json
 *.log
 .env

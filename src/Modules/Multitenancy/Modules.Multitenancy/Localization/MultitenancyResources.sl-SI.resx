@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Multitenancy.TenantDeactivated" xml:space="preserve">
+    <value>Ta najemnik je bil deaktiviran. Obrnite se na skrbnika.</value>
+  </data>
+  <data name="Multitenancy.TenantSubscriptionExpired" xml:space="preserve">
+    <value>Naročnina tega najemnika je potekla. Za nadaljevanje jo podaljšajte.</value>
+  </data>
+  <data name="Multitenancy.TenantNotFoundDuringProvisioning" xml:space="preserve">
+    <value>Najemnik {0} ni najden med pripravo.</value>
+  </data>
+  <data name="Multitenancy.TenantNotFoundForProvisioning" xml:space="preserve">
+    <value>Najemnik {0} ni najden za pripravo.</value>
+  </data>
+  <data name="Multitenancy.ProvisioningAlreadyRunning" xml:space="preserve">
+    <value>Priprava za najemnika {0} že poteka.</value>
+  </data>
+  <data name="Multitenancy.ProvisioningNotFound" xml:space="preserve">
+    <value>Priprava za najemnika {0} ni najdena.</value>
+  </data>
+  <data name="Multitenancy.TenantNotProvisioned" xml:space="preserve">
+    <value>Najemnik {0} ni pripravljen. Stanje: {1}.</value>
+  </data>
+  <data name="Multitenancy.ProvisioningCorrelationNotFound" xml:space="preserve">
+    <value>Priprava {0} za najemnika {1} ni najdena.</value>
+  </data>
+  <data name="Multitenancy.TenantAlreadyActivated" xml:space="preserve">
+    <value>najemnik {0} je že aktiviran</value>
+  </data>
+  <data name="Multitenancy.TenantAlreadyDeactivated" xml:space="preserve">
+    <value>najemnik {0} je že deaktiviran</value>
+  </data>
+  <data name="Multitenancy.AtLeastOneActiveTenantRequired" xml:space="preserve">
+    <value>Potreben je vsaj en aktiven najemnik.</value>
+  </data>
+  <data name="Multitenancy.RootTenantCannotBeDeactivated" xml:space="preserve">
+    <value>Korenskega najemnika ni mogoče deaktivirati.</value>
+  </data>
+  <data name="Multitenancy.TenantNotFound" xml:space="preserve">
+    <value>AppTenantInfo {0} ni najden.</value>
+  </data>
+  <data name="Multitenancy.OnlyRootCanSetDefaultTheme" xml:space="preserve">
+    <value>Privzeto temo lahko nastavi samo korenski najemnik</value>
+  </data>
+  <data name="Multitenancy.TenantThemeNotFound" xml:space="preserve">
+    <value>Tema za najemnika {0} ni najdena</value>
+  </data>
+  <data name="Validation.RootTenantValidityImmutable" xml:space="preserve">
+    <value>Veljavnosti korenskega najemnika operaterja ni mogoče prilagoditi.</value>
+  </data>
+  <data name="Validation.ValidUptoRequired" xml:space="preserve">
+    <value>Potreben je veljaven datum »validUpto«.</value>
+  </data>
+  <data name="Validation.TenantAlreadyExists" xml:space="preserve">
+    <value>Najemnik {0} že obstaja.</value>
+  </data>
+  <data name="Validation.ConnectionStringInvalid" xml:space="preserve">
+    <value>Povezovalni niz je neveljaven.</value>
+  </data>
+  <data name="Validation.AdminPasswordMinLength" xml:space="preserve">
+    <value>Skrbniško geslo mora imeti vsaj 8 znakov.</value>
+  </data>
+  <data name="Validation.PlanKeySlug" xml:space="preserve">
+    <value>Ključ paketa mora biti slug z malimi črkami (a-z, 0-9, vezaj).</value>
+  </data>
+  <data name="Validation.ThemeRequired" xml:space="preserve">
+    <value>Tema je obvezna.</value>
+  </data>
+  <data name="Validation.ColorMustBeHex" xml:space="preserve">
+    <value>{0} mora biti veljavna šestnajstiška barva.</value>
+  </data>
+  <data name="Validation.FontFamilyWebSafe" xml:space="preserve">
+    <value>{0} mora biti veljavna spletno varna pisava.</value>
+  </data>
+  <data name="Validation.FontSizeBaseRange" xml:space="preserve">
+    <value>FontSizeBase mora biti med 10 in 24.</value>
+  </data>
+  <data name="Validation.LineHeightBaseRange" xml:space="preserve">
+    <value>LineHeightBase mora biti med 1,0 in 2,5.</value>
+  </data>
+  <data name="Validation.BorderRadiusInvalid" xml:space="preserve">
+    <value>BorderRadius mora biti veljavna vrednost CSS (npr. »4px«, »0.5rem«).</value>
+  </data>
+  <data name="Validation.DefaultElevationRange" xml:space="preserve">
+    <value>DefaultElevation mora biti med 0 in 24.</value>
+  </data>
+  <data name="TenantProvisioningStatus.Pending" xml:space="preserve">
+    <value>V čakanju</value>
+  </data>
+  <data name="TenantProvisioningStatus.Running" xml:space="preserve">
+    <value>V teku</value>
+  </data>
+  <data name="TenantProvisioningStatus.Completed" xml:space="preserve">
+    <value>Dokončano</value>
+  </data>
+  <data name="TenantProvisioningStatus.Failed" xml:space="preserve">
+    <value>Neuspelo</value>
+  </data>
+</root>

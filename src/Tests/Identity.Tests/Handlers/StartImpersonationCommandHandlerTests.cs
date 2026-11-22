@@ -52,7 +52,7 @@ public sealed class StartImpersonationCommandHandlerTests
             new(ClaimConstants.Tenant, TenantId),
             new(ClaimTypes.Name, "Target User"),
             new(ClaimTypes.Role, "Admin"),
-            new("locale", "pt-BR"),
+            new("locale", "sl-SI"),
         };
         _identityService
             .BuildClaimsForUserAsync(TargetUserId, TenantId, Arg.Any<CancellationToken>())

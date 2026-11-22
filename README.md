@@ -50,11 +50,11 @@ What works on the first deploy, with no change:
 | Aspire (AppHost) | 13.6.5 |
 | Hangfire | 1.8.23, stored in Postgres |
 | Redis-compatible cache | Optional: the stamp's `cache`; Valkey 9.1.0 in the AppHost; in-memory without it |
-| S3-compatible storage | The stamp's `storage`; rustfs 1.0.3 in the AppHost, `docker-compose.yml` and the integration tests; AWS SDK for S3 4.0.23.4 |
+| S3-compatible storage | The stamp's `storage`; rustfs 1.0.3 in the AppHost, `docker-compose.yml` and the integration tests; AWS SDK for S3 4.0.104.8 |
 | RabbitMQ | Optional: the stamp's `messaging`; RabbitMQ.Client 7.2.1; in-memory without it |
-| React | 19.2.5 (`admin`), 19.2.6 (`dashboard`), with React Router 7 and TanStack Query 5 |
-| Vite | 7.3.2 (`admin`), 7.3.3 (`dashboard`) |
-| TypeScript | 5.9.3 |
+| React | 19.3.1, with React Router 7 and TanStack Query 5 |
+| Vite | 8.3.8 |
+| TypeScript | 6.0.3 |
 | Node.js | 22.23.4 (`node:22.23.4-alpine`, build stage of `admin` and `dashboard` only), with npm 10.9.9 |
 | nginx | 1.31.7, mainline (`nginxinc/nginx-unprivileged:1.31.7-alpine`) |
 | Postgres | 17.11 (`postgres:17.11-alpine`, in `docker-compose.yml`, the AppHost and the integration tests) |

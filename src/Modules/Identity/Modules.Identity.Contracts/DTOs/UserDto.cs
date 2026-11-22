@@ -33,6 +33,6 @@ public class UserDto
     [JsonIgnore]
     public string? ProfileVersion { get; set; }
 
-    /// <summary>BCP 47 UI language tag (e.g. "pt-BR"); null resolves to the default culture.</summary>
+    /// <summary>BCP 47 UI language tag (e.g. "sl-SI"); null resolves to the default culture.</summary>
     public string? Locale { get; set; }
 }
