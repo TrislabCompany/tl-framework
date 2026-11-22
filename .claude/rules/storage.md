@@ -16,7 +16,9 @@ paths:
 
 ## Providers
 
-`AddHeroStorage(config)` reads `Storage:Provider` **eagerly at registration**: `"s3"` → `S3StorageService` (any S3-compatible service via `ServiceUrl` + `ForcePathStyle`: rustfs in a stamp, the AppHost and the tests), else `LocalStorageService`. Presigned URLs are signed by a second client, keyed `S3StorageService.PresignClientKey`, for `PublicServiceUrl` (`S3_PUBLIC_ENDPOINT`): the browser reaches the storage through the front end's `/storage` proxy, on the page's hostname. When quotas are enabled the service is wrapped in `QuotaMeteredStorageService` (debits `StorageBytes`).
+`AddHeroStorage(config)` reads `Storage:Provider` **eagerly at registration**: `"s3"` → `S3StorageService` (any S3-compatible service via `ServiceUrl` + `ForcePathStyle`: rustfs in a stamp, the AppHost and the tests), else `LocalStorageService`. Presigned URLs are signed by a second client, keyed `S3StorageService.PresignClientKey`, for `PresignServiceUrl` (`S3_PUBLIC_ENDPOINT`): the browser reaches the storage through the front end's `/storage` proxy, on the page's hostname. When quotas are enabled the service is wrapped in `QuotaMeteredStorageService` (debits `StorageBytes`).
+
+`Storage:S3:PresignServiceUrl` (optional, validated at startup as an absolute http(s) URL): presigned PUT/GET URLs are signed for this host through a second, keyed `IAmazonS3` (`S3StorageService.PresignClientKey`); all real I/O stays on `ServiceUrl`. Needed when the API reaches the store on an internal address browsers can't resolve (compose: `http://rustfs:9000`). A test factory that re-registers the S3 stack must register that keyed client too (see `FshWebApplicationFactory`).
 
 ## Presigned upload flow (preferred for user uploads)
 

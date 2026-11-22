@@ -29,9 +29,9 @@ namespace Integration.Tests.Infrastructure;
 
 public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private const string MinioAccessKey = "minioadmin";
-    private const string MinioSecretKey = "minioadmin";
-    private const string MinioBucket = "fsh-integration-test-uploads";
+    internal const string S3AccessKey = "rustfsadmin";
+    internal const string S3SecretKey = "rustfsadmin";
+    internal const string S3Bucket = "fsh-integration-test-uploads";
 
     private static readonly SemaphoreSlim _migrationLock = new(1, 1);
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:17.11-alpine@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b")
@@ -44,8 +44,8 @@ public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, I
 
     // The S3-compatible storage a stamp runs, pinned like docker-compose.yml's.
     private readonly IContainer _minio = new ContainerBuilder("rustfs/rustfs:1.0.3@sha256:9ca9559533b537d10482fe923288b676ad08f92a7069d9a17327fbae3cab688b")
-        .WithEnvironment("RUSTFS_ACCESS_KEY", MinioAccessKey)
-        .WithEnvironment("RUSTFS_SECRET_KEY", MinioSecretKey)
+        .WithEnvironment("RUSTFS_ACCESS_KEY", S3AccessKey)
+        .WithEnvironment("RUSTFS_SECRET_KEY", S3SecretKey)
         .WithPortBinding(9000, true)
         .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(9000))
         .WithAutoRemove(true)
@@ -55,7 +55,7 @@ public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, I
     public async Task InitializeAsync()
     {
         await Task.WhenAll(_postgres.StartAsync(), _minio.StartAsync());
-        await CreateMinioBucketAsync();
+        await CreateS3BucketAsync();
 
         // Force host creation via the Server property (no leaked HttpClient)
         _ = Server;
@@ -81,25 +81,25 @@ public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, I
     }
 
     /// <summary>The MinIO endpoint URL exposed to the host configuration; useful for tests that need to PUT bytes directly.</summary>
-    public string MinioServiceUrl => $"http://{_minio.Hostname}:{_minio.GetMappedPublicPort(9000)}";
+    public string S3ServiceUrl => $"http://{_minio.Hostname}:{_minio.GetMappedPublicPort(9000)}";
 
-    private async Task CreateMinioBucketAsync()
+    private async Task CreateS3BucketAsync()
     {
         var config = new AmazonS3Config
         {
-            ServiceURL = MinioServiceUrl,
+            ServiceURL = S3ServiceUrl,
             ForcePathStyle = true,
             UseHttp = true,
             AuthenticationRegion = "us-east-1"
         };
 
         using var client = new AmazonS3Client(
-            new Amazon.Runtime.BasicAWSCredentials(MinioAccessKey, MinioSecretKey),
+            new Amazon.Runtime.BasicAWSCredentials(S3AccessKey, S3SecretKey),
             config);
 
         try
         {
-            await client.PutBucketAsync(new PutBucketRequest { BucketName = MinioBucket });
+            await client.PutBucketAsync(new PutBucketRequest { BucketName = S3Bucket });
         }
         catch (AmazonS3Exception ex) when (ex.ErrorCode == "BucketAlreadyOwnedByYou" || ex.ErrorCode == "BucketAlreadyExists")
         {
@@ -160,10 +160,10 @@ public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, I
                 ["Seed:DefaultAdminPassword"] = TestConstants.DefaultPassword,
                 ["SecurityHeadersOptions:Enabled"] = "false",
                 ["Storage:Provider"] = "s3",
-                ["Storage:S3:Bucket"] = MinioBucket,
-                ["Storage:S3:ServiceUrl"] = MinioServiceUrl,
-                ["Storage:S3:AccessKey"] = MinioAccessKey,
-                ["Storage:S3:SecretKey"] = MinioSecretKey,
+                ["Storage:S3:Bucket"] = S3Bucket,
+                ["Storage:S3:ServiceUrl"] = S3ServiceUrl,
+                ["Storage:S3:AccessKey"] = S3AccessKey,
+                ["Storage:S3:SecretKey"] = S3SecretKey,
                 ["Storage:S3:ForcePathStyle"] = "true",
                 ["Storage:S3:PublicRead"] = "false",
                 ["Storage:S3:Region"] = "us-east-1",
@@ -250,33 +250,37 @@ public sealed class FshWebApplicationFactory : WebApplicationFactory<Program>, I
 
         services.Configure<FSH.Framework.Storage.S3.S3StorageOptions>(opts =>
         {
-            opts.Bucket = MinioBucket;
-            opts.ServiceUrl = MinioServiceUrl;
-            opts.AccessKey = MinioAccessKey;
-            opts.SecretKey = MinioSecretKey;
+            opts.Bucket = S3Bucket;
+            opts.ServiceUrl = S3ServiceUrl;
+            opts.AccessKey = S3AccessKey;
+            opts.SecretKey = S3SecretKey;
             opts.ForcePathStyle = true;
             opts.PublicRead = false;
             opts.Region = "us-east-1";
         });
 
-        services.AddSingleton<IAmazonS3>(_ =>
-        {
-            var config = new AmazonS3Config
-            {
-                ServiceURL = MinioServiceUrl,
-                ForcePathStyle = true,
-                UseHttp = true,
-                AuthenticationRegion = "us-east-1"
-            };
-            return new AmazonS3Client(
-                new Amazon.Runtime.BasicAWSCredentials(MinioAccessKey, MinioSecretKey),
-                config);
-        });
-        services.AddKeyedSingleton<IAmazonS3>(FSH.Framework.Storage.S3.S3StorageService.PresignClientKey,
-            (sp, _) => sp.GetRequiredService<IAmazonS3>());
+        services.AddSingleton<IAmazonS3>(_ => CreateRustFsClient());
+        // S3StorageService presigns through a keyed client; tests reach RustFS on one address, so it matches.
+        services.AddKeyedSingleton<IAmazonS3>(
+            FSH.Framework.Storage.S3.S3StorageService.PresignClientKey,
+            (_, _) => CreateRustFsClient());
         services.AddTransient<FSH.Framework.Storage.S3.S3StorageService>();
         services.AddTransient<FSH.Framework.Storage.Services.IStorageService>(sp =>
             sp.GetRequiredService<FSH.Framework.Storage.S3.S3StorageService>());
+    }
+
+    private AmazonS3Client CreateRustFsClient()
+    {
+        var config = new AmazonS3Config
+        {
+            ServiceURL = S3ServiceUrl,
+            ForcePathStyle = true,
+            UseHttp = true,
+            AuthenticationRegion = "us-east-1"
+        };
+        return new AmazonS3Client(
+            new Amazon.Runtime.BasicAWSCredentials(S3AccessKey, S3SecretKey),
+            config);
     }
 
     protected override IHost CreateHost(IHostBuilder builder)

@@ -74,7 +74,7 @@ public sealed class PlatformConfigurationTests
         configuration["Storage:Provider"].ShouldBe("s3");
         configuration["Storage:S3:ServiceUrl"].ShouldBe("http://ca-shr-con-dev-storage:9000");
         configuration["Storage:S3:Bucket"].ShouldBe("storage");
-        configuration["Storage:S3:PublicServiceUrl"].ShouldBe("https://dev.example.com");
+        configuration["Storage:S3:PresignServiceUrl"].ShouldBe("https://dev.example.com");
         configuration["Storage:S3:PublicBaseUrl"].ShouldBe("https://dev.example.com/storage");
     }
 

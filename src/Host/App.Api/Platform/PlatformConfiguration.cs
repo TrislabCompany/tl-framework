@@ -185,7 +185,7 @@ internal static class PlatformConfiguration
         // presigned and public URLs use the page's hostname, not the internal endpoint.
         if (Value(configuration, "S3_PUBLIC_ENDPOINT") is { } publicEndpoint)
         {
-            settings["Storage:S3:PublicServiceUrl"] = publicEndpoint;
+            settings["Storage:S3:PresignServiceUrl"] = publicEndpoint;
             settings["Storage:S3:PublicBaseUrl"] = $"{publicEndpoint.TrimEnd('/')}/{bucket}";
         }
     }
