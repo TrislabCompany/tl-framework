@@ -41,7 +41,7 @@ const makeSchema = (t: TFn) =>
       email: z.string().trim().pipe(z.email(t("create.validation.email"))),
       phoneNumber: z.string().trim().max(32).optional(),
       password: z.string().min(8, t("create.validation.min8")),
-      confirmPassword: z.string().min(8),
+      confirmPassword: z.string().min(8, t("create.validation.min8")),
     })
     .refine((d) => d.password === d.confirmPassword, {
       path: ["confirmPassword"],
