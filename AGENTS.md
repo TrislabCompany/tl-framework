@@ -49,7 +49,7 @@ front-ends. Multitenancy, auth, auditing, billing, files, chat and more are firs
 | Cache / Jobs | Redis, Hangfire | Tests | Playwright (route-mocked) |
 | Docs | OpenAPI + Scalar | API client | hand-written `apiFetch` (no codegen) |
 | Hosting | .NET Aspire locally, Azure Container Apps | Env | runtime `/config.json` (`PLATFORM_*`, `PUBLIC_*`) |
-| Testing | xUnit, Shouldly, NSubstitute, AutoFixture, NetArchTest, Testcontainers | | |
+| Testing | xUnit v3, Shouldly, NSubstitute, AutoFixture, NetArchTest, Testcontainers | | |
 
 ## Build & run
 

@@ -58,7 +58,7 @@ What works on the first deploy, with no change:
 | Node.js | 22.23.4 (`node:22.23.4-alpine`, build stage of `admin` and `dashboard` only), with npm 10.9.9 |
 | nginx | 1.31.7, mainline (`nginxinc/nginx-unprivileged:1.31.7-alpine`) |
 | Postgres | 17.11 (`postgres:17.11-alpine`, in `docker-compose.yml`, the AppHost and the integration tests) |
-| xUnit and Testcontainers | xUnit 2.9.3; Testcontainers 4.16.0 |
+| xUnit and Testcontainers | xUnit v3 4.0.2 (`xunit.v3.mtp-off`); Testcontainers 4.16.0 |
 | Trivy | 0.74.0, in `ci / ci` |
 
 Every base image is pinned by digest. Renovate will keep the versions current; until it runs, the platform team bumps them.
