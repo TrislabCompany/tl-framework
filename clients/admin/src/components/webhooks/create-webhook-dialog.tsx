@@ -28,10 +28,13 @@ const schema = z.object({
   url: z
     .string()
     .trim()
-    .url("Must be a valid http(s) URL.")
-    .refine((u) => u.startsWith("https://") || u.startsWith("http://"), {
-      message: "Use http:// or https://",
-    }),
+    .pipe(
+      z
+        .url("Must be a valid http(s) URL.")
+        .refine((u) => u.startsWith("https://") || u.startsWith("http://"), {
+          error: "Use http:// or https://",
+        }),
+    ),
   secret: z
     .string()
     .trim()

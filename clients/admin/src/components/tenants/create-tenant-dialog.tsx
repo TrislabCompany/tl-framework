@@ -45,7 +45,7 @@ const schema = z.object({
       "Lowercase letters, digits, hyphens. 3–64 chars. No leading/trailing hyphen.",
     ),
   name: z.string().trim().min(2, "At least 2 characters.").max(128),
-  adminEmail: z.string().trim().email("Enter a valid email."),
+  adminEmail: z.string().trim().pipe(z.email("Enter a valid email.")),
   adminPassword: z
     .string()
     .min(8, "At least 8 characters.")
