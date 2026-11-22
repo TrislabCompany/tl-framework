@@ -51,8 +51,9 @@ export async function create{Resource}(input: Create{Resource}Input) {
 
 Every string the page shows is a key in its area's namespace. Add the English entries **before** using
 them: keys are typed against the en-US catalogs, so `t("{resources}.title")` fails `tsc -b` until the
-key exists. A new area gets a new `{ns}.json` plus one line in the catalog map in `src/i18n.ts`.
-`src/locales/pt-BR/{ns}.json` is optional; a missing key renders in English.
+key exists. A new area gets a new `{ns}.json` plus one line in the lazy catalog map in `src/i18n.ts`
+(`LAZY_CATALOGS` in admin, `lazyCatalogs` in dashboard), and its routes list `{ns}` (Step 5).
+`src/locales/sl-SI/{ns}.json` is optional; a missing key renders in English.
 
 ```json
 {
@@ -102,7 +103,9 @@ If you need to track the in-flight item (e.g. a per-row busy state), use `onMuta
 ## Step 5 — Register the route (`routes.tsx`)
 
 ```tsx
-const {Resource}ListPage = lazyNamed(() => import("@/pages/{area}/list"), "{Resource}ListPage");
+// The last argument lists the lazy translation namespaces the page and its components use;
+// they load alongside the page chunk. Shell namespaces (common, auth, …) are always loaded.
+const {Resource}ListPage = lazyNamed(() => import("@/pages/{area}/list"), "{Resource}ListPage", ["{ns}"]);
 // admin — under AppShell.children, gated:
 { path: "{resources}", element: <RouteGuard perms={[{Module}Permissions.{Resources}.View]}><{Resource}ListPage /></RouteGuard> },
 // dashboard — under AppShell.children, suspense only:
@@ -138,7 +141,7 @@ hand (`.agents/rules/frontend/shared.md`, Translations).
 ## Checklist
 
 - [ ] API module: hand-written types, `apiFetch`, correct param casing per app (Pascal=admin, camel=dashboard)
-- [ ] English keys in `src/locales/en-US/{ns}.json` (pt-BR optional); every visible string, toast and `aria-label` through `t()`
+- [ ] English keys in `src/locales/en-US/{ns}.json` (sl-SI optional); every visible string, toast and `aria-label` through `t()`
 - [ ] Page is a **named export**; `useQuery` key hierarchical + `placeholderData: keepPreviousData`
 - [ ] Mutation passes data via `mutate(arg)`, invalidates in `onSuccess`
 - [ ] Route via `lazyNamed`; admin wraps in `<RouteGuard perms>`, dashboard in `withSuspense`
