@@ -60,6 +60,7 @@ front-ends. Multitenancy, auth, auditing, billing, files, chat and more are firs
 | `clients/admin`, `clients/dashboard` | The two React apps, each with its Dockerfile and `docker/` (nginx, `/config.json`). |
 | `docker-compose.yml`, `.env.example` | The four images locally, without the .NET SDK. |
 | `platform.yaml`, `.github/workflows/ci.yml` | The images and app sizing for the platform; the `ci / ci` check. |
+| `.github/workflows/packages.yml` | On a release tag, publishes the NuGet and npm packages to GitHub Packages (`docs/packages.md`). |
 | `scripts/` | Scripts for repetitive work, listed in `scripts/README.md` (porting fullstackhero commits). |
 | `docs/` | How the repository works on the platform: getting started, architecture, configuration, deployment, modules, packages. |
 | `renovate/framework.json` | The Renovate preset products extend for framework upgrades (`docs/packages.md`). |
