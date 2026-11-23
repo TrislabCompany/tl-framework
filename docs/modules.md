@@ -4,7 +4,7 @@ The modules of the API, what each does, and how to add or delete one. `.claude/r
 
 ## 1. The modules
 
-Each module is a folder in `src/Modules/` with two projects: `Modules.<Name>`, its runtime, and `Modules.<Name>.Contracts`, the only part other modules may use: commands, queries, DTOs and integration events. Its endpoints are under `/api/v1/<module>`, and its tables in a schema of its own. It ships its own migrations, in `Migrations/` of the runtime project, and keeps its migrations history in its schema, so a product that leaves the module out gets none of its tables.
+Each module is a folder in `src/Modules/` with two projects: `Modules.<Name>`, its runtime, and `Modules.<Name>.Contracts`, the only part other modules may use: commands, queries, DTOs and integration events. Its endpoints are under `/api/v1/<module>`, and its tables in a schema of its own. It ships its own migrations, in `Migrations/` of the runtime project, and keeps its migrations history in its schema, so a product that leaves the module out gets none of its tables. Each module is packed as `Trislab.Modules.<Name>` and `Trislab.Modules.<Name>.Contracts` ([packages.md](packages.md)).
 
 The samples Catalog, Tickets and Chat are in `src/Samples/`, with their tests beside them. They show how a module is built, and are not part of the framework: they are never packed, no building block or framework module may reference them (`Architecture.Tests` checks it), and they move to `tl-product-saas`.
 
