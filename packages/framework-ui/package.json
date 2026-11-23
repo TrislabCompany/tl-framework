@@ -1,0 +1,48 @@
+{
+  "name": "@trislabcompany/framework-ui",
+  "version": "0.1.0",
+  "description": "The shared React UI of tl-framework: i18n, the language switch, formatting by language.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrislabCompany/tl-framework.git",
+    "directory": "packages/framework-ui"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist"],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run typecheck && vitest run"
+  },
+  "peerDependencies": {
+    "i18next": "^26.7.1",
+    "i18next-browser-languagedetector": "^8.3.0",
+    "react": "^19.3.1",
+    "react-i18next": "^17.1.12"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "i18next": "^26.7.1",
+    "i18next-browser-languagedetector": "^8.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-i18next": "^17.1.12",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.5",
+    "vitest": "^5.1.1"
+  }
+}

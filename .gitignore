@@ -213,6 +213,8 @@ PublishScripts/
 **/[Pp]ackages/*
 # except build/, which is used as an MSBuild target.
 !**/[Pp]ackages/build/
+# except the npm packages at the root, packages/<name> (docs/packages.md).
+!/packages/*
 # except the Next.js workspace packages (monorepo, not NuGet restore artifacts).
 !clients/**/packages/
 !clients/**/packages/**

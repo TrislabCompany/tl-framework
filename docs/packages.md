@@ -16,6 +16,14 @@ The package id is the project's `AssemblyName`. A project reference between two 
 
 Never packed: the hosts in `src/Host/`, the samples in `src/Samples/` (they move to `tl-product-saas`), and the tests.
 
+The npm packages are in `packages/`, one folder each, published as `@trislabcompany/<folder>`:
+
+| Folder | Package | What it is |
+| --- | --- | --- |
+| `packages/framework-ui` | `@trislabcompany/framework-ui` | The shared React UI: i18n, the language switch, formatting by language ([its README](../packages/framework-ui/README.md)) |
+
+The React apps `clients/admin` and `clients/dashboard` are not packages yet; they become `framework-admin` and `framework-dashboard` later.
+
 - **Migrations** are compiled into their module, so they ship in its package. The migrator finds them in the package as it does in the project.
 - **Mediator handlers** are found the same way: the host lists each module's assembly in `o.Assemblies`, and the source generator reads a package's assembly like a project's.
 - **Debugging:** each package embeds its PDB and links its sources to the commit (Source Link), so a product can step into framework code.
