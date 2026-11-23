@@ -14,7 +14,7 @@ public static class ForgotPasswordEndpoint
     {
         return endpoints.MapPost("/forgot-password", async (
             HttpRequest request,
-            [FromHeader(Name = MultitenancyConstants.Identifier)] string tenant,
+            [FromHeader(Name = MultitenancyConstants.Identifier)] string? tenant,
             [FromBody] ForgotPasswordCommand command,
             IMediator mediator,
             CancellationToken cancellationToken) =>
@@ -26,6 +26,7 @@ public static class ForgotPasswordEndpoint
         .WithSummary("Request password reset")
         .WithDescription("Generate a password reset token and send it via email.")
         .AllowAnonymous()
+        .RequireTenantHeaderWhenMultitenant()
         .Produces(StatusCodes.Status200OK);
     }
 }

@@ -1,3 +1,4 @@
+using Trislab.Framework.Shared.Multitenancy;
 using Asp.Versioning;
 using Trislab.Framework.Eventing;
 using Trislab.Framework.Persistence;
@@ -40,6 +41,9 @@ namespace Trislab.Modules.Billing;
 
 public sealed class BillingModule : IModule
 {
+    /// <summary>Subscriptions, plans and invoices belong to the tenants of a tenant catalog.</summary>
+    public TenancyModes SupportedTenancyModes => TenancyModes.Multitenant;
+
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);

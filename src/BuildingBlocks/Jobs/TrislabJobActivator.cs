@@ -1,4 +1,4 @@
-﻿using Finbuckle.MultiTenant;
+﻿﻿using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Core.Common;
 using Trislab.Framework.Core.Context;
@@ -35,6 +35,12 @@ public class TrislabJobActivator : JobActivator
         private void ReceiveParameters()
         {
             var tenantInfo = _context.GetJobParameter<AppTenantInfo>(MultitenancyConstants.Identifier);
+
+            // A job created outside a request (a recurring job, one enqueued by a hosted service) carries no
+            // tenant. A single-tenant host has exactly one, so the job runs in it; a multi-tenant host has no
+            // provider, and such a job runs without a tenant context, as before.
+            tenantInfo ??= _scope.ServiceProvider.GetService<ISingleTenantProvider>()?.Tenant;
+
             if (tenantInfo is not null)
             {
                 _scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()

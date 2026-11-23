@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<RootNamespace>Trislab.Framework.Tenancy</RootNamespace>
+		<AssemblyName>Trislab.Framework.Tenancy</AssemblyName>
+		<Description>Tenant resolution and the event, outbox and job tenant scopes, in single-tenant and multi-tenant mode. Part of tl-framework.</Description>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Finbuckle.MultiTenant" />
+		<PackageReference Include="Finbuckle.MultiTenant.Abstractions" />
+		<PackageReference Include="Finbuckle.MultiTenant.AspNetCore" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Core\Core.csproj" />
+		<ProjectReference Include="..\Eventing.Abstractions\Eventing.Abstractions.csproj" />
+		<ProjectReference Include="..\Shared\Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="Framework.Tests" />
+	</ItemGroup>
+
+</Project>

@@ -1,3 +1,4 @@
+using Trislab.Framework.Shared.Multitenancy;
 using Asp.Versioning;
 using FluentValidation;
 using Trislab.Framework.Persistence;
@@ -45,6 +46,9 @@ namespace Trislab.Modules.Chat;
 /// </summary>
 public sealed class ChatModule : IModule
 {
+    /// <summary>Works with and without a tenant catalog; data is stamped with the tenant in both modes.</summary>
+    public TenancyModes SupportedTenancyModes => TenancyModes.All;
+
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);

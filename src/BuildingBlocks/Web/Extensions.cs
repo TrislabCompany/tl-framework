@@ -4,6 +4,7 @@ using Trislab.Framework.Mailing;
 using Trislab.Framework.Persistence;
 using Trislab.Framework.Quota;
 using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Web.Auth;
 using Trislab.Framework.Web.Cors;
 using Trislab.Framework.Web.Exceptions;
@@ -287,7 +288,8 @@ public static class Extensions
 
         app.UseTrislabRateLimiting();
 
-        if (options.UseQuotas)
+        // Quotas meter tenants against plans; a single-tenant host has no plans, so the middleware is not added.
+        if (options.UseQuotas && TenancyOptions.ReadMode(app.Configuration) == TenancyMode.Multitenant)
         {
             app.UseTrislabQuotas();
         }

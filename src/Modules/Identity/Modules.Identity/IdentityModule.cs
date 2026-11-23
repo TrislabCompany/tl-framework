@@ -1,4 +1,5 @@
-﻿using Asp.Versioning;
+﻿using Trislab.Framework.Shared.Multitenancy;
+using Asp.Versioning;
 using Trislab.Framework.Core.Context;
 using Trislab.Framework.Eventing;
 using Trislab.Framework.Persistence;
@@ -79,6 +80,9 @@ namespace Trislab.Modules.Identity;
 
 public class IdentityModule : IModule
 {
+    /// <summary>Works with and without a tenant catalog; data is stamped with the tenant in both modes.</summary>
+    public TenancyModes SupportedTenancyModes => TenancyModes.All;
+
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);

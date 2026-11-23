@@ -18,13 +18,14 @@ public static class RefreshTokenEndpoint
         return endpoint.MapPost("/token/refresh",
             [AllowAnonymous] async Task<Results<Ok<RefreshTokenCommandResponse>, UnauthorizedHttpResult, ProblemHttpResult>>
             ([FromBody] RefreshTokenCommand command,
-            [FromHeader(Name = "tenant")] string tenant,
+            [FromHeader(Name = "tenant")] string? tenant,
             [FromServices] IMediator mediator,
             CancellationToken ct) =>
             {
                 var response = await mediator.Send(command, ct);
                 return TypedResults.Ok(response);
             })
+            .RequireTenantHeaderWhenMultitenant()
             .WithName("RefreshJwtTokens")
             .WithSummary("Refresh JWT access and refresh tokens")
             .WithDescription("Use a valid (possibly expired) access token together with a valid refresh token to obtain a new access token and a rotated refresh token.")

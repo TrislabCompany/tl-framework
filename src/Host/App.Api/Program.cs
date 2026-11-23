@@ -1,5 +1,7 @@
 using App.Api.Platform;
 using Trislab.Framework.Eventing;
+using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Tenancy;
 using Trislab.Framework.Web;
 using Trislab.Framework.Web.Modules;
 using Trislab.Modules.Auditing;
@@ -99,6 +101,11 @@ var moduleAssemblies = new Assembly[]
     typeof(Trislab.Modules.Notifications.NotificationsModule).Assembly,
 };
 
+// Tenancy first (docs/configuration.md, TenancyOptions): the mode is multi-tenant unless TenancyOptions:Mode says
+// otherwise. A single-tenant run leaves out the multi-tenant-only modules (Multitenancy, Billing).
+builder.AddTrislabTenancy();
+moduleAssemblies = ModuleLoader.SelectSupported(TenancyOptions.ReadMode(builder.Configuration), moduleAssemblies);
+
 builder.AddTrislabPlatform(o =>
 {
     o.EnableCaching = true;
@@ -124,7 +131,7 @@ builder.Services.AddHostedService<App.Api.OrphanedOutboxRecurringJobCleanupServi
 
 var app = builder.Build();
 
-app.UseTrislabMultiTenantDatabases();
+app.UseTrislabTenancy();
 app.UseTrislabPlatform(p =>
 {
     p.MapModules = true;

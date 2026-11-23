@@ -15,7 +15,7 @@ public static class SelfRegisterUserEndpoint
     internal static RouteHandlerBuilder MapSelfRegisterUserEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints.MapPost("/self-register", async (RegisterUserCommand command,
-            [FromHeader(Name = MultitenancyConstants.Identifier)] string tenant,
+            [FromHeader(Name = MultitenancyConstants.Identifier)] string? tenant,
             IFrontendOriginResolver originResolver,
             IMediator mediator,
             CancellationToken cancellationToken) =>
@@ -27,12 +27,13 @@ public static class SelfRegisterUserEndpoint
         })
         .WithName("SelfRegisterUser")
         .WithSummary("Self register user")
-        .WithDescription("Allow a user to self-register. Anonymous; tenant identified via the tenant header.")
+        .WithDescription("Allow a user to self-register. Anonymous; in multi-tenant mode the tenant is identified via the tenant header, in single-tenant mode it is the fixed tenant.")
         // Deliberately NOT .WithIdempotency(): the entry key scopes by caller, and every unauthenticated
         // caller is the same "anon" caller, so two people registering on one tenant with the same
         // low-entropy key would collide — the second would replay the first's 201 and never get an
         // account. Retries are already safe here, the unique-email constraint rejects the duplicate.
         .AllowAnonymous()
+        .RequireTenantHeaderWhenMultitenant()
         .Produces<RegisterUserResponse>(StatusCodes.Status201Created)
         .Produces(StatusCodes.Status400BadRequest);
     }

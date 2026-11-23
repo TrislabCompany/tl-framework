@@ -1,4 +1,5 @@
 using Trislab.Framework.Core.Common;
+using Trislab.Framework.Shared.Multitenancy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,7 +37,8 @@ public static class Extensions
         services.AddSingleton(quotaOptions);
         services.AddSingleton<QuotaPlanResolver>();
 
-        if (!quotaOptions.Enabled)
+        // A single-tenant host has no plans to meter against: the no-op service answers every check.
+        if (!quotaOptions.Enabled || TenancyOptions.ReadMode(configuration) == TenancyMode.SingleTenant)
         {
             services.AddScoped<IQuotaService, NoopQuotaService>();
             services.AddTransient<QuotaEnforcementMiddleware>();

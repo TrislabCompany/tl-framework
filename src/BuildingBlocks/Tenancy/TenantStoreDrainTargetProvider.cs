@@ -2,7 +2,7 @@ using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Eventing.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
 
-namespace Trislab.Modules.Multitenancy.Services;
+namespace Trislab.Framework.Tenancy;
 
 /// <summary>
 /// Returns the default database plus one target per distinct active per-tenant connection string.
