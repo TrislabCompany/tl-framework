@@ -17,7 +17,7 @@ public sealed class HybridCacheTelemetryCollection;
 /// <summary>
 /// Behavioral tests for the OTel decorator wrapping HybridCache. We assert that
 /// hit/miss counters fire correctly via a <see cref="MeterListener"/> subscribed to the
-/// <c>FSH.Caching</c> meter.
+/// <c>Trislab.Caching</c> meter.
 /// </summary>
 [Collection("HybridCacheTelemetry")]
 public sealed class ObservableHybridCacheTests : IDisposable
@@ -44,14 +44,14 @@ public sealed class ObservableHybridCacheTests : IDisposable
         {
             switch (instrument.Name)
             {
-                case "fsh.cache.hits": Interlocked.Add(ref _hits, measurement); break;
-                case "fsh.cache.misses": Interlocked.Add(ref _misses, measurement); break;
-                case "fsh.cache.invalidations": Interlocked.Add(ref _invalidations, measurement); break;
+                case "tl.cache.hits": Interlocked.Add(ref _hits, measurement); break;
+                case "tl.cache.misses": Interlocked.Add(ref _misses, measurement); break;
+                case "tl.cache.invalidations": Interlocked.Add(ref _invalidations, measurement); break;
             }
         });
         _listener.SetMeasurementEventCallback<double>((instrument, measurement, tags, state) =>
         {
-            if (instrument.Name == "fsh.cache.factory.duration")
+            if (instrument.Name == "tl.cache.factory.duration")
             {
                 Interlocked.Increment(ref _factoryDurationCount);
             }

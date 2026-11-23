@@ -30,7 +30,7 @@ public sealed class StoragePathSafetyTests : IDisposable
         //   appsettings.json    <- must never be reachable
         //   wwwroot/            <- web root
         //     index.html        <- a static asset that is not a storage object
-        _site = Path.Combine(Path.GetTempPath(), "fsh-storage-safety", Guid.NewGuid().ToString("N"));
+        _site = Path.Combine(Path.GetTempPath(), "tl-storage-safety", Guid.NewGuid().ToString("N"));
         _webRoot = Path.Combine(_site, "wwwroot");
         Directory.CreateDirectory(_webRoot);
         _secret = Path.Combine(_site, "appsettings.json");

@@ -55,7 +55,7 @@ internal sealed record MigratorCommand(
     }
 
     public const string HelpText = """
-        FSH DbMigrator — apply EF Core migrations across the tenant catalog
+        Trislab DbMigrator — apply EF Core migrations across the tenant catalog
         and every tenant's per-module databases.
 
         Usage:

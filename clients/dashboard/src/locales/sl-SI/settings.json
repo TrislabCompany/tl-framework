@@ -46,10 +46,9 @@
   "notifications.openBell": "Odpri zvonec z obvestili",
 
   "apiKeys.title": "Ključi API",
-  "apiKeys.description": "Dolgotrajne poverilnice, s katerimi storitve kličejo API FSH. Obravnavajte jih kot gesla.",
+  "apiKeys.description": "Dolgotrajne poverilnice, s katerimi storitve kličejo API Trislab. Obravnavajte jih kot gesla.",
   "apiKeys.emptyTitle": "Ključi API še niso na voljo.",
-  "apiKeys.emptyBody": "Osebni dostopni žetoni in ključi API za komunikacijo med storitvami so na načrtu za različico v1.1. Zaenkrat vaš dostop poteka prek uporabniku vezanega žetona JWT, izdanega ob prijavi. Napredek spremljajte na javnem načrtu razvoja ali v opombah ob naslednji izdaji.",
-  "apiKeys.viewRoadmap": "Poglej načrt razvoja",
+  "apiKeys.emptyBody": "Osebni dostopni žetoni in ključi API za komunikacijo med storitvami so na načrtu za različico v1.1. Zaenkrat vaš dostop poteka prek uporabniku vezanega žetona JWT, izdanega ob prijavi.",
 
   "appearance.theme.title": "Tema",
   "appearance.theme.description": "Izberite barvni način nadzorne plošče. Sistemski način sledi vašemu operacijskemu sistemu.",

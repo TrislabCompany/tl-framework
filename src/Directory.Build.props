@@ -18,7 +18,7 @@
 		<!-- Docs -->
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);CS1591;MSG0005;CA1054;CA1056</NoWarn>
-		<!-- AV0029/AV0030 (Asp.Versioning 10.2+): advisories toward AddApiVersioning().AddOpenApi(). FSH deliberately registers one
+		<!-- AV0029/AV0030 (Asp.Versioning 10.2+): advisories toward AddApiVersioning().AddOpenApi(). Trislab deliberately registers one
 		     AddOpenApi(groupName) document per version (Web/OpenApi/Extensions.cs); also fires inside the OpenApi source-generated file. -->
 		<NoWarn>$(NoWarn);AV0029;AV0030</NoWarn>
 		<!-- Suppress warning about missing XML docs -->
@@ -46,12 +46,19 @@
 		<!-- Package metadata, the same for every package. -->
 		<Authors>Trislab</Authors>
 		<Company>Trislab</Company>
-		<Copyright>Copyright (c) 2021-2026 fullstackhero; Trislab</Copyright>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Copyright>Copyright (c) 2026 Trislab. All rights reserved.</Copyright>
+		<!-- Proprietary (LICENSE); THIRD-PARTY-NOTICES.md keeps the notices of the open-source code it derives from. -->
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageProjectUrl>https://github.com/TrislabCompany/tl-framework</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/TrislabCompany/tl-framework</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<Description>Part of tl-framework, the framework of the Trislab SaaS products and webapps.</Description>
 		<PackageTags>trislab;tl-framework</PackageTags>
 	</PropertyGroup>
+
+	<ItemGroup Condition="'$(IsPackable)' == 'true'">
+		<None Include="$(MSBuildThisFileDirectory)..\LICENSE" Pack="true" PackagePath="\" Visible="false" />
+		<None Include="$(MSBuildThisFileDirectory)..\THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="\" Visible="false" />
+	</ItemGroup>
 </Project>

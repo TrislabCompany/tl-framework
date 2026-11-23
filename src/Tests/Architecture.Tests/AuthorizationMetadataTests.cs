@@ -18,7 +18,7 @@ public class AuthorizationMetadataTests
     private const string ExpectedNamespace = "Trislab.Framework.Shared.Identity.Authorization";
 
     [Fact]
-    public void RequiredPermissionAttribute_Should_Exist_Exactly_Once_Across_All_FSH_Assemblies()
+    public void RequiredPermissionAttribute_Should_Exist_Exactly_Once_Across_All_TRISLAB_Assemblies()
     {
         var matches = GetAllTrislabAssemblies()
             .SelectMany(GetLoadableTypes)
@@ -26,11 +26,11 @@ public class AuthorizationMetadataTests
             .ToArray();
 
         matches.ShouldNotBeEmpty(
-            $"{AttributeName} was not found in any FSH assembly. " +
+            $"{AttributeName} was not found in any Trislab assembly. " +
             "The permission authorization pipeline depends on it.");
 
         matches.Length.ShouldBe(1,
-            $"Exactly one {AttributeName} must exist across all FSH assemblies. " +
+            $"Exactly one {AttributeName} must exist across all Trislab assemblies. " +
             "A duplicate that does not implement IRequiredPermissionMetadata silently disables " +
             $"every .RequirePermission() gate. Found: {string.Join(", ", matches.Select(t => $"{t.FullName} ({t.Assembly.GetName().Name})"))}");
 

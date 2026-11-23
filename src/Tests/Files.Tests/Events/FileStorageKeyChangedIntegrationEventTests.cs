@@ -23,7 +23,7 @@ public class FileStorageKeyChangedIntegrationEventTests
 
     [Theory]
     // Whatever base the URL was built with (PublicBaseUrl, path-style endpoint, CloudFront, local path) is kept.
-    [InlineData("http://localhost:9000/fsh-uploads/" + OldKey, "http://localhost:9000/fsh-uploads/" + NewKey)]
+    [InlineData("http://localhost:9000/tl-uploads/" + OldKey, "http://localhost:9000/tl-uploads/" + NewKey)]
     [InlineData("https://d111.cloudfront.net/" + OldKey, "https://d111.cloudfront.net/" + NewKey)]
     [InlineData("/" + OldKey, "/" + NewKey)]
     [InlineData(OldKey, NewKey)]
@@ -40,16 +40,16 @@ public class FileStorageKeyChangedIntegrationEventTests
     public void RewriteUrl_Should_ReturnNull_When_TheUrlIsForAnotherObject(string? url)
     {
         NewEvent().RewriteUrl(url).ShouldBeNull();
-        (NewEvent() with { NewPublicUrl = "https://s3.example.com/fsh/" + NewKey }).ResolveUrl(url).ShouldBeNull();
+        (NewEvent() with { NewPublicUrl = "https://s3.example.com/tl/" + NewKey }).ResolveUrl(url).ShouldBeNull();
     }
 
     [Fact]
     public void ResolveUrl_Should_UseTheCurrentPublicUrl_When_TheStoredUrlHasAnOutdatedBase()
     {
         // Compose stored http://rustfs:9000/... before PublicBaseUrl existed; browsers can't reach that host.
-        var @event = NewEvent() with { NewPublicUrl = "https://s3.example.com/fsh/" + NewKey };
+        var @event = NewEvent() with { NewPublicUrl = "https://s3.example.com/tl/" + NewKey };
 
-        @event.ResolveUrl("http://rustfs:9000/fsh/" + OldKey).ShouldBe("https://s3.example.com/fsh/" + NewKey);
+        @event.ResolveUrl("http://rustfs:9000/tl/" + OldKey).ShouldBe("https://s3.example.com/tl/" + NewKey);
     }
 
     [Fact]
@@ -57,6 +57,6 @@ public class FileStorageKeyChangedIntegrationEventTests
     {
         var @event = NewEvent() with { Visibility = Visibility.Private, NewPublicUrl = null };
 
-        @event.ResolveUrl("http://rustfs:9000/fsh/" + OldKey).ShouldBe("http://rustfs:9000/fsh/" + NewKey);
+        @event.ResolveUrl("http://rustfs:9000/tl/" + OldKey).ShouldBe("http://rustfs:9000/tl/" + NewKey);
     }
 }

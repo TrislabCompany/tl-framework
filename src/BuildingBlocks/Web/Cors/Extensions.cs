@@ -10,7 +10,7 @@ namespace Trislab.Framework.Web.Cors;
 
 public static class Extensions
 {
-    private const string PolicyName = "FSHCorsPolicy";
+    private const string PolicyName = "TrislabCorsPolicy";
 
     public static IServiceCollection AddTrislabCors(
         this IServiceCollection services,

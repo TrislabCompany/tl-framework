@@ -4,7 +4,7 @@ using System.Net;
 namespace Trislab.Framework.Core.Exceptions;
 
 /// <summary>
-/// FullStackHero exception used for consistent error handling across the stack.
+/// Trislab exception used for consistent error handling across the stack.
 /// Includes HTTP status codes and optional detailed error messages.
 /// </summary>
 public class CustomException : Exception, ILocalizableMessage

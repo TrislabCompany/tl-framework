@@ -25,7 +25,7 @@ public sealed class RetryTenantProvisioningTests : IAsyncLifetime
     // Syntactically valid Postgres connection string pointing at a dead endpoint with a
     // short timeout so the Migrations step fails fast instead of hanging the test.
     private const string UnreachableConnectionString =
-        "Host=127.0.0.1;Port=59999;Database=fsh_unreachable;Username=nope;Password=nope;Timeout=2;Command Timeout=2";
+        "Host=127.0.0.1;Port=59999;Database=tl_unreachable;Username=nope;Password=nope;Timeout=2;Command Timeout=2";
 
     private readonly TrislabWebApplicationFactory _factory;
 

@@ -8,7 +8,7 @@ namespace Framework.Tests.Web;
 
 public sealed class CorsPolicyTests
 {
-    private const string PolicyName = "FSHCorsPolicy";
+    private const string PolicyName = "TrislabCorsPolicy";
 
     [Theory]
     [InlineData(true)]

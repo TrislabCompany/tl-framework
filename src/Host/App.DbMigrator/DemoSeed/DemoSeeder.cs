@@ -57,14 +57,14 @@ internal sealed class DemoSeeder
         Id: "acme",
         Name: "Acme Corp",
         AdminEmail: "admin@acme.com",
-        Issuer: "fsh.demo.acme",
+        Issuer: "tl.demo.acme",
         PlanKey: "pro-annual");
 
     public static readonly DemoTenant Globex = new(
         Id: "globex",
         Name: "Globex",
         AdminEmail: "admin@globex.com",
-        Issuer: "fsh.demo.globex",
+        Issuer: "tl.demo.globex",
         PlanKey: "free");
 
     public DemoSeeder(IServiceProvider services, IConfiguration config, ILogger<DemoSeeder> logger)

@@ -1,6 +1,6 @@
 ---
 name: testing-guide
-description: Write tests for an FSH feature — xUnit + Shouldly + NSubstitute + AutoFixture, with naming and AAA conventions. Use when adding unit/handler/validator/entity tests. Full rules in .claude/rules/testing.md + integration-testing.md.
+description: Write tests for an Trislab feature — xUnit + Shouldly + NSubstitute + AutoFixture, with naming and AAA conventions. Use when adding unit/handler/validator/entity tests. Full rules in .claude/rules/testing.md + integration-testing.md.
 user-invocable: false
 ---
 

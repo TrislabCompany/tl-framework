@@ -25,8 +25,8 @@ import { env } from "@/env";
 import type { DemoAccount } from "@/pages/login.demo-accounts";
 
 // ────────────────────────────────────────────────────────────────────────
-// Login — FSH Admin operator sign-in.
-// Chrome mirrors the dashboard's AuthShell: atmospheric orbs, FSH logo
+// Login — Trislab Admin operator sign-in.
+// Chrome mirrors the dashboard's AuthShell: atmospheric orbs, Trislab logo
 // lockup, warm-paper card with backdrop blur.
 // The dev demo button ("Sign in with a demo account") opens the same
 // popup dialog UX the dashboard uses — pick an account → fills
@@ -158,17 +158,13 @@ export function LoginPage() {
         </div>
 
         {/* Card column */}
-        <div className="relative z-10 w-full max-w-[420px] fsh-enter fsh-enter-1">
+        <div className="relative z-10 w-full max-w-[420px] tl-enter tl-enter-1">
           {/* ── Brand lockup — same as dashboard AuthShell ─────────────── */}
           <div className="mb-8 flex flex-col items-center">
             <div className="flex items-center gap-2.5">
-              <img
-                src="/logo-fullstackhero.png"
-                alt="fullstackhero"
-                className="size-9 object-contain"
-              />
+              <span aria-hidden className="brand-mark grid size-9 shrink-0 place-items-center rounded-lg font-display text-[15px] font-bold text-[var(--color-primary-foreground)]">T</span>
               <span className="font-display text-[26px] font-semibold tracking-tight text-[var(--color-foreground)]">
-                fullstack<span className="text-[var(--color-primary)]">hero</span>
+                Tris<span className="text-[var(--color-primary)]">lab</span>
               </span>
             </div>
             <div className="mt-3 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[oklch(from_var(--color-muted-foreground)_l_c_h_/_0.7)]">
@@ -205,7 +201,7 @@ export function LoginPage() {
                   {notice && (
                     <div
                       role="status"
-                      className="mb-5 flex items-start gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-muted)] px-3 py-2.5 text-[12.5px] leading-snug text-[var(--color-muted-foreground)] fsh-enter"
+                      className="mb-5 flex items-start gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-muted)] px-3 py-2.5 text-[12.5px] leading-snug text-[var(--color-muted-foreground)] tl-enter"
                     >
                       <TimerOff className="mt-0.5 size-3.5 shrink-0 text-[var(--color-muted-foreground)]" />
                       <span>{notice}</span>
@@ -303,7 +299,7 @@ export function LoginPage() {
                         id="login-error"
                         role="alert"
                         className={cn(
-                          "fsh-enter flex items-start gap-2 rounded-lg border px-3 py-2 text-sm",
+                          "tl-enter flex items-start gap-2 rounded-lg border px-3 py-2 text-sm",
                           "border-[oklch(from_var(--color-destructive)_l_c_h_/_0.30)]",
                           "bg-[oklch(from_var(--color-destructive)_l_c_h_/_0.06)]",
                           "text-[var(--color-destructive)]",

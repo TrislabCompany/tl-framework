@@ -37,8 +37,6 @@ public sealed class DatabaseOptionsStartupLogger : IHostedService
         if (_logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation("current db provider: {Provider}", options.Provider);
-            _logger.LogInformation("for docs: https://www.fullstackhero.net");
-            _logger.LogInformation("sponsor: https://opencollective.com/fullstackhero");
         }
         return Task.CompletedTask;
     }

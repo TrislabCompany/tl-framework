@@ -10,5 +10,5 @@ namespace Trislab.Modules.Identity;
 public sealed class TwoFactorOptions
 {
     [Required]
-    public string Issuer { get; set; } = "FullStackHero";
+    public string Issuer { get; set; } = "Trislab";
 }

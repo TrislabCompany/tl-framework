@@ -1,6 +1,6 @@
 ---
 name: add-feature
-description: Add a vertical-slice feature (command/query + handler + validator + endpoint) to an existing FSH module. Use when adding an API endpoint or business operation to a module that already exists.
+description: Add a vertical-slice feature (command/query + handler + validator + endpoint) to an existing Trislab module. Use when adding an API endpoint or business operation to a module that already exists.
 argument-hint: "[ModuleName] [Area] [FeatureName]"
 ---
 

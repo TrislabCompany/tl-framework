@@ -51,8 +51,8 @@ export function ChatGlobalNotifier() {
       void queryClient.invalidateQueries({ queryKey: ["chat", "my-channels"] });
 
       // `className` is APPENDED to the toaster's global classNames.toast
-      // ("fsh-toast"), so the wrapper li ends up with both .fsh-toast and
-      // .fsh-chat-toast-wrapper. globals.css uses that compound selector
+      // ("tl-toast"), so the wrapper li ends up with both .tl-toast and
+      // .tl-chat-toast-wrapper. globals.css uses that compound selector
       // to neutralise the tone-rail chrome (bg, drain bar, "note" pseudo)
       // without touching the children sonner actually renders for our JSX.
       toast.custom(
@@ -66,7 +66,7 @@ export function ChatGlobalNotifier() {
             onDismiss={() => toast.dismiss(id)}
           />
         ),
-        { duration: 6_000, className: "fsh-chat-toast-wrapper" },
+        { duration: 6_000, className: "tl-chat-toast-wrapper" },
       );
     },
     [user?.id],
@@ -117,14 +117,14 @@ function ChatToast({
       aria-live="polite"
       className={cn(
         // Sized to feel like a chat-message preview, not a system note.
-        "fsh-chat-toast relative w-[380px] overflow-hidden rounded-xl",
+        "tl-chat-toast relative w-[380px] overflow-hidden rounded-xl",
         "border border-[var(--color-border)] bg-[var(--color-card)]",
         "shadow-[var(--shadow-lift)]",
       )}
     >
       {/* Atmospheric brand wash on the leading edge — mirrors the
           chat-channel-header pseudo so a toast reads as part of the
-          chat family, not the .fsh-toast tone-rail family. */}
+          chat family, not the .tl-toast tone-rail family. */}
       <span
         aria-hidden
         className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-[var(--color-primary)] opacity-90"

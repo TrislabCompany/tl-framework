@@ -32,7 +32,7 @@ public sealed class RolePermissionSyncerTests
 {
     // Well-formed but never registered: stands in for a permission a release removed from the catalog.
     private const string RetiredPermission = "Permissions.Retired.View";
-    private const string NonPermissionClaimType = "fsh.test.marker";
+    private const string NonPermissionClaimType = "tl.test.marker";
 
     // Target for the throwaway-role tests; never registered, so it cannot collide with a real grant.
     private static readonly TrislabPermission ProbePermission = new("Sync probe", "View", "SyncProbe");

@@ -46,10 +46,9 @@
   "notifications.openBell": "Open notifications bell",
 
   "apiKeys.title": "API keys",
-  "apiKeys.description": "Long-lived credentials used by services to call the FSH API. Treat them like passwords.",
+  "apiKeys.description": "Long-lived credentials used by services to call the Trislab API. Treat them like passwords.",
   "apiKeys.emptyTitle": "API keys aren't available yet.",
-  "apiKeys.emptyBody": "Personal access tokens and service-to-service API keys are on the v1.1 roadmap. For now, your access flows through the user-bound JWT issued at sign-in. Track progress on the public roadmap or watch the next release notes.",
-  "apiKeys.viewRoadmap": "View roadmap",
+  "apiKeys.emptyBody": "Personal access tokens and service-to-service API keys are on the v1.1 roadmap. For now, your access flows through the user-bound JWT issued at sign-in.",
 
   "appearance.theme.title": "Theme",
   "appearance.theme.description": "Pick a colour mode for the dashboard. System follows your OS.",

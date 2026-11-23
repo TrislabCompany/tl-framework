@@ -23,7 +23,7 @@ public sealed class ConnectionStringValidatorTests
         var sut = Build(DbProviders.PostgreSQL);
 
         // Act
-        var result = sut.TryValidate("Host=localhost;Port=5432;Database=fsh;Username=postgres;Password=pwd");
+        var result = sut.TryValidate("Host=localhost;Port=5432;Database=tl;Username=postgres;Password=pwd");
 
         // Assert
         result.ShouldBeTrue();
@@ -36,7 +36,7 @@ public sealed class ConnectionStringValidatorTests
         var sut = Build(DbProviders.MSSQL);
 
         // Act
-        var result = sut.TryValidate("Server=localhost;Database=fsh;User Id=sa;Password=pwd;");
+        var result = sut.TryValidate("Server=localhost;Database=tl;User Id=sa;Password=pwd;");
 
         // Assert
         result.ShouldBeTrue();
@@ -49,7 +49,7 @@ public sealed class ConnectionStringValidatorTests
         var sut = Build(DbProviders.PostgreSQL);
 
         // Act
-        var result = sut.TryValidate("Server=localhost;Database=fsh;", DbProviders.MSSQL);
+        var result = sut.TryValidate("Server=localhost;Database=tl;", DbProviders.MSSQL);
 
         // Assert
         result.ShouldBeTrue();

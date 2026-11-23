@@ -30,7 +30,7 @@ public sealed class TenantServiceRenewClockTests
 
         return new TenantService(
             _store,
-            Options.Create(new DatabaseOptions { ConnectionString = "Host=localhost;Database=fsh;Username=x;Password=y" }),
+            Options.Create(new DatabaseOptions { ConnectionString = "Host=localhost;Database=tl;Username=x;Password=y" }),
             _serviceProvider,
             dbContext: null!,            // RenewAsync never touches the DbContext
             provisioningService: null!,  // RenewAsync never touches provisioning

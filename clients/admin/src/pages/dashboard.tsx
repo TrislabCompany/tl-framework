@@ -51,7 +51,7 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* ── Page header ──────────────────────────────────────────────── */}
-      <div className="fsh-enter">
+      <div className="tl-enter">
         <EntityPageHeader
           icon={LayoutDashboard}
           title={
@@ -67,7 +67,7 @@ export function DashboardPage() {
       </div>
 
       {/* ── KPI stat strip ───────────────────────────────────────────── */}
-      <StatStrip cols={4} className="fsh-enter fsh-enter-2">
+      <StatStrip cols={4} className="tl-enter tl-enter-2">
         <Stat
           label={t("stat.tenants")}
           value={
@@ -120,7 +120,7 @@ export function DashboardPage() {
       </StatStrip>
 
       {/* ── Quick pivots ─────────────────────────────────────────────── */}
-      <section className="fsh-enter fsh-enter-3 space-y-3">
+      <section className="tl-enter tl-enter-3 space-y-3">
         <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-muted-foreground)]">
           {t("entryPoints")}
         </p>

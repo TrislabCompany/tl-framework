@@ -28,9 +28,9 @@ export type SeededUser = {
 };
 
 /** The localStorage slots the runtime tokenStore writes (token-store.ts). */
-export const ACCESS_KEY = "fsh.dashboard.accessToken";
-export const REFRESH_KEY = "fsh.dashboard.refreshToken";
-export const TENANT_KEY = "fsh.dashboard.tenant";
+export const ACCESS_KEY = "tl.dashboard.accessToken";
+export const REFRESH_KEY = "tl.dashboard.refreshToken";
+export const TENANT_KEY = "tl.dashboard.tenant";
 
 /**
  * Encode a minimal JWT (header.payload.signature) where every segment is

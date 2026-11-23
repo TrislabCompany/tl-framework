@@ -2,7 +2,7 @@ using Aspire.Hosting.ApplicationModel;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Per-app prefix from the AppHost assembly name (App.AppHost -> app); namespaces Docker volumes + resource names so multiple FSH apps don't clash.
+// Per-app prefix from the AppHost assembly name (App.AppHost -> app); namespaces Docker volumes + resource names so multiple Trislab apps don't clash.
 #pragma warning disable CA1308 // resource + volume names are conventionally lowercase
 var appPrefix = builder.Environment.ApplicationName
     .Replace(".AppHost", string.Empty, StringComparison.OrdinalIgnoreCase)
@@ -19,7 +19,7 @@ var postgresServer = builder.AddPostgres("postgres")
         .WithHostPort(5050)
         .WithLifetime(ContainerLifetime.Persistent));
 
-var postgres = postgresServer.AddDatabase("fsh-db");
+var postgres = postgresServer.AddDatabase("tl-db");
 
 // Warm pooled-connection floor for the long-running API — Npgsql's default Minimum Pool Size of 0 lets the pool drain to cold, so /readyz's ~10 concurrent DbContext checks cold-open a cohort at once and intermittently stall the probe; a floor keeps connections warm for reuse.
 var apiPgConnection = ReferenceExpression.Create(
@@ -40,7 +40,7 @@ builder.AddContainer("redis-insight", "redis/redisinsight", "latest")
     .WithHttpEndpoint(port: 5540, targetPort: 5540, name: "http")
     .WithEnvironment("RI_REDIS_HOST0", "redis")
     .WithEnvironment("RI_REDIS_PORT0", "6379")
-    .WithEnvironment("RI_REDIS_ALIAS0", "fsh-cache")
+    .WithEnvironment("RI_REDIS_ALIAS0", "tl-cache")
     .WithEnvironment("RI_ACCEPT_TERMS_AND_CONDITIONS", "true")
     .WithLifetime(ContainerLifetime.Persistent)
     .WaitFor(redis);

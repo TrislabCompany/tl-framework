@@ -81,7 +81,7 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
                 // Server-side log so we can also see the rejection reason in the API console.
                 var failedLogger = context.HttpContext.RequestServices
                     .GetRequiredService<ILoggerFactory>()
-                    .CreateLogger("FSH.Identity.JwtAuth");
+                    .CreateLogger("Trislab.Identity.JwtAuth");
                 failedLogger.LogWarning(context.Exception,
                     "JwtBearer authentication FAILED for {Method} {Path}: {Reason}",
                     SanitizeForLog(context.HttpContext.Request.Method),
@@ -139,7 +139,7 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
 
                         var challengeLogger = context.HttpContext.RequestServices
                             .GetRequiredService<ILoggerFactory>()
-                            .CreateLogger("FSH.Identity.JwtAuth");
+                            .CreateLogger("Trislab.Identity.JwtAuth");
                         challengeLogger.LogWarning(
                             "JwtBearer challenge for {Method} {Path}: hadAuthHeader={HadHeader} reason={Reason}",
                             SanitizeForLog(context.HttpContext.Request.Method),

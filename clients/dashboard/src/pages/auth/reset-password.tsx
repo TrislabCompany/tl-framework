@@ -220,7 +220,7 @@ export function ResetPasswordPage() {
               </div>
 
               {strength && (
-                <div className="fsh-enter flex items-center gap-2 pt-1.5">
+                <div className="tl-enter flex items-center gap-2 pt-1.5">
                   <div className="h-1 flex-1 overflow-hidden rounded-full bg-[var(--color-muted)]">
                     <div
                       className={cn(
@@ -293,7 +293,7 @@ export function ResetPasswordPage() {
                 id="reset-error"
                 role="alert"
                 className={cn(
-                  "fsh-enter flex items-start gap-2 rounded-lg border px-3 py-2 text-sm",
+                  "tl-enter flex items-start gap-2 rounded-lg border px-3 py-2 text-sm",
                   "border-[oklch(from_var(--color-destructive)_l_c_h_/_0.30)]",
                   "bg-[oklch(from_var(--color-destructive)_l_c_h_/_0.06)]",
                   "text-[var(--color-destructive)]",

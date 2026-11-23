@@ -51,7 +51,7 @@ public sealed class RedisKeyPrefixWiringTests
             ["CachingOptions:Redis"] = "localhost:6379",
         });
 
-        options.Configuration.ChannelPrefix.ToString().ShouldBe("fsh-signalr");
+        options.Configuration.ChannelPrefix.ToString().ShouldBe("tl-signalr");
     }
 
     [Fact]

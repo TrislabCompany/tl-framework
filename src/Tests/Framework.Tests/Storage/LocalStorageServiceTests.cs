@@ -14,7 +14,7 @@ public sealed class LocalStorageServiceTests : IDisposable
 
     public LocalStorageServiceTests()
     {
-        _root = Path.Combine(Path.GetTempPath(), "fsh-local-storage-tests", Guid.NewGuid().ToString("N"));
+        _root = Path.Combine(Path.GetTempPath(), "tl-local-storage-tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_root);
 
         var environment = Substitute.For<IWebHostEnvironment>();

@@ -144,7 +144,7 @@ public sealed class S3PresignEndpointTests
         }
     }
 
-    // A quoted or padded FSH_S3_PUBLIC_URL passes Uri.TryCreate, so it must not reach the SDK untrimmed and
+    // A quoted or padded TRISLAB_S3_PUBLIC_URL passes Uri.TryCreate, so it must not reach the SDK untrimmed and
     // fail every upload long after startup validation said it was fine.
     [Fact]
     public async Task GenerateUploadUrlAsync_Should_TargetTrimmedPresignServiceUrl_When_ValueIsPadded()

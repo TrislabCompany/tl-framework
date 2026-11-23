@@ -21,9 +21,9 @@ export function issueToken(input: {
       password: input.password,
       ...(input.twoFactorCode ? { twoFactorCode: input.twoFactorCode } : {}),
     }),
-    // X-FSH-App marks this client as the platform-admin app. Used by the
+    // X-Trislab-App marks this client as the platform-admin app. Used by the
     // API to enforce the SuperAdmin / dashboard boundary.
-    headers: { tenant: input.tenant, "X-FSH-App": "admin" },
+    headers: { tenant: input.tenant, "X-Trislab-App": "admin" },
     skipAuth: true,
   });
 }

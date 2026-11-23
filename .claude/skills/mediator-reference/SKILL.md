@@ -1,6 +1,6 @@
 ---
 name: mediator-reference
-description: CQRS interface reference for FSH. This project uses the Mediator source generator, NOT MediatR. Reference when implementing commands, queries, and handlers.
+description: CQRS interface reference for Trislab. This project uses the Mediator source generator, NOT MediatR. Reference when implementing commands, queries, and handlers.
 user-invocable: false
 ---
 
