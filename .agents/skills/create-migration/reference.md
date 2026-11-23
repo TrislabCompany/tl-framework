@@ -10,7 +10,7 @@ The background to [SKILL.md](SKILL.md): read it when a step fails or a context i
 - **Build before `migrations add`** — it reads the snapshot, which regenerates from a build; a stale snapshot silently loses changes. `migrations remove` rewrites the snapshot, so only ever remove the latest and rebuild after.
 
 ## Context names (real)
-`IdentityDbContext`, `TenantDbContext` (the tenant catalog — **not** "MultitenancyDbContext"), `AuditDbContext`, `BillingDbContext` (the SubscriptionsUsage module), `FilesDbContext`, `NotificationsDbContext`, `WebhookDbContext`, `EventingDbContext` (in `src/BuildingBlocks/Eventing`); the samples `CatalogDbContext`, `TicketsDbContext` and `ChatDbContext` (in `src/Samples/`).
+`IdentityDbContext`, `TenantDbContext` (the tenant catalog — **not** "MultitenancyDbContext"), `AuditDbContext`, `BillingDbContext` (the SubscriptionsUsage module), `InvoiceDocumentsDbContext`, `FilesDbContext`, `NotificationsDbContext`, `WebhookDbContext`, `EventingDbContext` (in `src/BuildingBlocks/Eventing`); the samples `CatalogDbContext`, `TicketsDbContext` and `ChatDbContext` (in `src/Samples/`).
 
 ## Apply (canonical path)
 ```bash

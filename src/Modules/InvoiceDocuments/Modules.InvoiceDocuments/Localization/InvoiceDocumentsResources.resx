@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InvoiceDocuments.CustomerNotFound" xml:space="preserve">
+    <value>Customer {0} not found.</value>
+  </data>
+  <data name="InvoiceDocuments.ItemNotFound" xml:space="preserve">
+    <value>Item {0} not found.</value>
+  </data>
+  <data name="InvoiceDocuments.DocumentNotFound" xml:space="preserve">
+    <value>Document {0} not found.</value>
+  </data>
+  <data name="InvoiceDocuments.IssuerProfileRequired" xml:space="preserve">
+    <value>Save your business details before creating a document.</value>
+  </data>
+  <data name="InvoiceDocuments.RulePackMissing" xml:space="preserve">
+    <value>No country rule pack is installed for country {0}.</value>
+  </data>
+  <data name="InvoiceDocuments.DocumentNotDraft" xml:space="preserve">
+    <value>Only a draft can be changed or deleted.</value>
+  </data>
+  <data name="InvoiceDocuments.LineIncomplete" xml:space="preserve">
+    <value>Line {0} needs a description, a unit price and a tax code, or an item that has them.</value>
+  </data>
+  <data name="InvoiceDocuments.RuleViolations" xml:space="preserve">
+    <value>The document does not meet the rules of the country: {0}</value>
+  </data>
+  <data name="InvoiceDocuments.CreditNoteReferenceInvalid" xml:space="preserve">
+    <value>A credit note must refer to an issued or paid invoice.</value>
+  </data>
+  <data name="InvoiceDocuments.CreditExceedsInvoice" xml:space="preserve">
+    <value>The credit notes would exceed the total of the invoice.</value>
+  </data>
+  <data name="InvoiceDocuments.ConversionNotAllowed" xml:space="preserve">
+    <value>A {0} cannot be converted into a {1}.</value>
+  </data>
+  <data name="InvoiceDocuments.NotPayable" xml:space="preserve">
+    <value>Only an issued invoice or advance invoice can be marked paid.</value>
+  </data>
+  <data name="InvoiceDocuments.NotIssued" xml:space="preserve">
+    <value>Only an issued document has a PDF, can be sent or converted.</value>
+  </data>
+  <data name="InvoiceDocuments.NumberingConflict" xml:space="preserve">
+    <value>The document number could not be reserved, try again.</value>
+  </data>
+  <data name="InvoiceDocuments.CustomerEmailMissing" xml:space="preserve">
+    <value>The customer has no e-mail address and none was given.</value>
+  </data>
+</root>

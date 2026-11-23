@@ -15,6 +15,7 @@ The samples Catalog, Tickets and Chat are in `src/Samples/`, with their tests be
 | Auditing | An append-only audit trail: entity changes, security events, exceptions and HTTP activity | Recommended |
 | Files | Uploads and downloads with presigned URLs, used by Catalog's images, Chat's attachments and the users' avatars | While a module uses files |
 | SubscriptionsUsage | How a product charges its own tenants: plans, subscriptions, usage, wallets and the monthly usage invoice, marked paid by hand (there is no payment provider). Its routes, permissions and `billing` schema keep the old name. Multi-tenant mode only | When the product bills its tenants |
+| InvoiceDocuments | The documents a tenant issues to its own customers: customers and items, quotes, pro formas, invoices, credit notes and advance invoices, numbering that never changes, a PDF, e-mail, marked paid by hand, an export for the accountant. It holds no law: each country's rules come from a rule pack the product installs ([section 6](#6-country-rule-packs)). Both tenancy modes | When the product's tenants invoice their own customers |
 | Notifications | Each user's in-app inbox, pushed live over SignalR. Any module adds to it by publishing `UserNotificationRequestedIntegrationEvent` | Optional |
 | Webhooks | A tenant's outgoing webhooks, signed and retried | Optional |
 | Catalog | Sample (`src/Samples/`): products, categories and brands, with images, search and a trash | A pattern to copy |
@@ -78,3 +79,18 @@ public TenancyModes SupportedTenancyModes => TenancyModes.Multitenant;  // needs
 - A module's code and tests are the same in both modes: data is stamped with the tenant either way. Write tests that need a tenant catalog (tenant isolation, sign-up) for multi-tenant mode only.
 - Integration tests: write the class once as an abstract base on `TrislabWebApplicationFactory`, and add a derived class for each mode (`FooTests` on the multi-tenant host, `FooTestsInSingleTenantMode` on `SingleTenantWebApplicationFactory`), as `NotificationsEndpointTests` does. `dotnet test` then runs the module in every mode it declares.
 - A module that needs another's events only in one mode owns the handler itself: the tenant-expiry e-mails are sent by Multitenancy (through the Mailing building block), so Notifications has no reference to Multitenancy.
+
+## 6. Country rule packs
+
+InvoiceDocuments holds no law. Every legal decision is asked of a rule pack, one per country, behind `IInvoiceDocumentsRulePack` in `Modules.InvoiceDocuments.Contracts` (`RulePack/`):
+
+| The pack decides | Method |
+| --- | --- |
+| The tax rate and the note printed with it, for each line | `DecideTax` |
+| Whether the content is complete enough to issue | `Validate` (a list of violations; empty means yes) |
+| The numbering series of a document, and how the number is written | `SeriesKey`, `FormatNumber` |
+| The default due date | `DefaultDueDate` |
+| The extra text printed above and below the lines | `GetLayoutAdditions` |
+| How long an issued document must be kept | `RetentionYears` |
+
+A pack is its own package (for example `invoice-documents-si` for Slovenia, a later item) that references the Contracts project and registers `services.AddSingleton<IInvoiceDocumentsRulePack, MyPack>()`. The pack that applies is the one whose `CountryCode` matches the country in the tenant's business details (the issuer profile). A tenant with no business details, or whose country has no installed pack, cannot create a document. The module's own integration tests use a made-up country, `ZZ` (`TestInvoiceRulePack`). `.claude/rules/modules/invoice-documents.md` has the rest.

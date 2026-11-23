@@ -280,6 +280,9 @@ public class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsy
             services.RemoveAll<IMailService>();
             services.AddSingleton<IMailService, NoOpMailService>();
 
+            // The country rule pack of the InvoiceDocuments tests (made-up country ZZ).
+            services.AddSingleton<Trislab.Modules.InvoiceDocuments.Contracts.RulePack.IInvoiceDocumentsRulePack, TestInvoiceRulePack>();
+
             // A test-only endpoint that requires two permissions, for RequirePermissionAllOfTests.
             services.AddSingleton<IStartupFilter, TestPermissionEndpointStartupFilter>();
 
