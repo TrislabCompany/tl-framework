@@ -43,6 +43,12 @@ Opt-in per endpoint with **`.WithIdempotency()`** on **authenticated** POST/PUTs
 - **`RequestAborted` is detached** while the handler runs, so a client disconnect can't cancel a committed side effect. Keep these handlers short; **never** on streaming or large-file endpoints (the response is buffered).
 - **Never on `AllowAnonymous()`** endpoints — all anonymous callers share `"anon"`. `IdempotencyWiringTests` fails the build if one appears.
 
+## Bot protection (`Web/BotProtection/`)
+
+- A public form (an anonymous endpoint that creates something: a contact form, a sign-up, a lead) ends with `.RequireTurnstile()`. The filter refuses a request without a valid token in `X-Turnstile-Token` before the handler runs: 400 without a token, 403 when Cloudflare refuses it, 503 when the check can't be made.
+- It **fails closed**: with no `TurnstileOptions:SecretKey` every request is refused. Never add a switch that lets requests through; locally and in tests use Cloudflare's test secrets (`TurnstileOptions.TestSecretThatPasses` / `TestSecretThatFails`).
+- The front end renders `Turnstile` from `@trislabcompany/framework-ui` with the `PUBLIC_TURNSTILE_SITE_KEY` setting. Details: `docs/bot-protection.md`.
+
 ## Quota enforcement (`Quota/`)
 
 `QuotaEnforcementMiddleware` charges 1 `ApiCalls` unit per request via `CheckAndRecordAsync`; over-limit → 429 + ProblemDetails + `Retry-After`, and sets `HttpContext.Items[QuotaRejected]` so auditing can tag it. Resources: `ApiCalls` (counter), `StorageBytes`, `Users`, `ActiveFeatureFlags` (gauges). Skips health/metrics, unresolved tenants, and the root tenant. **Pipeline:** runs after auth (needs tenant) and after the rate limiter. Inject `TimeProvider` (not `DateTimeOffset.UtcNow`) for any time math here — the subsystem is `TimeProvider`-based.

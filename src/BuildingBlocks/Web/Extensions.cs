@@ -1,4 +1,4 @@
-﻿using Trislab.Framework.Caching;
+using Trislab.Framework.Caching;
 using Trislab.Framework.Jobs;
 using Trislab.Framework.Mailing;
 using Trislab.Framework.Persistence;
@@ -9,6 +9,7 @@ using Trislab.Framework.Web.Cors;
 using Trislab.Framework.Web.Exceptions;
 using Trislab.Framework.Web.FeatureFlags;
 using Trislab.Framework.Web.Frontend;
+using Trislab.Framework.Web.BotProtection;
 using Trislab.Framework.Web.Idempotency;
 using Trislab.Framework.Web.Localization;
 using Trislab.Framework.Web.Sse;
@@ -186,6 +187,10 @@ public static class Extensions
         {
             builder.Services.AddTrislabIdempotency(builder.Configuration);
         }
+
+        // Always registered: an endpoint opts in with RequireTurnstile(), and with no secret key the
+        // check refuses rather than passes, so registering it changes nothing for other endpoints.
+        builder.Services.AddTrislabTurnstile(builder.Configuration);
 
         if (options.EnableSse)
         {

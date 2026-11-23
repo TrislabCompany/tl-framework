@@ -20,6 +20,7 @@ The platform sets environment variables on each app. Locally, the AppHost sets t
 | `SMTP_PASSWORD` | `api` | A secret the product adds, `smtp-password`: the password of its Azure Communication Services (ACS) Email resource ([section 6](#6-mail-through-azure-communication-services)) | Not set |
 | `SMTP_USERNAME`, `MAIL_FROM` | `api` | `apps[].env` of `api` in `stamp.yaml`: the ACS SMTP user name and the verified sender address | Not set |
 | `SMTP_HOST` | `api` | Only to use another SMTP server than ACS | Not set |
+| `TURNSTILE_SECRET_KEY` | `api` | The secret `turnstile-secret-key`, for a product with `turnstile: true` ([bot-protection.md](bot-protection.md)) | Cloudflare's test secret that passes every token, in `appsettings.Development.json` |
 | `SEED_DEMO` | `migrator`, and as `PUBLIC_DEMO_MODE` on `dashboard` | `apps[].env` in `stamp.yaml` | `true` |
 | `PUBLIC_*` | `admin`, `dashboard` | `apps[].env` of the front end in `stamp.yaml` | `PUBLIC_DASHBOARD_URL` on `admin` |
 | `API_UPSTREAM`, `STORAGE_UPSTREAM` | `admin`, `dashboard` | Never in a stamp | `http://api:8080` and `http://storage:9000` in `docker-compose.yml` |
@@ -43,6 +44,7 @@ Secrets arrive as ordinary environment variables too: the platform reads them fr
 | `SMTP_USERNAME` | `MailOptions:Smtp:UserName` | No sign-in to the SMTP server |
 | `MAIL_FROM` | `MailOptions:From` | `no-reply@example.com` from `appsettings.json` |
 | `SMTP_HOST` | `MailOptions:Smtp:Host` | `smtp.azurecomm.net`, the ACS SMTP endpoint |
+| `TURNSTILE_SECRET_KEY` | `TurnstileOptions:SecretKey` | An endpoint that requires Turnstile refuses every request (503) |
 | `SEED_DEMO` | `Seed:Demo` | No demo data |
 | `PLATFORM_ENVIRONMENT` | `Platform:Environment`, in `GET /api/health/info` | `local` |
 

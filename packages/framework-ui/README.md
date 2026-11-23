@@ -2,7 +2,7 @@
 
 The shared React UI of `tl-framework`, published to GitHub Packages at the framework's version ([docs/packages.md](../../docs/packages.md)). The starters `tl-product-webapp` and `tl-product-saas` build their front ends on it.
 
-It starts with i18n. English (`en-US`) and Slovenian (`sl-SI`) ship with the framework, and every text is in both.
+It starts with i18n and the bot check of public forms. English (`en-US`) and Slovenian (`sl-SI`) ship with the framework, and every text is in both.
 
 | Export | What it does |
 | --- | --- |
@@ -10,6 +10,7 @@ It starts with i18n. English (`en-US`) and Slovenian (`sl-SI`) ship with the fra
 | `LanguageSwitch` | A native, accessible select of the languages, each named in its own words. Unstyled; `onChanged` saves the user's `locale` through the API |
 | `formatDate`, `formatDateTime`, `formatNumber`, `formatMoney` | Format a value in the language on screen. The API sends values, never formatted text |
 | `SUPPORTED_LANGUAGES`, `toCanonical`, `fallbackChain`, `missingKeyFallback` | The language rules the API follows too (`SupportedCultures.Tags`) |
+| `Turnstile`, `TURNSTILE_HEADER` | Cloudflare Turnstile, the bot check of a public form; the token goes in `X-Turnstile-Token` to an endpoint with `RequireTurnstile()` ([bot-protection.md](../../docs/bot-protection.md)) |
 
 ```tsx
 import { createFrameworkI18n, LanguageSwitch } from "@trislabcompany/framework-ui";
