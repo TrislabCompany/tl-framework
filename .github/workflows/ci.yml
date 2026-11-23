@@ -6,7 +6,8 @@ name: ci
 # pinned by tag; the job is named ci like the one it calls, so the required
 # check is `ci / ci`. Change only the test command here. The test command runs
 # the unit, architecture and integration tests; the integration tests start
-# their own throw-away containers.
+# their own throw-away containers, then each npm package in packages/ runs
+# its own tests (npm test).
 
 on:
   pull_request:
@@ -21,4 +22,4 @@ jobs:
       contents: read
     uses: TrislabCompany/tl-platform/.github/workflows/app-ci.yml@app-workflows/v0.2.0
     with:
-      test-command: dotnet test src/App.slnx
+      test-command: dotnet test src/App.slnx && for dir in $(find packages -mindepth 2 -maxdepth 2 -name package.json -printf '%h\n' 2>/dev/null); do (cd "$dir" && npm ci && npm test) || exit 1; done
