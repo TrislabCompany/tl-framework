@@ -94,4 +94,21 @@ public sealed class PlatformConfigurationTests
         configuration["Seed:DefaultAdminPassword"].ShouldBe("admin");
         configuration["MailOptions:Smtp:Password"].ShouldBe("smtp");
     }
+
+    [Fact]
+    public void Mail_Settings_Map_Onto_The_Smtp_Options()
+    {
+        var configuration = Map(new()
+        {
+            ["SMTP_HOST"] = "smtp.azurecomm.net",
+            ["SMTP_USERNAME"] = "acs-smtp-user",
+            ["SMTP_PASSWORD"] = "smtp",
+            ["MAIL_FROM"] = "DoNotReply@mail.example.com",
+        });
+
+        configuration["MailOptions:Smtp:Host"].ShouldBe("smtp.azurecomm.net");
+        configuration["MailOptions:Smtp:UserName"].ShouldBe("acs-smtp-user");
+        configuration["MailOptions:Smtp:Password"].ShouldBe("smtp");
+        configuration["MailOptions:From"].ShouldBe("DoNotReply@mail.example.com");
+    }
 }

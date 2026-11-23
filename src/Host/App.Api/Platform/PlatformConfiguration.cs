@@ -60,7 +60,11 @@ internal static class PlatformConfiguration
         Map(settings, configuration, "HANGFIRE_PASSWORD", "HangfireOptions:Password");
         Map(settings, configuration, "SEED_ADMIN_PASSWORD", "Seed:DefaultAdminPassword");
         Map(settings, configuration, "SEED_DEMO", "Seed:Demo");
+        // Mail goes through Azure Communication Services Email over SMTP (docs/configuration.md section 6).
+        Map(settings, configuration, "SMTP_HOST", "MailOptions:Smtp:Host");
+        Map(settings, configuration, "SMTP_USERNAME", "MailOptions:Smtp:UserName");
         Map(settings, configuration, "SMTP_PASSWORD", "MailOptions:Smtp:Password");
+        Map(settings, configuration, "MAIL_FROM", "MailOptions:From");
 
         configuration.AddInMemoryCollection(settings);
     }
