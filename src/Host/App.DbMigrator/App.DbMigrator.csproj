@@ -27,6 +27,8 @@
     <ProjectReference Include="..\..\Modules\Auditing\Modules.Auditing.Contracts\Modules.Auditing.Contracts.csproj" />
     <ProjectReference Include="..\..\Modules\SubscriptionsUsage\Modules.SubscriptionsUsage\Modules.SubscriptionsUsage.csproj" />
     <ProjectReference Include="..\..\Modules\SubscriptionsUsage\Modules.SubscriptionsUsage.Contracts\Modules.SubscriptionsUsage.Contracts.csproj" />
+    <ProjectReference Include="..\..\Modules\InvoiceDocuments\Modules.InvoiceDocuments\Modules.InvoiceDocuments.csproj" />
+    <ProjectReference Include="..\..\Modules\InvoiceDocuments\Modules.InvoiceDocuments.Contracts\Modules.InvoiceDocuments.Contracts.csproj" />
     <ProjectReference Include="..\..\Samples\Catalog\Modules.Catalog\Modules.Catalog.csproj" />
     <ProjectReference Include="..\..\Samples\Catalog\Modules.Catalog.Contracts\Modules.Catalog.Contracts.csproj" />
     <ProjectReference Include="..\..\Samples\Chat\Modules.Chat\Modules.Chat.csproj" />

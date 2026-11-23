@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InvoiceDocuments.CustomerNotFound" xml:space="preserve">
+    <value>Stranka {0} ni najdena.</value>
+  </data>
+  <data name="InvoiceDocuments.ItemNotFound" xml:space="preserve">
+    <value>Postavka {0} ni najdena.</value>
+  </data>
+  <data name="InvoiceDocuments.DocumentNotFound" xml:space="preserve">
+    <value>Dokument {0} ni najden.</value>
+  </data>
+  <data name="InvoiceDocuments.IssuerProfileRequired" xml:space="preserve">
+    <value>Pred ustvarjanjem dokumenta shranite podatke o svojem podjetju.</value>
+  </data>
+  <data name="InvoiceDocuments.RulePackMissing" xml:space="preserve">
+    <value>Za državo {0} ni nameščen noben paket pravil.</value>
+  </data>
+  <data name="InvoiceDocuments.DocumentNotDraft" xml:space="preserve">
+    <value>Spremeniti ali izbrisati je mogoče samo osnutek.</value>
+  </data>
+  <data name="InvoiceDocuments.LineIncomplete" xml:space="preserve">
+    <value>Vrstica {0} potrebuje opis, ceno in davčno kodo ali postavko, ki jih ima.</value>
+  </data>
+  <data name="InvoiceDocuments.RuleViolations" xml:space="preserve">
+    <value>Dokument ne izpolnjuje pravil države: {0}</value>
+  </data>
+  <data name="InvoiceDocuments.CreditNoteReferenceInvalid" xml:space="preserve">
+    <value>Dobropis se mora nanašati na izdan ali plačan račun.</value>
+  </data>
+  <data name="InvoiceDocuments.CreditExceedsInvoice" xml:space="preserve">
+    <value>Dobropisi bi presegli znesek računa.</value>
+  </data>
+  <data name="InvoiceDocuments.ConversionNotAllowed" xml:space="preserve">
+    <value>Dokumenta vrste {0} ni mogoče pretvoriti v {1}.</value>
+  </data>
+  <data name="InvoiceDocuments.NotPayable" xml:space="preserve">
+    <value>Kot plačan je mogoče označiti le izdan račun ali predračun za avans.</value>
+  </data>
+  <data name="InvoiceDocuments.NotIssued" xml:space="preserve">
+    <value>PDF ima, se pošlje ali pretvori le izdan dokument.</value>
+  </data>
+  <data name="InvoiceDocuments.NumberingConflict" xml:space="preserve">
+    <value>Številke dokumenta ni bilo mogoče rezervirati, poskusite znova.</value>
+  </data>
+  <data name="InvoiceDocuments.CustomerEmailMissing" xml:space="preserve">
+    <value>Stranka nima e-poštnega naslova in noben ni bil podan.</value>
+  </data>
+</root>
