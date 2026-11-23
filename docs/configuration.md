@@ -17,7 +17,9 @@ The platform sets environment variables on each app. Locally, the AppHost sets t
 | `JWT_SIGNING_KEY` | `api`, `migrator` | The secret `jwt-signing-key` | A local key |
 | `HANGFIRE_PASSWORD` | `api` | The secret `hangfire-password` | A local password |
 | `SEED_ADMIN_PASSWORD` | `migrator` | The secret `seed-admin-password` | A local password |
-| `SMTP_PASSWORD` | `api` | A secret the product adds, `smtp-password` | Not set |
+| `SMTP_PASSWORD` | `api` | A secret the product adds, `smtp-password`: the password of its Azure Communication Services (ACS) Email resource ([section 6](#6-mail-through-azure-communication-services)) | Not set |
+| `SMTP_USERNAME`, `MAIL_FROM` | `api` | `apps[].env` of `api` in `stamp.yaml`: the ACS SMTP user name and the verified sender address | Not set |
+| `SMTP_HOST` | `api` | Only to use another SMTP server than ACS | Not set |
 | `SEED_DEMO` | `migrator`, and as `PUBLIC_DEMO_MODE` on `dashboard` | `apps[].env` in `stamp.yaml` | `true` |
 | `PUBLIC_*` | `admin`, `dashboard` | `apps[].env` of the front end in `stamp.yaml` | `PUBLIC_DASHBOARD_URL` on `admin` |
 | `API_UPSTREAM`, `STORAGE_UPSTREAM` | `admin`, `dashboard` | Never in a stamp | `http://api:8080` and `http://storage:9000` in `docker-compose.yml` |
@@ -38,6 +40,9 @@ Secrets arrive as ordinary environment variables too: the platform reads them fr
 | `HANGFIRE_PASSWORD` | `HangfireOptions:Password` | No Hangfire dashboard at `/jobs`; the jobs still run |
 | `SEED_ADMIN_PASSWORD` | `Seed:DefaultAdminPassword` | No first operator account, `admin@root.com` |
 | `SMTP_PASSWORD` | `MailOptions:Smtp:Password` | Mail is off: each mail is logged, not sent |
+| `SMTP_USERNAME` | `MailOptions:Smtp:UserName` | No sign-in to the SMTP server |
+| `MAIL_FROM` | `MailOptions:From` | `no-reply@example.com` from `appsettings.json` |
+| `SMTP_HOST` | `MailOptions:Smtp:Host` | `smtp.azurecomm.net`, the ACS SMTP endpoint |
 | `SEED_DEMO` | `Seed:Demo` | No demo data |
 | `PLATFORM_ENVIRONMENT` | `Platform:Environment`, in `GET /api/health/info` | `local` |
 
@@ -92,3 +97,12 @@ nginx resolves the names once, when it starts. In the Vite dev server, `vite.con
 **A backing service**, such as a cache: the stamp adds it under `data` ([deployment.md](deployment.md#6-choosing-a-backing-service)), and the app gets its setting, such as `REDIS_URL`, which `PlatformConfiguration.cs` already maps.
 
 **A value for the browser:** name it `PUBLIC_…`, add it to `apps[].env` of the front end in `stamp.yaml`, to `docker/config.json.template` and `public/config.json`, and to `.env.example`; then read it in `src/env.ts`. No change to the image's build is needed.
+
+## 6. Mail through Azure Communication Services
+
+Products send e-mail through Azure Communication Services (ACS) Email in the EU, over SMTP, with the Mailing building block's SMTP sender. The platform gives each product an ACS Email resource with a verified sender domain; the product's stamp passes its SMTP credentials:
+
+- `SMTP_USERNAME` and `MAIL_FROM` in `apps[].env` of `api`: the resource's SMTP user name, and an address on the verified sender domain, such as `DoNotReply@<domain>`;
+- `SMTP_PASSWORD` as the secret `smtp-password`.
+
+`appsettings.json` already points at ACS: host `smtp.azurecomm.net`, port 587, STARTTLS. Without `SMTP_PASSWORD`, mail is off and each mail is only logged, which is how the AppHost and Docker Compose run. To test real sending locally, set the three settings as environment variables of your own run, never in a committed file.
