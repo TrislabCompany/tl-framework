@@ -15,13 +15,13 @@ namespace Integration.Tests.Tests.Catalog;
 /// halves of the catalog API have parity. Image-specific endpoints stay in
 /// <see cref="ProductImagesTests"/>; this file is only the product lifecycle.
 /// </summary>
-[Collection(TrislabCollectionDefinition.Name)]
-public sealed class ProductsEndpointTests
+/// <summary>Runs in both tenancy modes: see <see cref="ProductsEndpointTests"/> and <see cref="ProductsEndpointTestsInSingleTenantMode"/>.</summary>
+public abstract class ProductsEndpointTestsBase
 {
     private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public ProductsEndpointTests(TrislabWebApplicationFactory factory)
+    protected ProductsEndpointTestsBase(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -419,7 +419,7 @@ public sealed class ProductsEndpointTests
     public async Task CreateProduct_Should_Return401_When_Unauthenticated()
     {
         using var client = _factory.CreateClient();
-        client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
+        client.DefaultRequestHeaders.Add("tenant", _factory.TenantId);
 
         using var response = await client.PostAsJsonAsync(
             $"{TestConstants.CatalogBasePath}/products",
@@ -442,7 +442,7 @@ public sealed class ProductsEndpointTests
     public async Task SearchProducts_Should_Return401_When_Unauthenticated()
     {
         using var client = _factory.CreateClient();
-        client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
+        client.DefaultRequestHeaders.Add("tenant", _factory.TenantId);
 
         using var response = await client.GetAsync(
             $"{TestConstants.CatalogBasePath}/products?pageNumber=1&pageSize=20");
@@ -454,7 +454,7 @@ public sealed class ProductsEndpointTests
     public async Task DeleteProduct_Should_Return401_When_Unauthenticated()
     {
         using var client = _factory.CreateClient();
-        client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
+        client.DefaultRequestHeaders.Add("tenant", _factory.TenantId);
 
         using var response = await client.DeleteAsync(
             $"{TestConstants.CatalogBasePath}/products/{Guid.NewGuid()}");
@@ -466,7 +466,7 @@ public sealed class ProductsEndpointTests
     public async Task ListTrashedProducts_Should_Return401_When_Unauthenticated()
     {
         using var client = _factory.CreateClient();
-        client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
+        client.DefaultRequestHeaders.Add("tenant", _factory.TenantId);
 
         using var response = await client.GetAsync(
             $"{TestConstants.CatalogBasePath}/products/trash?pageNumber=1&pageSize=20");
@@ -516,7 +516,7 @@ public sealed class ProductsEndpointTests
         using var scope = _factory.Services.CreateScope();
         var tenant = await scope.ServiceProvider
             .GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
-            .GetAsync(TestConstants.RootTenantId);
+            .GetAsync(_factory.TenantId);
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
@@ -653,3 +653,9 @@ public sealed class ProductsEndpointTests
     }
 #pragma warning restore S1144
 }
+
+[Collection(TrislabCollectionDefinition.Name)]
+public sealed class ProductsEndpointTests(TrislabWebApplicationFactory factory) : ProductsEndpointTestsBase(factory);
+
+[Collection(SingleTenantCollectionDefinition.Name)]
+public sealed class ProductsEndpointTestsInSingleTenantMode(SingleTenantWebApplicationFactory factory) : ProductsEndpointTestsBase(factory);

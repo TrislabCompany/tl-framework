@@ -1,17 +1,15 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using Finbuckle.MultiTenant.EntityFrameworkCore.Stores;
 using Finbuckle.MultiTenant.Stores;
 using Trislab.Framework.Eventing.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
-using Trislab.Modules.Multitenancy.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Trislab.Modules.Multitenancy.Services;
+namespace Trislab.Framework.Tenancy;
 
 /// <summary>
-/// Finbuckle-backed <see cref="IEventTenantScope"/>. Installs the ambient tenant context
+/// Multi-tenant-mode <see cref="IEventTenantScope"/>, backed by Finbuckle. Installs the ambient tenant context
 /// (an AsyncLocal in Finbuckle) for the duration of an integration-event dispatch so that
 /// handler DbContexts resolved afterwards capture a real <c>TenantInfo</c> instead of the
 /// null one a background scope would otherwise carry.
@@ -89,25 +87,29 @@ public sealed class FinbuckleEventTenantScope : IEventTenantScope
 
     private async Task<AppTenantInfo?> FindTenantAsync(string tenantId, CancellationToken ct)
     {
-        // A single IMultiTenantStore resolve returns only the last registration (the EF store), so enumerate all of them.
+        // A single IMultiTenantStore resolve returns only the last registration (the catalog store), so enumerate
+        // all of them in registration order: the cache first, then the catalog.
         await using var scope = _scopeFactory.CreateAsyncScope();
         var stores = scope.ServiceProvider.GetServices<IMultiTenantStore<AppTenantInfo>>().ToList();
-        var cache = stores.OfType<DistributedCacheStore<AppTenantInfo>>().Single();
+        var cache = stores.OfType<DistributedCacheStore<AppTenantInfo>>().FirstOrDefault();
 
-        var tenant = await cache.GetAsync(tenantId).WaitAsync(ct).ConfigureAwait(false);
-        if (tenant is not null)
+        foreach (var store in stores)
         {
+            var tenant = await store.GetAsync(tenantId).WaitAsync(ct).ConfigureAwait(false);
+            if (tenant is null)
+            {
+                continue;
+            }
+
+            if (cache is not null && !ReferenceEquals(store, cache))
+            {
+                await cache.AddAsync(tenant).ConfigureAwait(false);
+            }
+
             return tenant;
         }
 
-        var efStore = stores.OfType<EFCoreStore<TenantDbContext, AppTenantInfo>>().Single();
-        tenant = await efStore.GetAsync(tenantId).WaitAsync(ct).ConfigureAwait(false);
-        if (tenant is not null)
-        {
-            await cache.AddAsync(tenant).ConfigureAwait(false);
-        }
-
-        return tenant;
+        return null;
     }
 
     private sealed class RestoreScope : IDisposable

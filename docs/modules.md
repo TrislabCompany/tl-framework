@@ -11,10 +11,10 @@ The samples Catalog, Tickets and Chat are in `src/Samples/`, with their tests be
 | Module | What it does | Keep it? |
 | --- | --- | --- |
 | Identity | Sign-in with JWTs, users, roles, permissions, groups, sessions, impersonation, two-factor sign-in | Yes: every other module relies on it |
-| Multitenancy | The tenant catalog, a tenant's provisioning, activation and plan, and its theme | Yes: the product is multi-tenant through it |
+| Multitenancy | The tenant catalog, sign-up and a tenant's provisioning, activation and plan, its theme, and the tenant-expiry e-mails. Multi-tenant mode only | Yes, in a multi-tenant product: it is multi-tenant through it |
 | Auditing | An append-only audit trail: entity changes, security events, exceptions and HTTP activity | Recommended |
 | Files | Uploads and downloads with presigned URLs, used by Catalog's images, Chat's attachments and the users' avatars | While a module uses files |
-| Billing | Plans, subscriptions, usage, and monthly invoices, marked paid by hand: there is no payment provider | When the product bills its tenants |
+| Billing | Plans, subscriptions, usage, and monthly invoices, marked paid by hand: there is no payment provider. Multi-tenant mode only | When the product bills its tenants |
 | Notifications | Each user's in-app inbox, pushed live over SignalR. Any module adds to it by publishing `UserNotificationRequestedIntegrationEvent` | Optional |
 | Webhooks | A tenant's outgoing webhooks, signed and retried | Optional |
 | Catalog | Sample (`src/Samples/`): products, categories and brands, with images, search and a trash | A pattern to copy |
@@ -23,11 +23,13 @@ The samples Catalog, Tickets and Chat are in `src/Samples/`, with their tests be
 
 The building blocks in `src/BuildingBlocks` are not modules: every module depends on them, so change them rarely and with care (`.claude/rules/buildingblocks-protection.md`).
 
+Every module works in multi-tenant mode. All of them also work in single-tenant mode except Multitenancy and Billing, which need a tenant catalog ([section 5](#5-tenancy-modes)).
+
 ## 2. Add a module
 
 `.agents/skills/add-module/SKILL.md` is the step-by-step recipe. In short:
 
-1. Create `src/Modules/<Name>/Modules.<Name>` and `Modules.<Name>.Contracts`, with a class that implements `IModule` and the attribute `[assembly: TrislabModule(typeof(<Name>Module), <order>)]`, and add both projects to `src/App.slnx`.
+1. Create `src/Modules/<Name>/Modules.<Name>` and `Modules.<Name>.Contracts`, with a class that implements `IModule` (declare `SupportedTenancyModes`, [section 5](#5-tenancy-modes)) and the attribute `[assembly: TrislabModule(typeof(<Name>Module), <order>)]`, and add both projects to `src/App.slnx`.
 2. Reference the runtime project from `App.Api` and `App.DbMigrator`.
 3. Register it in four places: in both `src/Host/App.Api/Program.cs` and `src/Host/App.DbMigrator/Program.cs`, a Contracts type and a module type in the Mediator assemblies, and the module's assembly in `moduleAssemblies`. A missing Mediator type leaves its handlers silently undiscovered.
 4. Register its `DbContext` with its schema, `AddTrislabDbContext<<Name>DbContext>(<Name>DbContext.Schema)`, and add its first migration, `Baseline`, into `Migrations/` of the runtime project ([deployment.md](deployment.md#3-migrations)).
@@ -58,4 +60,21 @@ Deleting a module leaves its tables in an existing database: a later migration i
 | Tenant isolation | Every entity of a module's `DbContext` is filtered by tenant, or marked global with `IGlobalEntity` |
 | Hosts | `App.Api` doesn't reach into a module's features or data |
 
+| Tenancy modes | Every module declares at least one mode; only Multitenancy and Billing are multi-tenant only; a module that supports single-tenant mode doesn't reference the Multitenancy module or its contracts; the module loader refuses an unsupported module |
+
 Read `.claude/rules/architecture.md` before you change a rule; it explains why each one is there.
+
+## 5. Tenancy modes
+
+A host runs in one tenancy mode, `TenancyOptions:Mode` ([configuration.md](configuration.md#2a-tenancy-mode)): `Multitenant` (the default) or `SingleTenant`. Every module declares in code which it supports:
+
+```csharp
+public TenancyModes SupportedTenancyModes => TenancyModes.All;          // works in both modes
+public TenancyModes SupportedTenancyModes => TenancyModes.Multitenant;  // needs a tenant catalog
+```
+
+- `ModuleLoader.AddModules` refuses a module registered in a mode it doesn't support, and names the module and the setting in the message.
+- A host that serves both modes, such as `App.Api` and `App.DbMigrator` here, lists every module and passes the list through `ModuleLoader.SelectSupported(mode, assemblies)`, which drops the ones the mode doesn't support. A single-tenant app lists only the modules it uses.
+- A module's code and tests are the same in both modes: data is stamped with the tenant either way. Write tests that need a tenant catalog (tenant isolation, sign-up) for multi-tenant mode only.
+- Integration tests: write the class once as an abstract base on `TrislabWebApplicationFactory`, and add a derived class for each mode (`FooTests` on the multi-tenant host, `FooTestsInSingleTenantMode` on `SingleTenantWebApplicationFactory`), as `NotificationsEndpointTests` does. `dotnet test` then runs the module in every mode it declares.
+- A module that needs another's events only in one mode owns the handler itself: the tenant-expiry e-mails are sent by Multitenancy (through the Mailing building block), so Notifications has no reference to Multitenancy.

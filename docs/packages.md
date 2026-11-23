@@ -8,7 +8,7 @@ Every project in `src/BuildingBlocks/` and `src/Modules/` is a NuGet package; no
 
 | Folder | Package id | Example |
 | --- | --- | --- |
-| `src/BuildingBlocks/<Name>` | `Trislab.Framework.<Name>` | `Trislab.Framework.Web` |
+| `src/BuildingBlocks/<Name>` | `Trislab.Framework.<Name>` | `Trislab.Framework.Web`, `Trislab.Framework.Tenancy` |
 | `src/Modules/<Name>/Modules.<Name>` | `Trislab.Modules.<Name>` | `Trislab.Modules.Identity` |
 | `src/Modules/<Name>/Modules.<Name>.Contracts` | `Trislab.Modules.<Name>.Contracts` | `Trislab.Modules.Identity.Contracts` |
 

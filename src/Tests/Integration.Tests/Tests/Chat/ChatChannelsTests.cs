@@ -4,14 +4,14 @@ using Integration.Tests.Infrastructure.Extensions;
 
 namespace Integration.Tests.Tests.Chat;
 
-[Collection(TrislabCollectionDefinition.Name)]
-public sealed class ChatChannelsTests
+/// <summary>Runs in both tenancy modes: see <see cref="ChatChannelsTests"/> and <see cref="ChatChannelsTestsInSingleTenantMode"/>.</summary>
+public abstract class ChatChannelsTestsBase
 {
     private const string ChatBasePath = "/api/v1/chat";
     private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public ChatChannelsTests(TrislabWebApplicationFactory factory)
+    protected ChatChannelsTestsBase(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -172,7 +172,7 @@ public sealed class ChatChannelsTests
     public async Task CreateChannel_Should_Return401_When_Unauthenticated()
     {
         using var client = _factory.CreateClient();
-        client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
+        client.DefaultRequestHeaders.Add("tenant", _factory.TenantId);
 
         using var response = await client.PostAsJsonAsync($"{ChatBasePath}/channels", new
         {
@@ -250,3 +250,9 @@ public sealed class ChatChannelsTests
         return user.Id;
     }
 }
+
+[Collection(TrislabCollectionDefinition.Name)]
+public sealed class ChatChannelsTests(TrislabWebApplicationFactory factory) : ChatChannelsTestsBase(factory);
+
+[Collection(SingleTenantCollectionDefinition.Name)]
+public sealed class ChatChannelsTestsInSingleTenantMode(SingleTenantWebApplicationFactory factory) : ChatChannelsTestsBase(factory);

@@ -1,14 +1,14 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
-using Trislab.Modules.Multitenancy.Services;
+using Trislab.Framework.Tenancy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Shouldly;
 using Xunit;
 
-namespace Multitenancy.Tests.Services;
+namespace Framework.Tests.Tenancy;
 
 public sealed class FinbuckleEventTenantScopeTests
 {

@@ -3,13 +3,13 @@ using Integration.Tests.Infrastructure.Extensions;
 
 namespace Integration.Tests.Tests.Users;
 
-[Collection(TrislabCollectionDefinition.Name)]
-public sealed class UserManagementTests
+/// <summary>Runs in both tenancy modes: see <see cref="UserManagementTests"/> and <see cref="UserManagementTestsInSingleTenantMode"/>.</summary>
+public abstract class UserManagementTestsBase
 {
     private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public UserManagementTests(TrislabWebApplicationFactory factory)
+    protected UserManagementTestsBase(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -24,14 +24,14 @@ public sealed class UserManagementTests
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var user = await response.DeserializeAsync<UserDto>();
-        user.Email.ShouldBe(TestConstants.RootAdminEmail, StringCompareShould.IgnoreCase);
+        user.Email.ShouldBe(_factory.AdminEmail, StringCompareShould.IgnoreCase);
     }
 
     [Fact]
     public async Task GetProfile_Should_Return401_When_NotAuthenticated()
     {
         using var client = _factory.CreateClient();
-        client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
+        client.DefaultRequestHeaders.Add("tenant", _factory.TenantId);
 
         var response = await client.GetAsync($"{TestConstants.IdentityBasePath}/profile");
 
@@ -128,3 +128,9 @@ public sealed class UserManagementTests
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
     }
 }
+
+[Collection(TrislabCollectionDefinition.Name)]
+public sealed class UserManagementTests(TrislabWebApplicationFactory factory) : UserManagementTestsBase(factory);
+
+[Collection(SingleTenantCollectionDefinition.Name)]
+public sealed class UserManagementTestsInSingleTenantMode(SingleTenantWebApplicationFactory factory) : UserManagementTestsBase(factory);

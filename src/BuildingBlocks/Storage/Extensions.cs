@@ -28,9 +28,9 @@ public static class Extensions
         ArgumentNullException.ThrowIfNull(configuration);
 
         var provider = configuration["Storage:Provider"]?.ToLowerInvariant();
-        var quotaEnabled = configuration
-            .GetSection(nameof(QuotaOptions))
-            .Get<QuotaOptions>()?.Enabled == true;
+        // Storage is metered per tenant against a plan; a single-tenant host has neither, so it is not decorated.
+        var quotaEnabled = TenancyOptions.ReadMode(configuration) == TenancyMode.Multitenant
+            && configuration.GetSection(nameof(QuotaOptions)).Get<QuotaOptions>()?.Enabled == true;
 
         if (string.Equals(provider, "s3", StringComparison.OrdinalIgnoreCase))
         {

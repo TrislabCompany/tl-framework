@@ -4,6 +4,11 @@ public static class TestConstants
 {
     public const string RootTenantId = "root";
     public const string RootAdminEmail = "admin@root.com";
+    // The fixed tenant of the single-tenant host (TenancyOptions:SingleTenant).
+    public const string SingleTenantId = "main";
+    public const string SingleTenantName = "Main Organisation";
+    public const string SingleTenantCountry = "SI";
+    public const string SingleTenantAdminEmail = "admin@main.test";
     public const string DefaultPassword = "123Pa$$word!";
 
     // Documentation IP ranges (RFC 5737) so the trusted-proxy fixture never collides with a real host.

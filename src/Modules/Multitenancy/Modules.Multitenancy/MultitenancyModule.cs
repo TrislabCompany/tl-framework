@@ -1,12 +1,10 @@
 using Asp.Versioning;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using Finbuckle.MultiTenant.AspNetCore.Extensions;
-using Finbuckle.MultiTenant.EntityFrameworkCore.Stores;
+using Finbuckle.MultiTenant.EntityFrameworkCore.Extensions;
 using Finbuckle.MultiTenant.Extensions;
-using Finbuckle.MultiTenant.Stores;
+using Trislab.Framework.Eventing;
 using Trislab.Framework.Core.Exceptions;
-using Trislab.Framework.Eventing.Abstractions;
 using Trislab.Framework.Persistence;
 using Trislab.Framework.Shared.Constants;
 using Trislab.Framework.Shared.Multitenancy;
@@ -45,6 +43,9 @@ namespace Trislab.Modules.Multitenancy;
 
 public sealed class MultitenancyModule : IModule
 {
+    /// <summary>The tenant catalog, sign-up, lifecycle and operator endpoints need many tenants.</summary>
+    public TenancyModes SupportedTenancyModes => TenancyModes.Multitenant;
+
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
@@ -62,64 +63,20 @@ public sealed class MultitenancyModule : IModule
         builder.Services.AddTransient<TenantProvisioningJob>();
         builder.Services.AddTransient<TenantExpiryScanJob>();
 
-        // Singleton — the buffer survives the request scope that calls Store(...)
-        // so the background Hangfire-scheduled seed scope can still TryConsume(...).
-        builder.Services.AddSingleton<
-            Trislab.Framework.Shared.Multitenancy.ITenantInitialPasswordBuffer,
-            Services.TenantInitialPasswordBuffer>();
+        // ITenantInitialPasswordBuffer (the tenant admin password handed to the seed step) is registered by the
+        // Tenancy building block in both modes: Identity's seeder needs it with or without this module.
 
         builder.Services.AddTrislabDbContext<TenantDbContext>(TenantDbContext.Schema);
 
-        // Replace (not Add) the no-op event tenant scope with a Finbuckle-backed one so background
-        // event dispatch establishes the tenant before tenant-filtered handler DbContexts are built.
-        builder.Services.Replace(
-            ServiceDescriptor.Singleton<IEventTenantScope, FinbuckleEventTenantScope>());
+        // Tenant resolution, the strategy chain, the tenant cache and the event, outbox and job tenant scopes are the
+        // Tenancy building block's (AddTrislabTenancy). This module adds the catalog behind them: the store the
+        // resolver asks after the cache, and the cache refill when a tenant is found there.
+        new MultiTenantBuilder<AppTenantInfo>(builder.Services)
+            .WithEFCoreStore<TenantDbContext, AppTenantInfo>();
 
-        // Same idea one level up: the outbox dispatcher must visit every database that can hold
-        // outbox rows. Without these, a tenant with a dedicated connection string writes rows the
-        // dispatcher never polls. Scoped provider — IMultiTenantStore is scoped.
-        builder.Services.Replace(
-            ServiceDescriptor.Singleton<IEventingDrainScope, FinbuckleEventingDrainScope>());
-        builder.Services.Replace(
-            ServiceDescriptor.Scoped<IEventingDrainTargetProvider, TenantStoreDrainTargetProvider>());
-
-        builder.Services
-            .AddMultiTenant<AppTenantInfo>(options =>
-            {
-                options.Events.OnTenantResolveCompleted = async context =>
-                {
-                    if (context.MultiTenantContext.StoreInfo is null) return;
-                    if (context.MultiTenantContext.StoreInfo.StoreType != typeof(DistributedCacheStore<AppTenantInfo>))
-                    {
-                        var sp = ((HttpContext)context.Context).RequestServices;
-                        var distributedStore = sp
-                            .GetRequiredService<IEnumerable<IMultiTenantStore<AppTenantInfo>>>()
-                            .FirstOrDefault(s => s.GetType() == typeof(DistributedCacheStore<AppTenantInfo>));
-
-                        await distributedStore!.AddAsync(context.MultiTenantContext.TenantInfo!);
-                    }
-                    await Task.CompletedTask;
-                };
-            })
-            // ── Strategy chain — first non-null identifier wins (registration order) ──
-            // ClaimStrategy authenticates on its own: UseMultiTenant() runs before UseAuthentication(), so Finbuckle
-            // runs the default scheme's handler itself. An authenticated caller resolves to its tenant claim and a
-            // `tenant` header cannot move it; the header decides only for anonymous requests (login, refresh).
-            // The root-operator override is post-auth middleware below.
-            .WithClaimStrategy(ClaimConstants.Tenant)
-            .WithHeaderStrategy(MultitenancyConstants.Identifier)
-            .WithDelegateStrategy(async context =>
-            {
-                if (context is not HttpContext httpContext) return null;
-
-                if (!httpContext.Request.Query.TryGetValue("tenant", out var tenantIdentifier) ||
-                    string.IsNullOrEmpty(tenantIdentifier))
-                    return null;
-
-                return await Task.FromResult(tenantIdentifier.ToString());
-            })
-            .WithDistributedCacheStore(TimeSpan.FromMinutes(60))
-            .WithStore<EFCoreStore<TenantDbContext, AppTenantInfo>>(ServiceLifetime.Scoped);
+        // Tenant-expiry e-mails to the tenant admin. This module owns the events, so it sends the mail
+        // (through the Mailing building block); Notifications then works without a tenant catalog.
+        builder.Services.AddIntegrationEventHandlers(typeof(MultitenancyModule).Assembly);
 
         builder.Services.AddHealthChecks()
             .AddDbContextCheck<TenantDbContext>(

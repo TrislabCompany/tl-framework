@@ -6,14 +6,17 @@ paths:
 
 # Module: Multitenancy
 
-Tenant catalog, provisioning, activation/upgrade, per-tenant theming (Finbuckle.MultiTenant). Foundational — registered early.
+Tenant catalog, provisioning, activation/upgrade, per-tenant theming, and the tenant-expiry e-mails. **Multi-tenant mode only** (`SupportedTenancyModes = Multitenant`): a single-tenant host does not register it.
+
+**Tenant resolution is not here.** The `Trislab.Framework.Tenancy` building block (`src/BuildingBlocks/Tenancy/`) owns it in both modes: `AddTrislabTenancy()` sets up Finbuckle (claim, header and `?tenant=` strategies and the distributed cache store in multi-tenant mode; the static strategy and an in-memory store in single-tenant mode), the event, outbox-drain and job tenant scopes, and `ITenantInitialPasswordBuffer`. This module adds only the catalog store behind the resolver (`EFCoreStore<TenantDbContext, AppTenantInfo>`), sign-up, lifecycle and the operator endpoints and middleware. Do not add tenant resolution here.
 
 **Entities / DbContext:** `AppTenantInfo` (catalog), `TenantProvisioning` + `TenantProvisioningStep`, `TenantTheme`. `TenantDbContext` holds the tenant catalog in the main DB.
 **Areas:** CreateTenant, ChangeTenantActivation, UpgradeTenant, Get(Tenants/Status/Migrations), TenantProvisioning (status/retry), TenantTheme (get/update/reset). Full list: `Features/v1/` or `/scalar`.
 
 ## Gotchas
 
-- **Finbuckle pipeline ordering** — strategy chain Claim → Header → `?tenant=` → DistributedCache → EFCoreStore. `UseMultiTenant()` runs **before `UseAuthentication()`**, but Finbuckle's `ClaimStrategy` runs the default auth scheme's handler itself, so an authenticated caller resolves to its **tenant claim** and a `tenant` header cannot override it. The header (`MultitenancyConstants.Identifier`) decides only for anonymous requests (login, refresh); the root-operator override is post-auth middleware in `MultitenancyModule.ConfigureMiddleware`.
+- **Finbuckle pipeline ordering** — strategy chain Claim → Header → `?tenant=` (registered by the Tenancy block) → DistributedCache → EFCoreStore (this module's store, registered after the cache). `UseMultiTenant()` runs **before `UseAuthentication()`**, but Finbuckle's `ClaimStrategy` runs the default auth scheme's handler itself, so an authenticated caller resolves to its **tenant claim** and a `tenant` header cannot override it. The header (`MultitenancyConstants.Identifier`) decides only for anonymous requests (login, refresh); the root-operator override is post-auth middleware in `MultitenancyModule.ConfigureMiddleware`.
+- **Tenant-expiry e-mails** (`IntegrationEventHandlers/`: nearing expiry, entered grace, expired) are sent from this module through the Mailing building block, because this module owns the events. Notifications has no reference to Multitenancy.
 - **Root-operator cross-tenant override is a post-auth middleware** in `ConfigureMiddleware` (not a Finbuckle strategy). Gate: caller's JWT tenant claim == `MultitenancyConstants.Root.Id` **and** a `tenant` header != root; it re-resolves via `IMultiTenantContextSetter`. Claim-aware tenant logic must go here, never in a strategy.
 - **`ITenantInitialPasswordBuffer`** (singleton) — the tenant admin password is **operator-supplied**, not a constant. `CreateTenantCommandHandler` calls `Store(tenantId, password)` **before** kicking off provisioning; the background seed step `TryConsume`s it (`ConcurrentDictionary`, consume = remove).
 - **Provisioning** runs 4 steps (Database → Migrations → Seeding → CacheWarm) via a Hangfire `TenantProvisioningJob`, falling back to inline execution if Hangfire storage is unavailable. **Activation is gated on `Status == Completed`.**

@@ -37,7 +37,7 @@ These are the model for background loops: stay alive, log with context, never sw
 
 ## Tokens / sessions
 
-Login `POST /api/v1/identity/token/issue` (header `X-Trislab-App` enforces the operator/tenant app boundary). Refresh `POST /api/v1/identity/token/refresh` cross-checks subject. Session rows are written best-effort during login — failures log a warning and login still succeeds. Admin can't demote/deactivate the last admin or the root-tenant seed admin (guards in `UserRoleService`/`UserStatusService`).
+Login `POST /api/v1/identity/token/issue` (header `X-Trislab-App` enforces the operator/tenant app boundary). **Tenant header:** in multi-tenant mode the anonymous endpoints (issue, refresh, forgot and reset password, self-register) need the `tenant` header (`RequireTenantHeaderWhenMultitenant()` answers 400 without it); in single-tenant mode they need none, the server resolves the fixed tenant, a header is ignored, and the token still carries the `tenant` claim, so claim readers don't change. The app boundary check applies in multi-tenant mode only. Refresh `POST /api/v1/identity/token/refresh` cross-checks subject. Session rows are written best-effort during login — failures log a warning and login still succeeds. Admin can't demote/deactivate the last admin or the root-tenant seed admin (guards in `UserRoleService`/`UserStatusService`).
 
 ## Tests
 

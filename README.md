@@ -29,6 +29,7 @@ The new repository gets a copy of the starter's files. Framework releases reach 
 What works on the first deploy, with no change:
 
 - **Multi-tenancy:** a tenant catalog, provisioning, plans and per-tenant themes; every tenant's data is filtered by tenant in every query.
+- **Single-tenant mode:** the same framework for an app that serves one organisation: set `TenancyOptions:Mode` to `SingleTenant` and name the fixed tenant. There is no tenant catalog, sign-up, plan or operator console, a sign-in names no tenant, and the data is still stamped with the tenant. Every module declares the modes it supports ([modules.md](docs/modules.md#5-tenancy-modes), [configuration.md](docs/configuration.md#2a-tenancy-mode)).
 - **Identity:** sign-in with JWTs, users, roles, permissions, groups, sessions, impersonation and two-factor sign-in.
 - **The modules:** Auditing, Files, Billing, Notifications and Webhooks, and the samples Catalog, Tickets and Chat, to keep or delete ([modules.md](docs/modules.md)). `Architecture.Tests` guards their boundaries.
 - **The building blocks:** persistence, caching, eventing with an outbox, background jobs with Hangfire, mail, file storage, quotas, rate limiting, security headers and OpenTelemetry.
@@ -67,7 +68,7 @@ Every base image is pinned by digest. Renovate will keep the versions current; u
 
 | Path | Holds |
 | --- | --- |
-| `src/BuildingBlocks/` | The shared framework every module uses: persistence, caching, eventing, jobs, mail, storage, quotas, web |
+| `src/BuildingBlocks/` | The shared framework every module uses: persistence, caching, eventing, jobs, mail, storage, quotas, tenancy, web |
 | `src/Modules/` | One folder per module, each with a runtime project, its migrations, and a `.Contracts` project ([modules.md](docs/modules.md)) |
 | `packages/` | The npm packages, starting with `framework-ui` ([packages.md](docs/packages.md)) |
 | `src/Samples/` | The samples Catalog, Tickets and Chat, with their tests: patterns to copy, never packed, and moving to `tl-product-saas` |

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 using System.ComponentModel;
 
 namespace Trislab.Modules.Identity.Features.v1.Tokens.TokenGeneration;
@@ -34,13 +35,14 @@ public static class GenerateTokenEndpoint
         return endpoint.MapPost("/token/issue",
             [AllowAnonymous] async Task<Results<Ok<TokenResponse>, UnauthorizedHttpResult, ProblemHttpResult>>
             ([FromBody] GenerateTokenCommand command,
-            [DefaultValue("root")][FromHeader] string tenant,
+            [DefaultValue("root")][FromHeader] string? tenant,
             [FromHeader(Name = AppHeader)] string? app,
             [FromServices] IMediator mediator,
+            [FromServices] IOptions<TenancyOptions> tenancy,
             [FromServices] IStringLocalizer<SharedResources> localizer,
             CancellationToken ct) =>
             {
-                if (IsRootViaDashboard(tenant, app))
+                if (tenancy.Value.Mode == TenancyMode.Multitenant && IsRootViaDashboard(tenant, app))
                 {
                     return TypedResults.Problem(
                         statusCode: StatusCodes.Status403Forbidden,
@@ -53,9 +55,10 @@ public static class GenerateTokenEndpoint
                     ? TypedResults.Unauthorized()
                     : TypedResults.Ok(token);
             })
+            .RequireTenantHeaderWhenMultitenant()
             .WithName("IssueJwtTokens")
             .WithSummary("Issue JWT access and refresh tokens")
-            .WithDescription("Submit credentials to receive a JWT access token and a refresh token. Provide the 'tenant' header to select the tenant context (defaults to 'root'). The 'X-Trislab-App' header (admin|dashboard) is used to enforce the SuperAdmin / dashboard boundary.")
+            .WithDescription("Submit credentials to receive a JWT access token and a refresh token. In multi-tenant mode provide the 'tenant' header to select the tenant context; in single-tenant mode send none, the server resolves the fixed tenant. The 'X-Trislab-App' header (admin|dashboard) is used to enforce the SuperAdmin / dashboard boundary.")
             .Produces<TokenResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status403Forbidden)
@@ -63,7 +66,7 @@ public static class GenerateTokenEndpoint
             .Produces(StatusCodes.Status500InternalServerError);
     }
 
-    private static bool IsRootViaDashboard(string tenant, string? app)
+    private static bool IsRootViaDashboard(string? tenant, string? app)
     {
         return string.Equals(tenant, MultitenancyConstants.Root.Id, StringComparison.OrdinalIgnoreCase)
             && string.Equals(app, AppDashboard, StringComparison.OrdinalIgnoreCase);

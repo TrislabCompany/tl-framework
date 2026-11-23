@@ -3,7 +3,7 @@ using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Eventing.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
 
-namespace Trislab.Modules.Multitenancy.Services;
+namespace Trislab.Framework.Tenancy;
 
 /// <summary>
 /// Installs an <see cref="AppTenantInfo"/> carrying the tenant's connection string, so an

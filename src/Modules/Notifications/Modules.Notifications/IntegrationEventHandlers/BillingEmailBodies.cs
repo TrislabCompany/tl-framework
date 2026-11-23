@@ -5,7 +5,7 @@ using Trislab.Framework.Mailing;
 namespace Trislab.Modules.Notifications.IntegrationEventHandlers;
 
 /// <summary>
-/// Builds the subject + HTML body + text/plain alternative for tenant billing emails. Plain interpolated
+/// Builds the subject + HTML body + text/plain alternative for the invoice e-mail. Plain interpolated
 /// HTML (the framework has no template engine); kept here so the handlers stay thin and the copy is easy
 /// to review. Every message carries both parts: HTML-only mail leaves text-only clients with nothing and
 /// scores worse with spam filters. The document shell and the encoder come from
@@ -14,57 +14,6 @@ namespace Trislab.Modules.Notifications.IntegrationEventHandlers;
 internal static class BillingEmailBodies
 {
     private static string Date(DateTime utc) => utc.ToString("MMMM d, yyyy", CultureInfo.InvariantCulture);
-
-    public static (string Subject, string Body, string TextBody) NearingExpiry(string tenantName, string? planKey, DateTime validUpto, int daysRemaining)
-    {
-        var subject = daysRemaining <= 1
-            ? "Your subscription expires tomorrow"
-            : $"Your subscription expires in {daysRemaining} days";
-        var plan = planKey ?? "current";
-        var body = Wrap(subject,
-            $"<p>Hi {HtmlEmail.Encode(tenantName)},</p>" +
-            $"<p>Your <strong>{HtmlEmail.Encode(plan)}</strong> subscription is valid until " +
-            $"<strong>{Date(validUpto)}</strong> ({daysRemaining} day(s) remaining).</p>" +
-            "<p>Please contact your account operator to renew and avoid any interruption to your service.</p>");
-        var text = Text(subject,
-            $"Hi {tenantName},",
-            $"Your {plan} subscription is valid until {Date(validUpto)} ({daysRemaining} day(s) remaining).",
-            "Please contact your account operator to renew and avoid any interruption to your service.");
-        return (subject, body, text);
-    }
-
-    public static (string Subject, string Body, string TextBody) EnteredGrace(string tenantName, string? planKey, DateTime validUpto, DateTime graceEnds)
-    {
-        const string subject = "Your subscription has lapsed — grace period active";
-        var plan = planKey ?? "current";
-        var body = Wrap(subject,
-            $"<p>Hi {HtmlEmail.Encode(tenantName)},</p>" +
-            $"<p>Your <strong>{HtmlEmail.Encode(plan)}</strong> subscription expired on " +
-            $"<strong>{Date(validUpto)}</strong>. Your service continues during a grace period that ends on " +
-            $"<strong>{Date(graceEnds)}</strong>.</p>" +
-            "<p>Please renew before the grace period ends to keep your access uninterrupted.</p>");
-        var text = Text(subject,
-            $"Hi {tenantName},",
-            $"Your {plan} subscription expired on {Date(validUpto)}. Your service continues during a grace period that ends on {Date(graceEnds)}.",
-            "Please renew before the grace period ends to keep your access uninterrupted.");
-        return (subject, body, text);
-    }
-
-    public static (string Subject, string Body, string TextBody) Expired(string tenantName, string? planKey, DateTime validUpto)
-    {
-        const string subject = "Your subscription has expired";
-        var plan = planKey ?? "current";
-        var body = Wrap(subject,
-            $"<p>Hi {HtmlEmail.Encode(tenantName)},</p>" +
-            $"<p>Your <strong>{HtmlEmail.Encode(plan)}</strong> subscription expired on " +
-            $"<strong>{Date(validUpto)}</strong> and the grace period has ended, so access is now suspended.</p>" +
-            "<p>Contact your account operator to renew and restore access.</p>");
-        var text = Text(subject,
-            $"Hi {tenantName},",
-            $"Your {plan} subscription expired on {Date(validUpto)} and the grace period has ended, so access is now suspended.",
-            "Contact your account operator to renew and restore access.");
-        return (subject, body, text);
-    }
 
     public static (string Subject, string Body, string TextBody) InvoiceIssued(string invoiceNumber, decimal amount, string currency, DateTime? dueAtUtc)
     {

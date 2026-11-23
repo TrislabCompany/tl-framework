@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Finbuckle.MultiTenant;
@@ -8,6 +8,7 @@ using Trislab.Framework.Mailing;
 using Trislab.Framework.Mailing.Services;
 using Trislab.Framework.Persistence;
 using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Tenancy;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using Trislab.Modules.Multitenancy.Data;
@@ -28,7 +29,7 @@ using Testcontainers.PostgreSql;
 
 namespace Integration.Tests.Infrastructure;
 
-public sealed class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
+public class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     internal const string S3AccessKey = "rustfsadmin";
     internal const string S3SecretKey = "rustfsadmin";
@@ -41,6 +42,19 @@ public sealed class TrislabWebApplicationFactory : WebApplicationFactory<Program
     internal static AuditingConfigurator? PrimaryAuditingConfigurator { get; private set; }
 
     private static readonly SemaphoreSlim _migrationLock = new(1, 1);
+
+    // ModuleLoader keeps process-wide state that CreateHost resets, so two factories (one per tenancy mode)
+    // never build their host at the same time.
+    private static readonly object HostCreationLock = new();
+
+    /// <summary>The tenancy mode of this host. The default factory is multi-tenant; see <see cref="SingleTenantWebApplicationFactory"/>.</summary>
+    public virtual TenancyMode Mode => TenancyMode.Multitenant;
+
+    /// <summary>The tenant that tests sign in to: <c>root</c> in multi-tenant mode, the fixed tenant in single-tenant mode.</summary>
+    public string TenantId => Mode == TenancyMode.SingleTenant ? TestConstants.SingleTenantId : TestConstants.RootTenantId;
+
+    /// <summary>The e-mail of the seeded administrator of <see cref="TenantId"/>.</summary>
+    public string AdminEmail => Mode == TenancyMode.SingleTenant ? TestConstants.SingleTenantAdminEmail : TestConstants.RootAdminEmail;
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:17.11-alpine@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b")
         .WithDatabase("tl_integration_tests")
         .WithUsername("postgres")
@@ -74,7 +88,14 @@ public sealed class TrislabWebApplicationFactory : WebApplicationFactory<Program
         await _migrationLock.WaitAsync();
         try
         {
-            await ProvisionRootTenantAsync();
+            if (Mode == TenancyMode.SingleTenant)
+            {
+                await ProvisionSingleTenantAsync();
+            }
+            else
+            {
+                await ProvisionRootTenantAsync();
+            }
         }
         finally
         {
@@ -87,6 +108,7 @@ public sealed class TrislabWebApplicationFactory : WebApplicationFactory<Program
         await base.DisposeAsync();
         await _postgres.DisposeAsync();
         await _minio.DisposeAsync();
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
@@ -146,6 +168,17 @@ public sealed class TrislabWebApplicationFactory : WebApplicationFactory<Program
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.UseEnvironment("Development");
+
+        // Read eagerly while Program.cs registers the host, before ConfigureAppConfiguration below applies, so
+        // these go in as host settings, which are visible from the start.
+        builder.UseSetting($"{TenancyOptions.SectionName}:Mode", Mode.ToString());
+        if (Mode == TenancyMode.SingleTenant)
+        {
+            builder.UseSetting($"{TenancyOptions.SectionName}:SingleTenant:Id", TestConstants.SingleTenantId);
+            builder.UseSetting($"{TenancyOptions.SectionName}:SingleTenant:Name", TestConstants.SingleTenantName);
+            builder.UseSetting($"{TenancyOptions.SectionName}:SingleTenant:Country", TestConstants.SingleTenantCountry);
+            builder.UseSetting($"{TenancyOptions.SectionName}:SingleTenant:AdminEmail", TestConstants.SingleTenantAdminEmail);
+        }
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
@@ -316,8 +349,34 @@ public sealed class TrislabWebApplicationFactory : WebApplicationFactory<Program
             ValidateScopes = false
         }));
 
-        ResetModuleLoader();
-        return base.CreateHost(builder);
+        lock (HostCreationLock)
+        {
+            ResetModuleLoader();
+            return base.CreateHost(builder);
+        }
+    }
+
+    private async Task ProvisionSingleTenantAsync()
+    {
+        // The same pass the migrator makes in single-tenant mode: no catalog, the fixed tenant from the provider.
+        using var scope = Services.CreateScope();
+        var tenant = scope.ServiceProvider.GetRequiredService<ISingleTenantProvider>().Tenant;
+
+        var setter = scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>();
+        setter.MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+
+        foreach (var init in scope.ServiceProvider.GetServices<IDbInitializer>())
+        {
+            await init.MigrateAsync(CancellationToken.None);
+        }
+
+        foreach (var init in scope.ServiceProvider.GetServices<IDbInitializer>())
+        {
+            await init.SeedAsync(CancellationToken.None);
+        }
+
+        var syncer = scope.ServiceProvider.GetRequiredService<Trislab.Modules.Identity.Authorization.RolePermissionSyncer>();
+        await syncer.SyncAsync(CancellationToken.None);
     }
 
     private async Task ProvisionRootTenantAsync()

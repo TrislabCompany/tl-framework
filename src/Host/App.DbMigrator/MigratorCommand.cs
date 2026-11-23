@@ -56,7 +56,9 @@ internal sealed record MigratorCommand(
 
     public const string HelpText = """
         Trislab DbMigrator — apply EF Core migrations across the tenant catalog
-        and every tenant's per-module databases.
+        and every tenant's per-module databases. In single-tenant mode
+        (TenancyOptions:Mode) there is no tenant catalog: every registered module is
+        migrated once, for the fixed tenant, and --seed seeds that tenant's first admin.
 
         Usage:
           dotnet run --project src/Host/App.DbMigrator -- [verb] [options]
@@ -66,13 +68,14 @@ internal sealed record MigratorCommand(
           seed            Run only the SeedAsync step per tenant.
           seed-demo       Provision the demo tenants (acme, globex) with users, catalog,
                           tickets, and chat. `apply` does this too where SEED_DEMO is
-                          true. Never in an Environment with real data.
+                          true. Never in an Environment with real data. Multi-tenant
+                          mode only.
           list-pending    Print pending migrations without applying anything.
 
         Options:
           --tenant <id>        Restrict to a single tenant id (default: all tenants).
           --catalog-only       Skip the per-tenant pass; only the tenant catalog is migrated.
-          --seed               After apply, also call ITenantService.SeedTenantAsync.
+          --seed               After apply, also run every module's SeedAsync per tenant.
           -h, --help           Print this help text.
 
         Exit codes:

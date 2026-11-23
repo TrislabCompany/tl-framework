@@ -1,10 +1,12 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Reflection;
 using Amazon.S3;
 using Amazon.S3.Util;
 using App.Api.Platform;
 using Trislab.Framework.Eventing;
+using Trislab.Framework.Persistence;
 using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Tenancy;
 using Trislab.Framework.Web;
 using Trislab.Framework.Web.Modules;
 using Trislab.Modules.Auditing;
@@ -14,7 +16,6 @@ using Trislab.Modules.Identity;
 using Trislab.Modules.Identity.Contracts.v1.Tokens.TokenGeneration;
 using Trislab.Modules.Identity.Features.v1.Tokens.TokenGeneration;
 using Trislab.Modules.Multitenancy;
-using Trislab.Modules.Multitenancy.Contracts;
 using Trislab.Modules.Multitenancy.Contracts.v1.GetTenantStatus;
 using Trislab.Modules.Multitenancy.Data;
 using Trislab.Modules.Multitenancy.Features.v1.GetTenantStatus;
@@ -124,6 +125,13 @@ var moduleAssemblies = new Assembly[]
     typeof(Trislab.Modules.Notifications.NotificationsModule).Assembly,
 };
 
+// Tenancy first (docs/configuration.md, TenancyOptions): the mode decides which modules this run migrates.
+// A single-tenant run drops the multi-tenant-only modules (Multitenancy, Billing): no tenant catalog, no
+// billing tables, and the migrator says so instead of failing on them.
+builder.AddTrislabTenancy();
+var tenancyMode = TenancyOptions.ReadMode(builder.Configuration);
+moduleAssemblies = ModuleLoader.SelectSupported(tenancyMode, moduleAssemblies);
+
 // Disable runtime-only concerns; persistence + multitenancy stay on so DbInitializers resolve. Caching
 // stays on because some modules' ctor wiring touches IDistributedCache (in-memory fallback if no Redis).
 builder.AddTrislabPlatform(o =>
@@ -196,55 +204,63 @@ try
     await Console.Out.WriteLineAsync("[migrator] advisory lock acquired").ConfigureAwait(false);
 
     // ── Step 1 — tenant catalog ───────────────────────────────────────────
-    // Always applied first: the per-tenant migrator below reads every tenant out of this database.
-    using (var scope = host.Services.CreateScope())
+    // Multi-tenant mode: applied first, the per-tenant migrator below reads every tenant out of this database.
+    // Single-tenant mode: there is no catalog; the one tenant comes from configuration.
+    if (tenancyMode == TenancyMode.SingleTenant)
     {
-        var tenantDb = scope.ServiceProvider.GetRequiredService<TenantDbContext>();
-        var pending = (await tenantDb.Database.GetPendingMigrationsAsync(CancellationToken.None)
-            .ConfigureAwait(false)).ToList();
-
-        if (cli.Command == "list-pending")
+        await Console.Out.WriteLineAsync("[tenant-catalog] skipped: single-tenant mode has no tenant catalog").ConfigureAwait(false);
+    }
+    else
+    {
+        using (var scope = host.Services.CreateScope())
         {
-            await Console.Out.WriteLineAsync(string.Create(
-                CultureInfo.InvariantCulture,
-                $"[tenant-catalog] {pending.Count} pending migration(s)"))
-                .ConfigureAwait(false);
-            foreach (var name in pending)
+            var tenantDb = scope.ServiceProvider.GetRequiredService<TenantDbContext>();
+            var pending = (await tenantDb.Database.GetPendingMigrationsAsync(CancellationToken.None)
+                .ConfigureAwait(false)).ToList();
+
+            if (cli.Command == "list-pending")
             {
-                await Console.Out.WriteLineAsync($"  · {name}").ConfigureAwait(false);
+                await Console.Out.WriteLineAsync(string.Create(
+                    CultureInfo.InvariantCulture,
+                    $"[tenant-catalog] {pending.Count} pending migration(s)"))
+                    .ConfigureAwait(false);
+                foreach (var name in pending)
+                {
+                    await Console.Out.WriteLineAsync($"  · {name}").ConfigureAwait(false);
+                }
             }
-        }
-        else if (pending.Count > 0)
-        {
-            await Console.Out.WriteLineAsync(string.Create(
-                CultureInfo.InvariantCulture,
-                $"[tenant-catalog] applying {pending.Count} migration(s)…"))
-                .ConfigureAwait(false);
-            await tenantDb.Database.MigrateAsync(CancellationToken.None).ConfigureAwait(false);
-            await Console.Out.WriteLineAsync("[tenant-catalog] done").ConfigureAwait(false);
-        }
-        else
-        {
-            await Console.Out.WriteLineAsync("[tenant-catalog] already at head").ConfigureAwait(false);
-        }
+            else if (pending.Count > 0)
+            {
+                await Console.Out.WriteLineAsync(string.Create(
+                    CultureInfo.InvariantCulture,
+                    $"[tenant-catalog] applying {pending.Count} migration(s)…"))
+                    .ConfigureAwait(false);
+                await tenantDb.Database.MigrateAsync(CancellationToken.None).ConfigureAwait(false);
+                await Console.Out.WriteLineAsync("[tenant-catalog] done").ConfigureAwait(false);
+            }
+            else
+            {
+                await Console.Out.WriteLineAsync("[tenant-catalog] already at head").ConfigureAwait(false);
+            }
 
-        // Seed the root tenant the first time the catalog comes up so the
-        // per-tenant pass below has at least one tenant to iterate.
-        var seeded = await tenantDb.TenantInfo
-            .FindAsync([MultitenancyConstants.Root.Id], CancellationToken.None)
-            .ConfigureAwait(false);
-        if (seeded is null && cli.Command != "list-pending")
-        {
-            var rootTenant = new AppTenantInfo(
-                MultitenancyConstants.Root.Id,
-                MultitenancyConstants.Root.Name,
-                connectionString: string.Empty,
-                MultitenancyConstants.Root.EmailAddress,
-                issuer: MultitenancyConstants.Root.Issuer);
-            rootTenant.SetValidity(TimeProvider.System.GetUtcNow().UtcDateTime.AddYears(1));
-            await tenantDb.TenantInfo.AddAsync(rootTenant, CancellationToken.None).ConfigureAwait(false);
-            await tenantDb.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false);
-            await Console.Out.WriteLineAsync("[tenant-catalog] seeded root tenant").ConfigureAwait(false);
+            // Seed the root tenant the first time the catalog comes up so the
+            // per-tenant pass below has at least one tenant to iterate.
+            var seeded = await tenantDb.TenantInfo
+                .FindAsync([MultitenancyConstants.Root.Id], CancellationToken.None)
+                .ConfigureAwait(false);
+            if (seeded is null && cli.Command != "list-pending")
+            {
+                var rootTenant = new AppTenantInfo(
+                    MultitenancyConstants.Root.Id,
+                    MultitenancyConstants.Root.Name,
+                    connectionString: string.Empty,
+                    MultitenancyConstants.Root.EmailAddress,
+                    issuer: MultitenancyConstants.Root.Issuer);
+                rootTenant.SetValidity(TimeProvider.System.GetUtcNow().UtcDateTime.AddYears(1));
+                await tenantDb.TenantInfo.AddAsync(rootTenant, CancellationToken.None).ConfigureAwait(false);
+                await tenantDb.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false);
+                await Console.Out.WriteLineAsync("[tenant-catalog] seeded root tenant").ConfigureAwait(false);
+            }
         }
     }
 
@@ -265,8 +281,9 @@ try
     // `seed-demo` short-circuits this: it provisions its own demo tenants inline (Step 3 below).
     if (!cli.CatalogOnly && cli.Command != "seed-demo")
     {
+        // Single-tenant mode: the one fixed tenant, from the in-memory store; each module is migrated once, and
+        // --seed (or the seed verb) seeds that tenant's roles, groups and first admin.
         var tenantStore = host.Services.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-        var tenantService = host.Services.GetRequiredService<ITenantService>();
 
         var allTenants = (await tenantStore.GetAllAsync().ConfigureAwait(false)).ToList();
         var tenants = string.IsNullOrEmpty(cli.Tenant)
@@ -291,17 +308,17 @@ try
             if (cli.Command == "seed")
             {
                 await Console.Out.WriteLineAsync($"[{tenant.Id}] seeding…").ConfigureAwait(false);
-                await tenantService.SeedTenantAsync(tenant, CancellationToken.None).ConfigureAwait(false);
+                await TenantInitializers.SeedAsync(host.Services, tenant, CancellationToken.None).ConfigureAwait(false);
                 continue;
             }
 
             await Console.Out.WriteLineAsync($"[{tenant.Id}] migrating…").ConfigureAwait(false);
-            await tenantService.MigrateTenantAsync(tenant, CancellationToken.None).ConfigureAwait(false);
+            await TenantInitializers.MigrateAsync(host.Services, tenant, CancellationToken.None).ConfigureAwait(false);
 
             if (cli.SeedAfter)
             {
                 await Console.Out.WriteLineAsync($"[{tenant.Id}] seeding…").ConfigureAwait(false);
-                await tenantService.SeedTenantAsync(tenant, CancellationToken.None).ConfigureAwait(false);
+                await TenantInitializers.SeedAsync(host.Services, tenant, CancellationToken.None).ConfigureAwait(false);
             }
         }
     }
@@ -309,8 +326,16 @@ try
     // ── Step 3 — demo seed (verb: `seed-demo`, or `apply` where SEED_DEMO is true) ──
     // Provisions acme + globex with rich demo content, with the public demo password.
     // Only where SEED_DEMO is true: never in an Environment with real data.
-    if (cli.Command == "seed-demo"
-        || (cli.Command == "apply" && builder.Configuration.GetValue<bool>("Seed:Demo")))
+    if (tenancyMode == TenancyMode.SingleTenant && cli.Command == "seed-demo")
+    {
+        // The demo seeder provisions demo tenants (acme, globex); a single-tenant app has exactly one.
+        throw new InvalidOperationException(
+            "seed-demo is not available in single-tenant mode: it provisions demo tenants. Seed test data for the one tenant from the app's own seeder.");
+    }
+
+    if (tenancyMode == TenancyMode.Multitenant
+        && (cli.Command == "seed-demo"
+            || (cli.Command == "apply" && builder.Configuration.GetValue<bool>("Seed:Demo"))))
     {
         await Console.Out.WriteLineAsync("[demo-seed] provisioning acme + globex with demo content…")
             .ConfigureAwait(false);

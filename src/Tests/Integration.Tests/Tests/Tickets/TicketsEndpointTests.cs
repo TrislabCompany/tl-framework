@@ -7,13 +7,13 @@ using Integration.Tests.Infrastructure.Extensions;
 
 namespace Integration.Tests.Tests.Tickets;
 
-[Collection(TrislabCollectionDefinition.Name)]
-public sealed class TicketsEndpointTests
+/// <summary>Runs in both tenancy modes: see <see cref="TicketsEndpointTests"/> and <see cref="TicketsEndpointTestsInSingleTenantMode"/>.</summary>
+public abstract class TicketsEndpointTestsBase
 {
     private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public TicketsEndpointTests(TrislabWebApplicationFactory factory)
+    protected TicketsEndpointTestsBase(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -224,7 +224,7 @@ public sealed class TicketsEndpointTests
     public async Task CreateTicket_Should_Return401_When_Unauthenticated()
     {
         using var client = _factory.CreateClient();
-        client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
+        client.DefaultRequestHeaders.Add("tenant", _factory.TenantId);
 
         var response = await client.PostAsJsonAsync($"{TestConstants.TicketsBasePath}/tickets", new
         {
@@ -296,7 +296,7 @@ public sealed class TicketsEndpointTests
     {
         using var scope = _factory.Services.CreateScope();
         var store = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-        var tenant = await store.GetAsync(MultitenancyConstants.Root.Id)
+        var tenant = await store.GetAsync(_factory.TenantId)
             ?? throw new InvalidOperationException("Root tenant not found.");
 
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
@@ -308,3 +308,9 @@ public sealed class TicketsEndpointTests
         await dbContext.SaveChangesAsync();
     }
 }
+
+[Collection(TrislabCollectionDefinition.Name)]
+public sealed class TicketsEndpointTests(TrislabWebApplicationFactory factory) : TicketsEndpointTestsBase(factory);
+
+[Collection(SingleTenantCollectionDefinition.Name)]
+public sealed class TicketsEndpointTestsInSingleTenantMode(SingleTenantWebApplicationFactory factory) : TicketsEndpointTestsBase(factory);

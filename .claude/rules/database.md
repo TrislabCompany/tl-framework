@@ -51,7 +51,7 @@ dotnet ef migrations add {Name}   --project src/Modules/{Module}/Modules.{Module
 - **No foreign keys across schemas.** A module refers to another module's rows by id only.
 - `Architecture.Tests` (`ModuleMigrationsTests`) fails when a module's DbContext has no migrations in its own project.
 - **`migrations remove` operates on the snapshot** — run a full build *before* `migrations add` so the snapshot is current, or you can lose the previous migration.
-- The DB is **not** migrated at API startup. The `DbMigrator` host is a separate step: `apply` (default), `seed`, `seed-demo` (also run by `apply` where `SEED_DEMO` is true), `list-pending`; flags `--tenant <id>`, `--catalog-only`, `--seed`. It migrates the tenant catalog first, then each tenant's per-module schema, serialized by a Postgres advisory lock.
+- The DB is **not** migrated at API startup. The `DbMigrator` host is a separate step: `apply` (default), `seed`, `seed-demo` (also run by `apply` where `SEED_DEMO` is true), `list-pending`; flags `--tenant <id>`, `--catalog-only`, `--seed`. It migrates the tenant catalog first, then each tenant's per-module schema, serialized by a Postgres advisory lock. In single-tenant mode (`TenancyOptions:Mode`) there is no catalog: it migrates every registered module once for the fixed tenant, `--seed` seeds that tenant's first admin, and `seed-demo` is refused.
 - `dotnet-ef` is pinned in `.config/dotnet-tools.json` — run `dotnet tool restore` first.
 
 ## Tests + EF
