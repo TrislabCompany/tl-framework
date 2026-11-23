@@ -32,7 +32,8 @@ describe("format", () => {
     expect(formatNumber(12345.5, "sl-SI")).toBe("12.345,5");
     expect(formatNumber(12345.5, "en-US")).toBe("12,345.5");
     expect(formatMoney(12345.5, "EUR", "sl-SI")).toBe("12.345,50\u00a0€");
-    expect(formatDate("2026-11-23T12:00:00Z", "sl-SI", { dateStyle: "short", timeZone: "UTC" })).toBe("23. 11. 26");
+    // Explicit fields, not dateStyle "short": its year has two or four digits depending on the ICU version.
+    expect(formatDate("2026-11-23T12:00:00Z", "sl-SI", { day: "numeric", month: "numeric", year: "numeric", timeZone: "UTC" })).toBe("23. 11. 2026");
   });
 });
 
