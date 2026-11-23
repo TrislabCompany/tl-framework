@@ -10,7 +10,7 @@ using Trislab.Framework.Tenancy;
 using Trislab.Framework.Web;
 using Trislab.Framework.Web.Modules;
 using Trislab.Modules.Auditing;
-using Trislab.Modules.Billing;
+using Trislab.Modules.SubscriptionsUsage;
 using Trislab.Modules.Catalog;
 using Trislab.Modules.Identity;
 using Trislab.Modules.Identity.Contracts.v1.Tokens.TokenGeneration;
@@ -96,8 +96,8 @@ builder.Services.AddMediator(o =>
         typeof(Trislab.Modules.Auditing.Persistence.AuditDbContext),
         typeof(Trislab.Modules.Webhooks.Contracts.v1.CreateWebhookSubscription.CreateWebhookSubscriptionCommand),
         typeof(Trislab.Modules.Webhooks.WebhooksModule),
-        typeof(Trislab.Modules.Billing.Contracts.BillingContractsMarker),
-        typeof(Trislab.Modules.Billing.BillingModule),
+        typeof(Trislab.Modules.SubscriptionsUsage.Contracts.BillingContractsMarker),
+        typeof(Trislab.Modules.SubscriptionsUsage.SubscriptionsUsageModule),
         typeof(Trislab.Modules.Catalog.Contracts.CatalogContractsMarker),
         typeof(Trislab.Modules.Catalog.CatalogModule),
         typeof(Trislab.Modules.Tickets.Contracts.TicketsContractsMarker),
@@ -118,7 +118,7 @@ var moduleAssemblies = new Assembly[]
     typeof(AuditingModule).Assembly,
     typeof(Trislab.Modules.Files.FilesModule).Assembly,
     typeof(WebhooksModule).Assembly,
-    typeof(BillingModule).Assembly,
+    typeof(SubscriptionsUsageModule).Assembly,
     typeof(CatalogModule).Assembly,
     typeof(TicketsModule).Assembly,
     typeof(Trislab.Modules.Chat.ChatModule).Assembly,

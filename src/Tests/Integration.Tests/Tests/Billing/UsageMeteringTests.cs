@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Trislab.Modules.Billing.Contracts.Dtos;
+using Trislab.Modules.SubscriptionsUsage.Contracts.Dtos;
 using Hangfire;
 using Hangfire.Storage;
 using Integration.Tests.Infrastructure;
@@ -109,7 +109,7 @@ public sealed class UsageMeteringTests
         var recurringJobs = connection.GetRecurringJobs();
 
         var billingJob = recurringJobs.FirstOrDefault(j => j.Id == "billing-monthly-invoices");
-        billingJob.ShouldNotBeNull("Recurring job 'billing-monthly-invoices' should be registered by BillingModule.");
+        billingJob.ShouldNotBeNull("Recurring job 'billing-monthly-invoices' should be registered by SubscriptionsUsageModule.");
         billingJob.Cron.ShouldBe("5 0 1 * *");
     }
 

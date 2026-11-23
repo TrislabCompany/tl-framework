@@ -1,6 +1,6 @@
 using Trislab.Framework.Eventing.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
-using Trislab.Modules.Billing.Contracts.v1.Plans;
+using Trislab.Modules.SubscriptionsUsage.Contracts.v1.Plans;
 using Trislab.Modules.Multitenancy.Contracts;
 using Trislab.Modules.Multitenancy.Contracts.Events;
 using Trislab.Modules.Multitenancy.Contracts.v1.CreateTenant;

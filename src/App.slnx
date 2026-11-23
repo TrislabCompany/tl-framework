@@ -18,9 +18,9 @@
     <Project Path="Modules/Auditing/Modules.Auditing.Contracts/Modules.Auditing.Contracts.csproj" />
     <Project Path="Modules/Auditing/Modules.Auditing/Modules.Auditing.csproj" Id="2764205b-8725-43a7-b499-67b98959ad50" />
   </Folder>
-  <Folder Name="/Modules/Billing/">
-    <Project Path="Modules/Billing/Modules.Billing.Contracts/Modules.Billing.Contracts.csproj" />
-    <Project Path="Modules/Billing/Modules.Billing/Modules.Billing.csproj" />
+  <Folder Name="/Modules/SubscriptionsUsage/">
+    <Project Path="Modules/SubscriptionsUsage/Modules.SubscriptionsUsage.Contracts/Modules.SubscriptionsUsage.Contracts.csproj" />
+    <Project Path="Modules/SubscriptionsUsage/Modules.SubscriptionsUsage/Modules.SubscriptionsUsage.csproj" />
   </Folder>
   <Folder Name="/Modules/Files/">
     <Project Path="Modules/Files/Modules.Files.Contracts/Modules.Files.Contracts.csproj" />
@@ -68,7 +68,7 @@
   <Folder Name="/Tests/">
     <Project Path="Tests/Architecture.Tests/Architecture.Tests.csproj" />
     <Project Path="Tests/Auditing.Tests/Auditing.Tests.csproj" />
-    <Project Path="Tests/Billing.Tests/Billing.Tests.csproj" />
+    <Project Path="Tests/SubscriptionsUsage.Tests/SubscriptionsUsage.Tests.csproj" />
     <Project Path="Tests/Webhooks.Tests/Webhooks.Tests.csproj" />
     <Project Path="Tests/Files.Tests/Files.Tests.csproj" />
     <Project Path="Tests/Framework.Tests/Framework.Tests.csproj" />

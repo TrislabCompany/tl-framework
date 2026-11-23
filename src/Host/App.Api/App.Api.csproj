@@ -33,8 +33,8 @@
     <ProjectReference Include="..\..\Modules\Multitenancy\Modules.Multitenancy\Modules.Multitenancy.csproj" />
     <ProjectReference Include="..\..\Modules\Webhooks\Modules.Webhooks\Modules.Webhooks.csproj" />
     <ProjectReference Include="..\..\Modules\Notifications\Modules.Notifications\Modules.Notifications.csproj" />
-    <ProjectReference Include="..\..\Modules\Billing\Modules.Billing\Modules.Billing.csproj" />
-    <ProjectReference Include="..\..\Modules\Billing\Modules.Billing.Contracts\Modules.Billing.Contracts.csproj" />
+    <ProjectReference Include="..\..\Modules\SubscriptionsUsage\Modules.SubscriptionsUsage\Modules.SubscriptionsUsage.csproj" />
+    <ProjectReference Include="..\..\Modules\SubscriptionsUsage\Modules.SubscriptionsUsage.Contracts\Modules.SubscriptionsUsage.Contracts.csproj" />
     <ProjectReference Include="..\..\Samples\Catalog\Modules.Catalog\Modules.Catalog.csproj" />
     <ProjectReference Include="..\..\Samples\Catalog\Modules.Catalog.Contracts\Modules.Catalog.Contracts.csproj" />
     <ProjectReference Include="..\..\Samples\Tickets\Modules.Tickets\Modules.Tickets.csproj" />

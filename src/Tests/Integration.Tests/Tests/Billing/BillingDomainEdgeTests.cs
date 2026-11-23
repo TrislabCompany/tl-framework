@@ -2,10 +2,10 @@ using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Shared.Quota;
-using Trislab.Modules.Billing.Contracts;
-using Trislab.Modules.Billing.Contracts.Dtos;
-using Trislab.Modules.Billing.Data;
-using Trislab.Modules.Billing.Domain;
+using Trislab.Modules.SubscriptionsUsage.Contracts;
+using Trislab.Modules.SubscriptionsUsage.Contracts.Dtos;
+using Trislab.Modules.SubscriptionsUsage.Data;
+using Trislab.Modules.SubscriptionsUsage.Domain;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 

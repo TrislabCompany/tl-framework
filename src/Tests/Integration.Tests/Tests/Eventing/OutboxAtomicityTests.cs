@@ -4,7 +4,7 @@ using Trislab.Framework.Eventing.Abstractions;
 using Trislab.Framework.Eventing.Outbox;
 using Trislab.Framework.Eventing.Persistence;
 using Trislab.Framework.Shared.Multitenancy;
-using Trislab.Modules.Billing.Contracts.Events;
+using Trislab.Modules.SubscriptionsUsage.Contracts.Events;
 using Trislab.Modules.Catalog.Data;
 using Trislab.Modules.Catalog.Domain;
 using Integration.Tests.Infrastructure;

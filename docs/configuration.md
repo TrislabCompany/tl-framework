@@ -64,7 +64,7 @@ The tenancy mode is not a platform setting: it comes from the starter the app wa
 | `TenancyOptions:SingleTenant:Country` | ISO 3166-1 alpha-2, such as `SI` | Selects the country rule pack |
 | `TenancyOptions:SingleTenant:AdminEmail` | An e-mail address | The first administrator, seeded by the migrator with `SEED_ADMIN_PASSWORD` |
 
-The `SingleTenant` values are required, and checked at start-up, only in single-tenant mode. In that mode the API and the migrator register no tenant catalog and leave out the multi-tenant-only modules (Multitenancy, Billing); a module that does not support the mode, listed by hand, stops the start-up with a message that names it. The quota service is the no-op one, and the quota middleware is not added. Sign-in, refresh and the password endpoints take no `tenant` header. Set the same values for `api` and `migrator`.
+The `SingleTenant` values are required, and checked at start-up, only in single-tenant mode. In that mode the API and the migrator register no tenant catalog and leave out the multi-tenant-only modules (Multitenancy, SubscriptionsUsage); a module that does not support the mode, listed by hand, stops the start-up with a message that names it. The quota service is the no-op one, and the quota middleware is not added. Sign-in, refresh and the password endpoints take no `tenant` header. Set the same values for `api` and `migrator`.
 
 ## 3. `/config.json`
 
