@@ -30,7 +30,7 @@ All packages share one version, the framework's: `Version` in `src/Directory.Bui
 - **MINOR:** something new, or a change that stays compatible. A change that removes something goes in two steps: first it is marked obsolete, and the removal follows one MINOR later. A migration is always backward compatible ([deployment.md section 3](deployment.md#3-migrations)).
 - **MAJOR:** reserved for a break that can't be done in two steps.
 
-A release is a tag `vX.Y.Z` on `main`, created by an organization owner (the `release` skill). The tag publishes the packages to GitHub Packages at that version. The first release is `v0.1.0`.
+A release is a tag `vX.Y.Z` on `main`, created by an organization owner (the `release` skill). The tag runs `.github/workflows/packages.yml`, which packs every package at the tag's version and publishes it to GitHub Packages: the NuGet packages, then each npm package in `packages/`. A version that is already published is skipped, so a re-run is safe. `release.yml` runs beside it for the images. The first release is `v0.1.0`; a release candidate `vX.Y.Z-rc.<n>` publishes prerelease packages, and its npm packages go to the dist-tag `next`.
 
 ## 3. Using the packages in a product
 

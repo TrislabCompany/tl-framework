@@ -1,0 +1,116 @@
+name: packages
+
+# Publishes the framework's packages to GitHub Packages on a release tag
+# vX.Y.Z or vX.Y.Z-rc.<n> on main, all at the tag's version (docs/packages.md):
+# the NuGet packages of src/BuildingBlocks and src/Modules, and every npm
+# package in packages/. release.yml runs beside it for the images. Publishing
+# the same version twice is skipped, so a re-run is safe.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions: {}
+
+jobs:
+  nuget:
+    name: nuget
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check the tag
+        id: tag
+        run: |
+          if ! [[ $GITHUB_REF_NAME =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$ ]]; then
+            echo "::error::$GITHUB_REF_NAME is not a release tag vX.Y.Z or vX.Y.Z-rc.<n>"
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::$GITHUB_REF_NAME is on ${GITHUB_SHA::7}, which is not a commit of main. Only a commit of main is released"
+            exit 1
+          fi
+          echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Pack
+        env:
+          VERSION: ${{ steps.tag.outputs.version }}
+        run: dotnet pack src/App.slnx -c Release -p:Version="$VERSION" -o "$RUNNER_TEMP/nupkg"
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          dotnet nuget push "$RUNNER_TEMP/nupkg/*.nupkg" \
+            --source "https://nuget.pkg.github.com/${GITHUB_REPOSITORY_OWNER}/index.json" \
+            --api-key "$GH_TOKEN" \
+            --skip-duplicate
+          echo "Published $(ls "$RUNNER_TEMP"/nupkg/*.nupkg | wc -l) NuGet packages at ${GITHUB_REF_NAME#v}" >> "$GITHUB_STEP_SUMMARY"
+
+  npm:
+    name: npm
+    runs-on: ubuntu-24.04
+    needs: nuget
+    permissions:
+      contents: read
+      packages: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Find the packages
+        id: find
+        run: |
+          dirs=$(find packages -mindepth 2 -maxdepth 2 -name package.json -printf '%h\n' 2>/dev/null | sort || true)
+          echo "dirs=$(echo $dirs)" >> "$GITHUB_OUTPUT"
+          [ -n "$dirs" ] || echo "No npm package in packages/ yet" >> "$GITHUB_STEP_SUMMARY"
+
+      - if: steps.find.outputs.dirs != ''
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          registry-url: https://npm.pkg.github.com
+          scope: '@trislabcompany'
+
+      - name: Build and publish
+        if: steps.find.outputs.dirs != ''
+        env:
+          DIRS: ${{ steps.find.outputs.dirs }}
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          # npm refuses a prerelease without a dist-tag; -rc.<n> goes to "next", never "latest".
+          dist_tag=latest
+          [[ $version == *-* ]] && dist_tag=next
+          for dir in $DIRS; do
+            (
+              cd "$dir"
+              name=$(node -p "require('./package.json').name")
+              npm ci
+              npm version "$version" --no-git-tag-version --allow-same-version
+              npm run build --if-present
+              if npm view "$name@$version" version >/dev/null 2>&1; then
+                echo "$name@$version is already published" >> "$GITHUB_STEP_SUMMARY"
+              else
+                npm publish --tag "$dist_tag"
+                echo "Published $name@$version ($dist_tag)" >> "$GITHUB_STEP_SUMMARY"
+              fi
+            )
+          done
