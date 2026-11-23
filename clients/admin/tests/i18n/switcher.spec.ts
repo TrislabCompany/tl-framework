@@ -268,7 +268,7 @@ test.describe("language switcher", () => {
     // Still signed in: a cleared token store routes the app to /login.
     expect(new URL(page.url()).pathname).not.toBe("/login");
     expect(
-      await page.evaluate(() => window.localStorage.getItem("fsh.admin.accessToken")),
+      await page.evaluate(() => window.localStorage.getItem("tl.admin.accessToken")),
     ).not.toBeNull();
   });
 
@@ -315,7 +315,7 @@ test.describe("language switcher", () => {
     expect(new URL(page.url()).pathname).not.toBe("/login");
     await expect(page.getByText("Jezik", { exact: true })).toBeVisible();
     expect(
-      await page.evaluate(() => window.localStorage.getItem("fsh.admin.accessToken")),
+      await page.evaluate(() => window.localStorage.getItem("tl.admin.accessToken")),
     ).not.toBeNull();
   });
 

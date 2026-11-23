@@ -33,15 +33,4 @@ test.describe("settings/api-keys — placeholder", () => {
 
     await expect(page.getByRole("button", { name: /view roadmap/i })).toBeVisible();
   });
-
-  test("'View roadmap' opens the GitHub repo in a new tab", async ({ page, context }) => {
-    await page.goto("/settings/api-keys");
-
-    // The handler calls window.open(..., "_blank") — capture the popup.
-    const popupPromise = context.waitForEvent("page");
-    await page.getByRole("button", { name: /view roadmap/i }).click();
-    const popup = await popupPromise;
-    expect(popup.url()).toContain("github.com/fullstackhero/dotnet-starter-kit");
-    await popup.close();
-  });
 });

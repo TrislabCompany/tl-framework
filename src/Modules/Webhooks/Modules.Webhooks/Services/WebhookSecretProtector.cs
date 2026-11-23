@@ -21,7 +21,7 @@ public sealed class WebhookSecretProtector : IWebhookSecretProtector
     public WebhookSecretProtector(IDataProtectionProvider provider)
     {
         ArgumentNullException.ThrowIfNull(provider);
-        _protector = provider.CreateProtector("FSH.Webhooks.SubscriptionSecret.v1");
+        _protector = provider.CreateProtector("Trislab.Webhooks.SubscriptionSecret.v1");
     }
 
     public string? Protect(string? plaintext) =>

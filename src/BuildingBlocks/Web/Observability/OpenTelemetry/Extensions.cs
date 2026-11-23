@@ -38,7 +38,7 @@ public static class Extensions
             .ValidateOnStart();
 
         // Honor the orchestrator's identity: Aspire (and any OTLP collector) injects OTEL_SERVICE_NAME as the
-        // resource name it knows the process by (e.g. "fsh-starter-api"). Overriding it with the entry-assembly
+        // resource name it knows the process by (e.g. "tl-starter-api"). Overriding it with the entry-assembly
         // name ("App.Api") de-correlates our telemetry from that resource, so the dashboard lists the
         // process twice. Adopt the injected name when present; fall back to ApplicationName when running standalone.
         var serviceName = Environment.GetEnvironmentVariable("OTEL_SERVICE_NAME")
@@ -107,7 +107,7 @@ public static class Extensions
 
                 // Eventing outbox metrics (dead-letter, redrive) — string literal matches
                 // EventingTelemetry.MeterName; Web does not reference the Eventing project.
-                metrics.AddMeter("FSH.Eventing");
+                metrics.AddMeter("Trislab.Eventing");
 
                 foreach (var meterName in options.Metrics.MeterNames ?? Array.Empty<string>())
                 {
@@ -156,7 +156,7 @@ public static class Extensions
                         }
                     })
                     .AddSource(builder.Environment.ApplicationName)
-                    .AddSource("FSH.Hangfire")
+                    .AddSource("Trislab.Hangfire")
                     .AddSource(CachingTelemetry.ActivitySourceName);
 
                 if (exportOtlp)

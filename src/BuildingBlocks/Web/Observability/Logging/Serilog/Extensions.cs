@@ -45,7 +45,7 @@ public static class Extensions
                     // service.name must match the traces/metrics resource (AddTrislabOpenTelemetry resolves the same
                     // OTEL_SERVICE_NAME ?? ApplicationName) so the dashboard groups logs under the same resource as
                     // the spans they belong to — and adopts the orchestrator's resource name (e.g. Aspire's
-                    // "fsh-starter-api") rather than the entry-assembly name, which would list the process twice.
+                    // "tl-starter-api") rather than the entry-assembly name, which would list the process twice.
                     sink.ResourceAttributes = new Dictionary<string, object>
                     {
                         ["service.name"] = Environment.GetEnvironmentVariable("OTEL_SERVICE_NAME")

@@ -23,7 +23,7 @@
   "account.settings": "Settings",
   "account.apiKeys": "API keys",
   "account.signOut": "Sign out",
-  "signOut.title": "Sign out of fullstackhero?",
+  "signOut.title": "Sign out of Trislab?",
   "signOut.description": "You'll need to sign in again to access this tenant. Any unsaved work in this session will be lost.",
   "signOut.cancel": "Cancel",
   "signOut.confirm": "Sign out",

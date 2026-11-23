@@ -95,7 +95,7 @@ test.describe("lazy sl-SI catalog", () => {
 
     await expect(page.getByText("Language not changed")).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", "en-US");
-    expect(await page.evaluate(() => localStorage.getItem("fsh.admin.lng"))).toBe("en-US");
+    expect(await page.evaluate(() => localStorage.getItem("tl.admin.lng"))).toBe("en-US");
     expect(profilePuts).toBe(0);
   });
 });

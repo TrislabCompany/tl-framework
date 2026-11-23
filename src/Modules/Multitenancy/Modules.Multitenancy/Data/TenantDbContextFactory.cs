@@ -18,7 +18,7 @@ public sealed class TenantDbContextFactory : IDesignTimeDbContextFactory<TenantD
 
         var provider = configuration["DatabaseOptions:Provider"] ?? "POSTGRESQL";
         var connectionString = configuration["DatabaseOptions:ConnectionString"]
-            ?? "Host=localhost;Database=fsh-tenant;Username=postgres;Password=postgres";
+            ?? "Host=localhost;Database=tl-tenant;Username=postgres;Password=postgres";
         var optionsBuilder = new DbContextOptionsBuilder<TenantDbContext>();
 
         switch (provider.ToUpperInvariant())

@@ -24,13 +24,13 @@ public class CurrentUserMiddleware(ICurrentUserInitializer currentUserInitialize
             var correlationId = context.Request.HttpContext.TraceIdentifier;
 
             if (!string.IsNullOrEmpty(userId))
-                activity.SetTag("fsh.user_id", userId);
+                activity.SetTag("tl.user_id", userId);
 
             if (!string.IsNullOrEmpty(tenant))
-                activity.SetTag("fsh.tenant_id", tenant);
+                activity.SetTag("tl.tenant_id", tenant);
 
             if (!string.IsNullOrEmpty(correlationId))
-                activity.SetTag("fsh.correlation_id", correlationId);
+                activity.SetTag("tl.correlation_id", correlationId);
         }
 
         await next(context);

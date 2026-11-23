@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { ExternalLink, KeyRound } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { KeyRound } from "lucide-react";
 import { SettingsSection } from "@/pages/settings/settings-layout";
 
 /**
@@ -13,7 +12,7 @@ import { SettingsSection } from "@/pages/settings/settings-layout";
 export function ApiKeysSettings() {
   const { t } = useTranslation("settings");
   return (
-    <div className="space-y-5 fsh-enter">
+    <div className="space-y-5 tl-enter">
       <SettingsSection
         title={t("apiKeys.title")}
         icon={KeyRound}
@@ -29,20 +28,6 @@ export function ApiKeysSettings() {
           <p className="mb-6 max-w-[380px] text-[13px] text-[var(--color-muted-foreground)]">
             {t("apiKeys.emptyBody")}
           </p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              window.open(
-                "https://github.com/fullstackhero/dotnet-starter-kit",
-                "_blank",
-                "noopener,noreferrer",
-              );
-            }}
-            className="h-9 rounded-lg px-4 text-[13px]"
-          >
-            <ExternalLink className="mr-1.5 size-4" />
-            {t("apiKeys.viewRoadmap")}
-          </Button>
         </div>
       </SettingsSection>
     </div>

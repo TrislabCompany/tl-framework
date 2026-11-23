@@ -493,7 +493,7 @@ test.describe("language switcher when the token re-mint fails", () => {
 
     expect(new URL(page.url()).pathname).not.toBe("/login");
     await expect(page.getByText("Jezik", { exact: true })).toBeVisible();
-    expect(await page.evaluate(() => window.localStorage.getItem("fsh.dashboard.accessToken"))).not.toBeNull();
+    expect(await page.evaluate(() => window.localStorage.getItem("tl.dashboard.accessToken"))).not.toBeNull();
   });
 });
 

@@ -530,3 +530,6 @@ CLAUDE.local.md
 # The release skill and its pointer, which the [Rr]elease/ build-output rule above would hide
 !.agents/skills/release/
 !.claude/skills/release/
+
+# Copied from the root LICENSE by framework-ui's prepack.
+packages/framework-ui/LICENSE

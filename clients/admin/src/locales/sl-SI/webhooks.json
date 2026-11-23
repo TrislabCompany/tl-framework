@@ -1,6 +1,6 @@
 {
   "list.title": "Webhooki",
-  "list.description": "Naročite končne točke HTTP na domenske dogodke. Vsebine so podpisane s HMAC-SHA256 z določeno skrivnostjo – pred zaupanjem v telo na svoji strani preverite glavo X-FSH-Signature.",
+  "list.description": "Naročite končne točke HTTP na domenske dogodke. Vsebine so podpisane s HMAC-SHA256 z določeno skrivnostjo – pred zaupanjem v telo na svoji strani preverite glavo X-Trislab-Signature.",
   "list.refresh": "Osveži",
   "list.newSubscription": "Nova naročnina",
   "list.loadError": "Nalaganje naročnin ni uspelo.",

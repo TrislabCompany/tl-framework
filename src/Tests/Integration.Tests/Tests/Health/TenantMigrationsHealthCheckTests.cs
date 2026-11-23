@@ -20,7 +20,7 @@ namespace Integration.Tests.Tests.Health;
 public sealed class TenantMigrationsHealthCheckTests : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:17-alpine")
-        .WithDatabase("fsh_migrations_check")
+        .WithDatabase("tl_migrations_check")
         .WithUsername("postgres")
         .WithPassword("integration_test_pwd")
         .WithAutoRemove(true)

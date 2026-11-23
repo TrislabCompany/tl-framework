@@ -4,7 +4,7 @@ The framework that Trislab's multi-tenant SaaS products and webapps are built on
 
 ## What it is
 
-A complete SaaS starting point on .NET 10: a modular monolith with multi-tenancy, identity and the building blocks a SaaS product needs, an operator console and a tenant app in React, built on the [fullstackhero .NET starter kit](https://github.com/fullstackhero/dotnet-starter-kit) and adapted to the platform. Out of the box, operators create tenants with plans in `admin`, and each tenant's users sign in to `dashboard`, where the sample modules give them a product catalog, support tickets, chat, files and notifications.
+A complete SaaS starting point on .NET 10: a modular monolith with multi-tenancy, identity and the building blocks a SaaS product needs, an operator console and a tenant app in React, derived from an MIT-licensed open-source starter kit ([THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)) and adapted to the platform. Out of the box, operators create tenants with plans in `admin`, and each tenant's users sign in to `dashboard`, where the sample modules give them a product catalog, support tickets, chat, files and notifications.
 
 ## When to use it
 
@@ -43,7 +43,7 @@ What works on the first deploy, with no change:
 
 | Technology | Version |
 | --- | --- |
-| fullstackhero .NET starter kit | Release `10.0.0`, MIT licence ([`LICENSE`](LICENSE), which stays in every repository); every later commit on its `main` is reviewed and synced ([upstream.md](docs/upstream.md)) |
+| Upstream starter kit | Release `10.0.0`, MIT licence ([THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), which ships with every package); every later commit on its `main` is reviewed and synced ([upstream.md](docs/upstream.md)) |
 | .NET | SDK 10.0.404 (`global.json`), runtime 10.0.15 (`aspnet:10.0.15-noble-chiseled`) |
 | ASP.NET Core | 10.0.15 |
 | EF Core | 10.0.15, with Npgsql's provider 10.0.3 |
@@ -100,4 +100,8 @@ Every base image is pinned by digest. Renovate will keep the versions current; u
 - [Modules](docs/modules.md): each module, how to add or delete one, and what `Architecture.Tests` enforces.
 - [Bot protection](docs/bot-protection.md): Cloudflare Turnstile on public forms, `RequireTurnstile()` and the `Turnstile` widget, and their keys.
 - [Packages](docs/packages.md): what is packed, the package names, the one framework version, and how a product references the packages and upgrades them.
-- [Upstream](docs/upstream.md): how the platform team syncs each fullstackhero commit, and the status of every commit since `10.0.0`.
+- [Upstream](docs/upstream.md): how the platform team syncs each upstream commit, and the status of every commit since `10.0.0`.
+
+## Licence
+
+Proprietary: [LICENSE](LICENSE). The code is public to read, but only Trislab, and the clients of the applications Trislab delivers under a written agreement, may use it. Copying, forking for use, and redistribution are not allowed. The open-source code it is derived from keeps its own licence: [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), which every package ships with.

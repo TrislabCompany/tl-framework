@@ -21,8 +21,8 @@ namespace Identity.Tests.Services;
 public sealed class TokenServiceTests : IDisposable
 {
     private const string SigningKey = "this-is-a-very-long-signing-key-32!!";
-    private const string Issuer = "fsh-issuer";
-    private const string Audience = "fsh-audience";
+    private const string Issuer = "tl-issuer";
+    private const string Audience = "tl-audience";
 
     private static readonly DateTimeOffset FixedNow =
         new(2026, 1, 15, 10, 0, 0, TimeSpan.Zero);

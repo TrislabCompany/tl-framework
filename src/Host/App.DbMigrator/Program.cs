@@ -30,7 +30,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-// FSH DbMigrator — one-shot console that migrates every DB to head, optionally seeds, then exits 0/1.
+// Trislab DbMigrator — one-shot console that migrates every DB to head, optionally seeds, then exits 0/1.
 // Runs as a deployment step (not at API startup) so it can use an elevated-DDL connection string. Verbs: see MigratorCommand.HelpText.
 
 var cli = MigratorCommand.Parse(args);
@@ -64,9 +64,9 @@ if (string.IsNullOrWhiteSpace(builder.Configuration["JwtOptions:SigningKey"]))
 {
     builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
     {
-        ["JwtOptions:SigningKey"] = "fsh-dbmigrator-placeholder-never-mints-tokens-32+",
-        ["JwtOptions:Issuer"] = builder.Configuration["JwtOptions:Issuer"] ?? "fsh.local",
-        ["JwtOptions:Audience"] = builder.Configuration["JwtOptions:Audience"] ?? "fsh.clients",
+        ["JwtOptions:SigningKey"] = "tl-dbmigrator-placeholder-never-mints-tokens-32+",
+        ["JwtOptions:Issuer"] = builder.Configuration["JwtOptions:Issuer"] ?? "tl.local",
+        ["JwtOptions:Audience"] = builder.Configuration["JwtOptions:Audience"] ?? "tl.clients",
     });
 }
 

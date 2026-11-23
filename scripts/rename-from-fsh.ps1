@@ -13,12 +13,15 @@
       Fsh<Type>, IFsh<Type>                        -> Trislab<Type>, ITrislab<Type>
       @fullstackhero/admin, @fullstackhero/dashboard -> @trislabcompany/framework-admin, -dashboard
       uploads/fshuser/ -> uploads/trislabuser/  (the upload folder follows the owner type's name)
-    The Hero and Fsh rules skip clients/: there "Hero" is a page section (PageHero) and the
-    UI's names change with framework-ui.
+    The Hero rules skip clients/: there "Hero" is a page section (PageHero).
 
-    Wire names stay: metric and activity names (fsh.cache.*, FSH.Caching), headers (X-FSH-App),
-    the JWT issuer and audience, localStorage keys, CSS classes, the Data Protection application
-    name and protector purposes (renaming those would make stored keys and secrets unreadable).
+    Wire and brand names change too, everywhere (renamed before v0.1.0, when no data existed yet):
+      FSHCorsPolicy -> TrislabCorsPolicy      X-FSH-<Name>, x-fsh-<name> -> X-Trislab-<Name>, x-trislab-<name>
+      FSH_<NAME>    -> TRISLAB_<NAME>         FSH (a word, e.g. FSH.Caching, "FSH API") -> Trislab
+      Fsh<Type>     -> Trislab<Type>          fsh (a lowercase prefix: fsh.*, fsh-*, fsh_*, fshOptions) -> tl
+    So metric and activity names, headers, the JWT issuer and audience, localStorage keys, CSS
+    classes, database names and the Data Protection purposes are Trislab's. The fullstackhero
+    wordmark, logo and links were removed by hand, not by a rule.
     Project files and folders keep upstream's layout, so patches apply by path.
 
 .PARAMETER Patch
@@ -34,9 +37,9 @@ param([string] $Patch)
 
 $ErrorActionPreference = 'Stop'
 
-# Files never rewritten: the upstream log quotes upstream's names, and the licence keeps
-# fullstackhero's MIT notice.
-$Skip = @('docs/upstream.md', 'LICENSE', 'scripts/rename-from-fsh.ps1')
+# Files never rewritten: the upstream log and the port scripts quote upstream's names and paths,
+# and THIRD-PARTY-NOTICES.md keeps fullstackhero's MIT notice.
+$Skip = @('docs/upstream.md', 'THIRD-PARTY-NOTICES.md', 'scripts/rename-from-fsh.ps1', 'scripts/port-upstream.ps1')
 
 function Convert-Text([string] $text, [bool] $inClients) {
     $text = $text -creplace 'FSH\.Framework', 'Trislab.Framework'
@@ -47,10 +50,17 @@ function Convert-Text([string] $text, [bool] $inClients) {
     if (-not $inClients) {
         $text = $text -creplace '\b(Add|Use|Map|Configure)Hero(?=[A-Z])', '${1}Trislab'
         $text = $text -creplace '(?<![A-Za-z])Hero(?=[A-Z])', 'Trislab'
-        $text = $text -creplace 'Fsh(?=[A-Z])', 'Trislab'
         # Upload folders are named after the owner type (StorageUploadKeys): FshUser -> uploads/trislabuser/.
         $text = $text -creplace 'uploads/fshuser/', 'uploads/trislabuser/'
     }
+    $text = $text -creplace '(?<![A-Za-z])Fsh(?=[A-Z])', 'Trislab'
+    # Wire and brand names. The script's own name (rename-from-fsh) is kept.
+    $text = $text -creplace 'FSHCorsPolicy', 'TrislabCorsPolicy'
+    $text = $text -creplace '(?<![A-Za-z])X-FSH-', 'X-Trislab-'
+    $text = $text -creplace '(?<![A-Za-z])x-fsh-', 'x-trislab-'
+    $text = $text -creplace '(?<![A-Za-z])FSH_', 'TRISLAB_'
+    $text = $text -creplace '(?<![A-Za-z])FSH(?![A-Za-z])', 'Trislab'
+    $text = $text -creplace '(?<![A-Za-z]|rename-from-)fsh(?![a-z])', 'tl'
     return $text
 }
 
@@ -103,7 +113,7 @@ try {
         }
     }
     Write-Output "rename-from-fsh: $edited file(s) edited, $moved file(s) renamed"
-    $left = git grep -I -c -E 'FSH\.(Framework|Modules)' -- . ':!docs/upstream.md' ':!scripts/rename-from-fsh.ps1'
-    if ($left) { Write-Output "still named FSH: $left" }
+    $left = git grep -I -c -i -E 'fsh|fullstackhero' -- . ':!docs/upstream.md' ':!THIRD-PARTY-NOTICES.md' ':!scripts/*.ps1' ':!scripts/README.md'
+    if ($left) { Write-Output "still named fullstackhero or FSH: $left" }
 }
 finally { Pop-Location }

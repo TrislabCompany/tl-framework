@@ -74,7 +74,7 @@ public static class Extensions
             // it — webhook signing secrets included — can no longer be unprotected.
             services.AddDataProtection()
                 .PersistKeysToStackExchangeRedis(sharedMultiplexer, keyPrefix + "DataProtection-Keys")
-                .SetApplicationName("FSH.Starter");
+                .SetApplicationName("Trislab.Starter");
         }
 
         // HybridCache auto-composes with whatever IDistributedCache is registered above.

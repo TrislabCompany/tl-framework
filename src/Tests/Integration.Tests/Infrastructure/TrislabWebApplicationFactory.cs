@@ -32,7 +32,7 @@ public sealed class TrislabWebApplicationFactory : WebApplicationFactory<Program
 {
     internal const string S3AccessKey = "rustfsadmin";
     internal const string S3SecretKey = "rustfsadmin";
-    internal const string S3Bucket = "fsh-integration-test-uploads";
+    internal const string S3Bucket = "tl-integration-test-uploads";
 
     /// <summary>The shared host's Hangfire storage; see <see cref="PrimaryHostStaticsRestorer"/>.</summary>
     internal static JobStorage? PrimaryJobStorage { get; private set; }
@@ -42,7 +42,7 @@ public sealed class TrislabWebApplicationFactory : WebApplicationFactory<Program
 
     private static readonly SemaphoreSlim _migrationLock = new(1, 1);
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:17.11-alpine@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b")
-        .WithDatabase("fsh_integration_tests")
+        .WithDatabase("tl_integration_tests")
         .WithUsername("postgres")
         .WithPassword("integration_test_pwd")
         .WithAutoRemove(true)

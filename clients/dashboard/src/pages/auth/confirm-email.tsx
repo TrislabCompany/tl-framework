@@ -112,7 +112,7 @@ ${tenant}`;
       )}
 
       {status.kind === "success" && (
-        <div className="fsh-enter space-y-5 text-center">
+        <div className="tl-enter space-y-5 text-center">
           <div className="grid place-items-center">
             <span
               aria-hidden
@@ -137,7 +137,7 @@ ${tenant}`;
       )}
 
       {status.kind === "error" && (
-        <div className="fsh-enter space-y-5 text-center">
+        <div className="tl-enter space-y-5 text-center">
           <div className="grid place-items-center">
             <span
               aria-hidden

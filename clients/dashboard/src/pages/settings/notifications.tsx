@@ -13,7 +13,7 @@ import { SettingsSection } from "@/pages/settings/settings-layout";
 export function NotificationsSettings() {
   const { t } = useTranslation("settings");
   return (
-    <div className="space-y-5 fsh-enter">
+    <div className="space-y-5 tl-enter">
       <SettingsSection
         title={t("notifications.title")}
         icon={Bell}

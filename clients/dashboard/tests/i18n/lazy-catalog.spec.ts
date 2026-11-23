@@ -32,7 +32,7 @@ test.describe("lazy sl-SI catalog", () => {
       const w = window as unknown as { __sawEnglish: boolean };
       w.__sawEnglish = false;
       new MutationObserver(() => {
-        if (document.getElementById("root")?.textContent?.includes("fullstackhero Administration")) {
+        if (document.getElementById("root")?.textContent?.includes("Trislab Administration")) {
           w.__sawEnglish = true;
         }
       }).observe(document, { childList: true, subtree: true, characterData: true });
@@ -46,7 +46,7 @@ test.describe("lazy sl-SI catalog", () => {
 
     await page.goto("/login?culture=sl-SI");
 
-    await expect(page.getByText("Administracija fullstackhero").first()).toBeVisible();
+    await expect(page.getByText("Administracija Trislab").first()).toBeVisible();
     expect(await page.evaluate(() => (window as unknown as { __sawEnglish: boolean }).__sawEnglish)).toBe(false);
   });
 
@@ -80,7 +80,7 @@ test.describe("lazy sl-SI catalog", () => {
 
     await expect(page.getByText("Language not changed")).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", "en-US");
-    expect(await page.evaluate(() => localStorage.getItem("fsh.dashboard.lng"))).toBe("en-US");
+    expect(await page.evaluate(() => localStorage.getItem("tl.dashboard.lng"))).toBe("en-US");
     expect(profilePuts).toBe(0);
   });
 });

@@ -45,11 +45,11 @@ public sealed class MiddlewareWebApplicationFactory : WebApplicationFactory<Prog
 {
     private const string MinioAccessKey = "minioadmin";
     private const string MinioSecretKey = "minioadmin";
-    private const string MinioBucket = "fsh-middleware-test-uploads";
+    private const string MinioBucket = "tl-middleware-test-uploads";
 
     private static readonly SemaphoreSlim _migrationLock = new(1, 1);
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:17.11-alpine@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b")
-        .WithDatabase("fsh_middleware_tests")
+        .WithDatabase("tl_middleware_tests")
         .WithUsername("postgres")
         .WithPassword("integration_test_pwd")
         .WithAutoRemove(true)

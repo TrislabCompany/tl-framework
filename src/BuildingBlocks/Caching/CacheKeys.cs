@@ -1,7 +1,7 @@
 namespace Trislab.Framework.Caching;
 
 /// <summary>
-/// Cache key conventions and tag constants used across the FullStackHero starter kit.
+/// Cache key conventions and tag constants used across the Trislab starter kit.
 /// Keys should be tenant-scoped where applicable; tags enable bulk invalidation via
 /// <see cref="Microsoft.Extensions.Caching.Hybrid.HybridCache.RemoveByTagAsync(string, System.Threading.CancellationToken)"/>.
 /// </summary>

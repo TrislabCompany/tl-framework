@@ -22,7 +22,7 @@ type Credentials = { email: string; password: string; tenant: string };
 // ────────────────────────────────────────────────────────────────────────
 // Login — dentalOS "welcome back" card on rose+saffron atmospheric orbs
 // (chrome supplied by AuthShell, shared with the rest of the auth flow).
-// FSH stays multi-tenant, so the Tenant field leads the form; Email +
+// Trislab stays multi-tenant, so the Tenant field leads the form; Email +
 // Password follow. The demo picker ("Step into any role") signs in
 // instantly and is gated on the runtime demoMode flag — on in staging,
 // off in production.
@@ -154,7 +154,7 @@ export function LoginPage() {
             {notice && (
               <div
                 role="status"
-                className="mb-5 flex items-start gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-muted)] px-3 py-2.5 text-[12.5px] leading-snug text-[var(--color-muted-foreground)] fsh-enter"
+                className="mb-5 flex items-start gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-muted)] px-3 py-2.5 text-[12.5px] leading-snug text-[var(--color-muted-foreground)] tl-enter"
               >
                 <TimerOff className="mt-0.5 size-3.5 shrink-0 text-[var(--color-muted-foreground)]" />
                 <span>{notice}</span>
@@ -167,7 +167,7 @@ export function LoginPage() {
               noValidate
               aria-describedby={error ? "login-error" : undefined}
             >
-              {/* Tenant — FSH stays multi-tenant, so this leads the form. */}
+              {/* Tenant — Trislab stays multi-tenant, so this leads the form. */}
               <div className="space-y-1.5">
                 <Label
                   htmlFor="tenant"
@@ -250,7 +250,7 @@ export function LoginPage() {
                   id="login-error"
                   role="alert"
                   className={cn(
-                    "fsh-enter flex items-start gap-2 rounded-lg border px-3 py-2 text-sm",
+                    "tl-enter flex items-start gap-2 rounded-lg border px-3 py-2 text-sm",
                     "border-[oklch(from_var(--color-destructive)_l_c_h_/_0.30)]",
                     "bg-[oklch(from_var(--color-destructive)_l_c_h_/_0.06)]",
                     "text-[var(--color-destructive)]",

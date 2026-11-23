@@ -16,7 +16,7 @@ public sealed class S3PrefixValidationTests
     [InlineData(null)]
     [InlineData("")]
     [InlineData("tenant-files")]
-    [InlineData("apps/fsh")]
+    [InlineData("apps/tl")]
     [InlineData("publicity")]
     [InlineData("files/public")]
     public void AddTrislabStorage_Should_PassStartupValidation_When_PrefixDoesNotStartWithAVisibilityRoot(string? prefix)

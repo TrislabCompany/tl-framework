@@ -1,6 +1,6 @@
-# FullStackHero — Admin
+# Trislab — Admin
 
-Operator console for the FullStackHero .NET Starter Kit. Built with React 19, Vite 8, TypeScript 6, TanStack Query, React Router and Tailwind 4 + shadcn/ui.
+Operator console for the Trislab framework. Built with React 19, Vite 8, TypeScript 6, TanStack Query, React Router and Tailwind 4 + shadcn/ui.
 
 This is a **standalone Vite app** — not part of a pnpm workspace — so it can be mounted into .NET Aspire as a plain `ExecutableResource` without monorepo friction.
 
@@ -22,7 +22,7 @@ npm install --prefix clients/admin   # one-time
 dotnet run --project src/Host/App.AppHost
 ```
 
-Aspire dashboard will expose `fsh-admin` on <http://localhost:5173>.
+Aspire dashboard will expose `tl-admin` on <http://localhost:5173>.
 
 ### Option B — run the frontend standalone
 
@@ -86,7 +86,7 @@ src/
 ## Authentication flow
 
 1. `POST /api/v1/identity/token/issue` with `{ email, password }` plus `tenant` header.
-2. Access + refresh tokens are stored in `localStorage` (keys prefixed `fsh.admin.`).
+2. Access + refresh tokens are stored in `localStorage` (keys prefixed `tl.admin.`).
 3. The API client attaches `Authorization: Bearer <access>` and `tenant: <slug>` on every call.
 4. On `401`, a single-flight refresh call hits `POST /api/v1/identity/token/refresh`, retries the original request, and logs the user out if the refresh fails.
 

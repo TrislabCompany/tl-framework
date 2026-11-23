@@ -14,7 +14,7 @@ namespace App.DbMigrator;
 /// </summary>
 internal static partial class PostgresMigratorLock
 {
-    // Arbitrary 64-bit key (spottable in pg_locks) for the fsh-db-migrator session lock.
+    // Arbitrary 64-bit key (spottable in pg_locks) for the tl-db-migrator session lock.
     // Held at server level, so the target database doesn't affect instance-wide coordination.
     private const long MigratorAdvisoryLockKey = unchecked((long)0xFE514EC0_DEB1ADE4UL);
 

@@ -28,10 +28,10 @@ public static class TrislabRealtimeExtensions
             // Pub/sub is server-wide — a defaultDatabase index does not separate it — so without an
             // application prefix every app on the Redis server shares one backplane and receives the
             // others' broadcasts to groups they have in common (tenant:root, user:{id}). Empty keeps the
-            // historical "fsh-signalr" channel. Changing the prefix splits the backplane during a rolling
+            // historical "tl-signalr" channel. Changing the prefix splits the backplane during a rolling
             // deploy: old and new pods sit on different channels until the rollout finishes.
             string keyPrefix = RedisKeyPrefix.Normalize(configuration[RedisKeyPrefix.ConfigurationKey]);
-            string channelPrefix = keyPrefix.Length == 0 ? "fsh-signalr" : keyPrefix + "signalr";
+            string channelPrefix = keyPrefix.Length == 0 ? "tl-signalr" : keyPrefix + "signalr";
             signalr.AddStackExchangeRedis(redis, options => options.Configuration.ChannelPrefix =
                 StackExchange.Redis.RedisChannel.Literal(channelPrefix));
         }

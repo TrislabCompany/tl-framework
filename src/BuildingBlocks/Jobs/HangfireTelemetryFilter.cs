@@ -9,8 +9,8 @@ namespace Trislab.Framework.Jobs;
 /// </summary>
 public sealed class HangfireTelemetryFilter : JobFilterAttribute, IServerFilter
 {
-    private const string ActivityKey = "__fsh_activity";
-    private static readonly ActivitySource ActivitySource = new("FSH.Hangfire");
+    private const string ActivityKey = "__tl_activity";
+    private static readonly ActivitySource ActivitySource = new("Trislab.Hangfire");
 
     public void OnPerforming(PerformingContext context)
     {

@@ -127,7 +127,7 @@ public sealed class PurgeJobsPerTenantTests
         defaultConnection.ShouldNotBeNullOrWhiteSpace();
         var dedicatedConnection = new NpgsqlConnectionStringBuilder(defaultConnection)
         {
-            Database = $"fsh_{prefix.Replace('-', '_')}_{uniqueId}",
+            Database = $"tl_{prefix.Replace('-', '_')}_{uniqueId}",
         }.ConnectionString;
 
         await CreateTenantAsync(rootClient, sharedTenantId, connectionString: null);

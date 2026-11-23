@@ -10,8 +10,8 @@ public static class TestConstants
     public const string TrustedProxyIp = "192.0.2.10";
     public const string UntrustedSourceIp = "198.51.100.9";
 
-    public const string JwtIssuer = "fsh.local";
-    public const string JwtAudience = "fsh.clients";
+    public const string JwtIssuer = "tl.local";
+    public const string JwtAudience = "tl.clients";
     public const string JwtSigningKey = "integration-test-signing-key-that-is-at-least-32-chars-long!!";
 
     public const string IdentityBasePath = "/api/v1/identity";

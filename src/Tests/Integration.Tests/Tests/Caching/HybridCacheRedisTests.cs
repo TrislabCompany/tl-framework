@@ -216,7 +216,7 @@ public sealed class HybridCacheRedisTests : IAsyncLifetime
     {
         // The invariant that protects existing deployments on upgrade: without an opt-in prefix every
         // key stays where it was. A moved Data Protection ring would orphan everything protected with
-        // the old one (webhook signing secrets included). The SignalR side ("fsh-signalr") is pinned by
+        // the old one (webhook signing secrets included). The SignalR side ("tl-signalr") is pinned by
         // RedisKeyPrefixWiringTests.AddTrislabRealtime_Should_KeepTheHistoricalChannel_When_KeyPrefixIsEmpty.
         var (cache, _, provider) = CreateCache(keyPrefix);
         await using (provider)

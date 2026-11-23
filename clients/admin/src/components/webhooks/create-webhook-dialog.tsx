@@ -148,7 +148,7 @@ export function CreateWebhookDialog({
             <DialogTitle>{t("create.title")}</DialogTitle>
           </div>
           <DialogDescription>
-            {t("create.description", { header: "X-FSH-Signature" })}
+            {t("create.description", { header: "X-Trislab-Signature" })}
           </DialogDescription>
         </DialogHeader>
 
@@ -158,7 +158,7 @@ export function CreateWebhookDialog({
               <Input
                 id="webhook-url"
                 type="url"
-                placeholder="https://api.acme.com/webhooks/fsh"
+                placeholder="https://api.acme.com/webhooks/tl"
                 autoComplete="off"
                 className="font-mono"
                 aria-invalid={errors.url ? true : undefined}

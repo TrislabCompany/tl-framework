@@ -56,7 +56,7 @@ public sealed class EnrollTwoFactorCommandHandlerTests
     [Fact]
     public void TwoFactorOptions_Should_DefaultIssuerToTheBrand()
     {
-        new TwoFactorOptions().Issuer.ShouldBe("FullStackHero");
+        new TwoFactorOptions().Issuer.ShouldBe("Trislab");
     }
 
     [Fact]

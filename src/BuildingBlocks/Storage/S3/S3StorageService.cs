@@ -12,7 +12,7 @@ namespace Trislab.Framework.Storage.S3;
 
 internal sealed class S3StorageService : IStorageService
 {
-    internal const string PresignClientKey = "FSH.Storage.S3.Presign";
+    internal const string PresignClientKey = "Trislab.Storage.S3.Presign";
 
     private readonly IAmazonS3 _s3;
     private readonly IAmazonS3 _presignS3;

@@ -5,7 +5,7 @@ import { ShieldCheck } from "lucide-react";
 // ────────────────────────────────────────────────────────────────────────
 // AuthShell — calm centered-card chrome for unauthenticated pages
 // (forgot-password, reset-password, confirm-email). Mirrors login.tsx's
-// dentalOS vocabulary: atmospheric rose+saffron orbs, Outfit "fullstackhero"
+// dentalOS vocabulary: atmospheric rose+saffron orbs, Outfit "Trislab"
 // brand lockup, warm-paper card with backdrop blur. No parallax, no
 // brackets, no graph paper, no dialog-script eyebrow.
 // ────────────────────────────────────────────────────────────────────────
@@ -64,17 +64,13 @@ export function AuthShell({
       </div>
 
       {/* Card column */}
-      <div className="relative z-10 w-full max-w-[420px] fsh-enter fsh-enter-1">
-        {/* Brand lockup — FSH logo + Outfit wordmark + .NET 10 caption */}
+      <div className="relative z-10 w-full max-w-[420px] tl-enter tl-enter-1">
+        {/* Brand lockup — Trislab logo + Outfit wordmark + .NET 10 caption */}
         <div className="mb-8 flex flex-col items-center">
           <div className="flex items-center gap-2.5">
-            <img
-              src="/logo-fullstackhero.png"
-              alt="fullstackhero"
-              className="size-9 object-contain"
-            />
+            <span aria-hidden className="brand-mark grid size-9 shrink-0 place-items-center rounded-lg font-display text-[15px] font-bold text-[var(--color-primary-foreground)]">T</span>
             <span className="font-display text-[26px] font-semibold tracking-tight text-[var(--color-foreground)]">
-              fullstack<span className="text-[var(--color-primary)]">hero</span>
+              Tris<span className="text-[var(--color-primary)]">lab</span>
             </span>
           </div>
           <div className="mt-3 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[oklch(from_var(--color-muted-foreground)_l_c_h_/_0.7)]">

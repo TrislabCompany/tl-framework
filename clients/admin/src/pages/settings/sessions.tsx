@@ -80,7 +80,7 @@ export function SessionsSettings() {
   }
 
   return (
-    <div className="space-y-5 fsh-enter">
+    <div className="space-y-5 tl-enter">
       <SettingsSection
         title={t("active.title")}
         icon={MonitorSmartphone}

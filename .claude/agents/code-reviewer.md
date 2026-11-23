@@ -5,7 +5,7 @@ tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
 
-You review code changes for FullStackHero against its conventions and output a structured report. The
+You review code changes for Trislab against its conventions and output a structured report. The
 conventions are defined in `.claude/rules/` and `AGENTS.md` — treat those as the source of truth; this
 playbook is the review procedure, not a second copy of the rules.
 

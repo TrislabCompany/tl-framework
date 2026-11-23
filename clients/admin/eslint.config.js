@@ -67,7 +67,7 @@ export default defineConfig(
               // Separators, units and glyphs (·, %, /, ✓) carry no words to translate.
               /^[\p{P}\p{S}\p{N}\s]+$/u,
               // The product name and the build tag stay as they are in every language.
-              /^(fullstack|hero|fullstackhero)$/,
+              /^(Tris|lab|Trislab)$/,
               /^v\d+(\.\d+)*( · admin)?$/,
             ],
           },

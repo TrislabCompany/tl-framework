@@ -25,7 +25,7 @@
   "account.settings": "Nastavitve",
   "account.apiKeys": "Ključi API",
   "account.signOut": "Odjava",
-  "signOut.title": "Se želite odjaviti iz fullstackhero?",
+  "signOut.title": "Se želite odjaviti iz Trislab?",
   "signOut.description": "Za dostop do tega najemnika se boste morali znova prijaviti. Vse neshranjeno delo v tej seji bo izgubljeno.",
   "signOut.cancel": "Prekliči",
   "signOut.confirm": "Odjava",

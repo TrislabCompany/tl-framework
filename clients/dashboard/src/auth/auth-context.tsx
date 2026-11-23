@@ -205,7 +205,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // to the tab — otherwise `isAuthenticated` stays true while the token
     // is gone, and protected requests silently 401 with no header attached.
     const onStorage = (e: StorageEvent) => {
-      if (e.key === null || e.key.startsWith("fsh.dashboard.")) refresh();
+      if (e.key === null || e.key.startsWith("tl.dashboard.")) refresh();
     };
     const onVisibility = () => {
       if (document.visibilityState === "visible") refresh();
@@ -230,7 +230,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setPermissionsHydrated(false);
       const tokens = await issueToken(input);
       // Defence-in-depth: even though the API rejects root-tenant logins
-      // submitted with X-FSH-App=dashboard, double-check the issued token
+      // submitted with X-Trislab-App=dashboard, double-check the issued token
       // so a future API regression can't quietly drop a root token into
       // a tenant-dashboard session.
       const claims = decodeJwt(tokens.accessToken);

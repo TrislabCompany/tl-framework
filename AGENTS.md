@@ -1,7 +1,7 @@
 # This repository
 
 > `tl-framework`: the framework every Trislab SaaS product and webapp is built on. A modular .NET 10
-> monolith + two React 19 apps, built on the fullstackhero .NET starter kit and adapted to the platform
+> monolith + two React 19 apps, derived from an open-source starter kit and adapted to the platform
 > contract (`README.md`, `docs/`).
 
 ## Role
@@ -14,7 +14,7 @@ The same block starts the `AGENTS.md` of every Trislab repository, so an agent i
   - every reusable module in `src/Modules/`, with its `.Contracts` (`Trislab.Modules.*`) and its own migrations (each will declare the tenancy modes it supports, with single-tenant mode);
   - country rule packs (`*-si`), when they come;
   - the migrator, and the React apps `clients/admin` and `clients/dashboard` (later the packages `framework-admin`, `framework-dashboard` and `framework-ui`);
-  - the framework's agent skills, and `docs/upstream.md`, the log of the fullstackhero ports.
+  - the framework's agent skills, and `docs/upstream.md`, the log of the upstream ports.
   - Until `tl-product-saas` exists, also the hosts and the samples Catalog, Tickets and Chat (`src/Samples/`), which move there.
 - **Never contains:** a product's own features; Trislab-only code; customer names, secrets or prices; live infrastructure.
 - **A change goes elsewhere when it is:**
@@ -62,7 +62,7 @@ front-ends. Multitenancy, auth, auditing, billing, files, chat and more are firs
 | `docker-compose.yml`, `.env.example` | The four images locally, without the .NET SDK. |
 | `platform.yaml`, `.github/workflows/ci.yml` | The images and app sizing for the platform; the `ci / ci` check. |
 | `.github/workflows/packages.yml` | On a release tag, publishes the NuGet and npm packages to GitHub Packages (`docs/packages.md`). |
-| `scripts/` | Scripts for repetitive work, listed in `scripts/README.md` (porting fullstackhero commits). |
+| `scripts/` | Scripts for repetitive work, listed in `scripts/README.md` (porting upstream commits). |
 | `docs/` | How the repository works on the platform: getting started, architecture, configuration, deployment, modules, packages. |
 | `renovate/framework.json` | The Renovate preset products extend for framework upgrades (`docs/packages.md`). |
 

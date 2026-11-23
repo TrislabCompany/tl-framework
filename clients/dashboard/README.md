@@ -1,6 +1,6 @@
-# FullStackHero — Dashboard
+# Trislab — Dashboard
 
-Tenant-facing dashboard for the FullStackHero .NET Starter Kit. Shows realtime telemetry over Server-Sent Events, current-period usage vs. plan limits (Recharts), and billing history.
+Tenant-facing dashboard for the Trislab framework. Shows realtime telemetry over Server-Sent Events, current-period usage vs. plan limits (Recharts), and billing history.
 
 Built with React 19, Vite 8, TypeScript 6, TanStack Query, React Router, Tailwind 4 + shadcn/ui, and Recharts. Standalone — not part of a pnpm workspace — so it plugs into .NET Aspire as a plain `ExecutableResource`.
 
@@ -22,7 +22,7 @@ npm install --prefix clients/dashboard   # one-time
 dotnet run --project src/Host/App.AppHost
 ```
 
-Aspire dashboard exposes `fsh-dashboard` on <http://localhost:5174>.
+Aspire dashboard exposes `tl-dashboard` on <http://localhost:5174>.
 
 ### Option B — run the frontend standalone
 
@@ -68,7 +68,7 @@ To add one, add it to `docker/config.json.template` and `public/config.json`, an
 ```
 src/
 ├── api/                  # Typed API clients (billing, usage, subscription)
-├── auth/                 # JWT-backed auth (own localStorage prefix: fsh.dashboard.*)
+├── auth/                 # JWT-backed auth (own localStorage prefix: tl.dashboard.*)
 ├── components/
 │   ├── layout/           # Sidebar, Topbar, AppShell
 │   ├── sse/              # SseStatusBadge, LiveFeed
@@ -105,7 +105,7 @@ The `SseProvider` in `src/sse/sse-context.tsx` is mounted inside `AppShell`, so 
 
 ## Authentication flow
 
-Identical to the admin app: JWT in `localStorage`, `Authorization: Bearer` + `tenant` headers, single-flight refresh on 401 via `POST /api/v1/identity/token/refresh`. Keys are namespaced `fsh.dashboard.*` so both apps can run side-by-side without clobbering each other's session.
+Identical to the admin app: JWT in `localStorage`, `Authorization: Bearer` + `tenant` headers, single-flight refresh on 401 via `POST /api/v1/identity/token/refresh`. Keys are namespaced `tl.dashboard.*` so both apps can run side-by-side without clobbering each other's session.
 
 ## Production build
 

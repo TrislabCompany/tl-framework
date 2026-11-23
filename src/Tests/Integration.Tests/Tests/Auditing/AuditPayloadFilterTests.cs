@@ -89,7 +89,7 @@ public sealed class AuditPayloadFilterTests
     {
         // Arrange
         var correlationId = NewCorrelationId();
-        var exceptionType = $"FSH.Test.WidgetException_{Guid.NewGuid():N}";
+        var exceptionType = $"Trislab.Test.WidgetException_{Guid.NewGuid():N}";
         var payload = SerializeException(ExceptionArea.Api, exceptionType, "/api/v1/widgets");
         await SeedAuditRecordAsync(AuditEventType.Exception, AuditSeverity.Error, correlationId, payload);
 

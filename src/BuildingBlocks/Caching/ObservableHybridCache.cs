@@ -38,7 +38,7 @@ internal sealed class ObservableHybridCache : HybridCache
         using var activity = CachingTelemetry.ActivitySource.StartActivity(
             "cache.get_or_create",
             ActivityKind.Internal);
-        activity?.SetTag("cache.system", "fsh.hybrid");
+        activity?.SetTag("cache.system", "tl.hybrid");
         activity?.SetTag("cache.key", key);
 
         // Wrap the factory so we can record hit/miss and factory duration without allocating a
@@ -99,7 +99,7 @@ internal sealed class ObservableHybridCache : HybridCache
         using var activity = CachingTelemetry.ActivitySource.StartActivity(
             "cache.set",
             ActivityKind.Internal);
-        activity?.SetTag("cache.system", "fsh.hybrid");
+        activity?.SetTag("cache.system", "tl.hybrid");
         activity?.SetTag("cache.key", key);
 
         return _inner.SetAsync(key, value, options, tags, cancellationToken);
@@ -110,7 +110,7 @@ internal sealed class ObservableHybridCache : HybridCache
         using var activity = CachingTelemetry.ActivitySource.StartActivity(
             "cache.remove",
             ActivityKind.Internal);
-        activity?.SetTag("cache.system", "fsh.hybrid");
+        activity?.SetTag("cache.system", "tl.hybrid");
         activity?.SetTag("cache.key", key);
         CachingTelemetry.Invalidations.Add(1);
 
@@ -128,7 +128,7 @@ internal sealed class ObservableHybridCache : HybridCache
         using var activity = CachingTelemetry.ActivitySource.StartActivity(
             "cache.remove_by_tag",
             ActivityKind.Internal);
-        activity?.SetTag("cache.system", "fsh.hybrid");
+        activity?.SetTag("cache.system", "tl.hybrid");
         activity?.SetTag("cache.tag", tag);
         CachingTelemetry.Invalidations.Add(1);
 

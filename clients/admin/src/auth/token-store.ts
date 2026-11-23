@@ -1,7 +1,7 @@
-const ACCESS_KEY = "fsh.admin.accessToken";
-const REFRESH_KEY = "fsh.admin.refreshToken";
-const TENANT_KEY = "fsh.admin.tenant";
-const PERMS_KEY = "fsh.admin.permissions";
+const ACCESS_KEY = "tl.admin.accessToken";
+const REFRESH_KEY = "tl.admin.refreshToken";
+const TENANT_KEY = "tl.admin.tenant";
+const PERMS_KEY = "tl.admin.permissions";
 
 type Listener = () => void;
 

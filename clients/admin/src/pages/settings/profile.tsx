@@ -60,7 +60,7 @@ export function ProfileSettings() {
     t("profile.fallbackName");
 
   return (
-    <div className="space-y-5 fsh-enter">
+    <div className="space-y-5 tl-enter">
       {/* Avatar — presigned upload via ImageInput, no base64 data: URLs */}
       <SettingsSection
         title={t("profile.avatar.title")}
