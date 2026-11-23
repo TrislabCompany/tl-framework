@@ -58,7 +58,7 @@ front-ends. Multitenancy, auth, auditing, billing, files, chat and more are firs
 | `src/Host/App.DbMigrator` | One-shot migrate/seed runner, the init container of `api`. DB is **not** migrated at API startup. |
 | `src/Tests/` | Per-module tests, `Architecture.Tests` (NetArchTest), `Integration.Tests` (Testcontainers). |
 | `clients/admin`, `clients/dashboard` | The two React apps, each with its Dockerfile and `docker/` (nginx, `/config.json`). |
-| `packages/framework-ui` | The npm package `@trislabcompany/framework-ui`: i18n, the language switch, formatting by language. `npm test` runs in `ci / ci`. |
+| `packages/framework-ui` | The npm package `@trislabcompany/framework-ui`: i18n, the language switch, formatting by language, the Turnstile widget. `npm test` runs in `ci / ci`. |
 | `docker-compose.yml`, `.env.example` | The four images locally, without the .NET SDK. |
 | `platform.yaml`, `.github/workflows/ci.yml` | The images and app sizing for the platform; the `ci / ci` check. |
 | `.github/workflows/packages.yml` | On a release tag, publishes the NuGet and npm packages to GitHub Packages (`docs/packages.md`). |

@@ -1,7 +1,7 @@
 {
   "name": "@trislabcompany/framework-ui",
   "version": "0.1.0",
-  "description": "The shared React UI of tl-framework: i18n, the language switch, formatting by language.",
+  "description": "The shared React UI of tl-framework: i18n, the language switch, formatting by language, the Turnstile bot check.",
   "license": "MIT",
   "repository": {
     "type": "git",

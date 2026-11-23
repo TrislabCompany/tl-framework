@@ -87,9 +87,11 @@ public sealed class PlatformConfigurationTests
             ["HANGFIRE_PASSWORD"] = "hangfire",
             ["SEED_ADMIN_PASSWORD"] = "admin",
             ["SMTP_PASSWORD"] = "smtp",
+            ["TURNSTILE_SECRET_KEY"] = "turnstile",
         });
 
         configuration["JwtOptions:SigningKey"].ShouldBe("jwt");
+        configuration["TurnstileOptions:SecretKey"].ShouldBe("turnstile");
         configuration["HangfireOptions:Password"].ShouldBe("hangfire");
         configuration["Seed:DefaultAdminPassword"].ShouldBe("admin");
         configuration["MailOptions:Smtp:Password"].ShouldBe("smtp");

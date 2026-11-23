@@ -65,6 +65,7 @@ internal static class PlatformConfiguration
         Map(settings, configuration, "SMTP_USERNAME", "MailOptions:Smtp:UserName");
         Map(settings, configuration, "SMTP_PASSWORD", "MailOptions:Smtp:Password");
         Map(settings, configuration, "MAIL_FROM", "MailOptions:From");
+        Map(settings, configuration, "TURNSTILE_SECRET_KEY", "TurnstileOptions:SecretKey");
 
         configuration.AddInMemoryCollection(settings);
     }

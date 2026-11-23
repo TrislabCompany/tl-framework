@@ -20,7 +20,7 @@ The npm packages are in `packages/`, one folder each, published as `@trislabcomp
 
 | Folder | Package | What it is |
 | --- | --- | --- |
-| `packages/framework-ui` | `@trislabcompany/framework-ui` | The shared React UI: i18n, the language switch, formatting by language ([its README](../packages/framework-ui/README.md)) |
+| `packages/framework-ui` | `@trislabcompany/framework-ui` | The shared React UI: i18n, the language switch, formatting by language, the Turnstile widget ([its README](../packages/framework-ui/README.md)) |
 
 The React apps `clients/admin` and `clients/dashboard` are not packages yet; they become `framework-admin` and `framework-dashboard` later.
 
