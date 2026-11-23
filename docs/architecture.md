@@ -6,7 +6,12 @@ How the parts of the product fit together.
 
 The API is one .NET 10 process made of modules. Each module is a bounded context with its own entities, its own `DbContext` and its own endpoints under `/api/v1/<module>`, built as vertical slices: one folder per feature, with its command or query, handler, validator and endpoint. Modules talk to each other only through each other's `.Contracts` project, or through integration events with an outbox in Postgres. The building blocks in `src/BuildingBlocks` give every module the same persistence, caching, eventing, jobs, mail, storage, quotas and web conventions. [modules.md](modules.md) lists the modules.
 
-Every tenant's data is in the same database, kept apart by a tenant column that EF Core filters on in every query. A request names its tenant in the `tenant` header, and a user signs in within one tenant.
+Every tenant's data is in the same database, kept apart by a tenant column that EF Core filters on in every query. The host runs in one of two tenancy modes, set by `TenancyOptions:Mode` ([configuration.md](configuration.md#2a-tenancy-mode)):
+
+- **Multi-tenant** (the default, a SaaS product): many tenants from a tenant catalog. A request names its tenant in the `tenant` header, and a user signs in within one tenant.
+- **Single-tenant** (a webapp): one fixed tenant, set in configuration. There is no tenant catalog, sign-up, plan, quota or operator console, and a request names no tenant: the server always resolves the fixed tenant, and a token still carries its tenant claim. The data is still stamped with the tenant, so a module's code is the same in both modes.
+
+The `Tenancy` building block (`Trislab.Framework.Tenancy`) resolves the tenant and owns the event, outbox and job tenant scopes in both modes: `AddTrislabTenancy()` in `Program.cs` before the platform and the modules, and `UseTrislabTenancy()` before `UseTrislabPlatform`. The Multitenancy module adds only what a multi-tenant product needs on top: the tenant catalog behind the resolver, sign-up, the lifecycle and the operator endpoints. Every module declares the modes it supports (`IModule.SupportedTenancyModes`), and start-up refuses a module registered in a mode it doesn't support ([modules.md](modules.md#5-tenancy-modes)).
 
 ## 2. Images and apps
 
@@ -39,10 +44,10 @@ A container service keeps its data only while it runs: after a restart, the migr
 `migrator` runs before `api`, in every replica of every new revision (`src/Host/App.DbMigrator/Program.cs`):
 
 1. It waits for Postgres, then takes a Postgres advisory lock (`PostgresMigratorLock.cs`), so only one replica migrates at a time.
-2. It applies the tenant catalog's migrations, and seeds the root tenant the first time.
+2. It applies the tenant catalog's migrations, and seeds the root tenant the first time. In single-tenant mode there is no catalog: this step is skipped, and the multi-tenant-only modules (Multitenancy, Billing) are left out.
 3. It creates the storage bucket where it is missing; a stamp's storage service has already created it.
-4. For every tenant, it applies each module's migrations and the seed data: roles, groups, and the tenant's admin user. The root tenant's admin, `admin@root.com`, gets `SEED_ADMIN_PASSWORD`; without it, no admin user is seeded.
-5. Where `SEED_DEMO` is true, it seeds the demo tenants `acme` and `globex` with users, products, tickets and chat (`DemoSeed/`).
+4. For every tenant, it applies each module's migrations and the seed data: roles, groups, and the tenant's admin user. The root tenant's admin, `admin@root.com`, gets `SEED_ADMIN_PASSWORD`; without it, no admin user is seeded. In single-tenant mode it does this once, for the fixed tenant, whose admin is `TenancyOptions:SingleTenant:AdminEmail`.
+5. Where `SEED_DEMO` is true (multi-tenant mode only: the demo data is demo tenants), it seeds the demo tenants `acme` and `globex` with users, products, tickets and chat (`DemoSeed/`).
 6. It exits. Then `api` starts.
 
 The other replicas wait for the lock, find nothing left to do and exit. When the migrator fails, the new revision never becomes ready, and the previous revision keeps serving. So a revision never serves on a database it doesn't know.

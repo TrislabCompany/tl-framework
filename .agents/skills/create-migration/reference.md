@@ -6,7 +6,7 @@ The background to [SKILL.md](SKILL.md): read it when a step fails or a context i
 - Each module's migrations live in its own runtime project, folder `Migrations/`, with its `{X}DbContextModelSnapshot`; the history table `__EFMigrationsHistory` is in the module's schema. Each module began with one `Baseline`.
 - Startup project is `src/Host/App.Api`. Always pass `--project` (the module), `--context {X}DbContext` and `--output-dir Migrations`.
 - `dotnet-ef` is pinned — `dotnet tool restore` first.
-- **The DB is NOT migrated on API startup.** The `DbMigrator` host applies it: it migrates the tenant catalog (`TenantDbContext`) first, then each tenant's per-module schema, serialized by a Postgres advisory lock. (`UseTrislabMultiTenantDatabases()` only registers Finbuckle's tenant resolution — it does not run migrations.)
+- **The DB is NOT migrated on API startup.** The `DbMigrator` host applies it: it migrates the tenant catalog (`TenantDbContext`) first, then each tenant's per-module schema, serialized by a Postgres advisory lock. (`UseTrislabTenancy()` only registers Finbuckle's tenant resolution — it does not run migrations.) In single-tenant mode (`TenancyOptions:Mode`) there is no catalog: it migrates every registered module once, for the fixed tenant.
 - **Build before `migrations add`** — it reads the snapshot, which regenerates from a build; a stale snapshot silently loses changes. `migrations remove` rewrites the snapshot, so only ever remove the latest and rebuild after.
 
 ## Context names (real)

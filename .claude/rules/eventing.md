@@ -43,7 +43,7 @@ Inject **`IOutboxWriter`** (`Trislab.Framework.Eventing.Abstractions`) — the p
 
 Because rows follow the tenant connection, the dispatcher can't just poll one database. Each cycle it asks `IEventingDrainTargetProvider` for the drain targets and runs one pass per target inside `IEventingDrainScope`, which installs the tenant context **before** the scope's `EventingDbContext` is built (it captures `TenantInfo`, and with it the connection string, at construction).
 
-Defaults in BuildingBlocks are single-database (`SingleDatabaseDrainTargetProvider`, `NullEventingDrainScope`); the multitenancy module replaces them with `TenantStoreDrainTargetProvider` (default DB + one target per distinct **active** per-tenant connection string; tenants sharing a database collapse to one target) and `FinbuckleEventingDrainScope`. One unreachable tenant database is logged and skipped, not fatal to the cycle.
+Defaults in BuildingBlocks are single-database (`SingleDatabaseDrainTargetProvider`, `NullEventingDrainScope`); `AddTrislabTenancy()` (the Tenancy building block) replaces them in multi-tenant mode with `TenantStoreDrainTargetProvider` (default DB + one target per distinct **active** per-tenant connection string; tenants sharing a database collapse to one target) and `FinbuckleEventingDrainScope`; in single-tenant mode the defaults stay. The event tenant scope (`IEventTenantScope`) is also the Tenancy block's: `FinbuckleEventTenantScope` (looks the tenant up in the cache, then the catalog) or `SingleTenantEventTenantScope` (always the fixed tenant). One unreachable tenant database is logged and skipped, not fatal to the cycle.
 
 ## Multi-instance safety
 

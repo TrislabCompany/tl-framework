@@ -10,8 +10,8 @@ The same block starts the `AGENTS.md` of every Trislab repository, so an agent i
 
 - **For:** the framework of the Trislab SaaS products and webapps: the core building blocks and every reusable module, released as packages that products reference.
 - **Contains:**
-  - the core building blocks in `src/BuildingBlocks/` (`Trislab.Framework.*`);
-  - every reusable module in `src/Modules/`, with its `.Contracts` (`Trislab.Modules.*`) and its own migrations (each will declare the tenancy modes it supports, with single-tenant mode);
+  - the core building blocks in `src/BuildingBlocks/` (`Trislab.Framework.*`), among them `Tenancy`, which resolves the tenant and owns the event, outbox and job tenant scopes in both modes;
+  - every reusable module in `src/Modules/`, with its `.Contracts` (`Trislab.Modules.*`) and its own migrations (each declares the tenancy modes it supports, multi-tenant, single-tenant or both);
   - country rule packs (`*-si`), when they come;
   - the migrator, and the React apps `clients/admin` and `clients/dashboard` (later the packages `framework-admin`, `framework-dashboard` and `framework-ui`);
   - the framework's agent skills, and `docs/upstream.md`, the log of the upstream ports.
@@ -50,12 +50,12 @@ front-ends. Multitenancy, auth, auditing, billing, files, chat and more are firs
 
 | Path | What |
 |------|------|
-| `src/BuildingBlocks/` | Shared framework libraries (Core, Persistence, Web, Caching, Eventing, Storage, Quota…). **Protected — see below.** |
+| `src/BuildingBlocks/` | Shared framework libraries (Core, Persistence, Web, Caching, Eventing, Storage, Quota, Tenancy…). **Protected — see below.** |
 | `src/Modules/{Name}/` | Bounded contexts. Each has a runtime project + a `.Contracts` project (its only public API), and ships its own EF migrations in `Migrations/`. |
 | `src/Samples/{Name}/` | The samples Catalog, Tickets and Chat, with their tests: patterns to copy, not part of the framework. Never packed; nothing in `src/BuildingBlocks` or `src/Modules` may reference them. They move to `tl-product-saas`. |
 | `src/Host/App.Api` | Composition-root Web API host. `Platform/PlatformConfiguration.cs` maps the platform's settings onto options. |
 | `src/Host/App.AppHost` | .NET Aspire orchestrator (Postgres, Valkey, rustfs storage, migrator, API, **both React apps**). |
-| `src/Host/App.DbMigrator` | One-shot migrate/seed runner, the init container of `api`. DB is **not** migrated at API startup. |
+| `src/Host/App.DbMigrator` | One-shot migrate/seed runner, the init container of `api`; mode-aware (no tenant catalog in single-tenant mode). DB is **not** migrated at API startup. |
 | `src/Tests/` | Per-module tests, `Architecture.Tests` (NetArchTest), `Integration.Tests` (Testcontainers). |
 | `clients/admin`, `clients/dashboard` | The two React apps, each with its Dockerfile and `docker/` (nginx, `/config.json`). |
 | `packages/framework-ui` | The npm package `@trislabcompany/framework-ui`: i18n, the language switch, formatting by language, the Turnstile widget. `npm test` runs in `ci / ci`. |

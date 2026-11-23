@@ -36,6 +36,9 @@ namespace Trislab.Modules.{Name};
 
 public sealed class {Name}Module : IModule
 {
+    // Required: TenancyModes.All, or Multitenant when the module needs the tenant catalog.
+    public TenancyModes SupportedTenancyModes => TenancyModes.All;
+
     public void ConfigureServices(IHostApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
@@ -166,7 +169,7 @@ Then call one endpoint and confirm its handler runs: a missing Mediator marker c
 
 - [ ] Two projects (copied csproj), added to `.slnx`, referenced from Api + DbMigrator (+ Migrations)
 - [ ] `[assembly: TrislabModule(typeof({Name}Module), order)]` (assembly-level, positional)
-- [ ] `IModule`: `AddTrislabDbContext<T>()`, `PermissionConstants.Register`, version-set group, eventing trio if needed
+- [ ] `IModule`: `SupportedTenancyModes`, `AddTrislabDbContext<T>()`, `PermissionConstants.Register`, version-set group, eventing trio if needed
 - [ ] `{Name}DbContext : BaseDbContext`, 4-arg ctor, `base.OnModelCreating` last
 - [ ] `{Name}Permissions` in Contracts/Authorization
 - [ ] `Localization/{Name}Resources.cs` marker + `{Name}Resources.resx` (English; pt-BR optional), `S2094` in `<NoWarn>`

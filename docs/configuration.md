@@ -52,6 +52,20 @@ Secrets arrive as ordinary environment variables too: the platform reads them fr
 
 `SEED_DEMO` seeds the demo tenants `acme` and `globex`, and the account `superadmin@root.com`, all with the public password `Password123!`. Set it only in an Environment with no real data, such as a sandbox's `dev` or a `demo`.
 
+## 2a. Tenancy mode
+
+The tenancy mode is not a platform setting: it comes from the starter the app was copied from, and is read from the options `TenancyOptions` (appsettings, or the environment variables `TenancyOptions__Mode` and so on). `Program.cs` reads it through `AddTrislabTenancy()`; no other code reads the environment.
+
+| Option | Values | Meaning |
+| --- | --- | --- |
+| `TenancyOptions:Mode` | `Multitenant` (default), `SingleTenant` | `Multitenant`: many tenants from the tenant catalog (a SaaS product). `SingleTenant`: one fixed tenant (a webapp) |
+| `TenancyOptions:SingleTenant:Id` | 1 to 64 lower-case letters, digits or hyphens; not `root` | The tenant id, stamped on every row and carried in the token's `tenant` claim |
+| `TenancyOptions:SingleTenant:Name` | Text | The organisation's name |
+| `TenancyOptions:SingleTenant:Country` | ISO 3166-1 alpha-2, such as `SI` | Selects the country rule pack |
+| `TenancyOptions:SingleTenant:AdminEmail` | An e-mail address | The first administrator, seeded by the migrator with `SEED_ADMIN_PASSWORD` |
+
+The `SingleTenant` values are required, and checked at start-up, only in single-tenant mode. In that mode the API and the migrator register no tenant catalog and leave out the multi-tenant-only modules (Multitenancy, Billing); a module that does not support the mode, listed by hand, stops the start-up with a message that names it. The quota service is the no-op one, and the quota middleware is not added. Sign-in, refresh and the password endpoints take no `tenant` header. Set the same values for `api` and `migrator`.
+
 ## 3. `/config.json`
 
 The browser can't read environment variables, so when a front end starts, `docker/docker-entrypoint.sh` writes `/config.json` from `docker/config.json.template`. Each `${PLATFORM_*}` and `${PUBLIC_*}` in the template becomes that setting's value, or `""` when it is unset; the script refuses a template that names any other setting. In `clients/dashboard`:

@@ -6,7 +6,7 @@ paths:
 
 # Module: Notifications
 
-Per-user in-app inbox (bell icon) driven by cross-module integration events, with live SignalR push. Module `Order = 750` (**before Chat 800** so its handlers are registered before Chat publishes).
+Per-user in-app inbox (bell icon) driven by cross-module integration events, with live SignalR push. Supports both tenancy modes (`TenancyModes.All`) and references no multi-tenant-only module's runtime or `Multitenancy.Contracts`. The tenant-expiry e-mails are sent by the Multitenancy module, not here; the invoice e-mail (`InvoiceIssuedEmailHandler`) stays, and is inert without Billing. Module `Order = 750` (**before Chat 800** so its handlers are registered before Chat publishes).
 
 **Entities / DbContext:** `Notification` (aggregate: `UserId`, `Type`, `Title`/`Body`/`Link`, `Source`, `MetadataJson`, `ReadAtUtc`). `NotificationsDbContext`. Any module asks for a notification by publishing `UserNotificationRequestedIntegrationEvent` (in `Modules.Notifications.Contracts`, Events) with its own type, title, body, link and metadata; Chat does for a mention. Notifications references no publisher, so it never depends on a sample.
 **Areas:** List, GetUnreadCount, MarkRead, MarkAllRead. Full list: `Features/v1/` or `/scalar`.
