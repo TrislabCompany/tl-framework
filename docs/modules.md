@@ -93,4 +93,25 @@ InvoiceDocuments holds no law. Every legal decision is asked of a rule pack, one
 | The extra text printed above and below the lines | `GetLayoutAdditions` |
 | How long an issued document must be kept | `RetentionYears` |
 
-A pack is its own package (for example `invoice-documents-si` for Slovenia, a later item) that references the Contracts project and registers `services.AddSingleton<IInvoiceDocumentsRulePack, MyPack>()`. The pack that applies is the one whose `CountryCode` matches the country in the tenant's business details (the issuer profile). A tenant with no business details, or whose country has no installed pack, cannot create a document. The module's own integration tests use a made-up country, `ZZ` (`TestInvoiceRulePack`). `.claude/rules/modules/invoice-documents.md` has the rest.
+A pack is its own package (`Trislab.Modules.InvoiceDocuments.Si` for Slovenia, [section 7](#7-the-slovenian-pack)) that references the Contracts project and registers `services.AddSingleton<IInvoiceDocumentsRulePack, MyPack>()`. The pack that applies is the one whose `CountryCode` matches the country in the tenant's business details (the issuer profile). A tenant with no business details, or whose country has no installed pack, cannot create a document. The module's own integration tests use a made-up country, `ZZ` (`TestInvoiceRulePack`). `.claude/rules/modules/invoice-documents.md` has the rest.
+
+## 7. The Slovenian pack
+
+`Trislab.Modules.InvoiceDocuments.Si` (`src/Modules/InvoiceDocuments/Modules.InvoiceDocuments.Si`) is the rule pack for tenants whose country is `SI`. A product that serves Slovenian tenants references the package and calls `services.AddInvoiceDocumentsSi()` next to the module's registration. It is released with the framework's one version, but holds only law, so a change in the law is a change in this package.
+
+| Rule | What the pack does |
+| --- | --- |
+| VAT rates | Tax codes `S` (22 %), `R1` (9.5 %) and `R2` (5 %), looked up by the date of the document (`SiVat`) |
+| Zero rate | `Z`: no VAT, with a note |
+| Reverse charge | `RC`: no VAT, the note "Obrnjena davčna obveznost", and the customer's VAT number is required |
+| Exemption | `E:<legal reference>`, for example `E:42. člen ZDDV-1`: no VAT, the reference in the note |
+| Not registered for VAT | An issuer whose tax number has no `SI` prefix charges no VAT whatever the code, and the note cites article 94(1) ZDDV-1 |
+| Required content | The issuer's name, address and valid tax number, the customer's name and address, a valid Slovenian tax number of a Slovenian customer, the reference of a credit note; a quote or a pro forma invoice needs less |
+| Tax number | Eight digits, modulus 11 check digit; the VAT number is `SI` and the tax number |
+| Numbering | A series per type and year, `PON`, `PRE`, `RAC`, `DOB`, `AVA`, for example `RAC-2026-00001` |
+| Printed text | The taxable amount and the VAT for each rate, each legal note once, "Dobropis k računu št. ..." on a credit note, and a note on a pro forma invoice |
+| Retention | 10 years (ZDDV-1, article 86). Real-estate invoices are 20 years: the core asks for one number, so a product that issues them reads `SlovenianRulePack.RetentionYearsRealEstate` |
+
+The per-tenant settings are the tenant's business details (the country and the tax number with or without `SI`) and the tax code of each item or line; the pack has no setting of its own. The rates, their dates and the notes are data in `SiVat.cs`; they are to be reviewed with an accountant before a product goes live.
+
+Not in the pack yet: the UPN QR code on the PDF and the eSLOG export (they need a place in the core to draw a code and to add an export format), and sending through an e-route provider or Peppol (P2).

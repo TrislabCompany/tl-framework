@@ -12,7 +12,7 @@ The same block starts the `AGENTS.md` of every Trislab repository, so an agent i
 - **Contains:**
   - the core building blocks in `src/BuildingBlocks/` (`Trislab.Framework.*`), among them `Tenancy`, which resolves the tenant and owns the event, outbox and job tenant scopes in both modes;
   - every reusable module in `src/Modules/`, with its `.Contracts` (`Trislab.Modules.*`) and its own migrations (each declares the tenancy modes it supports, multi-tenant, single-tenant or both);
-  - country rule packs (`*-si`), when they come;
+  - country rule packs (`*-si`), the first being `Modules.InvoiceDocuments.Si`;
   - the migrator, and the React apps `clients/admin` and `clients/dashboard` (later the packages `framework-admin`, `framework-dashboard` and `framework-ui`);
   - the framework's agent skills, and `docs/upstream.md`, the log of the upstream ports.
   - Until `tl-product-saas` exists, also the hosts and the samples Catalog, Tickets and Chat (`src/Samples/`), which move there.
