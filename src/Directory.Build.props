@@ -44,9 +44,9 @@
 		<IsPackable>false</IsPackable>
 
 		<!-- Package metadata, the same for every package. -->
-		<Authors>Trislab</Authors>
-		<Company>Trislab</Company>
-		<Copyright>Copyright (c) 2026 Trislab. All rights reserved.</Copyright>
+		<Authors>Trislab d.o.o.</Authors>
+		<Company>Trislab d.o.o.</Company>
+		<Copyright>Copyright (c) 2026 Trislab d.o.o. All rights reserved.</Copyright>
 		<!-- Proprietary (LICENSE); THIRD-PARTY-NOTICES.md keeps the notices of the open-source code it derives from. -->
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>

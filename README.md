@@ -105,4 +105,4 @@ Every base image is pinned by digest. Renovate will keep the versions current; u
 
 ## Licence
 
-Proprietary: [LICENSE](LICENSE). The code is public to read, but only Trislab, and the clients of the applications Trislab delivers under a written agreement, may use it. Copying, forking for use, and redistribution are not allowed. The open-source code it is derived from keeps its own licence: [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), which every package ships with.
+Proprietary: [LICENSE](LICENSE). The code is public to read, but it belongs to Trislab d.o.o., and only Trislab, and the clients of the applications Trislab delivers under a written agreement, may use it. Cloning or forking it for use, copying, redistribution and training AI models on it are not allowed. The open-source code it is derived from keeps its own licence: [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), which every package ships with.
