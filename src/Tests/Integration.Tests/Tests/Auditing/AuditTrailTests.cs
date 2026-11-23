@@ -2,13 +2,13 @@ using Integration.Tests.Infrastructure;
 
 namespace Integration.Tests.Tests.Auditing;
 
-[Collection(TrislabCollectionDefinition.Name)]
-public sealed class AuditTrailTests
+/// <summary>Runs in both tenancy modes: see <see cref="AuditTrailTests"/> and <see cref="AuditTrailTestsInSingleTenantMode"/>.</summary>
+public abstract class AuditTrailTestsBase
 {
     private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public AuditTrailTests(TrislabWebApplicationFactory factory)
+    protected AuditTrailTestsBase(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -51,10 +51,16 @@ public sealed class AuditTrailTests
     public async Task GetAudits_Should_Return401_When_NotAuthenticated()
     {
         using var client = _factory.CreateClient();
-        client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
+        client.DefaultRequestHeaders.Add("tenant", _factory.TenantId);
 
         var response = await client.GetAsync($"{TestConstants.AuditsBasePath}?pageNumber=1&pageSize=10");
 
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 }
+
+[Collection(TrislabCollectionDefinition.Name)]
+public sealed class AuditTrailTests(TrislabWebApplicationFactory factory) : AuditTrailTestsBase(factory);
+
+[Collection(SingleTenantCollectionDefinition.Name)]
+public sealed class AuditTrailTestsInSingleTenantMode(SingleTenantWebApplicationFactory factory) : AuditTrailTestsBase(factory);

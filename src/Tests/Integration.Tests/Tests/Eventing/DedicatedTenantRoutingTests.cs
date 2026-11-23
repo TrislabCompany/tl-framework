@@ -14,6 +14,7 @@ using Trislab.Modules.Catalog.Data;
 using Trislab.Modules.Catalog.Domain;
 using Trislab.Modules.Files.Contracts.Events;
 using Trislab.Modules.Multitenancy.Data;
+using Trislab.Framework.Tenancy;
 using Trislab.Modules.Multitenancy.Services;
 using Trislab.Modules.Webhooks.Data;
 using Trislab.Modules.Webhooks.Domain;

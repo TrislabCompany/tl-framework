@@ -30,6 +30,7 @@
 		<ProjectReference Include="..\..\BuildingBlocks\Quota\Quota.csproj" />
 		<ProjectReference Include="..\..\BuildingBlocks\Shared\Shared.csproj" />
 		<ProjectReference Include="..\..\BuildingBlocks\Storage\Storage.csproj" />
+		<ProjectReference Include="..\..\BuildingBlocks\Tenancy\Tenancy.csproj" />
 		<ProjectReference Include="..\..\BuildingBlocks\Web\Web.csproj" />
 	</ItemGroup>
 

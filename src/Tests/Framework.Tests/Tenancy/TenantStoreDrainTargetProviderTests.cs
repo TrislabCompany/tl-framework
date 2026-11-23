@@ -1,11 +1,11 @@
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
-using Trislab.Modules.Multitenancy.Services;
+using Trislab.Framework.Tenancy;
 using NSubstitute;
 using Shouldly;
 using Xunit;
 
-namespace Multitenancy.Tests;
+namespace Framework.Tests.Tenancy;
 
 public class TenantStoreDrainTargetProviderTests
 {

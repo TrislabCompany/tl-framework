@@ -17,15 +17,15 @@ namespace Integration.Tests.Tests.Notifications;
 /// — this file seeds rows directly via the DbContext and focuses on the read/mark-read surface so
 /// edge cases (cross-user MarkRead, idempotency, unread filter, paging) are explicit.
 /// </summary>
-[Collection(TrislabCollectionDefinition.Name)]
-public sealed class NotificationsEndpointTests
+/// <summary>Runs in both tenancy modes: see <see cref="NotificationsEndpointTests"/> and <see cref="NotificationsEndpointTestsInSingleTenantMode"/>.</summary>
+public abstract class NotificationsEndpointTestsBase
 {
     private const string NotificationsBasePath = "/api/v1/notifications";
 
     private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public NotificationsEndpointTests(TrislabWebApplicationFactory factory)
+    protected NotificationsEndpointTestsBase(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -37,7 +37,7 @@ public sealed class NotificationsEndpointTests
     public async Task ListNotifications_Should_Return401_When_Unauthenticated()
     {
         using var client = _factory.CreateClient();
-        client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
+        client.DefaultRequestHeaders.Add("tenant", _factory.TenantId);
 
         using var response = await client.GetAsync($"{NotificationsBasePath}/");
 
@@ -48,7 +48,7 @@ public sealed class NotificationsEndpointTests
     public async Task GetUnreadCount_Should_Return401_When_Unauthenticated()
     {
         using var client = _factory.CreateClient();
-        client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
+        client.DefaultRequestHeaders.Add("tenant", _factory.TenantId);
 
         using var response = await client.GetAsync($"{NotificationsBasePath}/unread-count");
 
@@ -59,7 +59,7 @@ public sealed class NotificationsEndpointTests
     public async Task MarkNotificationRead_Should_Return401_When_Unauthenticated()
     {
         using var client = _factory.CreateClient();
-        client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
+        client.DefaultRequestHeaders.Add("tenant", _factory.TenantId);
 
         using var response = await client.PostAsync(
             $"{NotificationsBasePath}/{Guid.NewGuid()}/read", content: null);
@@ -71,7 +71,7 @@ public sealed class NotificationsEndpointTests
     public async Task MarkAllNotificationsRead_Should_Return401_When_Unauthenticated()
     {
         using var client = _factory.CreateClient();
-        client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
+        client.DefaultRequestHeaders.Add("tenant", _factory.TenantId);
 
         using var response = await client.PostAsync($"{NotificationsBasePath}/read-all", content: null);
 
@@ -386,7 +386,7 @@ public sealed class NotificationsEndpointTests
     {
         using var scope = _factory.Services.CreateScope();
         var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-        var tenant = await tenantStore.GetAsync(TestConstants.RootTenantId);
+        var tenant = await tenantStore.GetAsync(_factory.TenantId);
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
             new MultiTenantContext<AppTenantInfo>(tenant);
 
@@ -421,7 +421,7 @@ public sealed class NotificationsEndpointTests
         {
             using var scope = _factory.Services.CreateScope();
             var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-            var tenant = await tenantStore.GetAsync(TestConstants.RootTenantId);
+            var tenant = await tenantStore.GetAsync(_factory.TenantId);
             scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
                 new MultiTenantContext<AppTenantInfo>(tenant);
 
@@ -461,3 +461,9 @@ public sealed class NotificationsEndpointTests
         return await response.DeserializeAsync<int>();
     }
 }
+
+[Collection(TrislabCollectionDefinition.Name)]
+public sealed class NotificationsEndpointTests(TrislabWebApplicationFactory factory) : NotificationsEndpointTestsBase(factory);
+
+[Collection(SingleTenantCollectionDefinition.Name)]
+public sealed class NotificationsEndpointTestsInSingleTenantMode(SingleTenantWebApplicationFactory factory) : NotificationsEndpointTestsBase(factory);

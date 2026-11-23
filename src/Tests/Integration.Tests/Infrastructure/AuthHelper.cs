@@ -19,10 +19,11 @@ public sealed class AuthHelper
 
     public Task<TokenResult> GetRootAdminTokenAsync(CancellationToken ct = default)
     {
+        // The root admin in multi-tenant mode, the fixed tenant's admin in single-tenant mode.
         return GetTokenAsync(
-            TestConstants.RootAdminEmail,
+            _factory.AdminEmail,
             TestConstants.DefaultPassword,
-            TestConstants.RootTenantId,
+            _factory.TenantId,
             ct);
     }
 
@@ -51,7 +52,7 @@ public sealed class AuthHelper
         var client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", token.AccessToken);
-        client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
+        client.DefaultRequestHeaders.Add("tenant", _factory.TenantId);
         return client;
     }
 

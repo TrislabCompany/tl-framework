@@ -5,13 +5,13 @@ using Integration.Tests.Infrastructure.Extensions;
 
 namespace Integration.Tests.Tests.Files;
 
-[Collection(TrislabCollectionDefinition.Name)]
-public sealed class RequestAndFinalizeUploadTests
+/// <summary>Runs in both tenancy modes: see <see cref="RequestAndFinalizeUploadTests"/> and <see cref="RequestAndFinalizeUploadTestsInSingleTenantMode"/>.</summary>
+public abstract class RequestAndFinalizeUploadTestsBase
 {
     private const string FilesBasePath = "/api/v1/files";
     private readonly AuthHelper _auth;
 
-    public RequestAndFinalizeUploadTests(TrislabWebApplicationFactory factory)
+    protected RequestAndFinalizeUploadTestsBase(TrislabWebApplicationFactory factory)
     {
         _auth = new AuthHelper(factory);
     }
@@ -147,3 +147,9 @@ public sealed class RequestAndFinalizeUploadTests
         return presigned.FileAssetId;
     }
 }
+
+[Collection(TrislabCollectionDefinition.Name)]
+public sealed class RequestAndFinalizeUploadTests(TrislabWebApplicationFactory factory) : RequestAndFinalizeUploadTestsBase(factory);
+
+[Collection(SingleTenantCollectionDefinition.Name)]
+public sealed class RequestAndFinalizeUploadTestsInSingleTenantMode(SingleTenantWebApplicationFactory factory) : RequestAndFinalizeUploadTestsBase(factory);

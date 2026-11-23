@@ -3,13 +3,13 @@ using Integration.Tests.Infrastructure.Extensions;
 
 namespace Integration.Tests.Tests.Webhooks;
 
-[Collection(TrislabCollectionDefinition.Name)]
-public sealed class WebhookSubscriptionTests
+/// <summary>Runs in both tenancy modes: see <see cref="WebhookSubscriptionTests"/> and <see cref="WebhookSubscriptionTestsInSingleTenantMode"/>.</summary>
+public abstract class WebhookSubscriptionTestsBase
 {
     private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public WebhookSubscriptionTests(TrislabWebApplicationFactory factory)
+    protected WebhookSubscriptionTestsBase(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
@@ -89,7 +89,7 @@ public sealed class WebhookSubscriptionTests
     public async Task CreateWebhookSubscription_Should_Return401_When_NotAuthenticated()
     {
         using var client = _factory.CreateClient();
-        client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
+        client.DefaultRequestHeaders.Add("tenant", _factory.TenantId);
 
         var response = await client.PostAsJsonAsync(
             $"{TestConstants.WebhooksBasePath}/subscriptions", new
@@ -102,3 +102,9 @@ public sealed class WebhookSubscriptionTests
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 }
+
+[Collection(TrislabCollectionDefinition.Name)]
+public sealed class WebhookSubscriptionTests(TrislabWebApplicationFactory factory) : WebhookSubscriptionTestsBase(factory);
+
+[Collection(SingleTenantCollectionDefinition.Name)]
+public sealed class WebhookSubscriptionTestsInSingleTenantMode(SingleTenantWebApplicationFactory factory) : WebhookSubscriptionTestsBase(factory);
