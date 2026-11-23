@@ -16,7 +16,7 @@ namespace Architecture.Tests;
 public sealed class TenancyModesTests
 {
     /// <summary>The modules that need a tenant catalog. Adding to this list is a design decision: say why in the PR.</summary>
-    private static readonly string[] MultitenantOnly = ["SubscriptionsUsageModule", "MultitenancyModule"];
+    private static readonly string[] MultitenantOnly = ["MultitenancyModule", "SubscriptionsUsageModule"];
 
     private static readonly string[] MultitenantOnlyAssemblies =
         ["Trislab.Modules.Multitenancy", "Trislab.Modules.Multitenancy.Contracts"];
@@ -60,7 +60,7 @@ public sealed class TenancyModesTests
     }
 
     [Fact]
-    public void OnlyTheTenantCatalogAndBilling_Should_BeMultitenantOnly()
+    public void OnlyTheTenantCatalogAndSubscriptionsUsage_Should_BeMultitenantOnly()
     {
         var multitenantOnly = Modules()
             .Where(m => !m.Module.SupportedTenancyModes.Supports(TenancyMode.SingleTenant))
