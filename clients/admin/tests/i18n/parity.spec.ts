@@ -2,10 +2,10 @@ import { expect, test } from "@playwright/test";
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-// en-US is the source catalog; sl-SI is a translation that may lag behind it. A key (or a whole
-// namespace file) sl-SI lacks is fine: it renders in English at runtime (fallback-chain.spec.ts).
-// What breaks the UI is a sl-SI key nothing renders (an orphan, usually a renamed or deleted
-// en-US key) and a translation whose placeholders drift from the English, so those two fail here.
+// en-US is the source catalog, and every text ships in sl-SI too: a key sl-SI lacks fails here
+// (and in Architecture.Tests' FrontEndCatalogParityTests, which runs in ci), although at runtime it
+// would render in English (fallback-chain.spec.ts). Also failing: a sl-SI key nothing renders (an
+// orphan, usually a renamed or deleted en-US key) and a translation whose placeholders drift.
 // Read via fs (cwd = the admin app dir) to avoid ESM JSON import-attribute rules.
 const readCatalog = (locale: string, ns: string): Record<string, string> =>
   JSON.parse(readFileSync(path.resolve("src/locales", locale, `${ns}.json`), "utf8"));
@@ -46,6 +46,13 @@ test.describe("catalog parity", () => {
   test("every sl-SI catalog file has an en-US counterpart", () => {
     expect(catalogFiles("sl-SI").filter((ns) => !namespaces.includes(ns))).toEqual([]);
   });
+
+  for (const ns of namespaces) {
+    test(`${ns}: sl-SI translates every en-US key`, () => {
+      const sl = readTranslation(ns);
+      expect(Object.keys(readCatalog("en-US", ns)).filter((key) => !(key in sl))).toEqual([]);
+    });
+  }
 
   for (const ns of namespaces) {
     test(`${ns}: sl-SI has no key en-US lacks`, () => {

@@ -69,6 +69,7 @@ Every base image is pinned by digest. Renovate will keep the versions current; u
 | --- | --- |
 | `src/BuildingBlocks/` | The shared framework every module uses: persistence, caching, eventing, jobs, mail, storage, quotas, web |
 | `src/Modules/` | One folder per module, each with a runtime project, its migrations, and a `.Contracts` project ([modules.md](docs/modules.md)) |
+| `packages/` | The npm packages, starting with `framework-ui` ([packages.md](docs/packages.md)) |
 | `src/Samples/` | The samples Catalog, Tickets and Chat, with their tests: patterns to copy, never packed, and moving to `tl-product-saas` |
 | `src/Host/` | `App.Api` with `Platform/PlatformConfiguration.cs`; `App.DbMigrator`, the init container of `api`; `App.AppHost` for local runs |
 | `src/Tests/` | `Architecture.Tests`, a test project per module and building block, and `Integration.Tests` |

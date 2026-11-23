@@ -17,11 +17,12 @@ namespace Architecture.Tests;
 /// test at all. This closes that class of gap: a new module catalog is covered the moment
 /// its assembly lands in the output, with no new test to write.
 ///
-/// A translation is optional: a key missing from a translated catalog falls back to the
-/// neutral (English) string at runtime, so a contributor never has to write Slovenian to
-/// get a green build. What fails is a translated key the neutral catalog does not declare
-/// (an orphan left by a rename or delete, which never resolves) and a translation whose
-/// `{n}` placeholders differ from the neutral string.
+/// Every supported language is complete: the framework ships English and Slovenian, and a
+/// product's first launches are Slovenian, so a key missing from a translated catalog fails
+/// the build (Every_Neutral_Key_Has_A_Translation_In_Every_Supported_Language) rather than
+/// showing English at run time. Also failing: a translated key the neutral catalog does not
+/// declare (an orphan left by a rename or delete, which never resolves) and a translation
+/// whose `{n}` placeholders differ from the neutral string.
 /// </summary>
 public sealed class CatalogParityTests
 {
@@ -168,8 +169,41 @@ public sealed class CatalogParityTests
         }
 
         violations.ShouldBeEmpty(
-            "A translated resx catalog may omit keys (they fall back to English), but it must not " +
-            "declare a key the neutral catalog lacks, nor change a message's placeholders. " +
+            "A translated resx catalog must not declare a key the neutral catalog lacks, " +
+            "nor change a message's placeholders. " +
             "Violations:\n  " + string.Join("\n  ", violations));
+    }
+
+    [Fact]
+    public void Every_Neutral_Key_Has_A_Translation_In_Every_Supported_Language()
+    {
+        var violations = new List<string>();
+
+        foreach (var marker in DiscoverCatalogMarkers())
+        {
+            var manager = new ResourceManager(marker);
+            var neutral = OwnEntries(manager, CultureInfo.InvariantCulture);
+            if (neutral is null) continue;
+
+            foreach (var tag in SupportedCultures.Tags)
+            {
+                if (tag == SupportedCultures.Default) continue;
+
+                var translated = OwnEntries(manager, new CultureInfo(tag));
+                var missing = neutral.Keys
+                    .Where(key => translated is null || !translated.ContainsKey(key))
+                    .OrderBy(key => key, StringComparer.Ordinal)
+                    .ToList();
+
+                if (missing.Count > 0)
+                {
+                    violations.Add($"{marker.FullName} [{tag}]: {missing.Count} key(s) not translated: {string.Join(", ", missing)}");
+                }
+            }
+        }
+
+        violations.ShouldBeEmpty(
+            "Every text ships in every supported language. Add the missing keys to the " +
+            "*.<tag>.resx beside the neutral catalog. Violations:\n  " + string.Join("\n  ", violations));
     }
 }
