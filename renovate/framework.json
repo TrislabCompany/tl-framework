@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Framework upgrades for a product built on tl-framework (docs/packages.md section 3): every Trislab package in one pull request per framework version; a patch merges itself once CI passes, a minor or major waits for review.",
+  "packageRules": [
+    {
+      "matchPackageNames": ["Trislab.Framework.**", "Trislab.Modules.**", "@trislabcompany/framework-**"],
+      "groupName": "tl-framework",
+      "groupSlug": "tl-framework",
+      "separateMajorMinor": true,
+      "separateMinorPatch": true
+    },
+    {
+      "matchPackageNames": ["Trislab.Framework.**", "Trislab.Modules.**", "@trislabcompany/framework-**"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+    {
+      "matchPackageNames": ["Trislab.Framework.**", "Trislab.Modules.**", "@trislabcompany/framework-**"],
+      "matchUpdateTypes": ["minor", "major"],
+      "automerge": false
+    }
+  ]
+}

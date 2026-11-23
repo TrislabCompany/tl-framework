@@ -36,9 +36,22 @@
 	</ItemGroup>
 
 	<PropertyGroup>
-		<!-- The product's version, shown by GET /api/health/info. Nothing is packed:
-		     modules and building blocks are used as source, through project references. -->
+		<!-- The framework's one lockstep version, shown by GET /api/health/info. A release passes the
+		     tag's version (-p:Version=X.Y.Z); this is the version of an untagged build. -->
 		<Version>0.1.0</Version>
+		<!-- Only src/BuildingBlocks and src/Modules are packed (their own Directory.Build.props);
+		     the hosts, the samples and the tests never are. See docs/packages.md. -->
 		<IsPackable>false</IsPackable>
+
+		<!-- Package metadata, the same for every package. -->
+		<Authors>Trislab</Authors>
+		<Company>Trislab</Company>
+		<Copyright>Copyright (c) 2021-2026 fullstackhero; Trislab</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/TrislabCompany/tl-framework</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/TrislabCompany/tl-framework</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<Description>Part of tl-framework, the framework of the Trislab SaaS products and webapps.</Description>
+		<PackageTags>trislab;tl-framework</PackageTags>
 	</PropertyGroup>
 </Project>

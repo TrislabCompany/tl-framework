@@ -23,7 +23,7 @@ The same block starts the `AGENTS.md` of every Trislab repository, so an agent i
   - a reusable infrastructure module, stamp template or app workflow: `tl-platform`;
   - a repository, environment or hostname: `tl-cloud-infrastructure`;
   - a product idea, plan, decision or hand-off plan: `tl-product-ideas` (private).
-- **Released as:** one lockstep train `vX.Y.Z` of NuGet and npm packages on GitHub Packages, from `v0.1.0` (not published yet). Both starters deploy each release to the sandbox and smoke-test it, which is the gate.
+- **Released as:** one lockstep train `vX.Y.Z` of NuGet and npm packages on GitHub Packages, from `v0.1.0` (not published yet; `docs/packages.md`). Both starters deploy each release to the sandbox and smoke-test it, which is the gate.
 - **Skills:** `.agents/skills/`, listed under [AI tooling resources](#ai-tooling-resources).
 - **Scripts:** `scripts/`, listed with when to use each in [`scripts/README.md`](scripts/README.md); read it first. Each script prints its help with `pwsh <script> -?`.
 
@@ -61,7 +61,8 @@ front-ends. Multitenancy, auth, auditing, billing, files, chat and more are firs
 | `docker-compose.yml`, `.env.example` | The four images locally, without the .NET SDK. |
 | `platform.yaml`, `.github/workflows/ci.yml` | The images and app sizing for the platform; the `ci / ci` check. |
 | `scripts/` | Scripts for repetitive work, listed in `scripts/README.md` (porting fullstackhero commits). |
-| `docs/` | How the repository works on the platform: getting started, architecture, configuration, deployment, modules. |
+| `docs/` | How the repository works on the platform: getting started, architecture, configuration, deployment, modules, packages. |
+| `renovate/framework.json` | The Renovate preset products extend for framework upgrades (`docs/packages.md`). |
 
 ## Tech stack
 

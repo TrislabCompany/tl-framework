@@ -97,4 +97,5 @@ Every base image is pinned by digest. Renovate will keep the versions current; u
 - [Configuration](docs/configuration.md): the settings and secrets, `PlatformConfiguration.cs`, `/config.json`, the `/api` and `/storage` upstreams, and how to add a setting or a secret.
 - [Deployment](docs/deployment.md): Environments, deploy, release and promote, migrations, `platform.yaml` and the caps, choosing a backing service, and how to ask for more. Section 8: the steps for developers.
 - [Modules](docs/modules.md): each module, how to add or delete one, and what `Architecture.Tests` enforces.
+- [Packages](docs/packages.md): what is packed, the package names, the one framework version, and how a product references the packages and upgrades them.
 - [Upstream](docs/upstream.md): how the platform team syncs each fullstackhero commit, and the status of every commit since `10.0.0`.

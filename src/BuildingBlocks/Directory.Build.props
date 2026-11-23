@@ -1,0 +1,19 @@
+<Project>
+	<!-- Every building block is packed as Trislab.Framework.<Name> (its AssemblyName) and published
+	     at the framework's one lockstep version. See docs/packages.md. -->
+	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+	<PropertyGroup>
+		<IsPackable>true</IsPackable>
+		<!-- NU5104: OpenTelemetry's EF Core and Redis instrumentation are published only as betas, so a
+		     stable framework package depends on a prerelease. Accepted until they are stable. -->
+		<NoWarn>$(NoWarn);NU5104</NoWarn>
+
+		<!-- Debugging into a package: the PDB is embedded and the sources are linked to the commit.
+		     GitHub Packages takes no symbol packages. -->
+		<DebugType>embedded</DebugType>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+</Project>
