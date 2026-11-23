@@ -18,7 +18,7 @@
 		<ProjectReference Include="..\..\..\BuildingBlocks\Eventing\Eventing.csproj" />
 		<ProjectReference Include="..\..\..\BuildingBlocks\Mailing\Mailing.csproj" />
 		<ProjectReference Include="..\Modules.Notifications.Contracts\Modules.Notifications.Contracts.csproj" />
-		<ProjectReference Include="..\..\Billing\Modules.Billing.Contracts\Modules.Billing.Contracts.csproj" />
+		<ProjectReference Include="..\..\SubscriptionsUsage\Modules.SubscriptionsUsage.Contracts\Modules.SubscriptionsUsage.Contracts.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

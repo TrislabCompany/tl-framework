@@ -154,7 +154,7 @@ dotnet run --project src/Host/App.DbMigrator -- list-pending
 | Unit test conventions, what to test, NetArchTest | `testing.md` |
 | Integration tests (Testcontainers harness + gotchas) | `integration-testing.md` |
 | **Modifying `src/BuildingBlocks`** (read first — it's protected) | `buildingblocks-protection.md` |
-| A specific module's quirks | `modules/{module}.md` (identity, multitenancy, chat, files, webhooks, auditing, billing, catalog, tickets, notifications) |
+| A specific module's quirks | `modules/{module}.md` (identity, multitenancy, chat, files, webhooks, auditing, subscriptions-usage, catalog, tickets, notifications) |
 
 **Frontend** (`.claude/rules/frontend/`)
 

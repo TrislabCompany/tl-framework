@@ -14,7 +14,7 @@ The samples Catalog, Tickets and Chat are in `src/Samples/`, with their tests be
 | Multitenancy | The tenant catalog, sign-up and a tenant's provisioning, activation and plan, its theme, and the tenant-expiry e-mails. Multi-tenant mode only | Yes, in a multi-tenant product: it is multi-tenant through it |
 | Auditing | An append-only audit trail: entity changes, security events, exceptions and HTTP activity | Recommended |
 | Files | Uploads and downloads with presigned URLs, used by Catalog's images, Chat's attachments and the users' avatars | While a module uses files |
-| Billing | Plans, subscriptions, usage, and monthly invoices, marked paid by hand: there is no payment provider. Multi-tenant mode only | When the product bills its tenants |
+| SubscriptionsUsage | How a product charges its own tenants: plans, subscriptions, usage, wallets and the monthly usage invoice, marked paid by hand (there is no payment provider). Its routes, permissions and `billing` schema keep the old name. Multi-tenant mode only | When the product bills its tenants |
 | Notifications | Each user's in-app inbox, pushed live over SignalR. Any module adds to it by publishing `UserNotificationRequestedIntegrationEvent` | Optional |
 | Webhooks | A tenant's outgoing webhooks, signed and retried | Optional |
 | Catalog | Sample (`src/Samples/`): products, categories and brands, with images, search and a trash | A pattern to copy |
@@ -23,7 +23,7 @@ The samples Catalog, Tickets and Chat are in `src/Samples/`, with their tests be
 
 The building blocks in `src/BuildingBlocks` are not modules: every module depends on them, so change them rarely and with care (`.claude/rules/buildingblocks-protection.md`).
 
-Every module works in multi-tenant mode. All of them also work in single-tenant mode except Multitenancy and Billing, which need a tenant catalog ([section 5](#5-tenancy-modes)).
+Every module works in multi-tenant mode. All of them also work in single-tenant mode except Multitenancy and SubscriptionsUsage, which need a tenant catalog ([section 5](#5-tenancy-modes)).
 
 ## 2. Add a module
 
@@ -60,7 +60,7 @@ Deleting a module leaves its tables in an existing database: a later migration i
 | Tenant isolation | Every entity of a module's `DbContext` is filtered by tenant, or marked global with `IGlobalEntity` |
 | Hosts | `App.Api` doesn't reach into a module's features or data |
 
-| Tenancy modes | Every module declares at least one mode; only Multitenancy and Billing are multi-tenant only; a module that supports single-tenant mode doesn't reference the Multitenancy module or its contracts; the module loader refuses an unsupported module |
+| Tenancy modes | Every module declares at least one mode; only Multitenancy and SubscriptionsUsage are multi-tenant only; a module that supports single-tenant mode doesn't reference the Multitenancy module or its contracts; the module loader refuses an unsupported module |
 
 Read `.claude/rules/architecture.md` before you change a rule; it explains why each one is there.
 

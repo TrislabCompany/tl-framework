@@ -5,10 +5,10 @@ using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Shared.Quota;
-using Trislab.Modules.Billing.Contracts;
-using Trislab.Modules.Billing.Contracts.Dtos;
-using Trislab.Modules.Billing.Data;
-using Trislab.Modules.Billing.Domain;
+using Trislab.Modules.SubscriptionsUsage.Contracts;
+using Trislab.Modules.SubscriptionsUsage.Contracts.Dtos;
+using Trislab.Modules.SubscriptionsUsage.Data;
+using Trislab.Modules.SubscriptionsUsage.Domain;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 
@@ -439,7 +439,7 @@ public sealed class BillingTenantIsolationTests
         var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>().GetAsync(tenantId);
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
             new MultiTenantContext<AppTenantInfo>(tenant);
-        var billing = scope.ServiceProvider.GetRequiredService<Trislab.Modules.Billing.Services.IBillingService>();
+        var billing = scope.ServiceProvider.GetRequiredService<Trislab.Modules.SubscriptionsUsage.Services.IBillingService>();
         return await billing.GenerateInvoiceForPeriodAsync(tenantId, year, month);
     }
 

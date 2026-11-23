@@ -2,7 +2,7 @@ using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Eventing.Abstractions;
 using Trislab.Framework.Mailing.Services;
 using Trislab.Framework.Shared.Multitenancy;
-using Trislab.Modules.Billing.Contracts.Events;
+using Trislab.Modules.SubscriptionsUsage.Contracts.Events;
 using Microsoft.Extensions.Logging;
 
 namespace Trislab.Modules.Notifications.IntegrationEventHandlers;

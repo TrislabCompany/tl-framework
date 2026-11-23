@@ -1,8 +1,8 @@
 #pragma warning disable S1144, S3459 // members populated by JSON deserialization
 using System.Text.Json;
 using Trislab.Framework.Shared.Persistence;
-using Trislab.Modules.Billing.Contracts;
-using Trislab.Modules.Billing.Contracts.Dtos;
+using Trislab.Modules.SubscriptionsUsage.Contracts;
+using Trislab.Modules.SubscriptionsUsage.Contracts.Dtos;
 using Integration.Tests.Infrastructure;
 
 namespace Integration.Tests.Tests.Billing;

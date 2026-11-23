@@ -1,8 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Trislab.Framework.Shared.Persistence;
-using Trislab.Modules.Billing.Contracts;
-using Trislab.Modules.Billing.Contracts.Dtos;
+using Trislab.Modules.SubscriptionsUsage.Contracts;
+using Trislab.Modules.SubscriptionsUsage.Contracts.Dtos;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 

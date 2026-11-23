@@ -31,7 +31,7 @@ What works on the first deploy, with no change:
 - **Multi-tenancy:** a tenant catalog, provisioning, plans and per-tenant themes; every tenant's data is filtered by tenant in every query.
 - **Single-tenant mode:** the same framework for an app that serves one organisation: set `TenancyOptions:Mode` to `SingleTenant` and name the fixed tenant. There is no tenant catalog, sign-up, plan or operator console, a sign-in names no tenant, and the data is still stamped with the tenant. Every module declares the modes it supports ([modules.md](docs/modules.md#5-tenancy-modes), [configuration.md](docs/configuration.md#2a-tenancy-mode)).
 - **Identity:** sign-in with JWTs, users, roles, permissions, groups, sessions, impersonation and two-factor sign-in.
-- **The modules:** Auditing, Files, Billing, Notifications and Webhooks, and the samples Catalog, Tickets and Chat, to keep or delete ([modules.md](docs/modules.md)). `Architecture.Tests` guards their boundaries.
+- **The modules:** Auditing, Files, SubscriptionsUsage, Notifications and Webhooks, and the samples Catalog, Tickets and Chat, to keep or delete ([modules.md](docs/modules.md)). `Architecture.Tests` guards their boundaries.
 - **The building blocks:** persistence, caching, eventing with an outbox, background jobs with Hangfire, mail, file storage, quotas, rate limiting, security headers and OpenTelemetry.
 - **The migrator:** before each revision of the API starts, it takes a Postgres lock, applies every module's migrations and the seed data, and the demo data where `SEED_DEMO` is true, and exits.
 - `/api` and `/storage` on the front ends' own hostnames: nginx passes them to the API and to the storage, so neither needs a hostname or CORS settings.

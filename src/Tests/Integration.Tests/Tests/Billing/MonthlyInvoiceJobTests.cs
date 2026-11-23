@@ -1,10 +1,10 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
-using Trislab.Modules.Billing.Contracts;
-using Trislab.Modules.Billing.Data;
-using Trislab.Modules.Billing.Domain;
-using Trislab.Modules.Billing.Services;
+using Trislab.Modules.SubscriptionsUsage.Contracts;
+using Trislab.Modules.SubscriptionsUsage.Data;
+using Trislab.Modules.SubscriptionsUsage.Domain;
+using Trislab.Modules.SubscriptionsUsage.Services;
 using Integration.Tests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
