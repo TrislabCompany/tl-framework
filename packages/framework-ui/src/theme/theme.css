@@ -1,0 +1,149 @@
+/* The Trislab theme: the default look of every framework app.
+
+   Every colour, the font and the radius are CSS variables with the shadcn
+   names, so the components of a starter read them and nothing else. A product
+   changes its look in one file, its own theme.css, loaded after this one,
+   which overrides only the variables it needs (README.md, "Theme").
+
+   Light is the default; the class .dark on <html> switches to dark
+   (applyColorScheme). The values come from the Trislab website: dark slate,
+   light text and the orange accent #f97316, Inter, the radius 0.75rem.
+
+   The contrast is checked by theme.test.ts: every *-foreground needs 4.5:1 on
+   its colour (WCAG 2 AA small text), and --primary-text and --muted-foreground
+   need it on --background, --card and --muted. Keep it when you change a value. */
+
+:root {
+  color-scheme: light;
+
+  /* Slate and orange, the Trislab palette. Only this file uses them. */
+  --tl-slate-50: #f8fafc;
+  --tl-slate-100: #f1f5f9;
+  --tl-slate-200: #e2e8f0;
+  --tl-slate-300: #cbd5e1;
+  --tl-slate-400: #a3b0c2;
+  --tl-slate-600: #475569;
+  --tl-slate-650: #334155;
+  --tl-slate-700: #283548;
+  --tl-slate-800: #1e293b;
+  --tl-slate-850: #131c33;
+  --tl-slate-900: #0f172a;
+  --tl-orange-400: #fb923c;
+  --tl-orange-500: #f97316;
+  --tl-orange-600: #ea580c;
+  --tl-orange-700: #c2410c;
+
+  --background: #ffffff;
+  --foreground: var(--tl-slate-900);
+  --card: #ffffff;
+  --card-foreground: var(--tl-slate-900);
+  --popover: #ffffff;
+  --popover-foreground: var(--tl-slate-900);
+
+  /* The orange button carries dark text: white on #f97316 is only 2.8:1. */
+  --primary: var(--tl-orange-500);
+  --primary-foreground: var(--tl-slate-900);
+  --primary-hover: var(--tl-orange-600);
+  --primary-soft: color-mix(in srgb, var(--tl-orange-500) 12%, transparent);
+  /* Orange text and links on the background. */
+  --primary-text: var(--tl-orange-700);
+
+  --secondary: var(--tl-slate-100);
+  --secondary-foreground: var(--tl-slate-900);
+  --muted: var(--tl-slate-100);
+  --muted-foreground: var(--tl-slate-600);
+  --accent: var(--tl-slate-100);
+  --accent-foreground: var(--tl-slate-900);
+
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+  --success: #15803d;
+  --success-foreground: #ffffff;
+  --warning: #b45309;
+  --warning-foreground: #ffffff;
+  --info: #0369a1;
+  --info-foreground: #ffffff;
+
+  --overlay: rgb(15 23 42 / 0.6);
+  --overlay-foreground: #ffffff;
+
+  --border: var(--tl-slate-200);
+  --border-strong: var(--tl-slate-300);
+  --input: var(--tl-slate-300);
+  --ring: var(--tl-orange-600);
+
+  /* Elevation, from the canvas up. */
+  --surface-1: var(--tl-slate-50);
+  --surface-2: #ffffff;
+  --surface-3: #ffffff;
+  --surface-4: var(--tl-slate-100);
+
+  --chart-1: var(--tl-orange-500);
+  --chart-2: #0ea5e9;
+  --chart-3: #14b8a6;
+  --chart-4: #8b5cf6;
+  --chart-5: #eab308;
+
+  --font-sans: "Inter Variable", "Inter Fallback", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-sans);
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --radius: 0.75rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+}
+
+/* Dark: the Trislab website's own colours. */
+.dark {
+  color-scheme: dark;
+
+  --background: var(--tl-slate-900);
+  --foreground: var(--tl-slate-200);
+  --card: var(--tl-slate-850);
+  --card-foreground: var(--tl-slate-200);
+  --popover: var(--tl-slate-800);
+  --popover-foreground: var(--tl-slate-200);
+
+  --primary: var(--tl-orange-500);
+  --primary-foreground: var(--tl-slate-900);
+  --primary-hover: var(--tl-orange-400);
+  --primary-soft: color-mix(in srgb, var(--tl-orange-500) 18%, transparent);
+  --primary-text: var(--tl-orange-400);
+
+  --secondary: var(--tl-slate-800);
+  --secondary-foreground: var(--tl-slate-200);
+  --muted: var(--tl-slate-800);
+  --muted-foreground: var(--tl-slate-400);
+  --accent: var(--tl-slate-800);
+  --accent-foreground: var(--tl-slate-200);
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --success: #22c55e;
+  --success-foreground: var(--tl-slate-900);
+  --warning: #f59e0b;
+  --warning-foreground: var(--tl-slate-900);
+  --info: #38bdf8;
+  --info-foreground: var(--tl-slate-900);
+
+  --overlay: rgb(2 6 23 / 0.7);
+
+  --border: var(--tl-slate-700);
+  --border-strong: var(--tl-slate-650);
+  --input: var(--tl-slate-700);
+  --ring: var(--tl-orange-400);
+
+  --surface-1: var(--tl-slate-900);
+  --surface-2: var(--tl-slate-850);
+  --surface-3: var(--tl-slate-800);
+  --surface-4: var(--tl-slate-700);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}

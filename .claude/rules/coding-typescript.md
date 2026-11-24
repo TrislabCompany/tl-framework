@@ -21,6 +21,12 @@ Checked by: `tsc` with `strict` (`packages/*/tsconfig.json`, run by `npm test`),
 - Props typed with a `type <Name>Props`. No prop drilling past two levels: lift to a query, a context or the URL.
 - Hooks follow the rules of hooks (lint-checked). Per-call data rides `mutate(arg)` (golden rule 9).
 
+## Colours
+
+- Colours come only from the theme's variables: `var(--primary)` in CSS, `bg-primary` or `text-muted-foreground` with Tailwind. Never a hex value, a colour function or Tailwind's palette (`bg-red-500`) in a component.
+- Colours are set in a `theme.css`: the framework's in `packages/framework-ui/src/theme/`, a product's own in its app. A new variable goes in both `:root` and `.dark` when it differs, in `tailwind.css`, and in the contrast pairs of `theme.test.ts` when it carries text.
+- `framework-ui-check-colors` enforces it; `raw-color-allowed: <why>` on the line is the only exception.
+
 ## Errors and logging
 
 - The API client throws `ApiRequestError`; a page shows it in its error state (`error-band`, `route-error`) or a `sonner` toast. Never swallow a rejected promise.
