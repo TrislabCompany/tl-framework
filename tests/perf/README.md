@@ -24,12 +24,13 @@ endpoints page through real rows and audit rows from those writes.
 
 ## The budgets
 
-Budgets are p95 in milliseconds per endpoint (`options.thresholds` of each script). They were set at 4 to 6 times the
-p95 of a local run with the whole stack on one machine (reads 40 to 130 ms, sign-in 700 ms), because a 2-vCPU runner
-is slower and noisier. Tighten them from the first weeks of nightly numbers. The aim is to catch a real regression (a missing index, an N+1 query, a blocking call), which costs far more
-than 4 times, and not runner noise. The nightly budgets are about twice the smoke budgets, for queueing under 20
-users. Change a budget in the script, with the reason in the pull request. Do not raise one to make a failing run pass
-without finding what got slower.
+Budgets are p95 in milliseconds per endpoint (`options.thresholds` of each script). The first run on a GitHub-hosted
+2-vCPU runner, with the whole stack on that machine, measured 1 to 14 ms for the reads and 88 ms for the sign-in
+(a password hash). The smoke budgets are about 10 times that, with a floor of 100 ms (reads 100 to 150 ms, sign-in
+400 ms), so that a real regression (a missing index, an N+1 query, a blocking call) fails and runner noise does not.
+The nightly budgets are twice the smoke ones (sign-in 1000 ms), for queueing under 20 users. Tighten them from the
+first weeks of numbers (the artifacts). Docker Desktop on Windows or macOS is several times slower than that runner (sign-in 500 to 700 ms), so a local run can miss a budget that CI meets: read the numbers, not only the verdict. Change a budget in the script, with the reason in the pull request. Do not
+raise one to make a failing run pass without finding what got slower.
 
 ## Run it locally
 
