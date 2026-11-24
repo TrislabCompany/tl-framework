@@ -3,8 +3,9 @@ name: ci
 # Runs the tests on every PR and every push to main: the .NET tests
 # (unit, architecture and integration; the integration tests start their own
 # throw-away containers), then each npm package in packages/ runs its own tests
-# (npm test). The framework holds only packages and tests, so there are no
-# images to build or scan. The job's name is `ci / ci`, the required check.
+# (npm test; framework-ui's browser tests run in Chromium). The framework
+# holds only packages and tests, so there are no images to build or scan.
+# The job's name is `ci / ci`, the required check.
 
 on:
   pull_request:
@@ -42,5 +43,10 @@ jobs:
       - name: Test the npm packages
         run: |
           for dir in $(find packages -mindepth 2 -maxdepth 2 -name package.json -printf '%h\n'); do
-            (cd "$dir" && npm ci && npm test) || exit 1
+            (
+              cd "$dir" && npm ci &&
+              # A package with browser tests (Vitest with Playwright) gets Chromium first.
+              if [ -d node_modules/@vitest/browser-playwright ]; then npx playwright install --with-deps chromium; fi &&
+              npm test
+            ) || exit 1
           done

@@ -60,3 +60,15 @@ Peer dependencies: `react` 19, `i18next` 26, `react-i18next` 17, `i18next-browse
 ## Working on it
 
 `npm ci`, then `npm test`: the type check, Vitest, the build, and `framework-ui-check-colors` on the package's own `src`. In a clone, `node cli/check-colors.mjs <folder>` needs `npm run build` first. `ci / ci` runs `npm test` for every package in `packages/`. A release tag publishes it (`.github/workflows/packages.yml`).
+
+Vitest has two projects ([vitest.config.ts](vitest.config.ts)):
+
+| Project | Files | What it checks |
+| --- | --- | --- |
+| `unit` | `*.test.ts(x)` | In Node: the logic, the theme's contrast as numbers, the colour check |
+| `browser` | `*.browser.test.tsx` | In Chromium, through Playwright, with the theme's CSS and Inter loaded: each component's behaviour (keyboard, busy and error states), the WCAG 2.2 AA rules of axe, contrast included, and screenshots of every component in light and dark |
+
+- **First run:** `npx playwright install chromium`.
+- **The screenshots** are kept for Linux, the platform of CI, in `src/**/__screenshots__`; on Windows and macOS those tests are skipped. After a change to how a component or the theme looks, `npm run test:screenshots` makes them again in Playwright's Linux image (Docker needed). Look at each image before committing it.
+- **A new component** gets a `*.browser.test.tsx` and a place in the page of all components, `src/testing/Specimen.tsx`, so axe and the screenshots cover it.
+- **Whole pages** are tested in the starters, where they live. Once the upgrade rehearsal exists, their Playwright tests are to run in it against each framework release.

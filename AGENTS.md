@@ -74,7 +74,7 @@ apps built from them (the hosts, the React apps, the samples) live in `tl-produc
 | ORM / DB | EF Core 10 / PostgreSQL (Npgsql) | UI | Radix + Tailwind v4 + CVA (shadcn) |
 | Auth | JWT Bearer + ASP.NET Identity | Forms | react-hook-form + zod (**admin only**) |
 | Multitenancy | Finbuckle 10.x | Realtime | SSE, SignalR (backend) |
-| Cache / Jobs | Redis, Hangfire | Tests | Vitest (`packages/framework-ui`) |
+| Cache / Jobs | Redis, Hangfire | Tests | Vitest, in Node and in Chromium with Playwright (`packages/framework-ui`) |
 | Docs | OpenAPI + Scalar | | |
 | Testing | xUnit v3, Shouldly, NSubstitute, AutoFixture, NetArchTest, Testcontainers | | |
 
