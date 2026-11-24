@@ -82,6 +82,34 @@ public sealed class FileTenantIsolationTests
 
     #endregion
 
+    #region Owner lists
+
+    [Fact]
+    public async Task ListOwnerFiles_Should_Return_Nothing_For_The_Same_Owner_Id_In_Another_Tenant()
+    {
+        // Arrange — root attaches a public file to an owner; tenant B asks for the same owner id.
+        using var rootClient = await _auth.CreateRootAdminClientAsync();
+        var ownerId = Guid.NewGuid();
+        var fileId = await UploadAndFinalizeAsync(rootClient, "attached.pdf", "application/pdf", 256, visibility: 0, "TestItem", ownerId);
+
+        using var otherClient = await CreateOtherTenantAdminClientAsync();
+
+        // Act
+        using var ownerResponse = await rootClient.GetAsync($"{FilesBasePath}?ownerType=TestItem&ownerId={ownerId}");
+        using var crossResponse = await otherClient.GetAsync($"{FilesBasePath}?ownerType=TestItem&ownerId={ownerId}");
+
+        // Assert — the owning tenant lists the file; tenant B's schema has no row for that owner.
+        ownerResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await ownerResponse.DeserializeAsync<PagedResponse<FileAssetDto>>()).Items.Select(f => f.Id).ShouldBe([fileId]);
+
+        crossResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var cross = await crossResponse.DeserializeAsync<PagedResponse<FileAssetDto>>();
+        cross.Items.ShouldBeEmpty();
+        cross.TotalCount.ShouldBe(0);
+    }
+
+    #endregion
+
     #region Tenant scaffolding (copied from WebhookTenantIsolationTests)
 
     private async Task<HttpClient> CreateOtherTenantAdminClientAsync()
@@ -139,15 +167,17 @@ public sealed class FileTenantIsolationTests
         string fileName,
         string contentType,
         int sizeBytes,
-        int visibility)
+        int visibility,
+        string ownerType = "MyFiles",
+        Guid? ownerId = null)
     {
         byte[] bytes = new byte[sizeBytes];
         RandomNumberGenerator.Fill(bytes);
 
         using var urlResponse = await client.PostAsJsonAsync($"{FilesBasePath}/upload-url", new
         {
-            ownerType = "MyFiles",
-            ownerId = (Guid?)null,
+            ownerType,
+            ownerId,
             fileName,
             contentType,
             sizeBytes,

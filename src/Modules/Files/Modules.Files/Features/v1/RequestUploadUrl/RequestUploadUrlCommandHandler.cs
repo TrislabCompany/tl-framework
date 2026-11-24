@@ -102,7 +102,7 @@ public sealed class RequestUploadUrlCommandHandler(
         var asset = FileAsset.CreatePending(
             id: id,
             // The policy's spelling, not the caller's: owner types resolve case-insensitively, and the
-            // owner's file list matches on the stored value.
+            // owner's file list matches the stored value exactly.
             ownerType: policy.OwnerType,
             ownerId: cmd.OwnerId,
             originalFileName: cmd.FileName,

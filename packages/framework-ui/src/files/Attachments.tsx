@@ -66,7 +66,10 @@ export type AttachmentsProps = {
   visibility?: FileVisibility;
   /** The signed-in user: only a file's uploader sees its delete button. The API checks it again. */
   currentUserId?: string;
-  /** Hide the upload control, e.g. for a user who may only read. Default true. */
+  /**
+   * Hide the upload control, e.g. for a user who may only read. Default true. It only hides it: the API decides,
+   * through `Files.Upload` and the owner type's policy.
+   */
   canUpload?: boolean;
   /** Files per page. Default 20. */
   pageSize?: number;
@@ -108,8 +111,10 @@ export function Attachments({
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const errorHandler = useRef(onError);
+  const latestLoad = useRef(0);
 
   useEffect(() => {
     errorHandler.current = onError;
@@ -121,14 +126,19 @@ export function Attachments({
     errorHandler.current?.(cause);
   }, [text.reference]);
 
-  // Loads the first `pages` pages again, so an upload or a delete never leaves a stale or doubled row.
+  // Loads the first `pages` pages again, so an upload or a delete never leaves a stale or doubled row. Only the
+  // latest load may set the state: an older answer arriving late (another owner, an earlier page count) is dropped,
+  // and `loading` stays on until the latest one is in.
   const load = useCallback(async (pages: number) => {
+    const thisLoad = ++latestLoad.current;
+    const isLatest = () => thisLoad === latestLoad.current;
     setLoading(true);
     try {
       const loaded: FileAsset[] = [];
       let totalCount = 0;
       for (let pageNumber = 1; pageNumber <= pages; pageNumber++) {
         const page = await client.listOwnerFiles(ownerType, ownerId, { pageNumber, pageSize });
+        if (!isLatest()) return;
         loaded.push(...page.items);
         totalCount = page.totalCount;
         if (pageNumber >= page.totalPages) break;
@@ -137,9 +147,9 @@ export function Attachments({
       setTotal(totalCount);
       setError(null);
     } catch (cause) {
-      fail(text.loadFailed, cause);
+      if (isLatest()) fail(text.loadFailed, cause);
     } finally {
-      setLoading(false);
+      if (isLatest()) setLoading(false);
     }
   }, [client, ownerType, ownerId, pageSize, fail, text.loadFailed]);
 
@@ -164,13 +174,28 @@ export function Attachments({
     }
   }
 
+  // The tab is opened in the click itself, before any await, or a popup blocker would stop it; it is pointed at the
+  // short-lived URL once that arrives. `opener` is cut first, so the storage page can't reach this one.
   async function onDownload(file: FileAsset) {
     setError(null);
+    if (file.publicUrl) {
+      window.open(file.publicUrl, "_blank", "noopener");
+      return;
+    }
+    const tab = window.open("", "_blank");
+    if (!tab) {
+      fail(text.downloadFailed, new Error("The browser blocked the download tab."));
+      return;
+    }
+    tab.opener = null;
+    setDownloading(file.id);
     try {
-      const url = file.publicUrl ?? (await client.downloadUrl(file.id));
-      window.open(url, "_blank", "noopener");
+      tab.location.href = await client.downloadUrl(file.id);
     } catch (cause) {
+      tab.close();
       fail(text.downloadFailed, cause);
+    } finally {
+      setDownloading(null);
     }
   }
 
@@ -195,7 +220,13 @@ export function Attachments({
             <li key={file.id}>
               <span className="attachments-name">{file.originalFileName}</span>{" "}
               <span className="attachments-size" style={{ color: "var(--muted-foreground)" }}>{formatSize(file.sizeBytes, language)}</span>{" "}
-              <button type="button" onClick={() => void onDownload(file)} aria-label={`${text.download} ${file.originalFileName}`}>
+              <button
+                type="button"
+                disabled={downloading === file.id}
+                aria-busy={downloading === file.id}
+                onClick={() => void onDownload(file)}
+                aria-label={`${text.download} ${file.originalFileName}`}
+              >
                 {text.download}
               </button>
               {currentUserId !== undefined && file.createdByUserId === currentUserId ? (

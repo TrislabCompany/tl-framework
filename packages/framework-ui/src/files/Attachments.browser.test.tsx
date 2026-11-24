@@ -5,7 +5,7 @@ import { render } from "vitest-browser-react";
 import { SCHEMES, accessibilityViolations, englishI18n, useScheme } from "../testing/browser";
 import { CURRENT_USER, fileAsset, memoryFilesClient } from "../testing/memoryFilesClient";
 import { Attachments, type AttachmentsProps } from "./Attachments";
-import { FilesRequestError, type FilesClient } from "./filesClient";
+import { FilesRequestError, type FileAsset, type FilesClient } from "./filesClient";
 
 async function renderAttachments(client: FilesClient, props: Partial<AttachmentsProps> = {}, language?: string) {
   const app = await englishI18n();
@@ -72,13 +72,84 @@ describe("Attachments in a browser", () => {
     await expect.element(screen.getByText("minutes.pdf")).toBeVisible();
   });
 
-  it("opens a download URL in a new tab", async () => {
+  it("opens the download tab in the click, then points it at the URL, with the button busy meanwhile", async () => {
+    const tab = { opener: window as Window | null, location: { href: "" }, close: vi.fn() };
+    const open = vi.spyOn(window, "open").mockReturnValue(tab as unknown as Window); // a stand-in tab
+    let answer: (url: string) => void = () => {};
+    const client = { ...twoFiles(), downloadUrl: () => new Promise<string>((resolve) => (answer = resolve)) };
+    const screen = await renderAttachments(client);
+    const download = screen.getByRole("button", { name: "Download minutes.pdf" });
+
+    await download.click();
+
+    expect(open).toHaveBeenCalledWith("", "_blank");
+    expect(tab.opener).toBeNull();
+    await expect.element(download).toBeDisabled();
+
+    answer("https://storage.example.com/file-2?sig=1");
+    await expect.element(download).toBeEnabled();
+    expect(tab.location.href).toBe("https://storage.example.com/file-2?sig=1");
+    expect(tab.close).not.toHaveBeenCalled();
+  });
+
+  it("opens a public file's URL directly", async () => {
     const open = vi.spyOn(window, "open").mockReturnValue(null);
+    const client = memoryFilesClient([{ ...fileAsset("file-9", "logo.png", 10), publicUrl: "https://cdn.example.com/logo.png" }]);
+    const screen = await renderAttachments(client);
+
+    await screen.getByRole("button", { name: "Download logo.png" }).click();
+
+    expect(open).toHaveBeenCalledWith("https://cdn.example.com/logo.png", "_blank", "noopener");
+  });
+
+  it("closes the tab and says so when the download URL fails", async () => {
+    const tab = { opener: window as Window | null, location: { href: "" }, close: vi.fn() };
+    vi.spyOn(window, "open").mockReturnValue(tab as unknown as Window);
+    const client = { ...twoFiles(), downloadUrl: () => Promise.reject(new FilesRequestError(404, "Not found.")) };
+    const screen = await renderAttachments(client);
+
+    await screen.getByRole("button", { name: "Download minutes.pdf" }).click();
+
+    await expect.element(screen.getByRole("alert")).toHaveTextContent("The file could not be downloaded.");
+    expect(tab.close).toHaveBeenCalled();
+  });
+
+  it("says so when the browser blocks the download tab", async () => {
+    vi.spyOn(window, "open").mockReturnValue(null);
     const screen = await renderAttachments(twoFiles());
 
     await screen.getByRole("button", { name: "Download minutes.pdf" }).click();
 
-    await vi.waitFor(() => expect(open).toHaveBeenCalledWith("https://storage.example.com/file-2", "_blank", "noopener"));
+    await expect.element(screen.getByRole("alert")).toHaveTextContent("The file could not be downloaded.");
+  });
+
+  it("keeps the newest owner's files when an older answer arrives late", async () => {
+    const answers = new Map<string, (files: FileAsset[]) => void>();
+    const client: FilesClient = {
+      ...twoFiles(),
+      listOwnerFiles: (_type, ownerId) =>
+        new Promise((resolve) =>
+          answers.set(ownerId, (items) => resolve({ items, pageNumber: 1, pageSize: 20, totalCount: items.length, totalPages: 1 })),
+        ),
+    };
+    const app = await englishI18n();
+    const view = (ownerId: string) => (
+      <I18nextProvider i18n={app.i18n}>
+        <Attachments client={client} ownerType="TestItem" ownerId={ownerId} category="Document" />
+      </I18nextProvider>
+    );
+    const screen = await render(view("owner-a"));
+    await screen.rerender(view("owner-b"));
+    const region = screen.getByRole("region", { name: "Attachments" });
+
+    answers.get("owner-b")!([fileAsset("b-1", "for-b.pdf", 1)]);
+    await expect.element(screen.getByText("for-b.pdf")).toBeVisible();
+    answers.get("owner-a")!([fileAsset("a-1", "for-a.pdf", 1)]);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(screen.getByText("for-a.pdf").elements()).toHaveLength(0);
+    await expect.element(screen.getByText("for-b.pdf")).toBeVisible();
+    await expect.element(region).toHaveAttribute("aria-busy", "false");
   });
 
   it("pages with Show more", async () => {
