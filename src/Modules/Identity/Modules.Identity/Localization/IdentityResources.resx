@@ -271,4 +271,10 @@
   <data name="Identity.InScopeInitializationOnly" xml:space="preserve">
     <value>Method reserved for in-scope initialization</value>
   </data>
+  <data name="Identity.OperatorAppBoundary" xml:space="preserve">
+    <value>Operator console</value>
+  </data>
+  <data name="Identity.OperatorAppBoundary.Detail" xml:space="preserve">
+    <value>The operator console is for the operator only. Sign in to the dashboard instead.</value>
+  </data>
 </root>

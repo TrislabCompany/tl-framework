@@ -1,12 +1,17 @@
+using Trislab.Framework.Shared.Constants;
 using Trislab.Framework.Shared.Identity.Authorization;
 using Trislab.Framework.Shared.Identity.Claims;
+using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Modules.Identity.Contracts.Services;
+using Finbuckle.MultiTenant.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 
 namespace Trislab.Modules.Identity.Authorization;
 
-public sealed class RequiredPermissionAuthorizationHandler(IUserService userService) : AuthorizationHandler<PermissionAuthorizationRequirement>
+public sealed class RequiredPermissionAuthorizationHandler(
+    IUserService userService,
+    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor) : AuthorizationHandler<PermissionAuthorizationRequirement>
 {
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionAuthorizationRequirement requirement)
     {
@@ -46,6 +51,14 @@ public sealed class RequiredPermissionAuthorizationHandler(IUserService userServ
             requiredPermissions.UnionWith(metadata.RequiredPermissions);
         }
 
+        // A root-only permission counts only in the root tenant. The role syncer and RoleService never grant
+        // one elsewhere, but a grant made before a permission became root-only can still sit on a custom
+        // role; this keeps such a stale grant from opening an operator endpoint.
+        if (!IsRootTenant() && requiredPermissions.Overlaps(RootOnlyPermissionNames()))
+        {
+            return;
+        }
+
         var cancellationToken = httpContext?.RequestAborted ?? CancellationToken.None;
         foreach (var permission in requiredPermissions)
         {
@@ -56,5 +69,18 @@ public sealed class RequiredPermissionAuthorizationHandler(IUserService userServ
         }
 
         context.Succeed(requirement);
+    }
+
+    private bool IsRootTenant()
+    {
+        return string.Equals(
+            tenantAccessor.MultiTenantContext?.TenantInfo?.Id,
+            MultitenancyConstants.Root.Id,
+            StringComparison.Ordinal);
+    }
+
+    private static IEnumerable<string> RootOnlyPermissionNames()
+    {
+        return PermissionConstants.Root.Select(p => p.Name);
     }
 }

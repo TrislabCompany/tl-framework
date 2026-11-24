@@ -2,6 +2,7 @@ using Trislab.Framework.Core.Localization;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Modules.Identity.Contracts.DTOs;
 using Trislab.Modules.Identity.Contracts.v1.Tokens.TokenGeneration;
+using Trislab.Modules.Identity.Localization;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -18,11 +19,12 @@ namespace Trislab.Modules.Identity.Features.v1.Tokens.TokenGeneration;
 public static class GenerateTokenEndpoint
 {
     /// <summary>
-    /// Header used by clients to identify which app shell is requesting the token.
-    /// SuperAdmin (root tenant) accounts are restricted to the admin app — submitting
-    /// "dashboard" with tenant=root yields a 403 instead of a useful token. This is a
-    /// belt-and-braces check; the dashboard client also rejects root-tenant tokens
-    /// locally for a cleaner UX.
+    /// Header used by clients to identify which app shell is requesting the token. The two apps
+    /// have separate users: root-tenant (operator) accounts sign in only to the admin app, and
+    /// tenant accounts only to the dashboard. Either mismatch yields a 403 instead of a token.
+    /// The header is chosen by the client, so this is a belt-and-braces check on top of the
+    /// root-only permissions that guard every operator endpoint; both clients also reject a
+    /// token of the wrong kind locally for a cleaner UX.
     /// </summary>
     public const string AppHeader = "X-Trislab-App";
     public const string AppAdmin = "admin";
@@ -40,6 +42,7 @@ public static class GenerateTokenEndpoint
             [FromServices] IMediator mediator,
             [FromServices] IOptions<TenancyOptions> tenancy,
             [FromServices] IStringLocalizer<SharedResources> localizer,
+            [FromServices] IStringLocalizer<IdentityResources> identityLocalizer,
             CancellationToken ct) =>
             {
                 if (tenancy.Value.Mode == TenancyMode.Multitenant && IsRootViaDashboard(tenant, app))
@@ -50,6 +53,14 @@ public static class GenerateTokenEndpoint
                         detail: localizer["Error.AppBoundary.Detail"]);
                 }
 
+                if (tenancy.Value.Mode == TenancyMode.Multitenant && IsTenantViaAdmin(tenant, app))
+                {
+                    return TypedResults.Problem(
+                        statusCode: StatusCodes.Status403Forbidden,
+                        title: identityLocalizer["Identity.OperatorAppBoundary"],
+                        detail: identityLocalizer["Identity.OperatorAppBoundary.Detail"]);
+                }
+
                 var token = await mediator.Send(command, ct);
                 return token is null
                     ? TypedResults.Unauthorized()
@@ -58,7 +69,7 @@ public static class GenerateTokenEndpoint
             .RequireTenantHeaderWhenMultitenant()
             .WithName("IssueJwtTokens")
             .WithSummary("Issue JWT access and refresh tokens")
-            .WithDescription("Submit credentials to receive a JWT access token and a refresh token. In multi-tenant mode provide the 'tenant' header to select the tenant context; in single-tenant mode send none, the server resolves the fixed tenant. The 'X-Trislab-App' header (admin|dashboard) is used to enforce the SuperAdmin / dashboard boundary.")
+            .WithDescription("Submit credentials to receive a JWT access token and a refresh token. In multi-tenant mode provide the 'tenant' header to select the tenant context; in single-tenant mode send none, the server resolves the fixed tenant. The 'X-Trislab-App' header (admin|dashboard) enforces the app boundary: root-tenant accounts sign in only to admin, tenant accounts only to dashboard.")
             .Produces<TokenResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status403Forbidden)
@@ -70,5 +81,11 @@ public static class GenerateTokenEndpoint
     {
         return string.Equals(tenant, MultitenancyConstants.Root.Id, StringComparison.OrdinalIgnoreCase)
             && string.Equals(app, AppDashboard, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsTenantViaAdmin(string? tenant, string? app)
+    {
+        return string.Equals(app, AppAdmin, StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(tenant, MultitenancyConstants.Root.Id, StringComparison.OrdinalIgnoreCase);
     }
 }

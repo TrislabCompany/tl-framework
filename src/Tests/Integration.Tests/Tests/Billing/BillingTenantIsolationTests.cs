@@ -146,7 +146,7 @@ public sealed class BillingTenantIsolationTests
     // alone is insufficient). Each test below has tenant B target root's resource; pre-fix these succeeded.
 
     [Fact]
-    public async Task VoidInvoice_Should_Return404_When_OwnedByDifferentTenant()
+    public async Task VoidInvoice_Should_BeForbidden_For_NonRootTenant()
     {
         var (year, month) = NextPeriod();
         var invoiceId = await SeedDraftInvoiceAsync(TestConstants.RootTenantId, year, month, basePrice: 77.00m);
@@ -155,11 +155,12 @@ public sealed class BillingTenantIsolationTests
         var (otherClient, _) = await CreateForeignTenantClientAsync(rootClient, "void");
         using var _o = otherClient;
 
-        // Tenant B tries to void root's invoice → must 404, and the invoice must stay Draft.
+        // Voiding is the operator's work (Billing.Manage is root-only): tenant B is refused before the
+        // handler runs, and the invoice must stay Draft.
         using var crossResp = await otherClient.PostAsJsonAsync(
             $"{BillingBasePath}/invoices/{invoiceId}/void", new { reason = "malicious" });
-        crossResp.StatusCode.ShouldBe(HttpStatusCode.NotFound,
-            "a tenant must not be able to void another tenant's invoice by id");
+        crossResp.StatusCode.ShouldBe(HttpStatusCode.Forbidden,
+            "a tenant must not be able to void an invoice");
 
         using var ownerRead = await rootClient.GetAsync($"{BillingBasePath}/invoices/{invoiceId}");
         var dto = await ParseAsync<InvoiceDto>(ownerRead);
@@ -186,6 +187,8 @@ public sealed class BillingTenantIsolationTests
         // The handler must pin B to its own tenant, so root's active subscription is untouched.
         using var resp = await otherClient.PostAsJsonAsync(
             $"{BillingBasePath}/subscriptions", new { tenantId = TestConstants.RootTenantId, planKey = key });
+        resp.StatusCode.ShouldBe(HttpStatusCode.Forbidden,
+            "assigning a subscription is the operator's work, never a tenant's");
 
         var rootSubAfter = await GetSubscriptionAsync(rootClient, TestConstants.RootTenantId);
         rootSubAfter.ShouldNotBeNull();
@@ -229,23 +232,82 @@ public sealed class BillingTenantIsolationTests
     }
 
     [Fact]
-    public async Task CaptureUsage_Should_BeScopedToCaller_When_NonRootPassesForeignTenantId()
+    public async Task CaptureUsage_Should_BeForbidden_For_NonRootTenant()
     {
         var (year, month) = NextPeriod();
         using var rootClient = await _auth.CreateRootAdminClientAsync();
         var (otherClient, _) = await CreateForeignTenantClientAsync(rootClient, "capture");
         using var _o = otherClient;
 
-        // B asks to capture usage FOR ROOT. The handler must pin to B, so nothing it returns/writes
-        // belongs to root.
+        // Capturing usage feeds the invoices, so it is the operator's work: refused even for B's own usage.
         using var resp = await otherClient.PostAsJsonAsync(
             $"{BillingBasePath}/usage/snapshots/capture",
             new { tenantId = TestConstants.RootTenantId, periodYear = year, periodMonth = month });
-        resp.StatusCode.ShouldBe(HttpStatusCode.OK, await resp.Content.ReadAsStringAsync());
+        resp.StatusCode.ShouldBe(HttpStatusCode.Forbidden, await resp.Content.ReadAsStringAsync());
+    }
 
-        var snaps = await ParseAsync<List<UsageSnapshotDto>>(resp);
-        snaps.ShouldAllBe(s => s.TenantId != TestConstants.RootTenantId,
-            "a tenant capturing usage must be scoped to itself — never able to write another tenant's usage");
+    // A tenant admin used to hold Billing.Manage, so it could change the global plans, or request a
+    // top-up, approve it and mark the invoice paid to credit its own wallet. Each test below is one of
+    // those calls, made by a tenant admin on its own tenant; Billing.Manage is now root-only.
+
+    [Fact]
+    public async Task CreatePlan_Should_BeForbidden_For_NonRootTenant()
+    {
+        using var rootClient = await _auth.CreateRootAdminClientAsync();
+        var (otherClient, _) = await CreateForeignTenantClientAsync(rootClient, "plancreate");
+        using var _o = otherClient;
+
+        using var resp = await otherClient.PostAsJsonAsync($"{BillingBasePath}/plans",
+            new { key = UniqueKey("tenantplan"), name = "Tenant plan", currency = "USD", monthlyBasePrice = 0m });
+
+        resp.StatusCode.ShouldBe(HttpStatusCode.Forbidden, "plans are global; only the operator creates them");
+    }
+
+    [Fact]
+    public async Task UpdatePlan_Should_BeForbidden_For_NonRootTenant()
+    {
+        using var rootClient = await _auth.CreateRootAdminClientAsync();
+        var planId = await CreatePlanAsync(rootClient, UniqueKey("planupdate"), name: "Plan-update", monthlyBasePrice: 20m);
+        var (otherClient, _) = await CreateForeignTenantClientAsync(rootClient, "planupdate");
+        using var _o = otherClient;
+
+        using var resp = await otherClient.PutAsJsonAsync($"{BillingBasePath}/plans/{planId}",
+            new { planId, name = "Free for me", monthlyBasePrice = 0m });
+
+        resp.StatusCode.ShouldBe(HttpStatusCode.Forbidden, "plans are global; only the operator changes them");
+    }
+
+    [Fact]
+    public async Task ApproveOwnTopupRequest_Should_BeForbidden_For_NonRootTenant()
+    {
+        using var rootClient = await _auth.CreateRootAdminClientAsync();
+        var (otherClient, _) = await CreateForeignTenantClientAsync(rootClient, "selftopup");
+        using var _o = otherClient;
+
+        // Requesting a top-up is the tenant's right (Billing.View); approving it is not.
+        using var create = await otherClient.PostAsJsonAsync(
+            $"{BillingBasePath}/wallet/topup-requests", new { amount = 500m, note = "self" });
+        create.IsSuccessStatusCode.ShouldBeTrue(await create.Content.ReadAsStringAsync());
+        var requestId = await create.DeserializeAsync<Guid>();
+
+        using var approve = await otherClient.PostAsJsonAsync(
+            $"{BillingBasePath}/wallet/topup-requests/{requestId}/approve", new { note = "self" });
+
+        approve.StatusCode.ShouldBe(HttpStatusCode.Forbidden, "a tenant must not approve its own top-up");
+    }
+
+    [Fact]
+    public async Task MarkOwnInvoicePaid_Should_BeForbidden_For_NonRootTenant()
+    {
+        var (year, month) = NextPeriod();
+        using var rootClient = await _auth.CreateRootAdminClientAsync();
+        var (otherClient, otherTenantId) = await CreateForeignTenantClientAsync(rootClient, "selfpay");
+        using var _o = otherClient;
+        var invoiceId = await SeedDraftInvoiceAsync(otherTenantId, year, month, basePrice: 30m);
+
+        using var resp = await otherClient.PostAsync($"{BillingBasePath}/invoices/{invoiceId}/pay", content: null);
+
+        resp.StatusCode.ShouldBe(HttpStatusCode.Forbidden, "a tenant must not mark its own invoice paid");
     }
 
     [Fact]
