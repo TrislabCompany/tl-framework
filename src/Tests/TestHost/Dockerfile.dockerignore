@@ -1,5 +1,5 @@
-# The ignore list of the test host's Dockerfile. BuildKit reads it instead of the root .dockerignore,
-# which leaves out all of src/Tests: this one is the same list, but the test host stays in.
+# The ignore list of the test host's Dockerfile: keeps the build context small and free of local files,
+# and leaves out every test project but the test host.
 .git
 .github
 .vscode
@@ -8,10 +8,8 @@
 .agents
 .devcontainer
 docs
-clients
 src/Tests/*
 !src/Tests/TestHost
-src/Host/App.AppHost
 **/bin
 **/obj
 **/TestResults
@@ -22,5 +20,4 @@ src/Host/App.AppHost
 .DS_Store
 **/Dockerfile
 .dockerignore
-docker-compose.yml
 *.md

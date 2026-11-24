@@ -1,7 +1,7 @@
 # The test host as an image, for the performance and security runs in CI (README.md, "Run it as a
-# container"). Same shape as the API image (src/Host/App.Api/Dockerfile): stage 1 publishes with the
+# container"). Same shape as a product's API image (tl-product-saas): stage 1 publishes with the
 # .NET SDK, stage 2 is the chiseled ASP.NET runtime with a non-root user, on port 8080. Both base
-# images are pinned by digest and match the API image's. Never pushed, never deployed.
+# images are pinned by digest; Renovate keeps the digests current. Never pushed, never deployed.
 # The build context is the repository root:
 #   docker build -f src/Tests/TestHost/Dockerfile -t tl-test-host .
 
