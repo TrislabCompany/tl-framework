@@ -25,6 +25,10 @@ The test host composes the framework's modules like a product's host does, plus 
 - **Test order is not guaranteed** (xUnit v3 orders differently from v2, and it shifted several hidden dependencies). Clean up shared state you create. Tenants pointing at an unreachable database go through `_factory.RemoveTenantsAsync(ids)` in `DisposeAsync`, or all-tenant jobs run by later tests count them as failures. Don't assume a new tenant's audit rows fit on page 1, because provisioning writes its seed data as `EntityChange` rows.
 - **`WithWebHostBuilder` hosts share two statics with the shared host**: Hangfire's `JobStorage.Current` and the static `Audit` publisher. `PrimaryHostStaticsRestorer` points both back at the shared host when a derived host stops. Always dispose derived factories (`await using`).
 
+## Endpoint authorization
+
+`Tests/Security/EndpointAuthorizationTests.cs` fails when an endpoint is public (`AllowAnonymous()`) and not in its `AnonymousEndpoints` list, when a listed one no longer exists, or when an endpoint answers a request without a token with anything but `401`. Making an endpoint public means adding `AllowAnonymous()` and a list entry with the reason, in the same pull request (`tests/security/README.md`).
+
 ## Coverage
 
 ```bash

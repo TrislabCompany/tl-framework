@@ -1,0 +1,4 @@
+{
+  "$comment": "Findings of medium risk or higher that scripts/check-zap-report.ps1 lets pass. Each entry: pluginId (the ZAP plugin id from the report), name, reason (why it is not a risk for the framework). An entry without a reason fails the check. See tests/security/README.md.",
+  "accepted": []
+}

@@ -1,0 +1,75 @@
+name: security-scan
+
+# Runs the test host as a container with its seed data and scans it with OWASP ZAP on every PR: the
+# OpenAPI document of the host is the input (zap-api-scan.py -f openapi), signed in as the seeded
+# administrator, in safe mode (passive rules only: the scan sends the documented requests and reads the
+# answers, it does not attack). Findings of medium risk or higher fail the job unless they are accepted,
+# with a reason, in tests/security/zap-accepted.json (scripts/check-zap-report.ps1). Kept out of ci.yml,
+# which only calls the platform's reusable workflow. See tests/security/README.md.
+# The job is `zap`, so the check is `security-scan / zap`.
+
+on:
+  pull_request:
+
+permissions: {}
+
+concurrency:
+  group: security-scan-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  # ghcr.io/zaproxy/zaproxy 2.16.1, pinned by digest like every image here.
+  ZAP_IMAGE: ghcr.io/zaproxy/zaproxy:2.16.1@sha256:7840969c7c9fead565bf9734b12f49f6886db90b1d35b1f74d79710bbd081dab
+
+jobs:
+  zap:
+    name: zap
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Start the test host
+        shell: pwsh
+        run: ./scripts/test-host.ps1 up
+
+      - name: ZAP scan of the OpenAPI document
+        run: |
+          set -euo pipefail
+          wrk="$RUNNER_TEMP/zap"
+          mkdir -p "$wrk"
+          chmod 777 "$wrk"
+          curl --fail --silent --show-error http://localhost:5040/openapi/v1.json -o "$wrk/openapi.json"
+          token="$(pwsh -NoProfile -File scripts/test-host.ps1 token)"
+          # Every request of the scan carries the administrator's token and the tenant header.
+          # -I: ZAP's own exit code ignores warnings; the verdict is the next step's.
+          docker run --rm --network host -v "$wrk:/zap/wrk:rw" "$ZAP_IMAGE" zap-api-scan.py             -t /zap/wrk/openapi.json -f openapi -O http://localhost:5040 -S -I             -J report.json -r report.html             -z "-config replacer.full_list(0).description=auth -config replacer.full_list(0).enabled=true -config replacer.full_list(0).matchtype=REQ_HEADER -config replacer.full_list(0).matchstring=Authorization -config replacer.full_list(0).regex=false -config replacer.full_list(0).replacement=Bearer\ $token -config replacer.full_list(1).description=tenant -config replacer.full_list(1).enabled=true -config replacer.full_list(1).matchtype=REQ_HEADER -config replacer.full_list(1).matchstring=tenant -config replacer.full_list(1).regex=false -config replacer.full_list(1).replacement=root"
+
+      - name: Fail on findings above low
+        shell: pwsh
+        run: ./scripts/check-zap-report.ps1 -Report "$env:RUNNER_TEMP/zap/report.json"
+
+      - name: Test host log
+        if: failure()
+        shell: pwsh
+        run: ./scripts/test-host.ps1 logs
+
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: zap-report
+          path: |
+            ${{ runner.temp }}/zap/report.html
+            ${{ runner.temp }}/zap/report.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Stop the test host
+        if: always()
+        shell: pwsh
+        run: ./scripts/test-host.ps1 down
