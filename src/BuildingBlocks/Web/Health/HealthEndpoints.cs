@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Trislab.Framework.Shared.Constants;
+using Trislab.Framework.Shared.Health;
+using Trislab.Framework.Shared.Identity.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
@@ -36,9 +39,25 @@ public static class HealthEndpoints
                 .WithDescription("Reports if the API process is alive. Does not check dependencies.")
                 .Produces<HealthResult>(StatusCodes.Status200OK);
 
-        // Readiness: includes DB + registered checks. Full payload on both 200 and 503 so
-        // operators see which check failed; probe consumers key off status code, so a 503 body is safe.
+        // Readiness: the database and every registered check except the details-only ones. Anonymous,
+        // so it answers the overall status only; which check failed is for /details, behind a permission.
         group.MapGet("/ready",
+                    async (HealthCheckService hc, CancellationToken cancellationToken) =>
+                    {
+                        var report = await hc.CheckHealthAsync(c => !c.Tags.Contains(HealthCheckTags.DetailsOnly), cancellationToken);
+                        var payload = new HealthResult(report.Status.ToString(), Array.Empty<HealthEntry>());
+                        return Results.Json(payload, statusCode: StatusCode(report));
+                    })
+                    .WithName("Readiness")
+                    .WithSummary("Readiness probe with database check.")
+                    .WithDescription("Returns 200 if all dependencies are healthy, otherwise 503. The body has the overall status only; GET /api/health/details lists every check.")
+                    .Produces<HealthResult>(StatusCodes.Status200OK)
+                    .Produces<HealthResult>(StatusCodes.Status503ServiceUnavailable);
+
+        // Details: every check, the details-only ones too, with its status, description and data, for
+        // the Admins of a tenant and the operator. Outside the anonymous group, so the fallback policy
+        // authenticates the caller before the permission is checked.
+        app.MapGet("/api/health/details",
                     async (HealthCheckService hc, CancellationToken cancellationToken) =>
                     {
                         var report = await hc.CheckHealthAsync(cancellationToken: cancellationToken);
@@ -53,19 +72,23 @@ public static class HealthEndpoints
                             v => v.Value is null ? "null" : v.Value
                         )));
 
-                        var payload = new HealthResult(report.Status.ToString(), results);
-                        var statusCode = report.Status == HealthStatus.Healthy
-                            ? StatusCodes.Status200OK
-                            : StatusCodes.Status503ServiceUnavailable;
-
-                        return Results.Json(payload, statusCode: statusCode);
+                        // Always 200: the caller asked for the report, not for a probe answer.
+                        return TypedResults.Ok(new HealthResult(report.Status.ToString(), results));
                     })
-                    .WithName("Readiness")
-                    .WithSummary("Readiness probe with database check.")
-                    .WithDescription("Returns 200 if all dependencies are healthy, otherwise 503. Body is the same shape in both cases.")
+                    .WithTags("Health")
+                    .DisableRateLimiting()
+                    .WithName("HealthDetails")
+                    .WithSummary("Every health check with its details.")
+                    .WithDescription("Runs every check, also the ones the readiness probe skips (file storage), and returns each one's status and data. Needs Health.View.")
+                    .RequirePermission(SystemPermissions.Health.View)
                     .Produces<HealthResult>(StatusCodes.Status200OK)
-                    .Produces<HealthResult>(StatusCodes.Status503ServiceUnavailable);
+                    .Produces(StatusCodes.Status401Unauthorized)
+                    .Produces(StatusCodes.Status403Forbidden);
 
         return app;
     }
+
+    private static int StatusCode(HealthReport report) => report.Status == HealthStatus.Healthy
+        ? StatusCodes.Status200OK
+        : StatusCodes.Status503ServiceUnavailable;
 }

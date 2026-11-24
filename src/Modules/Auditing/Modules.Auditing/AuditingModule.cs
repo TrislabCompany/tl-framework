@@ -5,6 +5,7 @@ using Trislab.Framework.Web.Modules;
 using Trislab.Modules.Auditing.Contracts;
 using Trislab.Modules.Auditing.Features.v1.GetAuditById;
 using Trislab.Modules.Auditing.Features.v1.GetAudits;
+using Trislab.Modules.Auditing.Features.v1.GetMyAudits;
 using Trislab.Modules.Auditing.Features.v1.GetAuditsByCorrelation;
 using Trislab.Modules.Auditing.Features.v1.GetAuditsByTrace;
 using Trislab.Modules.Auditing.Features.v1.GetAuditSummary;
@@ -89,6 +90,7 @@ public class AuditingModule : IModule
             .WithApiVersionSet(apiVersionSet);
 
         group.MapGetAuditsEndpoint();
+        group.MapGetMyAuditsEndpoint();
         group.MapGetAuditByIdEndpoint();
         group.MapGetAuditsByCorrelationEndpoint();
         group.MapGetAuditsByTraceEndpoint();

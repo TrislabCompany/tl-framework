@@ -24,12 +24,16 @@ public sealed class LocalStorageService : IStorageService
     private readonly string _rootPath;
     private readonly FileExtensionContentTypeProvider _contentTypeProvider;
 
+    /// <summary>The folder every object is stored under: the web root, or <c>wwwroot</c> under the content root.</summary>
+    internal static string ResolveRootPath(IWebHostEnvironment environment) =>
+        Path.GetFullPath(string.IsNullOrWhiteSpace(environment.WebRootPath)
+            ? Path.Combine(environment.ContentRootPath, "wwwroot")
+            : environment.WebRootPath);
+
     public LocalStorageService(IWebHostEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(environment);
-        _rootPath = Path.GetFullPath(string.IsNullOrWhiteSpace(environment.WebRootPath)
-            ? Path.Combine(environment.ContentRootPath, "wwwroot")
-            : environment.WebRootPath);
+        _rootPath = ResolveRootPath(environment);
         _contentTypeProvider = new FileExtensionContentTypeProvider();
     }
 

@@ -3,12 +3,14 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Quota;
+using Trislab.Framework.Shared.Health;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Storage.Local;
 using Trislab.Framework.Storage.S3;
 using Trislab.Framework.Storage.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -64,15 +66,26 @@ public static class Extensions
 
             services.AddTransient<S3StorageService>();
             RegisterStorageService<S3StorageService>(services, quotaEnabled, ServiceLifetime.Transient);
+            AddStorageHealthCheck<S3StorageHealthCheck>(services);
         }
         else
         {
             services.AddScoped<LocalStorageService>();
             RegisterStorageService<LocalStorageService>(services, quotaEnabled, ServiceLifetime.Scoped);
+            AddStorageHealthCheck<LocalStorageHealthCheck>(services);
         }
 
         return services;
     }
+
+    // Degraded and details-only: files fail while storage is down, but the rest of the app works, so a
+    // readiness probe must not take the instance out of service. GET /api/health/details reports it.
+    private static void AddStorageHealthCheck<TCheck>(IServiceCollection services)
+        where TCheck : class, IHealthCheck =>
+        services.AddHealthChecks().AddCheck<TCheck>(
+            "storage",
+            failureStatus: HealthStatus.Degraded,
+            tags: [HealthCheckTags.DetailsOnly]);
 
     private static AmazonS3Client CreateS3Client(S3StorageOptions options, string? serviceUrl)
     {
