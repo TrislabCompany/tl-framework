@@ -8,6 +8,8 @@ paths:
 
 How a product charges its own tenants (the capability `subscriptions-usage`): plans, subscriptions, usage metering, monthly usage invoicing. Not the documents a tenant issues to its own customers: that is the InvoiceDocuments module. The module was renamed from Billing; the schema `billing`, the routes `/api/v1/billing`, the permission names `Permissions.Billing.*`, the `Billing` config section and the type names (`BillingDbContext`, `BillingPlan`, ...) are unchanged on purpose, so behaviour, data and migrations stay as they were. **Manual payment marking — no payment provider.** Module `Order = 500`.
 
+**Permissions.** `Billing.View` is basic: a tenant reads its own subscription, invoices, usage and wallet, and requests a top-up. `Billing.Manage` is **root-only** (`IsRoot: true`): plans are global, and assigning subscriptions, issuing, voiding or marking invoices paid, approving top-ups and capturing usage are the operator's work. A tenant admin who held it could change every tenant's plans or credit its own wallet. Never add a tenant-level action under `Billing.Manage`; give it its own permission.
+
 **Entities / DbContext:** `BillingPlan`, `Subscription`, `Invoice` (+ `InvoiceLineItem`), `UsageSnapshot`. **`BillingDbContext : DbContext`** (NOT `BaseDbContext`) — billing lives in the main DB with an explicit `TenantId` column for cross-tenant admin visibility, filtered in query services. Contracts = DTOs; `IBillingService`/`IUsageReporter` are internal.
 **Areas:** Plans, Subscriptions, Invoices (generate/issue/mark-paid/void), Usage (capture/get). Monthly invoice job (`5 0 1 * *`). Full list: `Features/v1/` or `/scalar`.
 

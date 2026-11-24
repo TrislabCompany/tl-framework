@@ -271,4 +271,10 @@
   <data name="Identity.InScopeInitializationOnly" xml:space="preserve">
     <value>Metoda je rezervirana samo za inicializacijo znotraj obsega</value>
   </data>
+  <data name="Identity.OperatorAppBoundary" xml:space="preserve">
+    <value>Konzola operaterja</value>
+  </data>
+  <data name="Identity.OperatorAppBoundary.Detail" xml:space="preserve">
+    <value>Konzola je samo za operaterja. Namesto tega se prijavite v nadzorno ploščo.</value>
+  </data>
 </root>
