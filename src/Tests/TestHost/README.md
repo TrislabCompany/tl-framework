@@ -8,7 +8,7 @@ It serves three kinds of test:
 - **Integration and security tests, in process.** `Integration.Tests` and `Integration.Middleware.Tests` start it
   with `WebApplicationFactory<Program>` over Testcontainers (PostgreSQL, rustfs), in both tenancy modes.
 - **Performance tests (k6).** Run it as a container and point k6 at it (`tests/perf/README.md`).
-- **Security scans (ZAP), later.** Run it on its own and point ZAP at it.
+- **Security scans (ZAP).** Run it as a container and point ZAP at its OpenAPI document (`tests/security/README.md`).
 
 It is **never deployed and never packed.** It signs in with a fixed development key and has endpoints that
 exist only for tests.
