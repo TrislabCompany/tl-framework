@@ -109,6 +109,9 @@
   <data name="Files.NotAllowedToAttach" xml:space="preserve">
     <value>You are not allowed to attach files to this owner.</value>
   </data>
+  <data name="Files.NotAllowedToList" xml:space="preserve">
+    <value>You are not allowed to see the files of this owner.</value>
+  </data>
   <data name="Files.StorageQuotaExceeded" xml:space="preserve">
     <value>Storage quota exceeded ({0}/{1} bytes).</value>
   </data>

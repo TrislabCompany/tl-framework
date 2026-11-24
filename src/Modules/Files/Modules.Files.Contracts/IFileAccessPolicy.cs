@@ -28,6 +28,14 @@ public interface IFileAccessPolicy
     /// </summary>
     Task<bool> CanChangeVisibilityAsync(FileAccessContext context, string currentUserId, CancellationToken cancellationToken)
         => CanDeleteAsync(context, currentUserId, cancellationToken);
+
+    /// <summary>
+    /// Whether the caller may list the files of an owner (<c>GET /files?ownerType=&amp;ownerId=</c>).
+    /// Defaults to <see cref="CanAttachAsync"/>: whoever may attach a file to an owner may see its list.
+    /// The list then holds only the files <see cref="CanReadAsync"/> allows the caller to read.
+    /// </summary>
+    Task<bool> CanListAsync(Guid? ownerId, string currentUserId, CancellationToken cancellationToken)
+        => CanAttachAsync(ownerId, currentUserId, cancellationToken);
 }
 
 /// <summary>

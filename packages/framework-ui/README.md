@@ -2,7 +2,7 @@
 
 The shared React UI of `tl-framework`, published to GitHub Packages at the framework's version ([docs/packages.md](../../docs/packages.md)). The starters `tl-product-webapp` and `tl-product-saas` build their front ends on it.
 
-It holds the Trislab theme, i18n and the bot check of public forms. English (`en-US`) and Slovenian (`sl-SI`) ship with the framework, and every text is in both.
+It holds the Trislab theme, i18n, the bot check of public forms and a record's attachments. English (`en-US`) and Slovenian (`sl-SI`) ship with the framework, and every text is in both.
 
 | Export | What it does |
 | --- | --- |
@@ -13,6 +13,8 @@ It holds the Trislab theme, i18n and the bot check of public forms. English (`en
 | `theme.css`, `fonts.css`, `tailwind.css` | The Trislab theme as CSS variables, Inter, and the variables as Tailwind colours ([Theme](#theme)) |
 | `applyColorScheme(scheme)` | Light, dark, or as the operating system says: puts the class `dark` on `<html>` |
 | `framework-ui-check-colors` | A command that fails on a colour written into code instead of a theme variable ([Theme](#theme)) |
+| `createFilesClient(options)` | A client of the Files module's endpoints: an owner's files, the three-step upload (presigned URL, PUT to storage, finalize), a download URL, delete. Pass the app's authenticated `fetch`; the bytes go to storage with the browser's own, so storage never sees a token. Errors are `FilesRequestError`, with the API's `traceId` |
+| `Attachments` | The files of one record (`ownerType`, `ownerId`): list with sizes, upload, download, delete (only on the user's own files, `currentUserId`), "Show more" by page, busy and error states. Native controls, unstyled but for theme variables; texts in English and Slovenian (`ATTACHMENTS_TEXTS`, override with `texts`). The owning module registers an `IFileAccessPolicy` for the owner type ([modules.md](../../docs/modules.md)) |
 | `Turnstile`, `TURNSTILE_HEADER` | Cloudflare Turnstile, the bot check of a public form; the token goes in `X-Turnstile-Token` to an endpoint with `RequireTurnstile()` ([bot-protection.md](../../docs/bot-protection.md)) |
 
 ```tsx
@@ -29,6 +31,14 @@ export const i18n = createFrameworkI18n({
 await i18n.init(config.PUBLIC_DEFAULT_LANGUAGE); // the deployment's default, from /config.json
 
 <LanguageSwitch changeLanguage={i18n.changeLanguage} onChanged={(locale) => saveLocale(locale)} />;
+```
+
+```tsx
+import { Attachments, createFilesClient } from "@trislabcompany/framework-ui";
+
+const files = createFilesClient({ fetch: apiFetch }); // the app's fetch, with the token and tenant
+
+<Attachments client={files} ownerType="Ticket" ownerId={ticket.id} category="Document" currentUserId={user.id} />;
 ```
 
 ## Theme

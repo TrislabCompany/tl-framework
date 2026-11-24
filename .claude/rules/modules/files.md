@@ -9,7 +9,7 @@ paths:
 Presigned-URL file lifecycle (upload → finalize → serve → delete) shared by Catalog images, Chat attachments, avatars. Module `Order = 350` (loads before consumer modules).
 
 **Entities / DbContext:** `FileAsset` (aggregate, soft-deletable): status `PendingUpload → Available | Quarantined`, `Visibility` (Public/Private), `ScanStatus`. `FilesDbContext`. Publishes `FileFinalizedIntegrationEvent`.
-**Areas:** RequestUploadUrl, FinalizeUpload, GetFileDownloadUrl/Metadata, ChangeVisibility, Delete/Restore, ListMy/Shared/Trashed. Purge jobs (orphaned hourly, deleted daily). Full list: `Features/v1/` or `/scalar`. Storage mechanics: `storage.md`.
+**Areas:** RequestUploadUrl, FinalizeUpload, GetFileDownloadUrl/Metadata, ChangeVisibility, Delete/Restore, ListMy/Shared/Trashed, ListOwnerFiles (`GET /files?ownerType=&ownerId=`, a record's attachments). Purge jobs (orphaned hourly, deleted daily). Full list: `Features/v1/` or `/scalar`. Storage mechanics: `storage.md`.
 
 ## Gotchas
 
@@ -19,4 +19,7 @@ Presigned-URL file lifecycle (upload → finalize → serve → delete) shared b
 - `CanChangeVisibilityAsync` defaults to the delete rule (uploader-only); domain-bound files (e.g. product images) may override to forbid visibility flips.
 - Tenant scoping is implicit via `BaseDbContext` (no explicit `TenantId` on `FileAsset`).
 
-To support uploads for a new owner type: implement `IFileAccessPolicy`, register it in the owning module, and use that OwnerType in RequestUploadUrl.
+- **ListOwnerFiles** is how a module shows a record's files without a link table of its own: `CanListAsync` gates the list (default: the attach rule), then `CanReadAsync` filters it per file **before** paging, so pages are full and `TotalCount` counts only what the caller may see. The policy runs once per file of the owner: fine for attachments, not for an owner with thousands of files. Unknown owner type or a denied list → 403.
+- RequestUploadUrl stores the **policy's** spelling of the OwnerType (lookup is case-insensitive); the owner list also matches the caller's spelling, for rows stored before that.
+
+To support uploads for a new owner type: implement `IFileAccessPolicy`, register it in the owning module, and use that OwnerType in RequestUploadUrl. Its files are then listed with ListOwnerFiles, and shown in a front end with `Attachments` from `@trislabcompany/framework-ui`.

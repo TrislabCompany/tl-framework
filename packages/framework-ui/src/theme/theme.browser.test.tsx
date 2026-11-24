@@ -21,6 +21,7 @@ describe("the Trislab theme in a browser", () => {
           <Specimen changeLanguage={app.changeLanguage} />
         </I18nextProvider>,
       );
+      await expect.element(screen.getByText("report.pdf")).toBeVisible(); // the attachments have loaded
       expect(await accessibilityViolations(screen.container)).toEqual([]);
     });
 
@@ -32,6 +33,7 @@ describe("the Trislab theme in a browser", () => {
           <Specimen changeLanguage={app.changeLanguage} />
         </I18nextProvider>,
       );
+      await expect.element(screen.getByText("report.pdf")).toBeVisible();
       await expect.element(screen.getByRole("main")).toMatchScreenshot(`specimen-${scheme}`);
     });
   }
