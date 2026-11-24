@@ -29,6 +29,10 @@ No `ValidateOnStart` on `FrontendOptions`, on purpose: a deployment that never s
 
 `UseTrislabSecurityHeaders()` sets `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, HSTS (HTTPS), and a CSP. `SecurityHeadersOptions.ExcludedPaths` defaults to `["/scalar","/openapi"]` (they manage their own scripts) — keep those excluded.
 
+## Health endpoints (`Web/Health/`)
+
+The probes `GET /api/health/live` and `/ready` are anonymous, so they answer the overall status only, never which check failed or its data. `GET /api/health/details` runs every check with its details and needs `Health.View` (Admin, and the operator). A check whose outage must not take the instance out of service is registered `Degraded` with the tag `HealthCheckTags.DetailsOnly` (`Shared/Health`): only `/details` runs it. File storage is one: `AddTrislabStorage` registers `storage`, which lists one key of the S3 bucket (the credentials need `s3:ListBucket` on the prefix) or writes and deletes a file in the local folder. The storage service itself turns every error into "not found", so never build a health check on it. A host that maps its own probes (`/readyz`) leaves the details-only checks out with a predicate, as `src/Tests/TestHost/Program.cs` does.
+
 ## Rate limiting (`Web/RateLimiting/`)
 
 Chained partitioned fixed-window limiter: **tenant → user → IP** (defaults 1000 / 200 / 300 per 60s) + a stricter named `"auth"` policy (10/60s). Health paths are unlimited. Rejection → 429 + ProblemDetails + `Retry-After`. `RateLimitingOptions.Enabled` is read **eagerly** — when false the middleware is skipped entirely (tests set it via env var before host build).

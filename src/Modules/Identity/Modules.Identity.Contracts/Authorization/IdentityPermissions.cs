@@ -13,6 +13,11 @@ public static class IdentityPermissions
     {
         public const string Resource = nameof(Users);
         public const string View          = $"Permissions.{Resource}.View";
+        /// <summary>
+        /// Pick a user in a picker or show a user's name: the lookup endpoint returns only the name
+        /// and picture of active users. Basic, unlike <see cref="View"/>, which shows the full list.
+        /// </summary>
+        public const string Pick          = $"Permissions.{Resource}.Pick";
         public const string Search        = $"Permissions.{Resource}.Search";
         public const string Create        = $"Permissions.{Resource}.Create";
         public const string Update        = $"Permissions.{Resource}.Update";
@@ -76,7 +81,8 @@ public static class IdentityPermissions
 
     public static IReadOnlyList<TrislabPermission> All { get; } =
     [
-        new("View Users",          ActionConstants.View,   Users.Resource, IsBasic: true),
+        new("View Users",          ActionConstants.View,   Users.Resource),
+        new("Pick Users",          "Pick",                 Users.Resource, IsBasic: true),
         new("Search Users",        ActionConstants.Search, Users.Resource),
         new("Create Users",        ActionConstants.Create, Users.Resource),
         new("Update Users",        ActionConstants.Update, Users.Resource),

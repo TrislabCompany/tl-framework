@@ -10,6 +10,7 @@ Append-only audit trail (entity changes, security events, exceptions, HTTP activ
 
 **Entities / DbContext:** `AuditRecord`, `AuditDbContext`. `AuditEnvelope` is the in-flight event. Rich Contracts surface: `IAuditClient`, `ISecurityAudit`, `IAuditPublisher`, `IAuditSink`, `IAuditDlqSink`, `IAuditEnricher`, `NoAuditAttribute`, payload records.
 **Areas:** read-only query side — GetAudits / ByCorrelation / ByTrace / Summary / Exception / Security. Full list: `Features/v1/` or `/scalar`.
+**Who reads what:** the tenant's audit trail needs `AuditTrails.View`, an Admin permission. A Basic user has `AuditTrails.ViewOwn`, which opens only `GET /audits/mine`: `GetAudits` pinned to the caller's own user id and tenant, with the same filters.
 
 ## Gotchas
 

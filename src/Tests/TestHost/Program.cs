@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using TestHost;
 using TestHost.Provisioning;
 using Trislab.Framework.Eventing;
+using Trislab.Framework.Shared.Health;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Tenancy;
 using Trislab.Framework.Web;
@@ -92,7 +93,8 @@ app.UseTrislabPlatform(p =>
 });
 
 app.MapHealthChecks("/healthz", new HealthCheckOptions { Predicate = _ => false }).AllowAnonymous();
-app.MapHealthChecks("/readyz").AllowAnonymous();
+// The platform's readiness probe skips the details-only checks (file storage), as /api/health/ready does.
+app.MapHealthChecks("/readyz", new HealthCheckOptions { Predicate = c => !c.Tags.Contains(HealthCheckTags.DetailsOnly) }).AllowAnonymous();
 
 app.MapGet("/api/health/info", (IConfiguration config) => Results.Ok(new
    {

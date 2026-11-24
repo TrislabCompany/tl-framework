@@ -277,4 +277,16 @@
   <data name="Identity.OperatorAppBoundary.Detail" xml:space="preserve">
     <value>Konzola je samo za operaterja. Namesto tega se prijavite v nadzorno ploščo.</value>
   </data>
+  <data name="Validation.LookupSearchOrIds" xml:space="preserve">
+    <value>Podajte iskalni niz ali identifikatorje uporabnikov, ne obojega.</value>
+  </data>
+  <data name="Validation.LookupTooManyIds" xml:space="preserve">
+    <value>Podajte največ {0} identifikatorjev uporabnikov.</value>
+  </data>
+  <data name="Validation.LookupIdInvalid" xml:space="preserve">
+    <value>Identifikator uporabnika je prazen ali predolg.</value>
+  </data>
+  <data name="Validation.LookupSearchTooShort" xml:space="preserve">
+    <value>Za iskanje vnesite najmanj toliko znakov: {0}.</value>
+  </data>
 </root>

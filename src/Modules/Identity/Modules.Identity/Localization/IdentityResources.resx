@@ -277,4 +277,16 @@
   <data name="Identity.OperatorAppBoundary.Detail" xml:space="preserve">
     <value>The operator console is for the operator only. Sign in to the dashboard instead.</value>
   </data>
+  <data name="Validation.LookupSearchOrIds" xml:space="preserve">
+    <value>Give either a search or the ids of the users, not both.</value>
+  </data>
+  <data name="Validation.LookupTooManyIds" xml:space="preserve">
+    <value>Give at most {0} user ids.</value>
+  </data>
+  <data name="Validation.LookupIdInvalid" xml:space="preserve">
+    <value>A user id is empty or too long.</value>
+  </data>
+  <data name="Validation.LookupSearchTooShort" xml:space="preserve">
+    <value>Type at least {0} characters to search.</value>
+  </data>
 </root>

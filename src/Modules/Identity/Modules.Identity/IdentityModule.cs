@@ -61,6 +61,7 @@ using Trislab.Modules.Identity.Features.v1.Users.GetUsers;
 using Trislab.Modules.Identity.Features.v1.Users.RegisterUser;
 using Trislab.Modules.Identity.Features.v1.Users.ResetPassword;
 using Trislab.Modules.Identity.Features.v1.Users.SearchUsers;
+using Trislab.Modules.Identity.Features.v1.Users.GetUserLookup;
 using Trislab.Modules.Identity.Features.v1.Users.SelfRegistration;
 using Trislab.Modules.Identity.Features.v1.Users.SetProfileImage;
 using Trislab.Modules.Identity.Features.v1.Users.ToggleUserStatus;
@@ -225,6 +226,7 @@ public class IdentityModule : IModule
         group.MapGetUserRolesEndpoint();
         group.MapGetUsersListEndpoint();
         group.MapSearchUsersEndpoint();
+        group.MapGetUserLookupEndpoint();
         group.MapRegisterUserEndpoint();
         group.MapForgotPasswordEndpoint().RequireRateLimiting("auth");
         group.MapResetPasswordEndpoint().RequireRateLimiting("auth");
