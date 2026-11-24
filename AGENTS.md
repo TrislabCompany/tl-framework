@@ -15,10 +15,11 @@ The same block starts the `AGENTS.md` of every Trislab repository, so an agent i
   - country rule packs (`*-si`), the first being `Modules.InvoiceDocuments.Si`;
   - the migrator, and the React apps `clients/admin` and `clients/dashboard` (later the packages `framework-admin`, `framework-dashboard` and `framework-ui`);
   - the framework's agent skills, and `docs/upstream.md`, the log of the upstream ports.
-  - Until `tl-product-saas` exists, also the hosts and the samples Catalog, Tickets and Chat (`src/Samples/`), which move there.
+  - the test host `src/Tests/TestHost`, a small host of the framework's modules that the integration and security tests run against;
+  - until the app copies are removed (a later change), also the hosts (`src/Host/`), the samples Catalog, Tickets and Chat (`src/Samples/`) and the React apps. Identical copies already live in `tl-product-saas`, which owns them.
 - **Never contains:** a product's own features; Trislab-only code; customer names, secrets or prices; live infrastructure.
 - **A change goes elsewhere when it is:**
-  - starter scaffolding (the host, the AppHost, `init-product`, the template manifest): `tl-product-saas` (not created yet) or `tl-product-webapp`;
+  - starter scaffolding (the host, the AppHost, `init-product`, the template manifest, the samples): `tl-product-saas` or `tl-product-webapp`;
   - a need of one product only: its product repository. It moves here when a second product needs it;
   - a reusable infrastructure module, stamp template or app workflow: `tl-platform`;
   - a repository, environment or hostname: `tl-cloud-infrastructure`;
@@ -57,6 +58,7 @@ front-ends. Multitenancy, auth, auditing, billing, files, chat and more are firs
 | `src/Host/App.AppHost` | .NET Aspire orchestrator (Postgres, Valkey, rustfs storage, migrator, API, **both React apps**). |
 | `src/Host/App.DbMigrator` | One-shot migrate/seed runner, the init container of `api`; mode-aware (no tenant catalog in single-tenant mode). DB is **not** migrated at API startup. |
 | `src/Tests/` | Per-module tests, `Architecture.Tests` (NetArchTest), `Integration.Tests` (Testcontainers). |
+| `src/Tests/TestHost` | The test host: the framework's modules plus one tiny test module, composed like a product's host. `Integration.Tests` and `Integration.Middleware.Tests` run on it in process; it also runs on its own (`compose.yaml`) for performance and security scans. Never packed or deployed. |
 | `clients/admin`, `clients/dashboard` | The two React apps, each with its Dockerfile and `docker/` (nginx, `/config.json`). |
 | `packages/framework-ui` | The npm package `@trislabcompany/framework-ui`: i18n, the language switch, formatting by language, the Turnstile widget. `npm test` runs in `ci / ci`. |
 | `docker-compose.yml`, `.env.example` | The four images locally, without the .NET SDK. |

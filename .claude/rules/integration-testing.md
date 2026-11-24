@@ -10,7 +10,9 @@ paths:
 
 ## Harness
 
-`WebApplicationFactory` over **real** infra via Testcontainers — PostgreSQL + Redis + rustfs. **Docker must be running**; if it isn't, tests fail fast with `DockerUnavailableException` (environmental, not a regression — run the unit projects instead).
+`WebApplicationFactory<Program>` over the **test host** (`src/Tests/TestHost`), on **real** infra via Testcontainers — PostgreSQL + Redis + rustfs. **Docker must be running**; if it isn't, tests fail fast with `DockerUnavailableException` (environmental, not a regression — run the unit projects instead).
+
+The test host composes the framework's modules like a product's host does, plus one tiny test module (`TestHost/Module/`): a tenant-scoped entity with its own DbContext (`TestItem`), a file access policy for the owner type `TestItem`, `POST /api/v1/test/notifications` (publishes `UserNotificationRequestedIntegrationEvent`), and in-memory channels for the realtime hub (`/api/v1/test/channels`). A framework test that needs an entity, a policy, a notification or a channel uses these; it never needs a sample or a product module, and the framework's tests never reference product code. `TestHostProvisioning` does what a product's migrator does (migrate, seed, role sync) for the root tenant, or the fixed tenant in single-tenant mode; the factories call it.
 
 `TrislabWebApplicationFactory` (`Integration.Tests/Infrastructure/`) boots the containers, overlays in-memory config, swaps `IMailService` → `NoOpMailService`, and rewires storage to rustfs, including the keyed presign client.
 

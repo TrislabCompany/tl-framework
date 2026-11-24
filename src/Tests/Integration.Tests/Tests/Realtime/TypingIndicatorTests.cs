@@ -2,7 +2,6 @@ using System.Net.Http.Json;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
-using Trislab.Modules.Chat.Contracts.v1.DTOs;
 using Trislab.Modules.Identity.Domain;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
@@ -10,77 +9,101 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Integration.Tests.Tests.Chat;
+namespace Integration.Tests.Tests.Realtime;
 
-/// <summary>
-/// Covers the <c>JoinChannel</c> hub method: <see cref="Trislab.Framework.Web.Realtime.AppHub.OnConnectedAsync"/>
-/// only pre-joins channels that existed (and the user was a member of) at connect time, so a channel that
-/// becomes relevant *after* the socket is live needs an on-demand join or its group broadcasts never arrive
-/// until the page reloads. This is the root cause of "the recipient doesn't see the message until refresh".
-/// </summary>
 [Collection(TrislabCollectionDefinition.Name)]
-public sealed class JoinChannelTests
+public sealed class TypingIndicatorTests
 {
-    private const string ChatBasePath = "/api/v1/chat";
+    private const string TestBasePath = "/api/v1/test";
     private const string HubPath = "/api/v1/realtime/hub";
     private static readonly TimeSpan EventTimeout = TimeSpan.FromSeconds(5);
 
     private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public JoinChannelTests(TrislabWebApplicationFactory factory)
+    public TypingIndicatorTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
     }
 
     [Fact]
-    public async Task JoinChannel_Should_Deliver_Messages_For_A_Channel_Joined_After_Connect()
+    public async Task Typing_Should_Broadcast_ChatTypingStarted_To_Other_Channel_Members()
     {
         using var adminClient = await _auth.CreateRootAdminClientAsync();
-        var (peer, peerToken) = await RegisterAndSignInAsync(adminClient, "joiner");
+        var (peer, peerToken) = await RegisterAndSignInAsync(adminClient, "peer");
 
-        // Channel exists, but the peer connects BEFORE being added — so OnConnectedAsync
-        // does not pre-join them to channel:{id}. This is the live-conversation scenario.
-        var channelId = await CreateChannelAsync(adminClient, Unique("Join"));
-        await using var peerHub = await ConnectAsync(peerToken);
-        using var peerInbox = new EventInbox<MessageDto>(peerHub, "ChatMessageCreated");
-
+        var channelId = await CreateChannelAsync(adminClient, Unique("Typing"));
         await AddMemberAsync(adminClient, channelId, peer.Id);
 
-        // The fix: the client joins the group on demand once the channel is open.
-        await peerHub.InvokeAsync("JoinChannel", channelId);
+        var adminToken = await _auth.GetRootAdminTokenAsync();
 
-        await SendMessageAsync(adminClient, channelId, "live to a late joiner");
+        await using var adminHub = await ConnectAsync(adminToken.AccessToken);
+        await using var peerHub = await ConnectAsync(peerToken);
 
-        var received = await peerInbox.WaitForFirstAsync(m => m.ChannelId == channelId, EventTimeout);
-        received.ShouldNotBeNull("a member that joined the channel after connecting should receive live messages");
-        received.Body.ShouldBe("live to a late joiner");
+        using var peerInbox = new EventInbox<TypingPayload>(peerHub, "ChatTypingStarted");
+
+        // Admin types — peer (other member) should receive ChatTypingStarted.
+        await adminHub.InvokeAsync("Typing", channelId);
+
+        var received = await peerInbox.WaitForFirstAsync(p => p.ChannelId == channelId, EventTimeout);
+        received.ShouldNotBeNull("Expected ChatTypingStarted to arrive at the other member's hub");
     }
 
     [Fact]
-    public async Task JoinChannel_Should_Not_Add_NonMembers_To_The_Group()
+    public async Task Typing_Should_Throttle_To_OneEventPer3Seconds()
     {
         using var adminClient = await _auth.CreateRootAdminClientAsync();
-        var (_, peerToken) = await RegisterAndSignInAsync(adminClient, "outsider");
+        var (peer, peerToken) = await RegisterAndSignInAsync(adminClient, "peer");
 
-        // Peer is never added as a member.
-        var channelId = await CreateChannelAsync(adminClient, Unique("Guard"));
+        var channelId = await CreateChannelAsync(adminClient, Unique("Throttle"));
+        await AddMemberAsync(adminClient, channelId, peer.Id);
+
+        var adminToken = await _auth.GetRootAdminTokenAsync();
+
+        await using var adminHub = await ConnectAsync(adminToken.AccessToken);
         await using var peerHub = await ConnectAsync(peerToken);
-        using var peerInbox = new EventInbox<MessageDto>(peerHub, "ChatMessageCreated");
 
-        // Membership check must reject this — the connection stays out of the group.
-        await peerHub.InvokeAsync("JoinChannel", channelId);
+        using var peerInbox = new EventInbox<TypingPayload>(peerHub, "ChatTypingStarted");
 
-        await SendMessageAsync(adminClient, channelId, "should not leak");
+        // Rapid-fire 5 invokes — distributed-cache throttle should collapse to exactly one event.
+        for (int i = 0; i < 5; i++)
+        {
+            await adminHub.InvokeAsync("Typing", channelId);
+        }
 
-        var received = await peerInbox.WaitForFirstAsync(m => m.ChannelId == channelId, TimeSpan.FromSeconds(2));
-        received.ShouldBeNull("a non-member must not be added to the channel group by JoinChannel");
+        await Task.Delay(TimeSpan.FromMilliseconds(500));
+
+        var received = await peerInbox.DrainAsync(TimeSpan.FromSeconds(1));
+        var matchingHits = received.Count(p => p.ChannelId == channelId);
+        matchingHits.ShouldBe(1,
+            "typing throttle should collapse rapid calls into a single ChatTypingStarted within the 3s window");
+    }
+
+    [Fact]
+    public async Task Typing_Should_Not_Broadcast_To_NonMembers()
+    {
+        using var adminClient = await _auth.CreateRootAdminClientAsync();
+        var (peer, peerToken) = await RegisterAndSignInAsync(adminClient, "peer");
+
+        var channelId = await CreateChannelAsync(adminClient, Unique("Solo"));
+        // peer is NOT added as a member.
+
+        var adminToken = await _auth.GetRootAdminTokenAsync();
+        await using var adminHub = await ConnectAsync(adminToken.AccessToken);
+        await using var peerHub = await ConnectAsync(peerToken);
+
+        using var peerInbox = new EventInbox<TypingPayload>(peerHub, "ChatTypingStarted");
+
+        await adminHub.InvokeAsync("Typing", channelId);
+
+        var received = await peerInbox.WaitForFirstAsync(p => p.ChannelId == channelId, TimeSpan.FromSeconds(2));
+        received.ShouldBeNull("non-members must not receive typing broadcasts");
     }
 
     // ─── helpers ─────────────────────────────────────────────────────
 
-    private static string Unique(string prefix) => $"chat-{prefix}-{Guid.NewGuid().ToString("N")[..8]}";
+    private static string Unique(string prefix) => $"rt-{prefix}-{Guid.NewGuid().ToString("N")[..8]}";
 
     private async Task<HubConnection> ConnectAsync(string accessToken)
     {
@@ -102,7 +125,7 @@ public sealed class JoinChannelTests
 
     private static async Task<Guid> CreateChannelAsync(HttpClient client, string name)
     {
-        using var response = await client.PostAsJsonAsync($"{ChatBasePath}/channels", new
+        using var response = await client.PostAsJsonAsync($"{TestBasePath}/channels", new
         {
             name,
             description = (string?)null,
@@ -113,20 +136,12 @@ public sealed class JoinChannelTests
 
     private static async Task AddMemberAsync(HttpClient client, Guid channelId, string userId)
     {
-        using var response = await client.PostAsJsonAsync($"{ChatBasePath}/channels/{channelId}/members", new
+        using var response = await client.PostAsJsonAsync($"{TestBasePath}/channels/{channelId}/members", new
         {
             channelId,
             userIds = new[] { userId },
         });
         response.StatusCode.ShouldBe(System.Net.HttpStatusCode.NoContent);
-    }
-
-    private static async Task SendMessageAsync(HttpClient client, Guid channelId, string body)
-    {
-        using var response = await client.PostAsJsonAsync(
-            $"{ChatBasePath}/channels/{channelId}/messages",
-            new { body, parentMessageId = (Guid?)null, attachments = Array.Empty<object>() });
-        response.EnsureSuccessStatusCode();
     }
 
     private async Task<(UserCredentials user, string accessToken)> RegisterAndSignInAsync(HttpClient adminClient, string prefix)
@@ -168,6 +183,7 @@ public sealed class JoinChannelTests
     }
 
     private sealed record UserCredentials(string Id, string UserName, string Email);
+    private sealed record TypingPayload(Guid ChannelId, string UserId);
 
     private sealed class EventInbox<T> : IDisposable
     {
@@ -198,8 +214,28 @@ public sealed class JoinChannelTests
                     if (TryFindMatch(predicate, out var hit)) return hit;
                 }
             }
-            catch (OperationCanceledException) { /* timeout — return default */ }
+            catch (OperationCanceledException) { /* timeout — return whatever we drained */ }
             return default;
+        }
+
+        /// <summary>
+        /// Drain every event that arrived within <paramref name="window"/>, returning a snapshot.
+        /// Used to count events under a throttle window — we don't want to stop at the first match.
+        /// </summary>
+        public async Task<IReadOnlyList<T>> DrainAsync(TimeSpan window)
+        {
+            var deadline = DateTimeOffset.UtcNow + window;
+            var snapshot = new List<T>();
+            while (DateTimeOffset.UtcNow < deadline)
+            {
+                while (_items.TryDequeue(out var item)) snapshot.Add(item);
+                var remaining = deadline - DateTimeOffset.UtcNow;
+                if (remaining <= TimeSpan.Zero) break;
+                try { await _signal.WaitAsync(remaining).ConfigureAwait(false); }
+                catch (OperationCanceledException) { break; }
+            }
+            while (_items.TryDequeue(out var late)) snapshot.Add(late);
+            return snapshot;
         }
 
         private bool TryFindMatch(Func<T, bool> predicate, out T match)

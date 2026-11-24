@@ -59,7 +59,7 @@ Deleting a module leaves its tables in an existing database: a later migration i
 | Endpoints | Static classes in the feature's namespace, with a `Map` method, a name that follows the convention, and no business logic |
 | Domain | Domain types depend on no infrastructure or persistence; domain events are sealed; value objects are immutable; an aggregate refers to another only by its ID |
 | Tenant isolation | Every entity of a module's `DbContext` is filtered by tenant, or marked global with `IGlobalEntity` |
-| Hosts | `App.Api` doesn't reach into a module's features or data |
+| Hosts | The test host (`src/Tests/TestHost`) doesn't reach into a module's features or data |
 
 | Tenancy modes | Every module declares at least one mode; only Multitenancy and SubscriptionsUsage are multi-tenant only; a module that supports single-tenant mode doesn't reference the Multitenancy module or its contracts; the module loader refuses an unsupported module |
 
@@ -75,9 +75,9 @@ public TenancyModes SupportedTenancyModes => TenancyModes.Multitenant;  // needs
 ```
 
 - `ModuleLoader.AddModules` refuses a module registered in a mode it doesn't support, and names the module and the setting in the message.
-- A host that serves both modes, such as `App.Api` and `App.DbMigrator` here, lists every module and passes the list through `ModuleLoader.SelectSupported(mode, assemblies)`, which drops the ones the mode doesn't support. A single-tenant app lists only the modules it uses.
+- A host that serves both modes, such as the test host (`src/Tests/TestHost`) and `App.DbMigrator` here, lists every module and passes the list through `ModuleLoader.SelectSupported(mode, assemblies)`, which drops the ones the mode doesn't support. A single-tenant app lists only the modules it uses.
 - A module's code and tests are the same in both modes: data is stamped with the tenant either way. Write tests that need a tenant catalog (tenant isolation, sign-up) for multi-tenant mode only.
-- Integration tests: write the class once as an abstract base on `TrislabWebApplicationFactory`, and add a derived class for each mode (`FooTests` on the multi-tenant host, `FooTestsInSingleTenantMode` on `SingleTenantWebApplicationFactory`), as `NotificationsEndpointTests` does. `dotnet test` then runs the module in every mode it declares.
+- Integration tests run on the test host (`src/Tests/TestHost`: every framework module plus a tiny test module, no product code). Write the class once as an abstract base on `TrislabWebApplicationFactory`, and add a derived class for each mode (`FooTests` on the multi-tenant host, `FooTestsInSingleTenantMode` on `SingleTenantWebApplicationFactory`), as `NotificationsEndpointTests` does. `dotnet test` then runs the module in every mode it declares.
 - A module that needs another's events only in one mode owns the handler itself: the tenant-expiry e-mails are sent by Multitenancy (through the Mailing building block), so Notifications has no reference to Multitenancy.
 
 ## 6. Country rule packs

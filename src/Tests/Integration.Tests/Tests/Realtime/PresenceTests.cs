@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR.Client;
 
-namespace Integration.Tests.Tests.Chat;
+namespace Integration.Tests.Tests.Realtime;
 
 [Collection(TrislabCollectionDefinition.Name)]
 public sealed class PresenceTests

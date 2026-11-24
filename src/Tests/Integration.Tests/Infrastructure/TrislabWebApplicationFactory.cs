@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Finbuckle.MultiTenant;
@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using Trislab.Modules.Multitenancy.Data;
 using Trislab.Framework.Web.Modules;
+using TestHost;
+using TestHost.Provisioning;
 using Trislab.Modules.Auditing;
 using Hangfire;
 using Hangfire.InMemory;
@@ -83,19 +85,13 @@ public class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsy
         PrimaryJobStorage = Services.GetRequiredService<JobStorage>();
         PrimaryAuditingConfigurator = Services.GetServices<IHostedService>().OfType<AuditingConfigurator>().Single();
 
-        // Migrate + seed the root tenant. The semaphore stops test classes sharing the DB
+        // Migrate + seed the root tenant (the fixed tenant in single-tenant mode). The semaphore stops test classes sharing the DB
         // from migrating simultaneously.
         await _migrationLock.WaitAsync();
         try
         {
-            if (Mode == TenancyMode.SingleTenant)
-            {
-                await ProvisionSingleTenantAsync();
-            }
-            else
-            {
-                await ProvisionRootTenantAsync();
-            }
+            // The same pass a product's migrator makes, in this host's tenancy mode.
+            await TestHostProvisioning.ProvisionAsync(Services);
         }
         finally
         {
@@ -356,75 +352,6 @@ public class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsy
         {
             ResetModuleLoader();
             return base.CreateHost(builder);
-        }
-    }
-
-    private async Task ProvisionSingleTenantAsync()
-    {
-        // The same pass the migrator makes in single-tenant mode: no catalog, the fixed tenant from the provider.
-        using var scope = Services.CreateScope();
-        var tenant = scope.ServiceProvider.GetRequiredService<ISingleTenantProvider>().Tenant;
-
-        var setter = scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>();
-        setter.MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
-
-        foreach (var init in scope.ServiceProvider.GetServices<IDbInitializer>())
-        {
-            await init.MigrateAsync(CancellationToken.None);
-        }
-
-        foreach (var init in scope.ServiceProvider.GetServices<IDbInitializer>())
-        {
-            await init.SeedAsync(CancellationToken.None);
-        }
-
-        var syncer = scope.ServiceProvider.GetRequiredService<Trislab.Modules.Identity.Authorization.RolePermissionSyncer>();
-        await syncer.SyncAsync(CancellationToken.None);
-    }
-
-    private async Task ProvisionRootTenantAsync()
-    {
-        // 1. Explicitly migrate the tenant catalog FIRST.
-        using (var scope = Services.CreateScope())
-        {
-            var tenantDbContext = scope.ServiceProvider.GetRequiredService<TenantDbContext>();
-            await tenantDbContext.Database.MigrateAsync();
-
-            // 2. Seed Root Tenant if missing (ensures we don't wait for background service)
-            var rootTenant = await tenantDbContext.TenantInfo.FindAsync(MultitenancyConstants.Root.Id);
-            if (rootTenant is null)
-            {
-                rootTenant = new AppTenantInfo(
-                    MultitenancyConstants.Root.Id,
-                    MultitenancyConstants.Root.Name,
-                    string.Empty,
-                    MultitenancyConstants.Root.EmailAddress,
-                    issuer: MultitenancyConstants.Root.Issuer);
-
-                var validUpto = DateTime.UtcNow.AddYears(1);
-                rootTenant.SetValidity(validUpto);
-                await tenantDbContext.TenantInfo.AddAsync(rootTenant);
-                await tenantDbContext.SaveChangesAsync();
-            }
-
-            // 3. Run all module migrations (identity, audit, webhook schemas)
-            var setter = scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>();
-            setter.MultiTenantContext = new MultiTenantContext<AppTenantInfo>(rootTenant);
-
-            foreach (var init in scope.ServiceProvider.GetServices<IDbInitializer>())
-            {
-                await init.MigrateAsync(CancellationToken.None);
-            }
-
-            // 4. Seed all modules (admin user, roles, permissions, groups)
-            foreach (var init in scope.ServiceProvider.GetServices<IDbInitializer>())
-            {
-                await init.SeedAsync(CancellationToken.None);
-            }
-
-            // 5. Run the role-permission syncer through the production code path.
-            var syncer = scope.ServiceProvider.GetRequiredService<Trislab.Modules.Identity.Authorization.RolePermissionSyncer>();
-            await syncer.SyncAsync(CancellationToken.None);
         }
     }
 

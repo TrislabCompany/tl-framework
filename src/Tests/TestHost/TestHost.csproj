@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<!-- The test host: the framework's modules composed like a product's host, plus a few tiny test modules.
+	     It serves the integration and security tests in process (WebApplicationFactory) and runs on its own
+	     for performance and security scans (README.md). Never packed, never deployed. -->
+	<PropertyGroup>
+		<RootNamespace>TestHost</RootNamespace>
+		<!-- Not plain TestHost: that clashes with the test runner's testhost.dll on a case-insensitive disk. -->
+		<AssemblyName>Trislab.TestHost</AssemblyName>
+		<IsPackable>false</IsPackable>
+		<IsPublishable>false</IsPublishable>
+		<PredefinedCulturesOnly>false</PredefinedCulturesOnly>
+		<!-- CA1515/CA1812: internal types in a host, created by DI or EF. -->
+		<NoWarn>$(NoWarn);CA1812</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Mediator.Abstractions" />
+		<PackageReference Include="Mediator.SourceGenerator">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\BuildingBlocks\Web\Web.csproj" />
+		<ProjectReference Include="..\..\BuildingBlocks\Tenancy\Tenancy.csproj" />
+		<ProjectReference Include="..\..\Modules\Auditing\Modules.Auditing.Contracts\Modules.Auditing.Contracts.csproj" />
+		<ProjectReference Include="..\..\Modules\Auditing\Modules.Auditing\Modules.Auditing.csproj" />
+		<ProjectReference Include="..\..\Modules\Identity\Modules.Identity\Modules.Identity.csproj" />
+		<ProjectReference Include="..\..\Modules\Multitenancy\Modules.Multitenancy\Modules.Multitenancy.csproj" />
+		<ProjectReference Include="..\..\Modules\Webhooks\Modules.Webhooks\Modules.Webhooks.csproj" />
+		<ProjectReference Include="..\..\Modules\Notifications\Modules.Notifications\Modules.Notifications.csproj" />
+		<ProjectReference Include="..\..\Modules\Notifications\Modules.Notifications.Contracts\Modules.Notifications.Contracts.csproj" />
+		<ProjectReference Include="..\..\Modules\SubscriptionsUsage\Modules.SubscriptionsUsage\Modules.SubscriptionsUsage.csproj" />
+		<ProjectReference Include="..\..\Modules\SubscriptionsUsage\Modules.SubscriptionsUsage.Contracts\Modules.SubscriptionsUsage.Contracts.csproj" />
+		<ProjectReference Include="..\..\Modules\InvoiceDocuments\Modules.InvoiceDocuments\Modules.InvoiceDocuments.csproj" />
+		<ProjectReference Include="..\..\Modules\InvoiceDocuments\Modules.InvoiceDocuments.Contracts\Modules.InvoiceDocuments.Contracts.csproj" />
+		<ProjectReference Include="..\..\Modules\Files\Modules.Files\Modules.Files.csproj" />
+		<ProjectReference Include="..\..\Modules\Files\Modules.Files.Contracts\Modules.Files.Contracts.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="Integration.Tests" />
+		<InternalsVisibleTo Include="Integration.Middleware.Tests" />
+	</ItemGroup>
+
+</Project>

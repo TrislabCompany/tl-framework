@@ -9,8 +9,6 @@ using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Shared.Quota;
 using Trislab.Framework.Storage;
 using Trislab.Framework.Storage.Services;
-using Trislab.Modules.Catalog.Data;
-using Trislab.Modules.Catalog.Domain;
 using Trislab.Modules.Files.Contracts.v1.Commands;
 using Trislab.Modules.Files.Contracts.v1.DTOs;
 using Trislab.Modules.Files.Data;
@@ -22,6 +20,7 @@ using Trislab.Modules.Identity.Data;
 using Trislab.Modules.Multitenancy.Contracts.Dtos;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
+using TestHost;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -164,7 +163,7 @@ public sealed class StorageVisibilityRootTests
 
         // Files uploaded before #1410: keys under tenants/…, objects at those keys.
         var avatar = await SeedLegacyAssetAsync(TestConstants.RootTenantId, "User", Guid.Parse(adminId), Visibility.Public);
-        var productImage = await SeedLegacyAssetAsync(TestConstants.RootTenantId, "Product", null, Visibility.Public);
+        var itemImage = await SeedLegacyAssetAsync(TestConstants.RootTenantId, TestItemFileAccessPolicy.OwnerTypeName, null, Visibility.Public);
         var legacyPrivate = await SeedLegacyAssetAsync(TestConstants.RootTenantId, "MyFiles", null, Visibility.Private);
         var otherTenantPublic = await SeedLegacyAssetAsync(otherTenantId, "MyFiles", null, Visibility.Public);
 
@@ -172,7 +171,7 @@ public sealed class StorageVisibilityRootTests
         // (what compose stored before it set PublicBaseUrl). The move must repair the base, not keep it.
         const string StaleBase = "http://rustfs:9000/" + Bucket + "/";
         var originalAvatarUrl = await SetAvatarUrlAsync(adminId, StaleBase + avatar.Key);
-        var productImageId = await SeedProductImageAsync(productImage.Id, StaleBase + productImage.Key);
+        var itemImageId = await SeedTestItemAsync(itemImage.Id, StaleBase + itemImage.Key);
 
         try
         {
@@ -184,7 +183,7 @@ public sealed class StorageVisibilityRootTests
             foreach (var (tenantId, asset) in new[]
             {
                 (TestConstants.RootTenantId, avatar),
-                (TestConstants.RootTenantId, productImage),
+                (TestConstants.RootTenantId, itemImage),
                 (otherTenantId, otherTenantPublic),
             })
             {
@@ -200,7 +199,7 @@ public sealed class StorageVisibilityRootTests
 
             // Persisted URLs followed their objects, onto the API's current public URL.
             (await ReadAvatarUrlAsync(adminId)).ShouldBe(PublicUrlFor("public/" + avatar.Key));
-            (await ReadProductImageUrlAsync(productImageId)).ShouldBe(PublicUrlFor("public/" + productImage.Key));
+            (await ReadTestItemUrlAsync(itemImageId)).ShouldBe(PublicUrlFor("public/" + itemImage.Key));
 
             // Act — a second run (every API start enqueues one) finds nothing left to do.
             await RunMigrationJobAsync();
@@ -643,30 +642,24 @@ public sealed class StorageVisibilityRootTests
         return new LegacyAsset(id, key, bytes);
     }
 
-    private async Task<Guid> SeedProductImageAsync(Guid fileAssetId, string url)
+    private async Task<Guid> SeedTestItemAsync(Guid fileAssetId, string url)
     {
         using var scope = _factory.Services.CreateScope();
         SetTenant(scope, TestConstants.RootTenantId);
-        var db = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<TestDbContext>();
 
-        var suffix = Guid.NewGuid().ToString("N")[..8];
-        var brand = Brand.Create($"vis-brand-{suffix}", null, null);
-        var category = Category.Create($"vis-category-{suffix}", null, null);
-        var product = Product.Create($"VIS-{suffix}", $"vis product {suffix}", null, brand.Id, category.Id, new Money(10m, "USD"), 1);
-        var image = product.AddImage(fileAssetId, url);
-        db.Brands.Add(brand);
-        db.Categories.Add(category);
-        db.Products.Add(product);
+        var item = TestItem.Create($"vis-item-{Guid.NewGuid():N}"[..20], fileAssetId, url);
+        db.Items.Add(item);
         await db.SaveChangesAsync();
-        return image.Id;
+        return item.Id;
     }
 
-    private async Task<string> ReadProductImageUrlAsync(Guid imageId)
+    private async Task<string> ReadTestItemUrlAsync(Guid itemId)
     {
         using var scope = _factory.Services.CreateScope();
         SetTenant(scope, TestConstants.RootTenantId);
-        var db = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
-        return await db.Set<ProductImage>().AsNoTracking().Where(i => i.Id == imageId).Select(i => i.Url).SingleAsync();
+        var db = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+        return await db.Items.AsNoTracking().Where(i => i.Id == itemId).Select(i => i.ImageUrl!).SingleAsync();
     }
 
     private async Task<string> GetUserIdAsync(string tenantId, string email)

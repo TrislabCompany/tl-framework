@@ -11,8 +11,10 @@ namespace Architecture.Tests;
 /// Discovers all Trislab module assemblies for use in architecture tests.
 /// Uses a seed assembly list to ensure the correct AppDomain is loaded,
 /// then auto-discovers any additional module assemblies that are loaded.
-/// Adding a new module requires only adding its assembly reference to the
-/// Architecture.Tests project — no changes to this file are needed.
+/// Adding a new module requires only adding its project reference to the
+/// Architecture.Tests project — no changes to this file are needed. The guard
+/// below fails when a module under src/Modules is not referenced, so none drops
+/// out of the scans silently.
 /// </summary>
 internal static class ModuleAssemblyDiscovery
 {
@@ -57,8 +59,8 @@ internal static class ModuleAssemblyDiscovery
 }
 
 /// <summary>
-/// Fixture that validates at least one module assembly was discovered.
-/// Prevents silent no-op if all module references are accidentally removed.
+/// Fixture that validates the module assemblies were discovered.
+/// Prevents silent no-op if module references are accidentally removed.
 /// </summary>
 public sealed class ModuleAssemblyDiscoveryGuardTests
 {
@@ -75,5 +77,24 @@ public sealed class ModuleAssemblyDiscoveryGuardTests
         }
 
         assemblies.ShouldNotBeEmpty();
+    }
+
+    [Fact]
+    public void ModuleAssemblyDiscovery_Should_FindEveryModuleUnderSrcModules()
+    {
+        var discovered = ModuleAssemblyDiscovery.GetModuleAssemblies()
+            .Select(a => a.GetName().Name)
+            .ToHashSet(StringComparer.Ordinal);
+
+        var modulesRoot = Path.Combine(ModuleArchitectureTestsFixture.SolutionRoot, "src", "Modules");
+        var expected = Directory.GetFiles(modulesRoot, "Modules.*.csproj", SearchOption.AllDirectories)
+            .Where(f => !f.EndsWith(".Contracts.csproj", StringComparison.OrdinalIgnoreCase))
+            .Select(f => "Trislab." + Path.GetFileNameWithoutExtension(f))
+            .ToList();
+
+        expected.ShouldNotBeEmpty();
+        expected.Where(name => !discovered.Contains(name)).ShouldBeEmpty(
+            "every module project under src/Modules must be referenced by Architecture.Tests.csproj, " +
+            "or the architecture rules skip it");
     }
 }

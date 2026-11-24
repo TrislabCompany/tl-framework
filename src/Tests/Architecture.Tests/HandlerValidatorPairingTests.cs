@@ -18,34 +18,16 @@ public class HandlerValidatorPairingTests
         "Trislab.Modules.SubscriptionsUsage.Features.v1.Invoices.VoidInvoice.VoidInvoiceCommandHandler",
         "Trislab.Modules.SubscriptionsUsage.Features.v1.Invoices.MarkInvoicePaid.MarkInvoicePaidCommandHandler",
         "Trislab.Modules.SubscriptionsUsage.Features.v1.Invoices.IssueInvoice.IssueInvoiceCommandHandler",
-        "Trislab.Modules.Catalog.Features.v1.Products.RestoreProduct.RestoreProductCommandHandler",
-        "Trislab.Modules.Catalog.Features.v1.Products.DeleteProduct.DeleteProductCommandHandler",
-        "Trislab.Modules.Catalog.Features.v1.Categories.RestoreCategory.RestoreCategoryCommandHandler",
-        "Trislab.Modules.Catalog.Features.v1.Categories.DeleteCategory.DeleteCategoryCommandHandler",
-        "Trislab.Modules.Catalog.Features.v1.Brands.RestoreBrand.RestoreBrandCommandHandler",
-        "Trislab.Modules.Catalog.Features.v1.Brands.DeleteBrand.DeleteBrandCommandHandler",
         "Trislab.Modules.Identity.Features.v1.TwoFactor.Enroll.EnrollTwoFactorCommandHandler",
         "Trislab.Modules.Identity.Features.v1.Impersonation.EndImpersonation.EndImpersonationCommandHandler",
         "Trislab.Modules.Multitenancy.Features.v1.TenantProvisioning.RetryTenantProvisioning.RetryTenantProvisioningCommandHandler",
         "Trislab.Modules.Multitenancy.Features.v1.ResetTenantTheme.ResetTenantThemeCommandHandler",
-        "Trislab.Modules.Tickets.Features.v1.Tickets.RestoreTicket.RestoreTicketCommandHandler",
-        "Trislab.Modules.Tickets.Features.v1.Tickets.ResolveTicket.ResolveTicketCommandHandler",
-        "Trislab.Modules.Tickets.Features.v1.Tickets.ReopenTicket.ReopenTicketCommandHandler",
-        "Trislab.Modules.Tickets.Features.v1.Tickets.AssignTicket.AssignTicketCommandHandler"
     ];
 
     private static readonly string[] KnownMissingQueryHandlers = [
         "Trislab.Modules.SubscriptionsUsage.Features.v1.Invoices.GetMyInvoices.GetMyInvoicesQueryHandler",
         "Trislab.Modules.SubscriptionsUsage.Features.v1.Invoices.GetInvoices.GetInvoicesQueryHandler",
-        "Trislab.Modules.Catalog.Features.v1.Products.SearchProducts.SearchProductsQueryHandler",
-        "Trislab.Modules.Catalog.Features.v1.Products.ListTrashedProducts.ListTrashedProductsQueryHandler",
-        "Trislab.Modules.Catalog.Features.v1.Categories.SearchCategories.SearchCategoriesQueryHandler",
-        "Trislab.Modules.Catalog.Features.v1.Categories.ListTrashedCategories.ListTrashedCategoriesQueryHandler",
-        "Trislab.Modules.Catalog.Features.v1.Brands.SearchBrands.SearchBrandsQueryHandler",
-        "Trislab.Modules.Catalog.Features.v1.Brands.ListTrashedBrands.ListTrashedBrandsQueryHandler",
         "Trislab.Modules.Identity.Features.v1.Sessions.GetTenantSessions.GetTenantSessionsQueryHandler",
-        "Trislab.Modules.Tickets.Features.v1.Tickets.SearchTickets.SearchTicketsQueryHandler",
-        "Trislab.Modules.Tickets.Features.v1.Tickets.ListTrashedTickets.ListTrashedTicketsQueryHandler"
     ];
 
     [Fact]

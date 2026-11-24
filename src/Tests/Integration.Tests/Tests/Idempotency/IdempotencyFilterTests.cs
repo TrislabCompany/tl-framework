@@ -18,9 +18,9 @@ public sealed class IdempotencyFilterTests
 
     // These cover the wiring: Idempotency-Replayed presence/absence, and that a distinct key forces fresh
     // execution. Replay of the exact body — no longer out of reach, the filter buffers the executed result
-    // instead of caching the raw IResult — is asserted end-to-end against real Redis in
-    // ChatSendMessageTests.SendMessage_Should_Replay_Same_Response_When_Idempotency_Key_Reused, and branch
-    // by branch in Framework.Tests/Web/IdempotencyEndpointFilterReplayTests.
+    // instead of caching the raw IResult — is asserted branch by branch in
+    // Framework.Tests/Web/IdempotencyEndpointFilterReplayTests, and end-to-end against real Redis by the
+    // sample's ChatSendMessageTests in tl-product-saas.
 
     [Fact]
     public async Task CreateBillingPlan_Should_ExecuteNormally_When_NoIdempotencyKey()

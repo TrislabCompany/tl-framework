@@ -9,10 +9,12 @@ public class HostArchitectureTests
     [Fact]
     public void Modules_Should_Not_Depend_On_Hosts()
     {
-        // Assemblies / namespaces that represent host applications.
+        // Namespaces that represent host applications. The framework has one, the test host; App.Api, the host
+        // of the starters, is named too so a copy of it here fails the same rule.
         string[] hostNamespaces =
         {
-            "App.Api"
+            "App.Api",
+            "TestHost"
         };
 
         var result = Types
@@ -39,9 +41,6 @@ public class HostArchitectureTests
         {
             "Trislab.Modules.Auditing.Features",
             "Trislab.Modules.Auditing.Data",
-            "Trislab.Modules.Chat.Features",
-            "Trislab.Modules.Chat.Data",
-            "Trislab.Modules.Chat.Domain",
             "Trislab.Modules.Identity.Features",
             "Trislab.Modules.Identity.Data",
             "Trislab.Modules.Multitenancy.Features",
@@ -51,7 +50,10 @@ public class HostArchitectureTests
         var hostResult = Types
             .InCurrentDomain()
             .That()
-            .ResideInNamespace("App.Api")
+            .ResideInNamespace("TestHost")
+            // The provisioning pass does what a migrator does, so it touches the module databases.
+            .And()
+            .DoNotResideInNamespace("TestHost.Provisioning")
             .Should()
             .NotHaveDependencyOnAny(forbiddenNamespaces)
             .GetResult();
