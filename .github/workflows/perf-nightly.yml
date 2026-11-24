@@ -1,0 +1,72 @@
+name: perf-nightly
+
+# A longer k6 load run of the test host every night (tests/perf/load.js: ramp to 20 users, 8 minutes), with
+# its results kept as an artifact for 90 days, and by hand (workflow_dispatch). A missed budget fails the run.
+# Scheduled workflows run on the default branch only. See tests/perf/README.md.
+
+on:
+  schedule:
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+env:
+  # grafana/k6 1.4.2, pinned by digest like every image here.
+  K6_IMAGE: grafana/k6:1.4.2@sha256:3656673de3f30424e8ebcfa46acd9558d83b6a43612d0f668ffeac953950c6c7
+
+jobs:
+  load:
+    name: load
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Start the test host
+        shell: pwsh
+        run: ./scripts/test-host.ps1 up
+
+      - name: k6 load test
+        run: |
+          mkdir -p "$RUNNER_TEMP/k6"
+          chmod 777 "$RUNNER_TEMP/k6"
+          docker run --rm --network host             -v "$PWD/tests/perf:/perf:ro" -v "$RUNNER_TEMP/k6:/out"             "$K6_IMAGE" run --summary-export /out/summary.json /perf/load.js
+
+      - name: Write the result to the job summary
+        if: always()
+        run: |
+          f="$RUNNER_TEMP/k6/summary.json"
+          [ -f "$f" ] || exit 0
+          {
+            echo '### k6 load run'
+            echo
+            echo '| Metric | p95 (ms) | max (ms) |'
+            echo '| --- | ---: | ---: |'
+            jq -r '.metrics | to_entries[] | select(.key | startswith("http_req_duration{endpoint:")) | "| \(.key | ltrimstr("http_req_duration{endpoint:") | rtrimstr("}")) | \(.value["p(95)"] | floor) | \(.value.max | floor) |"' "$f"
+            echo
+            echo "Failed requests: $(jq -r '.metrics.http_req_failed.value' "$f")"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Test host log
+        if: failure()
+        shell: pwsh
+        run: ./scripts/test-host.ps1 logs
+
+      - name: Keep the result
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: k6-load-summary-${{ github.run_number }}
+          path: ${{ runner.temp }}/k6/summary.json
+          if-no-files-found: ignore
+          retention-days: 90
+
+      - name: Stop the test host
+        if: always()
+        shell: pwsh
+        run: ./scripts/test-host.ps1 down

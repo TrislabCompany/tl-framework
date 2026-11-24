@@ -1,5 +1,7 @@
 # The services of the test host when it runs on its own (README.md): Postgres and S3-compatible
 # storage, pinned like the images the integration tests start with Testcontainers.
+# With `--profile container` it also builds and runs the host itself as an image (Dockerfile) on
+# http://localhost:5040, the way the performance and security runs in CI use it.
 # Ports differ from the repository's docker-compose.yml so both can run side by side.
 name: tl-test-host
 
@@ -30,3 +32,25 @@ services:
       interval: 2s
       timeout: 5s
       retries: 30
+
+  # The host as a container. Off by default: `docker compose up` starts only the two services above
+  # and `dotnet run` serves the host. The development settings carry the signing key and the seed
+  # password; the two addresses are the compose services instead of localhost.
+  host:
+    profiles: ["container"]
+    build:
+      context: ../../..
+      dockerfile: src/Tests/TestHost/Dockerfile
+    image: tl-test-host:local
+    depends_on:
+      postgres:
+        condition: service_healthy
+      storage:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      TestHost__Provision: "true"
+      DatabaseOptions__ConnectionString: "Host=postgres;Port=5432;Database=testhost;Username=postgres;Password=testhost_pwd"
+      Storage__S3__ServiceUrl: "http://storage:9000"
+    ports:
+      - "127.0.0.1:${TEST_HOST_PORT:-5040}:8080"
