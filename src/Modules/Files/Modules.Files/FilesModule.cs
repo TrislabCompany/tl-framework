@@ -16,6 +16,7 @@ using Trislab.Modules.Files.Features.v1.FinalizeUpload;
 using Trislab.Modules.Files.Features.v1.GetFileDownloadUrl;
 using Trislab.Modules.Files.Features.v1.GetFileMetadata;
 using Trislab.Modules.Files.Features.v1.ListMyFiles;
+using Trislab.Modules.Files.Features.v1.ListOwnerFiles;
 using Trislab.Modules.Files.Features.v1.ListSharedFiles;
 using Trislab.Modules.Files.Features.v1.ListTrashedFiles;
 using Trislab.Modules.Files.Features.v1.RequestUploadUrl;
@@ -90,6 +91,7 @@ public sealed class FilesModule : IModule
 
         // Literal routes first so they win over the /{id:guid} catch-all (matches the Catalog
         // pattern for /trash etc.).
+        group.MapListOwnerFilesEndpoint();           // GET   ?ownerType=&ownerId=
         group.MapRequestUploadUrlEndpoint();         // POST  /upload-url
         group.MapListMyFilesEndpoint();              // GET   /mine
         group.MapListSharedFilesEndpoint();          // GET   /shared

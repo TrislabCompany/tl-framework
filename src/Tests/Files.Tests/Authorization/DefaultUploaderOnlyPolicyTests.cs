@@ -26,6 +26,14 @@ public class DefaultUploaderOnlyPolicyTests
     }
 
     [Fact]
+    public async Task CanListAsync_Should_FollowTheAttachRule_ByDefault()
+    {
+        IFileAccessPolicy p = new DefaultUploaderOnlyPolicy("MyFiles");
+        (await p.CanListAsync(Guid.NewGuid(), "user-1", default)).ShouldBeTrue();
+        (await p.CanListAsync(Guid.NewGuid(), "", default)).ShouldBeFalse();
+    }
+
+    [Fact]
     public async Task CanReadAsync_Should_AllowAnyone_ForPublicFile()
     {
         var p = new DefaultUploaderOnlyPolicy("MyFiles");

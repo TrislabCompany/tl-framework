@@ -14,3 +14,15 @@ export { LanguageSwitch, type LanguageSwitchProps } from "./i18n/LanguageSwitch"
 export { TURNSTILE_HEADER, TURNSTILE_TEST_SITE_KEY, Turnstile, loadTurnstile, type TurnstileProps } from "./turnstile/Turnstile";
 export { applyColorScheme, type ApplyColorSchemeOptions, type ColorScheme } from "./theme/colorScheme";
 export { RAW_COLOR_ALLOWED, findRawColors, isThemeFile, type RawColor } from "./theme/rawColors";
+export { ATTACHMENTS_TEXTS, Attachments, type AttachmentsProps, type AttachmentsTexts } from "./files/Attachments";
+export {
+  FilesRequestError,
+  createFilesClient,
+  type FileAsset,
+  type FileStatus,
+  type FileVisibility,
+  type FilesClient,
+  type FilesClientOptions,
+  type FilesPage,
+  type UploadFileOptions,
+} from "./files/filesClient";

@@ -109,6 +109,9 @@
   <data name="Files.NotAllowedToAttach" xml:space="preserve">
     <value>Nimate dovoljenja za pripenjanje datotek temu lastniku.</value>
   </data>
+  <data name="Files.NotAllowedToList" xml:space="preserve">
+    <value>Nimate dovoljenja za ogled datotek tega lastnika.</value>
+  </data>
   <data name="Files.StorageQuotaExceeded" xml:space="preserve">
     <value>Kvota shrambe je presežena ({0}/{1} bajtov).</value>
   </data>
