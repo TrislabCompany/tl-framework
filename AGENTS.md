@@ -59,6 +59,7 @@ front-ends. Multitenancy, auth, auditing, billing, files, chat and more are firs
 | `src/Host/App.DbMigrator` | One-shot migrate/seed runner, the init container of `api`; mode-aware (no tenant catalog in single-tenant mode). DB is **not** migrated at API startup. |
 | `src/Tests/` | Per-module tests, `Architecture.Tests` (NetArchTest), `Integration.Tests` (Testcontainers). |
 | `src/Tests/TestHost` | The test host: the framework's modules plus one tiny test module, composed like a product's host. `Integration.Tests` and `Integration.Middleware.Tests` run on it in process; it also runs on its own (`compose.yaml`) for performance and security scans. Never packed or deployed. |
+| `tests/perf` | The k6 performance scripts: a smoke run on every pull request, a load run every night, both against the test host as a container (`tests/perf/README.md`). |
 | `clients/admin`, `clients/dashboard` | The two React apps, each with its Dockerfile and `docker/` (nginx, `/config.json`). |
 | `packages/framework-ui` | The npm package `@trislabcompany/framework-ui`: i18n, the language switch, formatting by language, the Turnstile widget. `npm test` runs in `ci / ci`. |
 | `docker-compose.yml`, `.env.example` | The four images locally, without the .NET SDK. |

@@ -7,7 +7,7 @@ It serves three kinds of test:
 
 - **Integration and security tests, in process.** `Integration.Tests` and `Integration.Middleware.Tests` start it
   with `WebApplicationFactory<Program>` over Testcontainers (PostgreSQL, rustfs), in both tenancy modes.
-- **Performance tests (k6), later.** Run it on its own and point k6 at it.
+- **Performance tests (k6).** Run it as a container and point k6 at it (`tests/perf/README.md`).
 - **Security scans (ZAP), later.** Run it on its own and point ZAP at it.
 
 It is **never deployed and never packed.** It signs in with a fixed development key and has endpoints that
@@ -45,3 +45,19 @@ seeds the root tenant, then serves on http://localhost:5040 (`/healthz`, `/ready
 administrator is `admin@root.com`; the password is `Seed:DefaultAdminPassword` in `appsettings.Development.json`.
 For single-tenant mode, pass `--TenancyOptions:Mode=SingleTenant` and the settings under
 `TenancyOptions:SingleTenant` (`Id`, `Name`, `Country`, `AdminEmail`).
+
+## Run it as a container
+
+`Dockerfile` publishes the host into the same kind of image as the API's: chiseled ASP.NET runtime, non-root user,
+port 8080, base images pinned by digest. `Dockerfile.dockerignore` keeps the host in the build context (the
+repository's `.dockerignore` leaves out `src/Tests`). The `host` service of `compose.yaml`, behind the profile
+`container`, runs it with the two services above, in the development configuration (signing key, seed password):
+
+```bash
+pwsh scripts/test-host.ps1 up      # build, start, wait for /readyz; the host is on http://localhost:5040
+pwsh scripts/test-host.ps1 token   # an access token of admin@root.com
+pwsh scripts/test-host.ps1 down
+```
+
+`-Port` (or `TEST_HOST_PORT` for compose) moves the published port; on Windows, where port 5040 belongs to a system
+service, use 5041.

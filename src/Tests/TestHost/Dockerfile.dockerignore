@@ -1,0 +1,26 @@
+# The ignore list of the test host's Dockerfile. BuildKit reads it instead of the root .dockerignore,
+# which leaves out all of src/Tests: this one is the same list, but the test host stays in.
+.git
+.github
+.vscode
+.idea
+.vs
+.agents
+.devcontainer
+docs
+clients
+src/Tests/*
+!src/Tests/TestHost
+src/Host/App.AppHost
+**/bin
+**/obj
+**/TestResults
+**/node_modules
+*.log
+.env
+.env.*
+.DS_Store
+**/Dockerfile
+.dockerignore
+docker-compose.yml
+*.md
