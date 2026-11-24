@@ -29,30 +29,6 @@
             "group": "test"
         },
         {
-            "label": "run (Aspire)",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "run",
-                "--project",
-                "${workspaceFolder}/src/Host/App.AppHost"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "none"
-        },
-        {
-            "label": "run (API only)",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "run",
-                "--project",
-                "${workspaceFolder}/src/Host/App.Api"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "none"
-        },
-        {
             "label": "clean",
             "command": "dotnet",
             "type": "process",

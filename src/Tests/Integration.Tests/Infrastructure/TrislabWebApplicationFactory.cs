@@ -65,7 +65,7 @@ public class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsy
         .WithCleanUp(true)
         .Build();
 
-    // The S3-compatible storage a stamp runs, pinned like docker-compose.yml's.
+    // The S3-compatible storage a stamp runs, pinned like the test host's compose.yaml.
     private readonly IContainer _minio = new ContainerBuilder("rustfs/rustfs:1.0.3@sha256:9ca9559533b537d10482fe923288b676ad08f92a7069d9a17327fbae3cab688b")
         .WithEnvironment("RUSTFS_ACCESS_KEY", S3AccessKey)
         .WithEnvironment("RUSTFS_SECRET_KEY", S3SecretKey)

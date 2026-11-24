@@ -1,6 +1,6 @@
 ---
 name: add-permission
-description: Add a new permission end-to-end — server constant + endpoint gate, and (admin app) mirror it into the permissions catalog + route guard. Use when a new endpoint needs authorization. See modules/identity.md + frontend/admin.md.
+description: Add a new permission end-to-end — server constant + endpoint gate. Use when a new endpoint needs authorization. The React apps that mirror it are in tl-product-saas. See modules/identity.md.
 argument-hint: "[ModuleName] [Resource] [Action]"
 ---
 

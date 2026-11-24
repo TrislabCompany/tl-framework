@@ -7,7 +7,7 @@ paths:
 
 # Realtime — SignalR & SSE (backend)
 
-`src/BuildingBlocks/Web/Realtime/` + `Sse/`. For the frontend side see `frontend/shared.md` + `frontend/dashboard.md`.
+`src/BuildingBlocks/Web/Realtime/` + `Sse/`.
 
 ## SignalR (`AppHub`)
 

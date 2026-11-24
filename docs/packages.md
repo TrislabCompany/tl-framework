@@ -14,7 +14,7 @@ Every project in `src/BuildingBlocks/` and `src/Modules/` is a NuGet package; no
 
 The package id is the project's `AssemblyName`. A project reference between two packed projects becomes a package dependency, so a product names only the modules it uses and gets their building blocks with them.
 
-Never packed: the hosts in `src/Host/`, the samples in `src/Samples/` (they move to `tl-product-saas`), and the tests.
+Never packed: the tests and the test host in `src/Tests/`. The framework holds only packages and tests; the hosts and samples live in `tl-product-saas`.
 
 The npm packages are in `packages/`, one folder each, published as `@trislabcompany/<folder>`:
 
@@ -22,7 +22,7 @@ The npm packages are in `packages/`, one folder each, published as `@trislabcomp
 | --- | --- | --- |
 | `packages/framework-ui` | `@trislabcompany/framework-ui` | The shared React UI: i18n, the language switch, formatting by language, the Turnstile widget ([its README](../packages/framework-ui/README.md)) |
 
-The React apps `clients/admin` and `clients/dashboard` are not packages yet; they become `framework-admin` and `framework-dashboard` later.
+The React apps of the operator console and the tenant app live in `tl-product-saas` for now; they become `framework-admin` and `framework-dashboard` later.
 
 - **Migrations** are compiled into their module, so they ship in its package. The migrator finds them in the package as it does in the project.
 - **Mediator handlers** are found the same way: the host lists each module's assembly in `o.Assemblies`, and the source generator reads a package's assembly like a project's.
@@ -35,10 +35,10 @@ To try the packages locally: `dotnet pack src/App.slnx -c Release -o <folder>`, 
 All packages share one version, the framework's: `Version` in `src/Directory.Build.props` for an untagged build, and the tag's version for a release. There is no version per package.
 
 - **PATCH:** a fix; no change to a contract, endpoint or setting.
-- **MINOR:** something new, or a change that stays compatible. A change that removes something goes in two steps: first it is marked obsolete, and the removal follows one MINOR later. A migration is always backward compatible ([deployment.md section 3](deployment.md#3-migrations)).
+- **MINOR:** something new, or a change that stays compatible. A change that removes something goes in two steps: first it is marked obsolete, and the removal follows one MINOR later. A migration is always backward compatible ([architecture.md section 3](architecture.md#3-migrations)).
 - **MAJOR:** reserved for a break that can't be done in two steps.
 
-A release is a tag `vX.Y.Z` on `main`, created by an organization owner (the `release` skill). The tag runs `.github/workflows/packages.yml`, which packs every package at the tag's version and publishes it to GitHub Packages: the NuGet packages, then each npm package in `packages/`. A version that is already published is skipped, so a re-run is safe. `release.yml` runs beside it for the images. The first release is `v0.1.0`; a release candidate `vX.Y.Z-rc.<n>` publishes prerelease packages, and its npm packages go to the dist-tag `next`.
+A release is a tag `vX.Y.Z` on `main`, created by an organization owner. The tag runs `.github/workflows/packages.yml`, which packs every package at the tag's version and publishes it to GitHub Packages: the NuGet packages, then each npm package in `packages/`. A version that is already published is skipped, so a re-run is safe. The first release is `v0.1.0`; a release candidate `vX.Y.Z-rc.<n>` publishes prerelease packages, and its npm packages go to the dist-tag `next`.
 
 ## 3. Using the packages in a product
 

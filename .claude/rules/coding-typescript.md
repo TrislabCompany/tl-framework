@@ -1,12 +1,12 @@
 ---
 paths:
-  - "clients/**/*.ts"
-  - "clients/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
 ---
 
 # TypeScript coding standards
 
-Checked by: `tsc -b` with `strict`, `noUnusedLocals` and `noUnusedParameters` (`clients/*/tsconfig.app.json`, run by `npm run build`), and `npm run lint` (`clients/*/eslint.config.js`: typescript-eslint, react-hooks, jsx-a11y). The stack and the patterns of the app are in `frontend/shared.md`; this file is the code-level rules.
+Checked by: `tsc` with `strict` (`packages/*/tsconfig.json`, run by `npm test`), and the Vitest tests of each package. The apps that use the packages (and their ESLint and Playwright checks) are in `tl-product-saas`; this file is the code-level rules.
 
 ## Types
 

@@ -1,8 +1,8 @@
 # This repository
 
-> `tl-framework`: the framework every Trislab SaaS product and webapp is built on. A modular .NET 10
-> monolith + two React 19 apps, derived from an open-source starter kit and adapted to the platform
-> contract (`README.md`, `docs/`).
+> `tl-framework`: the framework every Trislab SaaS product and webapp is built on. The packages of a modular
+> .NET 10 monolith and a React 19 UI package, with their tests, derived from an open-source starter kit and
+> adapted to the platform contract (`README.md`, `docs/`). It holds only packages and tests: no app, no host.
 
 ## Role
 
@@ -13,13 +13,12 @@ The same block starts the `AGENTS.md` of every Trislab repository, so an agent i
   - the core building blocks in `src/BuildingBlocks/` (`Trislab.Framework.*`), among them `Tenancy`, which resolves the tenant and owns the event, outbox and job tenant scopes in both modes;
   - every reusable module in `src/Modules/`, with its `.Contracts` (`Trislab.Modules.*`) and its own migrations (each declares the tenancy modes it supports, multi-tenant, single-tenant or both);
   - country rule packs (`*-si`), the first being `Modules.InvoiceDocuments.Si`;
-  - the migrator, and the React apps `clients/admin` and `clients/dashboard` (later the packages `framework-admin`, `framework-dashboard` and `framework-ui`);
+  - the React package `packages/framework-ui` (later `framework-admin` and `framework-dashboard`);
   - the framework's agent skills, and `docs/upstream.md`, the log of the upstream ports.
   - the test host `src/Tests/TestHost`, a small host of the framework's modules that the integration and security tests run against;
-  - until the app copies are removed (a later change), also the hosts (`src/Host/`), the samples Catalog, Tickets and Chat (`src/Samples/`) and the React apps. Identical copies already live in `tl-product-saas`, which owns them.
 - **Never contains:** a product's own features; Trislab-only code; customer names, secrets or prices; live infrastructure.
 - **A change goes elsewhere when it is:**
-  - starter scaffolding (the host, the AppHost, `init-product`, the template manifest, the samples): `tl-product-saas` or `tl-product-webapp`;
+  - starter scaffolding (the host, the migrator, the AppHost, the React apps, `init-product`, the template manifest, the samples, the app's images, `platform.yaml` and its deploy and release workflows): `tl-product-saas` or `tl-product-webapp`;
   - a need of one product only: its product repository. It moves here when a second product needs it;
   - a reusable infrastructure module, stamp template or app workflow: `tl-platform`;
   - a repository, environment or hostname: `tl-cloud-infrastructure`;
@@ -39,13 +38,14 @@ before working in that area** (see the index below). Keep this file lean.
 
 ## What this is
 
-A **modular monolith** (Vertical Slice Architecture) backend that ships with two **React + Vite**
-front-ends. Multitenancy, auth, auditing, billing, files, chat and more are first-class.
+The **packages** of a modular monolith (Vertical Slice Architecture) backend and a React UI package, plus the
+tests that guard them. Multitenancy, auth, auditing, billing, files and more are first-class modules. The
+apps built from them (the hosts, the React apps, the samples) live in `tl-product-saas` and
+`tl-product-webapp`, never here.
 
 - **Backend** — .NET 10, EF Core 10, PostgreSQL, Redis, JWT + ASP.NET Identity, Finbuckle multitenancy,
-  Hangfire, OpenAPI/Scalar, Serilog + OpenTelemetry, .NET Aspire.
-- **Frontends** — `clients/admin` (operator-facing) and `clients/dashboard` (tenant-facing): React 19,
-  Vite 8, TypeScript 6, TanStack Query v5, React Router 7, Radix + Tailwind v4 (shadcn-style), SignalR/SSE.
+  Hangfire, OpenAPI/Scalar, Serilog + OpenTelemetry.
+- **Frontend** — `packages/framework-ui` (React 19, TypeScript 6, i18next).
 
 ## Repo map
 
@@ -53,21 +53,15 @@ front-ends. Multitenancy, auth, auditing, billing, files, chat and more are firs
 |------|------|
 | `src/BuildingBlocks/` | Shared framework libraries (Core, Persistence, Web, Caching, Eventing, Storage, Quota, Tenancy…). **Protected — see below.** |
 | `src/Modules/{Name}/` | Bounded contexts. Each has a runtime project + a `.Contracts` project (its only public API), and ships its own EF migrations in `Migrations/`. |
-| `src/Samples/{Name}/` | The samples Catalog, Tickets and Chat, with their tests: patterns to copy, not part of the framework. Never packed; nothing in `src/BuildingBlocks` or `src/Modules` may reference them. They move to `tl-product-saas`. |
-| `src/Host/App.Api` | Composition-root Web API host. `Platform/PlatformConfiguration.cs` maps the platform's settings onto options. |
-| `src/Host/App.AppHost` | .NET Aspire orchestrator (Postgres, Valkey, rustfs storage, migrator, API, **both React apps**). |
-| `src/Host/App.DbMigrator` | One-shot migrate/seed runner, the init container of `api`; mode-aware (no tenant catalog in single-tenant mode). DB is **not** migrated at API startup. |
 | `src/Tests/` | Per-module tests, `Architecture.Tests` (NetArchTest), `Integration.Tests` (Testcontainers). |
 | `src/Tests/TestHost` | The test host: the framework's modules plus one tiny test module, composed like a product's host. `Integration.Tests` and `Integration.Middleware.Tests` run on it in process; it also runs on its own (`compose.yaml`) for performance and security scans. Never packed or deployed. |
 | `tests/security` | The security checks of the test host: the endpoint-authorization test (in `Integration.Tests`), the ZAP scan of the running host on every pull request, and the findings accepted with a reason (`tests/security/README.md`). |
 | `tests/perf` | The k6 performance scripts: a smoke run on every pull request, a load run every night, both against the test host as a container (`tests/perf/README.md`). |
-| `clients/admin`, `clients/dashboard` | The two React apps, each with its Dockerfile and `docker/` (nginx, `/config.json`). |
 | `packages/framework-ui` | The npm package `@trislabcompany/framework-ui`: i18n, the language switch, formatting by language, the Turnstile widget. `npm test` runs in `ci / ci`. |
-| `docker-compose.yml`, `.env.example` | The four images locally, without the .NET SDK. |
-| `platform.yaml`, `.github/workflows/ci.yml` | The images and app sizing for the platform; the `ci / ci` check. |
+| `.github/workflows/ci.yml` | The `ci / ci` check: `dotnet test src/App.slnx`, then `npm test` in each package. |
 | `.github/workflows/packages.yml` | On a release tag, publishes the NuGet and npm packages to GitHub Packages (`docs/packages.md`). |
 | `scripts/` | Scripts for repetitive work, listed in `scripts/README.md` (porting upstream commits). |
-| `docs/` | How the repository works on the platform: getting started, architecture, configuration, deployment, modules, packages. |
+| `docs/` | How the repository works: getting started, architecture, modules, packages, bot protection, the upstream log. |
 | `renovate/framework.json` | The Renovate preset products extend for framework upgrades (`docs/packages.md`). |
 
 ## Tech stack
@@ -79,62 +73,48 @@ front-ends. Multitenancy, auth, auditing, billing, files, chat and more are firs
 | Validation | FluentValidation 12.x | Routing | React Router 7 |
 | ORM / DB | EF Core 10 / PostgreSQL (Npgsql) | UI | Radix + Tailwind v4 + CVA (shadcn) |
 | Auth | JWT Bearer + ASP.NET Identity | Forms | react-hook-form + zod (**admin only**) |
-| Multitenancy | Finbuckle 10.x | Realtime | `@microsoft/signalr`, SSE (dashboard) |
-| Cache / Jobs | Redis, Hangfire | Tests | Playwright (route-mocked) |
-| Docs | OpenAPI + Scalar | API client | hand-written `apiFetch` (no codegen) |
-| Hosting | .NET Aspire locally, Azure Container Apps | Env | runtime `/config.json` (`PLATFORM_*`, `PUBLIC_*`) |
+| Multitenancy | Finbuckle 10.x | Realtime | SSE, SignalR (backend) |
+| Cache / Jobs | Redis, Hangfire | Tests | Vitest (`packages/framework-ui`) |
+| Docs | OpenAPI + Scalar | | |
 | Testing | xUnit v3, Shouldly, NSubstitute, AutoFixture, NetArchTest, Testcontainers | | |
 
 ## Build & run
 
 ```bash
-# Whole stack (Postgres + pgAdmin + Valkey + rustfs + migrator + API + both React apps)
-dotnet run --project src/Host/App.AppHost   # one-time: npm install in clients/admin & clients/dashboard
-
-dotnet build src/App.slnx                   # build backend
-dotnet run --project src/Host/App.Api       # API only → https://localhost:7030 (/scalar)
-dotnet test src/App.slnx                    # tests — integration tests REQUIRE Docker
-
-cd clients/admin && npm install && npm run dev       # → http://localhost:5173
-cd clients/dashboard && npm install && npm run dev   # → http://localhost:5174
+dotnet build src/App.slnx    # build the packages and the tests
+dotnet test src/App.slnx     # tests; integration tests REQUIRE Docker
+cd packages/framework-ui && npm ci && npm test   # the npm package
 ```
 
-Migrations / seed (DbMigrator, separate step):
-```bash
-DATABASE_URL=... dotnet run --project src/Host/App.DbMigrator -- apply [--seed]
-dotnet run --project src/Host/App.DbMigrator -- list-pending
-```
-
-**Ports:** API 7030 (https)/5030 (http) · admin 5173 · dashboard 5174 · Postgres 5432 · pgAdmin 5050 · Valkey 6379 · storage 9000. With `docker compose`: admin 8081 · dashboard 8082.
+There is no app to run here. The test host (`src/Tests/TestHost`) runs the framework's modules on their own for
+the integration, performance and security tests; a product runs them in its own host (`tl-product-saas`).
 
 ## Git and review
 
 - Branch from `main` with a short kebab-case topic (`billing-proration`). One change per PR; a workflow change goes in its own PR.
 - The PR title is an imperative plain sentence of 72 characters or fewer; it becomes the squash commit. The body follows `.github/pull_request_template.md`.
 - A PR merges with the check `ci / ci` green and one code owner's approval, never your own. The author resolves the threads.
-- Releases are tags `vX.Y.Z`, created only by an organization owner and never moved (`release` skill). `.github/workflows/ci.yml` only calls the platform's reusable workflow: never add steps to it.
+- Releases are tags `vX.Y.Z`, created only by an organization owner and never moved; `packages.yml` publishes the packages (`docs/packages.md`). The framework has no app, so there is no deploy or release workflow for images here.
 - Before asking for review, run the `code-reviewer` and `architecture-guard` subagents. A review checks: correctness and edge cases, a test for each behaviour change, logs per `logging.md`, contracts compatible per `api-conventions.md`, docs updated, no secrets.
 
 ## Platform contract (do not break)
 
-- Every image that serves traffic listens on **8080** and runs as a **non-root** user; base images are pinned by digest.
-- The API answers `/healthz` and `/readyz`; the front ends' nginx answers both too.
-- The app reads the platform's settings (`DATABASE_URL`, `REDIS_URL`, `S3_*`, `JWT_SIGNING_KEY`, …) **only** in `src/Host/App.Api/Platform/PlatformConfiguration.cs`; everything else reads options. See `docs/configuration.md`.
-- The front ends call the API at the relative path `/api` and storage at `/storage`, through their nginx; `/config.json` holds only `PLATFORM_*` and `PUBLIC_*` keys.
+The apps are built in the starters, but they rely on what the packages do, so keep these true:
+
+- A package reads its settings only as options; the platform's names (`DATABASE_URL`, `REDIS_URL`, `S3_*`, `JWT_SIGNING_KEY`, …) are mapped onto the options by the product's host, never read by a package.
 - Migrations are backward compatible: the previous API revision keeps serving on the migrated database.
 
 ## Golden rules (do not break)
 
 1. **Module boundaries** — a module references another module only through its `.Contracts` project, never its runtime project. Enforced by `Architecture.Tests`.
-2. **Registering a module touches FOUR places** — `Program.cs` Mediator `o.Assemblies` (two markers each) + `moduleAssemblies` array, **and the identical pair in `DbMigrator/Program.cs`**. A missing Mediator marker = handlers silently undiscovered. See `architecture.md`.
+2. **A product registers a module in FOUR places** — its API host's `Program.cs` Mediator `o.Assemblies` (two markers each) + `moduleAssemblies` array, **and the identical pair in its migrator's `Program.cs`** (both in the starter; `src/Tests/TestHost` does the same for the tests). A missing Mediator marker = handlers silently undiscovered. See `architecture.md`.
 3. **Tenant isolation is default-ON** via `BaseDbContext`. Opt out only via `IGlobalEntity`. Subclass DbContexts call `base.OnModelCreating` **last**. See `database.md`.
 4. **Do NOT modify `src/BuildingBlocks`** without explicit approval — shared by every module, wide blast radius.
 5. **Mediator handlers must be `public sealed`**, return `ValueTask<T>`, and `.ConfigureAwait(false)` every await.
 6. **Structured logging only** — no string interpolation in log messages; use message templates / `[LoggerMessage]`.
 7. **Propagate `CancellationToken`** into every EF/IO call; add as `= default` on public service methods.
 8. **Every command handler + paginated query handler needs a validator** (`{Name}Validator`). Enforced by `Architecture.Tests`.
-9. **Frontend: pass per-call data through `mutate(arg)`**, never via state the mutation callbacks close over (execute-time race). See `frontend/shared.md`.
-10. **Docs travel with the change** — a change to a setting, a module, an endpoint the front ends use or the way the product runs isn't done until `README.md` and `docs/` match it.
+9. **Docs travel with the change** — a change to a setting, a module, an endpoint or a package isn't done until `README.md` and `docs/` match it.
 
 ## Rules index — read the relevant file before you work
 
@@ -158,33 +138,29 @@ dotnet run --project src/Host/App.DbMigrator -- list-pending
 | Unit test conventions, what to test, NetArchTest | `testing.md` |
 | Integration tests (Testcontainers harness + gotchas) | `integration-testing.md` |
 | **Modifying `src/BuildingBlocks`** (read first — it's protected) | `buildingblocks-protection.md` |
-| A specific module's quirks | `modules/{module}.md` (identity, multitenancy, chat, files, webhooks, auditing, subscriptions-usage, invoice-documents, catalog, tickets, notifications) |
+| A specific module's quirks | `modules/{module}.md` (identity, multitenancy, files, webhooks, auditing, subscriptions-usage, invoice-documents, invoice-documents-si, notifications) |
 
-**Frontend** (`.claude/rules/frontend/`)
+**Frontend** (`packages/`)
 
 | Working on… | Read |
 |---|---|
 | TypeScript style, components, errors, naming | `coding-typescript.md` |
-| Any React work (shared stack, API client, Query, Tailwind, design language) | `frontend/shared.md` |
-| The operator app (`clients/admin`) | `frontend/admin.md` |
-| The tenant app (`clients/dashboard`) | `frontend/dashboard.md` |
 
 ## Docs and tooling
 
 - The build runs with `TreatWarningsAsErrors` and all analyzers on: a warning fails the build. Fix it; a suppression needs a `Justification`.
-- Docs travel with the change (golden rule 10): `README.md` for what the product is and how to run it, `docs/` for how it works on the platform, the rules in `.claude/rules/` for how code is written here. Change the rule when you change the convention.
+- Docs travel with the change (golden rule 9): `README.md` for what the framework is and how to use it, `docs/` for how it works, the rules in `.claude/rules/` for how code is written here. Change the rule when you change the convention.
 - Tools are pinned: the SDK in `global.json`, `dotnet-ef` in `.config/dotnet-tools.json`, packages in `src/Directory.Packages.props`.
 
 ## Adding things (quick pointers)
 
 - **Feature** — Contracts command/query → handler → validator → endpoint → wire in module `MapEndpoints()` → tests. Details: `api-conventions.md`.
 - **Module** — new `Modules.{Name}` + `.Contracts`, implement `IModule` w/ assembly-level `[assembly: TrislabModule(typeof(XModule), order)]`, register in **all four places**, add migration folder + tests. Details: `architecture.md`.
-- **React page** — API module (`src/api/`) → English keys in `src/locales/en-US/{ns}.json` → page (`t()`) → register lazy route → (admin) mirror permission + RouteGuard → Playwright test. Details: `frontend/shared.md`.
 
 ## AI tooling resources
 
 - **Rules** — `.claude/rules/**/*.md` (indexed above), each scoped with `paths:`. A rule without `paths:` would load in every session; `AgentFilesTests` fails on one.
-- **Skills** — `.agents/skills/<name>/SKILL.md` is the skill. Claude Code finds skills only in `.claude/skills/`, so each also has a pointer `.claude/skills/<name>/SKILL.md` with the same front matter; add one with every new skill (`AgentFilesTests` checks it). Scaffolders: `add-feature`, `add-entity`, `add-module`, `add-react-page`, `add-full-slice`. Ops: `create-migration`, `add-integration-event`, `add-permission`, `release` (deploy, tag, promote, roll back). Reference, loaded by the agent only: `query-patterns`, `testing-guide`, `mediator-reference`.
+- **Skills** — `.agents/skills/<name>/SKILL.md` is the skill. Claude Code finds skills only in `.claude/skills/`, so each also has a pointer `.claude/skills/<name>/SKILL.md` with the same front matter; add one with every new skill (`AgentFilesTests` checks it). Scaffolders: `add-feature`, `add-entity`, `add-module`. Ops: `create-migration`, `add-integration-event`, `add-permission`. Reference, loaded by the agent only: `query-patterns`, `testing-guide`, `mediator-reference`.
 - **Subagents** — `.claude/agents/*.md`, read-only: `code-reviewer` (the diff against the rules) and `architecture-guard` (boundaries, registration, `Architecture.Tests`). Run both before a commit.
 - **Settings** — `.claude/settings.json` asks before an edit in `src/BuildingBlocks` or `.github/workflows`, and denies reading `.env` files.
 

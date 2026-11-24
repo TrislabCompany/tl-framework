@@ -48,9 +48,8 @@ For single-tenant mode, pass `--TenancyOptions:Mode=SingleTenant` and the settin
 
 ## Run it as a container
 
-`Dockerfile` publishes the host into the same kind of image as the API's: chiseled ASP.NET runtime, non-root user,
-port 8080, base images pinned by digest. `Dockerfile.dockerignore` keeps the host in the build context (the
-repository's `.dockerignore` leaves out `src/Tests`). The `host` service of `compose.yaml`, behind the profile
+`Dockerfile` publishes the host into the same kind of image as a product's API: chiseled ASP.NET runtime, non-root user,
+port 8080, base images pinned by digest. `Dockerfile.dockerignore` is its ignore list (every test project but the host is left out). The `host` service of `compose.yaml`, behind the profile
 `container`, runs it with the two services above, in the development configuration (signing key, seed password):
 
 ```bash

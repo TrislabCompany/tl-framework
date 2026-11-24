@@ -3,9 +3,8 @@ paths:
   - "src/BuildingBlocks/Core/Localization/**"
   - "src/BuildingBlocks/Web/Localization/**"
   - "src/Modules/*/Modules.*/Localization/**"
-  - "src/Samples/*/Modules.*/Localization/**"
   - "**/*.resx"
-  - "clients/*/src/i18n.ts"
+  - "packages/*/src/i18n/**"
 ---
 # Localization (i18n)
 
@@ -17,7 +16,7 @@ paths:
 
 **`CultureInfo.CurrentUICulture` only — `CurrentCulture` stays invariant.** An API that emits JSON must not shift `ToString()`, `Parse()` or interpolation per request; both React apps format at the presentation layer. `RequestLocalizationMiddleware` assigns both cultures unconditionally, so the culture half is pinned rather than left alone: `DefaultRequestCulture` carries `(InvariantCulture, configured default)` and `SupportedCultures` is `null` so the middleware skips culture filtering. Do **not** "fix" this by adding `AddSupportedCultures(...)`; `Formatting_culture_stays_invariant_while_ui_culture_negotiates` fails if you do.
 
-`SupportedCultures.Tags` is **specific tags only**, no neutrals. A request asking for a bare `sl`, or for an unsupported variant like `en-GB`, resolves to the configured default rather than being served a language it was not translated into. The React apps canonicalize variants onto supported tags (`CANON` in `clients/*/src/i18n.ts`) before calling the API, so app traffic is unaffected; a hand-rolled client sending bare `sl` gets the default. Adding a language means: add its specific tag to `Tags`, add a `*.{tag}.resx` per catalog, add its JSON catalogs to both apps, and remove it from `CANON` if it was being folded into another tag.
+`SupportedCultures.Tags` is **specific tags only**, no neutrals. A request asking for a bare `sl`, or for an unsupported variant like `en-GB`, resolves to the configured default rather than being served a language it was not translated into. The React apps canonicalize variants onto supported tags (`CANON` in the apps' `i18n.ts`, in `tl-product-saas`) before calling the API, so app traffic is unaffected; a hand-rolled client sending bare `sl` gets the default. Adding a language means: add its specific tag to `Tags`, add a `*.{tag}.resx` per catalog, add its JSON catalogs to the apps (in `tl-product-saas`), and remove it from `CANON` if it was being folded into another tag.
 
 ## Catalogs — hybrid, one marker per catalog
 
