@@ -24,6 +24,7 @@ exist only for tests.
 | --- | --- |
 | `TestItem`, `TestDbContext` (schema `testhost`), one migration | a tenant-scoped entity: the eventing, outbox and storage tests |
 | `TestItemFileAccessPolicy` (owner type `TestItem`), `TestItemFileStorageKeyChangedHandler` | the Files policies and the rewrite of a stored URL when a file moves |
+| `TestDocumentFileAccessPolicy` (owner type `TestDocument`) | an owner's file list filtered per file: a private file only for its uploader |
 | `POST /api/v1/test/notifications` | publishing `UserNotificationRequestedIntegrationEvent`, the way a module notifies a user |
 | `TestChannelMembership`, `/api/v1/test/channels` | the realtime hub's membership checks (presence, typing) |
 

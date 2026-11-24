@@ -7,6 +7,8 @@ namespace Trislab.Modules.Files.Authorization;
 /// - Attach: any authenticated user (currentUserId is non-empty).
 /// - Read: Public files visible to anyone in tenant; Private files only to the uploader.
 /// - Delete: only the uploader.
+/// - List an owner's files: only when the owner id is the caller's own user id, so nobody lists another
+///   user's files (their public ones are still in <c>/shared</c>).
 ///
 /// Tenant scoping is handled by the framework's BaseDbContext (schema-per-tenant), not here.
 /// Owning modules with different rules (e.g. Tickets — participants only) register their own
@@ -41,6 +43,12 @@ internal sealed class DefaultUploaderOnlyPolicy : IFileAccessPolicy
         if (string.IsNullOrEmpty(currentUserId)) return Task.FromResult(false);
         return Task.FromResult(IsUploader(context, currentUserId));
     }
+
+    public Task<bool> CanListAsync(Guid? ownerId, string currentUserId, CancellationToken cancellationToken)
+        => Task.FromResult(
+            ownerId is { } owner
+            && Guid.TryParse(currentUserId, out var caller)
+            && owner == caller);
 
     private static bool IsUploader(FileAccessContext context, string currentUserId)
         => string.Equals(currentUserId, context.CreatedByUserId, StringComparison.Ordinal);
