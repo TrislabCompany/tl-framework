@@ -10,8 +10,8 @@ conventions are defined in `.claude/rules/` and `AGENTS.md` — treat those as t
 playbook is the review procedure, not a second copy of the rules.
 
 ## Procedure
-1. `git diff HEAD` (and `git status`) to see what changed; group by area (backend module / BuildingBlocks / frontend).
-2. For each changed file, check it against the relevant rule file (`api-conventions.md`, `database.md`, `eventing.md`, `frontend/*`, …) and the checklist below.
+1. `git diff HEAD` (and `git status`) to see what changed; group by area (backend module / BuildingBlocks / npm package).
+2. For each changed file, check it against the relevant rule file (`api-conventions.md`, `database.md`, `eventing.md`, …) and the checklist below.
 3. If the Roslyn navigator MCP is available, run `detect_antipatterns` and `get_diagnostics` (solution scope) for machine-found issues (broad `catch`, missing `CancellationToken`, EF `AsNoTracking`, logging interpolation) and fold them in — noting false positives (mutate-then-save queries don't want `AsNoTracking`; hosted-service `catch(Exception)` that logs + filters OCE is fine).
 4. Report with `file:line` refs and a concrete fix per finding.
 
@@ -19,7 +19,7 @@ playbook is the review procedure, not a second copy of the rules.
 **Boundaries / structure**
 - Cross-module references go only through `.Contracts` (never another module's runtime). Enforced by `Architecture.Tests`.
 - `src/BuildingBlocks/**` not modified without explicit approval (flag if it is).
-- New module → registered in **all four** places (Mediator + `moduleAssemblies` in Api **and** DbMigrator).
+- New module → registered in **all four** places (Mediator + `moduleAssemblies` in a product's API host **and** migrator; in the test host here).
 
 **CQRS / Mediator (not MediatR)**
 - Command/Query in the Contracts project; `using Mediator;` (`ICommand<T>`/`IQuery<T>`).
@@ -44,13 +44,10 @@ playbook is the review procedure, not a second copy of the rules.
 **Tests** (`testing.md`)
 - Every behaviour change has a test that fails without it; a bug fix has the reproducing test.
 
-**Frontend** (`frontend/*` rules)
-- Hand-written types + `apiFetch`; mutation data passed via `mutate(arg)`; query keys hierarchical; admin gates routes with `RouteGuard` + mirrors the permission; dashboard uses `withSuspense`.
-
 ## Commands
 ```bash
 git diff HEAD
-grep -rn "MediatR\|IRequest<\|IRequestHandler<" src/Modules/ src/Samples/ --include="*.cs"   # must be empty
+grep -rn "MediatR\|IRequest<\|IRequestHandler<" src/Modules/ --include="*.cs"   # must be empty
 dotnet build src/App.slnx 2>&1 | grep -E "warning|error"               # 0 expected
 ```
 

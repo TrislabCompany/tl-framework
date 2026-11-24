@@ -11,7 +11,7 @@ High-ceremony. The part people get wrong is **registration — a module must be 
 
 ## Is it really a new module?
 
-A new module has its own domain entities and is a distinct bounded context. An operation in an existing domain is a feature: use `add-feature` or `add-full-slice` instead.
+A new module has its own domain entities and is a distinct bounded context. An operation in an existing domain is a feature: use `add-feature` instead.
 
 ## Projects
 
@@ -128,7 +128,7 @@ public sealed class {Name}Resources;
 
 Throws use `.Localized<{Name}Resources>("{Name}.Case", args)` and validators inject
 `IStringLocalizer<{Name}Resources>` (see **add-feature**). Once the module is referenced from
-`App.Api` (Step 4), `Architecture.Tests` picks the catalog up on its own: `CatalogParityTests`
+the test host (Step 4), `Architecture.Tests` picks the catalog up on its own: `CatalogParityTests`
 checks the pt-BR file against the neutral one and `LocalizedKeyReferenceTests` fails on any key the
 code uses that the catalog lacks, which also catches a wrong manifest name. Rules: `.agents/rules/localization.md`.
 
@@ -139,7 +139,7 @@ dotnet sln src/App.slnx add src/Modules/{Name}/Modules.{Name}/Modules.{Name}.csp
 dotnet sln src/App.slnx add src/Modules/{Name}/Modules.{Name}.Contracts/Modules.{Name}.Contracts.csproj
 ```
 
-Add a `<ProjectReference>` to the runtime module from **both** `App.Api` and `App.DbMigrator`.
+Add a `<ProjectReference>` to the runtime module from `src/Tests/TestHost`. A product adds the same reference to its own API host and migrator (`tl-product-saas`).
 
 ## Step 5 — Migrations
 
@@ -147,12 +147,12 @@ The module ships its own migrations. Register its context with its schema, `AddT
 
 ## Step 6 — ⚠️ Register in ALL FOUR places (the footgun)
 
-Identical edits in **both** `App.Api/Program.cs` **and** `App.DbMigrator/Program.cs`:
+The same edits in `src/Tests/TestHost/Program.cs` (the provisioning pass reads its list); a product makes them in **both** its API host's `Program.cs` **and** its migrator's `Program.cs`:
 
 1. Mediator `o.Assemblies` — add **two** markers: a Contracts type (e.g. `typeof(Trislab.Modules.{Name}.Contracts.{Name}ContractsMarker)`) **and** the module type (`typeof({Name}Module)`).
 2. `moduleAssemblies` array — add `typeof({Name}Module).Assembly`.
 
-Miss the Mediator marker → handlers silently undiscovered. Miss the assembly entry → module never loads. Miss the DbMigrator pair → migrate/seed skips the module.
+Miss the Mediator marker → handlers silently undiscovered. Miss the assembly entry → module never loads. Miss the migrator pair → migrate/seed skips the module.
 
 ## Step 7 — Verify
 
@@ -160,19 +160,18 @@ Miss the Mediator marker → handlers silently undiscovered. Miss the assembly e
 dotnet build src/App.slnx                  # 0 warnings
 dotnet test src/Tests/Architecture.Tests           # boundary + tenant-isolation rules must pass
 dotnet test src/App.slnx
-dotnet run --project src/Host/App.DbMigrator -- list-pending   # the new context shows up
 ```
 
 Then call one endpoint and confirm its handler runs: a missing Mediator marker compiles but leaves the handler undiscovered. Finish with the `architecture-guard` subagent.
 
 ## Checklist
 
-- [ ] Two projects (copied csproj), added to `.slnx`, referenced from Api + DbMigrator (+ Migrations)
+- [ ] Two projects (copied csproj), added to `.slnx`, referenced from the test host (+ Migrations)
 - [ ] `[assembly: TrislabModule(typeof({Name}Module), order)]` (assembly-level, positional)
 - [ ] `IModule`: `SupportedTenancyModes`, `AddTrislabDbContext<T>()`, `PermissionConstants.Register`, version-set group, eventing trio if needed
 - [ ] `{Name}DbContext : BaseDbContext`, 4-arg ctor, `base.OnModelCreating` last
 - [ ] `{Name}Permissions` in Contracts/Authorization
 - [ ] `Localization/{Name}Resources.cs` marker + `{Name}Resources.resx` (English; pt-BR optional), `S2094` in `<NoWarn>`
 - [ ] Migrations folder + initial migration (`--context {Name}DbContext`)
-- [ ] **Registered in all four places** (Api + DbMigrator × Mediator + moduleAssemblies)
+- [ ] **Registered in all four places** (test host × Mediator + moduleAssemblies; a product repeats it in its API host and migrator)
 - [ ] Build + Architecture.Tests green

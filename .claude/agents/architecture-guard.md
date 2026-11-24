@@ -30,19 +30,19 @@ dotnet build src/App.slnx 2>&1 | grep -E "warning|error"   # expect none (TreatW
 
 ### 4. Module boundary heuristic
 ```bash
-grep -rn "using Trislab.Modules\." src/Modules src/Samples --include="*.cs" | grep -v "\.Contracts"
+grep -rn "using Trislab.Modules\." src/Modules --include="*.cs" | grep -v "\.Contracts"
 ```
 Cross-module `using`s should resolve only to `*.Contracts` namespaces (same-module internal usings are fine — confirm the module name differs).
 
 ### 5. Mediator, not MediatR
 ```bash
-grep -rn "MediatR\|IRequest<\|IRequestHandler<" src/Modules src/Samples --include="*.cs"   # must be empty
+grep -rn "MediatR\|IRequest<\|IRequestHandler<" src/Modules --include="*.cs"   # must be empty
 ```
 
 ### 6. New-module registration (the four-place footgun)
-If a new `*Module` was added, confirm it appears in **all four**: Mediator `o.Assemblies` (Contracts marker **and** module type) + `moduleAssemblies` array, in **both** `App.Api/Program.cs` and `App.DbMigrator/Program.cs`.
+If a new `*Module` was added, confirm it appears in **all four**: Mediator `o.Assemblies` (Contracts marker **and** module type) + `moduleAssemblies` array, in `src/Tests/TestHost/Program.cs` (its provisioning pass reads the same list). A product's own API host and migrator are in the starter, not here.
 ```bash
-grep -rn "{New}Module\|{New}ContractsMarker" src/Host/App.Api/Program.cs src/Host/App.DbMigrator/Program.cs
+grep -rn "{New}Module\|{New}ContractsMarker" src/Tests/TestHost/Program.cs
 ```
 
 ### 7. Permission-gate integrity

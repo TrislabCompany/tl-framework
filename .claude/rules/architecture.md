@@ -12,13 +12,12 @@ Modular Monolith + Vertical Slice Architecture (VSA). Read this before adding/mo
 ## Layers & dependency direction
 
 ```
-Host (composition root)  →  Modules.{Name} (runtime)  →  Modules.{Name}.Contracts (public API)
+Host (composition root: a product's, or the test host)  →  Modules.{Name} (runtime)  →  Modules.{Name}.Contracts (public API)
                          →  BuildingBlocks (shared framework)
 ```
 
 - **BuildingBlocks** (`src/BuildingBlocks/`) — Core, Persistence, Web, Caching, Eventing, Storage, Quota, Jobs, Mailing, Tenancy, Shared. Consumed by all modules. **Do not modify without explicit approval.**
 - **Modules** (`src/Modules/{Name}/`) — bounded contexts. Each = a runtime project (internal, with its own `Migrations/`) + a `.Contracts` project (public API: commands, queries, events, DTOs, service interfaces).
-- **Samples** (`src/Samples/{Name}/`) — Catalog, Tickets and Chat, built like modules, with their tests beside them. Not part of the framework: never packed, and no building block or framework module may reference them. They move to `tl-product-saas`.
 - A module **MUST NOT** reference another module's runtime project — only its `.Contracts`. Enforced by `Architecture.Tests` (NetArchTest).
 
 ## Module = runtime + Contracts
@@ -68,14 +67,14 @@ public sealed class IdentityModule : IModule
 
 ## ⚠️ The four-place registration footgun
 
-Adding a module requires editing **four** lists. Miss one and it fails *silently*:
+A product adds a module in **four** lists, two in its API host and two in its migrator (the starter's `Program.cs` files). Miss one and it fails *silently*. The test host (`src/Tests/TestHost/Program.cs`) has the first pair:
 
 | Place | File | Symptom if missed |
 |---|---|---|
-| Mediator `o.Assemblies` (two markers: Contracts type **and** module type) | `src/Host/App.Api/Program.cs` | Handlers silently undiscovered |
-| `moduleAssemblies` array | `src/Host/App.Api/Program.cs` | Module never loaded |
-| Mediator assemblies (same pair) | `src/Host/App.DbMigrator/Program.cs` | Migrate/seed misses the module |
-| module assemblies array | `src/Host/App.DbMigrator/Program.cs` | Migrate/seed misses the module |
+| Mediator `o.Assemblies` (two markers: Contracts type **and** module type) | API host `Program.cs` | Handlers silently undiscovered |
+| `moduleAssemblies` array | API host `Program.cs` | Module never loaded |
+| Mediator assemblies (same pair) | migrator `Program.cs` | Migrate/seed misses the module |
+| module assemblies array | migrator `Program.cs` | Migrate/seed misses the module |
 
 After wiring, the fastest sanity check is: build, hit the endpoint, confirm the handler runs.
 
@@ -105,10 +104,10 @@ No global mutable static collections enumerated under concurrency. `Audit` (Audi
 
 ## Configuration & options
 
-- `appsettings.json` (+ `.Development`/`.Production`) live in `src/Host/App.Api/`. DbMigrator links the same files.
+- `appsettings.json` (+ `.Development`) of the test host live in `src/Tests/TestHost/`; a product's are in its host.
 - Bind config with the Options pattern: `AddOptions<T>().BindConfiguration(nameof(T))`, section name == type name (e.g. `JwtOptions`, `DatabaseOptions`, `CachingOptions`, `CorsOptions`, `QuotaOptions`, `RateLimitingOptions`; **storage section is `Storage`**, not `StorageOptions`). Add `.ValidateDataAnnotations().ValidateOnStart()` for fail-fast.
 - Validate critical options via `IValidatableObject` — `JwtOptions` requires `SigningKey` ≥32 chars and **rejects placeholder strings containing `"replace-with"`**; `DatabaseOptions` rejects empty connection strings.
-- **Tenancy mode** is an option, not a platform setting: `TenancyOptions:Mode` (`Multitenant` default, `SingleTenant`) and `TenancyOptions:SingleTenant:{Id,Name,Country,AdminEmail}`, read by `AddTrislabTenancy()` (`docs/configuration.md`). Code that must read the mode before the host is built uses `TenancyOptions.ReadMode(configuration)`; at run time it reads `IOptions<TenancyOptions>`.
-- **Platform settings** (`Program.cs`, first line after the builder): `AddPlatformSettings()` from `Platform/PlatformConfiguration.cs` maps `DATABASE_URL`, `REDIS_URL`, `MESSAGING_URL`, `S3_*` and the secrets onto the options. It is the only code that reads those names; the migrator compiles the same file. See `docs/configuration.md`.
-- **Production fail-fast** (`Program.cs`, before service registration): missing `DatabaseOptions:ConnectionString` (`DATABASE_URL`) or `JwtOptions:SigningKey` (`JWT_SIGNING_KEY`) throws. Every other service falls back to what needs no service. Local values for the AppHost are in `appsettings.Development.json` and `AppHost.cs`; the storage keys are Aspire secret parameters.
+- **Tenancy mode** is an option, not a platform setting: `TenancyOptions:Mode` (`Multitenant` default, `SingleTenant`) and `TenancyOptions:SingleTenant:{Id,Name,Country,AdminEmail}`, read by `AddTrislabTenancy()` (`docs/architecture.md`). Code that must read the mode before the host is built uses `TenancyOptions.ReadMode(configuration)`; at run time it reads `IOptions<TenancyOptions>`.
+- **Platform settings** (`DATABASE_URL`, `REDIS_URL`, `MESSAGING_URL`, `S3_*`, the secrets) are mapped onto the options by a product's host, in the starter (`tl-product-saas`, `Platform/PlatformConfiguration.cs`). No package reads those names; a package reads only its options. The test host reads plain configuration.
+- **Production fail-fast** is the host's too: a product throws at start-up on a missing `DatabaseOptions:ConnectionString` or `JwtOptions:SigningKey`; the options of the packages validate themselves.
 - Platform composition is one call each: `builder.AddTrislabPlatform(o => { o.Enable... })` (DI) and `app.UseTrislabPlatform(...)` (middleware). Feature flags toggle Caching/Jobs/Mailing/Quotas/Sse/Realtime/OpenTelemetry/CORS/Idempotency.

@@ -58,7 +58,3 @@ The harness and its gotchas (tenant context set inline, storage rewired after re
 - A handler: unit test for its logic and validator; an integration test when it touches the database, the HTTP pipeline or another module.
 - Test names describe behaviour, not the implementation; one reason to fail per test.
 - No sleeps, no real clock (`TimeProvider`), no order dependence between tests.
-
-## Frontend tests
-
-Playwright, route-mocked (no real backend) — see `frontend/shared.md`. `cd clients/{app} && npm run test:e2e`.

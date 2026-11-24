@@ -3,8 +3,8 @@ name: packages
 # Publishes the framework's packages to GitHub Packages on a release tag
 # vX.Y.Z or vX.Y.Z-rc.<n> on main, all at the tag's version (docs/packages.md):
 # the NuGet packages of src/BuildingBlocks and src/Modules, and every npm
-# package in packages/. release.yml runs beside it for the images. Publishing
-# the same version twice is skipped, so a re-run is safe.
+# package in packages/. Publishing the same version twice is skipped, so a
+# re-run is safe.
 
 on:
   push:

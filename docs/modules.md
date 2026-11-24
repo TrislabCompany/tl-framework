@@ -6,7 +6,7 @@ The modules of the API, what each does, and how to add or delete one. `.claude/r
 
 Each module is a folder in `src/Modules/` with two projects: `Modules.<Name>`, its runtime, and `Modules.<Name>.Contracts`, the only part other modules may use: commands, queries, DTOs and integration events. Its endpoints are under `/api/v1/<module>`, and its tables in a schema of its own. It ships its own migrations, in `Migrations/` of the runtime project, and keeps its migrations history in its schema, so a product that leaves the module out gets none of its tables. Each module is packed as `Trislab.Modules.<Name>` and `Trislab.Modules.<Name>.Contracts` ([packages.md](packages.md)).
 
-The samples Catalog, Tickets and Chat are in `src/Samples/`, with their tests beside them. They show how a module is built, and are not part of the framework: they are never packed, no building block or framework module may reference them (`Architecture.Tests` checks it), and they move to `tl-product-saas`.
+The samples Catalog, Tickets and Chat show how a module is built. They are not part of the framework: they live in `tl-product-saas`, which owns them.
 
 | Module | What it does | Keep it? |
 | --- | --- | --- |
@@ -18,9 +18,6 @@ The samples Catalog, Tickets and Chat are in `src/Samples/`, with their tests be
 | InvoiceDocuments | The documents a tenant issues to its own customers: customers and items, quotes, pro formas, invoices, credit notes and advance invoices, numbering that never changes, a PDF, e-mail, marked paid by hand, an export for the accountant. It holds no law: each country's rules come from a rule pack the product installs ([section 6](#6-country-rule-packs)). Both tenancy modes | When the product's tenants invoice their own customers |
 | Notifications | Each user's in-app inbox, pushed live over SignalR. Any module adds to it by publishing `UserNotificationRequestedIntegrationEvent` | Optional |
 | Webhooks | A tenant's outgoing webhooks, signed and retried | Optional |
-| Catalog | Sample (`src/Samples/`): products, categories and brands, with images, search and a trash | A pattern to copy |
-| Tickets | Sample: support tickets with comments | Sample |
-| Chat | Sample: direct messages, channels, threads, reactions, mentions | Sample |
 
 The building blocks in `src/BuildingBlocks` are not modules: every module depends on them, so change them rarely and with care (`.claude/rules/buildingblocks-protection.md`).
 
@@ -31,17 +28,16 @@ Every module works in multi-tenant mode. All of them also work in single-tenant 
 `.agents/skills/add-module/SKILL.md` is the step-by-step recipe. In short:
 
 1. Create `src/Modules/<Name>/Modules.<Name>` and `Modules.<Name>.Contracts`, with a class that implements `IModule` (declare `SupportedTenancyModes`, [section 5](#5-tenancy-modes)) and the attribute `[assembly: TrislabModule(typeof(<Name>Module), <order>)]`, and add both projects to `src/App.slnx`.
-2. Reference the runtime project from `App.Api` and `App.DbMigrator`.
-3. Register it in four places: in both `src/Host/App.Api/Program.cs` and `src/Host/App.DbMigrator/Program.cs`, a Contracts type and a module type in the Mediator assemblies, and the module's assembly in `moduleAssemblies`. A missing Mediator type leaves its handlers silently undiscovered.
-4. Register its `DbContext` with its schema, `AddTrislabDbContext<<Name>DbContext>(<Name>DbContext.Schema)`, and add its first migration, `Baseline`, into `Migrations/` of the runtime project ([deployment.md](deployment.md#3-migrations)).
-5. Add `src/Tests/<Name>.Tests`, and the pages in the front end that needs them.
+2. Reference the runtime project from `src/Tests/TestHost`.
+3. Register it in four places: in `src/Tests/TestHost/Program.cs`, a Contracts type and a module type in the Mediator assemblies, and the module's assembly in `moduleAssemblies`. A missing Mediator type leaves its handlers silently undiscovered. A product does the same in its own API host and migrator, in the starter.
+4. Register its `DbContext` with its schema, `AddTrislabDbContext<<Name>DbContext>(<Name>DbContext.Schema)`, and add its first migration, `Baseline`, into `Migrations/` of the runtime project ([architecture.md](architecture.md#3-migrations)).
+5. Add `src/Tests/<Name>.Tests`.
 
 ## 3. Delete a module
 
-1. Remove it from the four places in the two `Program.cs` files, and its project references from `App.Api` and `App.DbMigrator`.
+1. Remove it from the four places in the test host, and its project reference from `src/Tests/TestHost`. A product removes it from its own host and migrator.
 2. Delete `src/Modules/<Name>` (its migrations go with it) and `src/Tests/<Name>.Tests`, and remove them from `src/App.slnx`.
-3. Delete its pages, API calls and menu entries in `clients/admin` and `clients/dashboard`, and its part of the demo data in `src/Host/App.DbMigrator/DemoSeed/DemoSeeder.cs`.
-4. Run `dotnet test src/App.slnx` and build both front ends. A module that another one still uses fails the build, through the other's reference to its `.Contracts`.
+3. Run `dotnet test src/App.slnx`. A module that another one still uses fails the build, through the other's reference to its `.Contracts`.
 
 Deleting a module leaves its tables in an existing database: a later migration in another module doesn't touch them. Drop them by hand, or start the Environment's database empty.
 
@@ -67,7 +63,7 @@ Read `.claude/rules/architecture.md` before you change a rule; it explains why e
 
 ## 5. Tenancy modes
 
-A host runs in one tenancy mode, `TenancyOptions:Mode` ([configuration.md](configuration.md#2a-tenancy-mode)): `Multitenant` (the default) or `SingleTenant`. Every module declares in code which it supports:
+A host runs in one tenancy mode, `TenancyOptions:Mode` ([architecture.md](architecture.md#2-tenancy-mode)): `Multitenant` (the default) or `SingleTenant`. Every module declares in code which it supports:
 
 ```csharp
 public TenancyModes SupportedTenancyModes => TenancyModes.All;          // works in both modes
@@ -75,7 +71,7 @@ public TenancyModes SupportedTenancyModes => TenancyModes.Multitenant;  // needs
 ```
 
 - `ModuleLoader.AddModules` refuses a module registered in a mode it doesn't support, and names the module and the setting in the message.
-- A host that serves both modes, such as the test host (`src/Tests/TestHost`) and `App.DbMigrator` here, lists every module and passes the list through `ModuleLoader.SelectSupported(mode, assemblies)`, which drops the ones the mode doesn't support. A single-tenant app lists only the modules it uses.
+- A host that serves both modes, such as the test host (`src/Tests/TestHost`) and a product's migrator, lists every module and passes the list through `ModuleLoader.SelectSupported(mode, assemblies)`, which drops the ones the mode doesn't support. A single-tenant app lists only the modules it uses.
 - A module's code and tests are the same in both modes: data is stamped with the tenant either way. Write tests that need a tenant catalog (tenant isolation, sign-up) for multi-tenant mode only.
 - Integration tests run on the test host (`src/Tests/TestHost`: every framework module plus a tiny test module, no product code). Write the class once as an abstract base on `TrislabWebApplicationFactory`, and add a derived class for each mode (`FooTests` on the multi-tenant host, `FooTestsInSingleTenantMode` on `SingleTenantWebApplicationFactory`), as `NotificationsEndpointTests` does. `dotnet test` then runs the module in every mode it declares.
 - A module that needs another's events only in one mode owns the handler itself: the tenant-expiry e-mails are sent by Multitenancy (through the Mailing building block), so Notifications has no reference to Multitenancy.

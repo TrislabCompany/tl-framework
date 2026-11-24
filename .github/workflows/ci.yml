@@ -1,13 +1,10 @@
 name: ci
 
-# Builds the four images in platform.yaml, runs the tests, scans the images
-# with Trivy and checks platform.yaml, on every PR and every push to main.
-# Pushes nothing. All steps live in the reusable workflow in tl-platform,
-# pinned by tag; the job is named ci like the one it calls, so the required
-# check is `ci / ci`. Change only the test command here. The test command runs
-# the unit, architecture and integration tests; the integration tests start
-# their own throw-away containers, then each npm package in packages/ runs
-# its own tests (npm test).
+# Runs the tests on every PR and every push to main: the .NET tests
+# (unit, architecture and integration; the integration tests start their own
+# throw-away containers), then each npm package in packages/ runs its own tests
+# (npm test). The framework holds only packages and tests, so there are no
+# images to build or scan. The job's name is `ci / ci`, the required check.
 
 on:
   pull_request:
@@ -18,8 +15,32 @@ permissions: {}
 
 jobs:
   ci:
+    name: ci / ci
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
-    uses: TrislabCompany/tl-platform/.github/workflows/app-ci.yml@app-workflows/v0.2.0
-    with:
-      test-command: dotnet test src/App.slnx && for dir in $(find packages -mindepth 2 -maxdepth 2 -name package.json -printf '%h\n' 2>/dev/null); do (cd "$dir" && npm ci && npm test) || exit 1; done
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Test
+        run: dotnet test src/App.slnx
+
+      - name: Test the npm packages
+        run: |
+          for dir in $(find packages -mindepth 2 -maxdepth 2 -name package.json -printf '%h\n'); do
+            (cd "$dir" && npm ci && npm test) || exit 1
+          done

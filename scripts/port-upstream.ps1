@@ -8,10 +8,11 @@
     oldest first:
 
       1. `git format-patch` the commit from a clone of fullstackhero's repository;
-      2. map each file's path with docs/upstream.md, section 2 (src/Host/FSH.Starter.Api -> src/Host/App.Api,
-         src/Modules/Catalog -> src/Samples/Catalog, src/Tests/Chat.Tests -> src/Samples/Chat/Chat.Tests, ...);
+      2. map each file's path with docs/upstream.md, section 2 (.agents/rules -> .claude/rules, ...);
       3. leave out the files that have no place here, and say why:
            - paths removed here (deploy/, src/Tools/, templates/, ...): Not applicable;
+           - the app (src/Host/, clients/, the sample modules Catalog, Tickets and Chat and their tests): it lives in
+             tl-product-saas, so port it there;
            - upstream migrations: port the model change, then generate the migration (create-migration);
            - .agents/workflows/: port by hand into .claude/agents/ or the skills;
            - pt-BR resources and catalogs: add the Slovenian text to the sl-SI file by hand;
@@ -58,6 +59,7 @@ $Commit = @($Commit | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 # Upstream paths with no place here (docs/upstream.md, section 2), and why.
 $Dropped = @(
     @{ Pattern = '^src/Host/FSH\.Starter\.Migrations\.PostgreSQL/'; Reason = 'upstream migration: port the model change, then generate the migration here (create-migration)' }
+    @{ Pattern = '^(src/Host/FSH\.Starter\.(Api|AppHost|DbMigrator)/|clients/|src/Modules/(Catalog|Tickets|Chat)/|src/Tests/(Catalog|Tickets|Chat)\.Tests/)'; Reason = 'the app lives in tl-product-saas: port the change there (Not applicable here)' }
     @{ Pattern = '^\.agents/workflows/'; Reason = 'agent workflow: port by hand into .claude/agents/ or the skills' }
     @{ Pattern = '(\.pt-BR\.resx$|/locales/pt-BR/)'; Reason = 'pt-BR: Slovenian replaces it here; add the Slovenian text to the matching sl-SI file by hand' }
     @{ Pattern = '^(deploy|src/Tools|templates|\.template\.config|superpowers|docs/superpowers)/'; Reason = 'removed here: Not applicable' }
@@ -68,10 +70,6 @@ $Dropped = @(
 $Moved = @(
     @{ Pattern = '^src/FSH\.Starter\.slnx$'; Replace = 'src/App.slnx' }
     @{ Pattern = '^\.agents/rules/'; Replace = '.claude/rules/' }
-    @{ Pattern = '^src/Host/FSH\.Starter\.(Api|AppHost|DbMigrator)/FSH\.Starter\.'; Replace = 'src/Host/App.$1/App.' }
-    @{ Pattern = '^src/Host/FSH\.Starter\.(Api|AppHost|DbMigrator)/'; Replace = 'src/Host/App.$1/' }
-    @{ Pattern = '^src/Modules/(Catalog|Tickets|Chat)/'; Replace = 'src/Samples/$1/' }
-    @{ Pattern = '^src/Tests/(Catalog|Tickets|Chat)\.Tests/'; Replace = 'src/Samples/$1/$1.Tests/' }
 )
 
 function Get-DropReason([string] $path) {

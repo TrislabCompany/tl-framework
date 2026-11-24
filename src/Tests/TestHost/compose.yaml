@@ -2,7 +2,6 @@
 # storage, pinned like the images the integration tests start with Testcontainers.
 # With `--profile container` it also builds and runs the host itself as an image (Dockerfile) on
 # http://localhost:5040, the way the performance and security runs in CI use it.
-# Ports differ from the repository's docker-compose.yml so both can run side by side.
 name: tl-test-host
 
 services:

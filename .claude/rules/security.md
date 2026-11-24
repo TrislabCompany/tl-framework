@@ -2,7 +2,7 @@
 paths:
   - "src/BuildingBlocks/Web/**"
   - "src/BuildingBlocks/Quota/**"
-  - "src/Host/App.Api/**"
+  - "src/Tests/TestHost/**"
 ---
 
 # Web security & request governance

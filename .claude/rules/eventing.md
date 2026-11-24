@@ -3,9 +3,7 @@ paths:
   - "src/BuildingBlocks/Eventing/**"
   - "src/BuildingBlocks/Eventing.Abstractions/**"
   - "src/Modules/**/IntegrationEventHandlers/**"
-  - "src/Samples/**/IntegrationEventHandlers/**"
   - "src/Modules/**/Events/**"
-  - "src/Samples/**/Events/**"
 ---
 
 # Eventing — domain events, integration events, Outbox/Inbox
@@ -61,7 +59,7 @@ Defaults in BuildingBlocks are single-database (`SingleDatabaseDrainTargetProvid
 
 ## Wiring
 
-The **host** bootstraps eventing once (`App.Api/Program.cs` and `App.DbMigrator/Program.cs`, before `AddModules` so `EventingDbInitializer` migrates the `framework` schema first):
+The **host** bootstraps eventing once (a product's API host and migrator, `src/Tests/TestHost/Program.cs` for the tests; before `AddModules` so `EventingDbInitializer` migrates the `framework` schema first):
 
 ```csharp
 builder.Services.AddEventingCore(builder.Configuration);   // serializer + bus + dispatcher + EventingDbContext + stores
