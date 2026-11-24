@@ -1,0 +1,16 @@
+/* Inter, the Trislab font, self-hosted from @fontsource-variable/inter. The
+   browser downloads only the subsets a page uses (unicode-range), so English
+   and Slovenian load Latin and Latin Extended. A product with another font
+   doesn't import this file and sets --font-sans in its theme.css. */
+@import "@fontsource-variable/inter/wght.css";
+
+/* A system font sized like Inter, shown until Inter has loaded, so the text
+   doesn't move when it swaps in. */
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial"), local("ArialMT"), local("Helvetica"), local("Roboto");
+  size-adjust: 107.12%;
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+}
