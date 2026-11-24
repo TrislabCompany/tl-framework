@@ -28,7 +28,7 @@ These are the commands `ci / ci` runs. Docker must run: the integration tests st
 | Architecture tests | `src/Tests/Architecture.Tests` | The module boundaries, the conventions ([modules.md](modules.md)) and the agent files |
 | Unit tests | `src/Tests/<Module>.Tests`, `Framework.Tests`, `Caching.Tests`, `Generic.Tests` | Each module and building block without a database |
 | Integration tests | `src/Tests/Integration.Tests`, `Integration.Middleware.Tests` | The endpoints of the framework's modules against a real Postgres 17 and S3-compatible storage, in both tenancy modes, on the test host |
-| npm package tests | `packages/<name>` | `npm test`: type check and Vitest |
+| npm package tests | `packages/<name>` | `npm test`: type check and Vitest; `framework-ui`'s components also in Chromium, with axe and screenshots ([its README](../packages/framework-ui/README.md#working-on-it)) |
 
 ## 3. The test host
 

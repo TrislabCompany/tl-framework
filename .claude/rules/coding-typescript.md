@@ -6,7 +6,7 @@ paths:
 
 # TypeScript coding standards
 
-Checked by: `tsc` with `strict` (`packages/*/tsconfig.json`, run by `npm test`), and the Vitest tests of each package. The apps that use the packages (and their ESLint and Playwright checks) are in `tl-product-saas`; this file is the code-level rules.
+Checked by: `tsc` with `strict` (`packages/*/tsconfig.json`, run by `npm test`), and the Vitest tests of each package (in `framework-ui`, also in Chromium with axe and screenshots: a new component gets a `*.browser.test.tsx` and a place in `src/testing/Specimen.tsx`). The apps that use the packages (and their ESLint checks and Playwright end-to-end tests) are in `tl-product-saas`; this file is the code-level rules.
 
 ## Types
 
