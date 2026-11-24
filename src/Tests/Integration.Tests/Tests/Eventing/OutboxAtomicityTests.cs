@@ -5,8 +5,7 @@ using Trislab.Framework.Eventing.Outbox;
 using Trislab.Framework.Eventing.Persistence;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Modules.SubscriptionsUsage.Contracts.Events;
-using Trislab.Modules.Catalog.Data;
-using Trislab.Modules.Catalog.Domain;
+using TestHost;
 using Integration.Tests.Infrastructure;
 
 namespace Integration.Tests.Tests.Eventing;
@@ -39,10 +38,10 @@ public sealed class OutboxAtomicityTests
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
 
-        var catalog = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<TestDbContext>();
         var eventing = scope.ServiceProvider.GetRequiredService<EventingDbContext>();
 
-        ReferenceEquals(catalog.Database.GetDbConnection(), eventing.Database.GetDbConnection())
+        ReferenceEquals(db.Database.GetDbConnection(), eventing.Database.GetDbConnection())
             .ShouldBeTrue("a shared DbConnection is what lets the outbox write join the business transaction");
     }
 
@@ -54,16 +53,16 @@ public sealed class OutboxAtomicityTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var catalog = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<TestDbContext>();
         var store = scope.ServiceProvider.GetRequiredService<IOutboxStore>();
 
-        var brand = Brand.Create($"atomicity-{Guid.CreateVersion7():N}", null, null);
+        var item = TestItem.Create($"atomicity-{Guid.CreateVersion7():N}");
         var eventId = Guid.CreateVersion7();
 
-        await using (var transaction = await catalog.Database.BeginTransactionAsync())
+        await using (var transaction = await db.Database.BeginTransactionAsync())
         {
-            catalog.Brands.Add(brand);
-            await catalog.SaveChangesAsync();
+            db.Items.Add(item);
+            await db.SaveChangesAsync();
 
             await store.AddAsync(NewEvent(eventId));
 
@@ -72,7 +71,7 @@ public sealed class OutboxAtomicityTests
 
         await AssertOutboxRowAsync(eventId, shouldExist: false,
             "the outbox row must not survive a rolled-back business transaction");
-        await AssertBrandAsync(brand.Id, shouldExist: false);
+        await AssertItemAsync(item.Id, shouldExist: false);
     }
 
     [Fact]
@@ -83,16 +82,16 @@ public sealed class OutboxAtomicityTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var catalog = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<TestDbContext>();
         var store = scope.ServiceProvider.GetRequiredService<IOutboxStore>();
 
-        var brand = Brand.Create($"atomicity-{Guid.CreateVersion7():N}", null, null);
+        var item = TestItem.Create($"atomicity-{Guid.CreateVersion7():N}");
         var eventId = Guid.CreateVersion7();
 
-        await using (var transaction = await catalog.Database.BeginTransactionAsync())
+        await using (var transaction = await db.Database.BeginTransactionAsync())
         {
-            catalog.Brands.Add(brand);
-            await catalog.SaveChangesAsync();
+            db.Items.Add(item);
+            await db.SaveChangesAsync();
 
             await store.AddAsync(NewEvent(eventId));
 
@@ -101,7 +100,7 @@ public sealed class OutboxAtomicityTests
 
         await AssertOutboxRowAsync(eventId, shouldExist: true,
             "enlisting must not swallow the write — a committed transaction keeps both rows");
-        await AssertBrandAsync(brand.Id, shouldExist: true);
+        await AssertItemAsync(item.Id, shouldExist: true);
     }
 
     [Fact]
@@ -129,11 +128,11 @@ public sealed class OutboxAtomicityTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var catalog = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<TestDbContext>();
         var store = scope.ServiceProvider.GetRequiredService<IOutboxStore>();
 
         var insideId = Guid.CreateVersion7();
-        await using (var transaction = await catalog.Database.BeginTransactionAsync())
+        await using (var transaction = await db.Database.BeginTransactionAsync())
         {
             await store.AddAsync(NewEvent(insideId));
             await transaction.RollbackAsync();
@@ -176,16 +175,16 @@ public sealed class OutboxAtomicityTests
             .ShouldBe(shouldExist, because);
     }
 
-    private async Task AssertBrandAsync(Guid brandId, bool shouldExist)
+    private async Task AssertItemAsync(Guid itemId, bool shouldExist)
     {
         var (scope, tenant) = await NewScopeAsync();
         using var scopeHandle = scope;
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
             .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var catalog = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<TestDbContext>();
 
-        (await catalog.Brands.AsNoTracking().AnyAsync(b => b.Id == brandId))
+        (await db.Items.AsNoTracking().AnyAsync(i => i.Id == itemId))
             .ShouldBe(shouldExist, "the business row and the outbox row must share one fate");
     }
 

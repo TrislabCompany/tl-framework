@@ -9,12 +9,17 @@ using Integration.Tests.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR.Client;
 
-namespace Integration.Tests.Tests.Chat;
+namespace Integration.Tests.Tests.Notifications;
 
+/// <summary>
+/// The path a module takes to notify a user: it publishes <c>UserNotificationRequestedIntegrationEvent</c>, the
+/// Notifications module writes the inbox row and pushes it over the realtime hub. The test host's
+/// <c>POST /api/v1/test/notifications</c> publishes the event.
+/// </summary>
 [Collection(TrislabCollectionDefinition.Name)]
-public sealed class MentionAndNotificationTests
+public sealed class UserNotificationRequestedTests
 {
-    private const string ChatBasePath = "/api/v1/chat";
+    private const string TestBasePath = "/api/v1/test";
     private const string NotificationsBasePath = "/api/v1/notifications";
     private const string HubPath = "/api/v1/realtime/hub";
     private static readonly TimeSpan EventTimeout = TimeSpan.FromSeconds(5);
@@ -22,75 +27,65 @@ public sealed class MentionAndNotificationTests
     private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
-    public MentionAndNotificationTests(TrislabWebApplicationFactory factory)
+    public UserNotificationRequestedTests(TrislabWebApplicationFactory factory)
     {
         _factory = factory;
         _auth = new AuthHelper(factory);
     }
 
     [Fact]
-    public async Task SendingMessage_With_AtMention_Should_Persist_Notification_For_Mentioned_User()
+    public async Task Requested_Notification_Should_Be_Persisted_In_The_Inbox_Of_The_User()
     {
         using var adminClient = await _auth.CreateRootAdminClientAsync();
-
-        // Register a second user the admin can mention. The IMentionResolver looks them up via
-        // IUserService.GetListAsync, so all that matters is that the row is active.
         var (alice, _, _) = await RegisterUserAsync(adminClient, "alice");
+        var link = $"/items/{Guid.NewGuid():N}";
 
-        // Admin creates a channel, invites Alice, and posts a message that @-mentions her.
-        var channelId = await CreateChannelAsync(adminClient, $"chan-{Guid.NewGuid().ToString("N")[..8]}");
-        await AddMemberAsync(adminClient, channelId, alice.Id);
+        await NotifyAsync(adminClient, alice.Id, "test.ping", "Ping for Alice", "take a look", link);
 
-        await SendMessageAsync(adminClient, channelId, $"hey @{alice.UserName} take a look");
-
-        // Verify a notification row was written for Alice via her own /notifications list endpoint.
         using var aliceClient = await _auth.CreateAuthenticatedClientAsync(alice.Email, alice.Password);
         var inbox = await ReadInboxAsync(aliceClient);
-        var mention = inbox.FirstOrDefault(n => n.Type == "chat.mention");
-        mention.ShouldNotBeNull("Expected a chat.mention notification to land in Alice's inbox");
-        mention.Body.ShouldNotBeNullOrEmpty();
-        mention.Body.ShouldContain("take a look");
-        mention.Link.ShouldNotBeNull();
-        mention.Link.ShouldStartWith($"/chat/{channelId}");
-        mention.ReadAtUtc.ShouldBeNull();
+        var ping = inbox.FirstOrDefault(n => n.Type == "test.ping" && n.Link == link);
+        ping.ShouldNotBeNull("Expected the requested notification to land in Alice's inbox");
+        ping.Title.ShouldBe("Ping for Alice");
+        ping.Body.ShouldBe("take a look");
+        ping.ReadAtUtc.ShouldBeNull();
     }
 
     [Fact]
-    public async Task SendingMessage_With_AtMention_Should_Push_NotificationCreated_Over_SignalR()
+    public async Task Requested_Notification_Should_Be_Pushed_Over_SignalR()
     {
         using var adminClient = await _auth.CreateRootAdminClientAsync();
         var (bob, bobToken, _) = await RegisterUserAsync(adminClient, "bob");
 
-        var channelId = await CreateChannelAsync(adminClient, $"chan-{Guid.NewGuid().ToString("N")[..8]}");
-        await AddMemberAsync(adminClient, channelId, bob.Id);
-
         await using var bobHub = await ConnectAsync(bobToken);
         using var inbox = new EventInbox<NotificationPayload>(bobHub, "NotificationCreated");
+        var link = $"/items/{Guid.NewGuid():N}";
 
-        await SendMessageAsync(adminClient, channelId, $"@{bob.UserName} you up?");
+        await NotifyAsync(adminClient, bob.Id, "test.push", "Push for Bob", null, link);
 
-        var received = await inbox.WaitForFirstAsync(p => p.Type == "chat.mention", EventTimeout);
+        var received = await inbox.WaitForFirstAsync(p => p.Type == "test.push" && p.Link == link, EventTimeout);
         received.ShouldNotBeNull("Expected NotificationCreated to fire on Bob's hub connection");
-        received.Title.ShouldNotBeNullOrWhiteSpace();
-        received.Link.ShouldStartWith($"/chat/{channelId}");
+        received.Title.ShouldBe("Push for Bob");
     }
 
     [Fact]
-    public async Task SendingMessage_With_Self_Mention_Should_Not_Create_Notification()
+    public async Task Requested_Notification_Should_Not_Reach_Other_Users()
     {
         using var adminClient = await _auth.CreateRootAdminClientAsync();
+        var (carol, _, _) = await RegisterUserAsync(adminClient, "carol");
+        var (dave, _, _) = await RegisterUserAsync(adminClient, "dave");
+        var link = $"/items/{Guid.NewGuid():N}";
 
-        // Get admin's own username via /identity/profile so the @-token resolves to admin's userId.
-        using var profileResponse = await adminClient.GetAsync($"{TestConstants.IdentityBasePath}/profile");
-        var profile = await profileResponse.DeserializeAsync<UserDto>();
+        await NotifyAsync(adminClient, carol.Id, "test.private", "Only for Carol", null, link);
 
-        var channelId = await CreateChannelAsync(adminClient, $"chan-{Guid.NewGuid().ToString("N")[..8]}");
-        await SendMessageAsync(adminClient, channelId, $"talking to myself @{profile.UserName}");
+        using var daveClient = await _auth.CreateAuthenticatedClientAsync(dave.Email, dave.Password);
+        (await ReadInboxAsync(daveClient)).ShouldNotContain(n => n.Link == link);
+    }
 
-        // Admin's own inbox should NOT pick up a chat.mention for this message.
-        var inbox = await ReadInboxAsync(adminClient);
-        // There can be unrelated mentions in the same test factory's shared DB — filter by link.
-        inbox.ShouldNotContain(n => n.Type == "chat.mention" && n.Link != null && n.Link.StartsWith($"/chat/{channelId}"));
+    private static async Task NotifyAsync(HttpClient client, string userId, string type, string title, string? body, string link)
+    {
+        using var response = await client.PostAsJsonAsync($"{TestBasePath}/notifications", new { userId, type, title, body, link });
+        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.NoContent);
     }
 
     // ─── helpers ─────────────────────────────────────────────────────
@@ -111,35 +106,6 @@ public sealed class MentionAndNotificationTests
             .Build();
         await connection.StartAndWaitForServerAsync();
         return connection;
-    }
-
-    private static async Task<Guid> CreateChannelAsync(HttpClient client, string name)
-    {
-        using var response = await client.PostAsJsonAsync($"{ChatBasePath}/channels", new
-        {
-            name,
-            description = (string?)null,
-            isPrivate = false,
-        });
-        return await response.DeserializeAsync<Guid>();
-    }
-
-    private static async Task AddMemberAsync(HttpClient adminClient, Guid channelId, string userId)
-    {
-        using var response = await adminClient.PostAsJsonAsync($"{ChatBasePath}/channels/{channelId}/members", new
-        {
-            channelId,
-            userIds = new[] { userId },
-        });
-        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.NoContent);
-    }
-
-    private static async Task SendMessageAsync(HttpClient client, Guid channelId, string body)
-    {
-        using var response = await client.PostAsJsonAsync(
-            $"{ChatBasePath}/channels/{channelId}/messages",
-            new { body, parentMessageId = (Guid?)null, attachments = Array.Empty<object>() });
-        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.OK);
     }
 
     private static async Task<IReadOnlyList<NotificationDto>> ReadInboxAsync(HttpClient client)

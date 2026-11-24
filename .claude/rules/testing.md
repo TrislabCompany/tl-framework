@@ -30,8 +30,9 @@ xUnit v3 (`xunit.v3.mtp-off`, runs on VSTest) · Shouldly (`result.ShouldBe(...)
 | `{Module}.Tests` | Unit: handlers, services, domain | no |
 | `Framework.Tests`, `Generic.Tests`, `Caching.Tests` | BuildingBlocks units | no |
 | `Architecture.Tests` | NetArchTest: module boundaries + tenant-isolation rules + handler↔validator pairing | no |
-| `Integration.Tests` | `WebApplicationFactory` over real PostgreSQL/Redis/rustfs | **yes** |
-| `Integration.Middleware.Tests` | Real middleware wiring | **yes** |
+| `Integration.Tests` | `WebApplicationFactory` over the test host, with real PostgreSQL/Redis/rustfs | **yes** |
+| `Integration.Middleware.Tests` | Real middleware wiring, on the test host | **yes** |
+| `TestHost` | Not a test project: the host the two integration projects run on, and that runs on its own for performance and security scans (`src/Tests/TestHost/README.md`) | no (standalone run: yes) |
 
 ```bash
 dotnet test src/App.slnx                 # all (integration needs Docker)

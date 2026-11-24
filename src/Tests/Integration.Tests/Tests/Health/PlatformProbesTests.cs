@@ -32,7 +32,7 @@ public sealed class PlatformProbesTests
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var body = await response.Content.ReadAsStringAsync();
-        body.ShouldContain("\"name\":\"App.Api\"");
+        body.ShouldContain("\"name\":\"TestHost\"");
         body.ShouldContain("\"environment\":\"local\"");
     }
 }

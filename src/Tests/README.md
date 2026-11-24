@@ -7,11 +7,15 @@ This folder contains solution-wide architecture tests for the Trislab .NET 10 St
 - `Architecture.Tests` targets `net10.0` and lives under `src/Tests/Architecture.Tests`.
 - Test dependencies are limited to xUnit v3 (`xunit.v3.mtp-off`), `Shouldly`, and `AutoFixture`, with versions defined in `src/Directory.Packages.props`.
 
+## The other test projects
+
+`Integration.Tests` and `Integration.Middleware.Tests` run on `src/Tests/TestHost`, a small host of the framework's modules (see its `README.md`). `Architecture.Tests` references the module projects directly, and `ModuleAssemblyDiscoveryGuardTests` fails when a module under `src/Modules` is missing from its references, so no module drops out of the rules silently.
+
 ## What Is Covered
 
 - **Module dependencies**: module runtime projects (`Modules.*`) cannot reference other modules' runtime projects directly; only their own runtime, contracts, and building blocks are allowed (validated via csproj inspection).
 - **Feature layering**: feature types under `Modules.*.Features.v{version}` are checked with NetArchTest to depend only on allowed layers (System/Microsoft, `Trislab.Framework.*`, their module, and module contracts).
-- **Host boundaries**: module code must not depend on host applications, and hosts must not depend directly on module feature or data internals.
+- **Host boundaries**: module code must not depend on host applications (the test host included), and the test host must not depend directly on module feature or data internals.
 - **Namespace conventions**: selected areas (for example, `BuildingBlocks/Core/Domain`) must declare namespaces that reflect the folder structure.
 
 ## Running the Tests

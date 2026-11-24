@@ -113,8 +113,8 @@ public sealed class CatalogParityTests
         // Never let a discovery regression read as a pass: if the reflection stops finding
         // catalogs, this test would otherwise assert nothing and go green.
         markers.Count.ShouldBeGreaterThanOrEqualTo(
-            11,
-            "expected the Core catalog plus one per module; discovery found fewer, so this " +
+            9,
+            "expected the Core catalog plus one per module with translated text; discovery found fewer, so this " +
             "test would silently stop guarding the ones it lost");
 
         var violations = new List<string>();

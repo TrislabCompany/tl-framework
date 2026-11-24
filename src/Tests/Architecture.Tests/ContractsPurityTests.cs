@@ -1,7 +1,7 @@
 using Trislab.Modules.Auditing.Contracts;
-using Trislab.Modules.Chat.Contracts;
 using Trislab.Modules.Identity.Contracts;
 using Trislab.Modules.Multitenancy.Contracts;
+using Trislab.Modules.Notifications.Contracts;
 using NetArchTest.Rules;
 using Shouldly;
 using System.Reflection;
@@ -18,9 +18,9 @@ public class ContractsPurityTests
     private static readonly Assembly[] ContractsAssemblies =
     [
         typeof(AuditingContractsMarker).Assembly,
-        typeof(ChatContractsMarker).Assembly,
         typeof(IdentityContractsMarker).Assembly,
-        typeof(MultitenancyContractsMarker).Assembly
+        typeof(MultitenancyContractsMarker).Assembly,
+        typeof(NotificationsContractsMarker).Assembly
     ];
 
     [Fact]
@@ -90,15 +90,15 @@ public class ContractsPurityTests
             "Trislab.Modules.Auditing.Features",
             "Trislab.Modules.Auditing.Data",
             "Trislab.Modules.Auditing.Persistence",
-            "Trislab.Modules.Chat.Features",
-            "Trislab.Modules.Chat.Data",
-            "Trislab.Modules.Chat.Domain",
             "Trislab.Modules.Identity.Features",
             "Trislab.Modules.Identity.Data",
             "Trislab.Modules.Identity.Persistence",
             "Trislab.Modules.Multitenancy.Features",
             "Trislab.Modules.Multitenancy.Data",
-            "Trislab.Modules.Multitenancy.Persistence"
+            "Trislab.Modules.Multitenancy.Persistence",
+            "Trislab.Modules.Notifications.Features",
+            "Trislab.Modules.Notifications.Data",
+            "Trislab.Modules.Notifications.Domain"
         ];
 
         foreach (var assembly in ContractsAssemblies)

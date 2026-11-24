@@ -37,8 +37,16 @@
     <ProjectReference Include="..\..\Modules\Multitenancy\Modules.Multitenancy.Contracts\Modules.Multitenancy.Contracts.csproj" />
     <ProjectReference Include="..\..\Modules\Files\Modules.Files\Modules.Files.csproj" />
     <ProjectReference Include="..\..\Modules\Files\Modules.Files.Contracts\Modules.Files.Contracts.csproj" />
-    <ProjectReference Include="..\..\Samples\Chat\Modules.Chat\Modules.Chat.csproj" />
-    <ProjectReference Include="..\..\Samples\Chat\Modules.Chat.Contracts\Modules.Chat.Contracts.csproj" />
-    <ProjectReference Include="..\..\Host\App.Api\App.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\InvoiceDocuments\Modules.InvoiceDocuments\Modules.InvoiceDocuments.csproj" />
+    <ProjectReference Include="..\..\Modules\InvoiceDocuments\Modules.InvoiceDocuments.Contracts\Modules.InvoiceDocuments.Contracts.csproj" />
+    <ProjectReference Include="..\..\Modules\InvoiceDocuments\Modules.InvoiceDocuments.Si\Modules.InvoiceDocuments.Si.csproj" />
+    <ProjectReference Include="..\..\Modules\Notifications\Modules.Notifications\Modules.Notifications.csproj" />
+    <ProjectReference Include="..\..\Modules\Notifications\Modules.Notifications.Contracts\Modules.Notifications.Contracts.csproj" />
+    <ProjectReference Include="..\..\Modules\SubscriptionsUsage\Modules.SubscriptionsUsage\Modules.SubscriptionsUsage.csproj" />
+    <ProjectReference Include="..\..\Modules\SubscriptionsUsage\Modules.SubscriptionsUsage.Contracts\Modules.SubscriptionsUsage.Contracts.csproj" />
+    <ProjectReference Include="..\..\Modules\Webhooks\Modules.Webhooks\Modules.Webhooks.csproj" />
+    <ProjectReference Include="..\..\Modules\Webhooks\Modules.Webhooks.Contracts\Modules.Webhooks.Contracts.csproj" />
+    <!-- The test host, the one host the framework has: HostArchitectureTests applies to it. -->
+    <ProjectReference Include="..\TestHost\TestHost.csproj" />
   </ItemGroup>
 </Project>

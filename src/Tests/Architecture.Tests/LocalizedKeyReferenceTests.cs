@@ -44,10 +44,10 @@ public sealed partial class LocalizedKeyReferenceTests
         }
 
         // A pattern that stops matching would leave this test asserting nothing, and green. The
-        // floors sit well under today's counts (≈300, 5 and ≈100) so routine deletions still pass.
-        scan.FactoryCallCount.ShouldBeGreaterThan(250, "the .Localized(...) scan found too few calls; the pattern probably broke");
-        scan.WrapperKeyCount.ShouldBeGreaterThan(3, "the MessageKey initializer scan found too few wrappers; the pattern probably broke");
-        scan.IndexerCallCount.ShouldBeGreaterThan(80, "the localizer[\"...\"] scan found too few calls; the pattern probably broke");
+        // floors sit well under today's counts (≈210 factory calls without the samples) so routine deletions still pass.
+        scan.FactoryCallCount.ShouldBeGreaterThan(150, $"the .Localized(...) scan found too few calls ({scan.FactoryCallCount}); the pattern probably broke");
+        scan.WrapperKeyCount.ShouldBeGreaterThan(3, $"the MessageKey initializer scan found too few wrappers ({scan.WrapperKeyCount}); the pattern probably broke");
+        scan.IndexerCallCount.ShouldBeGreaterThan(80, $"the localizer[\"...\"] scan found too few calls ({scan.IndexerCallCount}); the pattern probably broke");
 
         scan.NonLiteral.Distinct().Order(StringComparer.Ordinal).ToArray().ShouldBe(
             NonLiteralKeySites,
@@ -185,11 +185,13 @@ public sealed partial class LocalizedKeyReferenceTests
     private static IEnumerable<(string Path, string Source)> SourceFiles()
     {
         var root = ModuleArchitectureTestsFixture.SolutionRoot;
-        return new[] { "BuildingBlocks", "Modules", "Samples" }
+        // The samples are not here: their catalogs are not loaded in this project (it no longer references them),
+        // so their keys could not be checked. Their own copy in tl-product-saas is the place for that.
+        return new[] { "BuildingBlocks", "Modules" }
             .SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, "src", folder), "*.cs", SearchOption.AllDirectories))
             .Select(file => Path.GetRelativePath(root, file).Replace('\\', '/'))
             .Where(relative => !relative.Contains("/bin/", StringComparison.Ordinal) && !relative.Contains("/obj/", StringComparison.Ordinal))
-            .Where(relative => !relative.Contains(".Tests/", StringComparison.Ordinal)) // the samples keep their tests beside them
+            .Where(relative => !relative.Contains(".Tests/", StringComparison.Ordinal))
             .Select(relative => (relative, File.ReadAllText(Path.Combine(root, relative))));
     }
 

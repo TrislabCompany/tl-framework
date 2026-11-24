@@ -10,8 +10,7 @@ using Trislab.Framework.Eventing.Outbox;
 using Trislab.Framework.Eventing.Persistence;
 using Trislab.Framework.Persistence;
 using Trislab.Framework.Shared.Multitenancy;
-using Trislab.Modules.Catalog.Data;
-using Trislab.Modules.Catalog.Domain;
+using TestHost;
 using Trislab.Modules.Files.Contracts.Events;
 using Trislab.Modules.Multitenancy.Data;
 using Trislab.Framework.Tenancy;
@@ -110,7 +109,7 @@ public sealed class DedicatedTenantRoutingTests(TrislabWebApplicationFactory fac
         await connection.OpenAsync();
         await using var command = new NpgsqlCommand("""
             SELECT
-                (SELECT COUNT(*) FROM catalog."Brands" WHERE "Name" = @marker),
+                (SELECT COUNT(*) FROM testhost."Items" WHERE "Name" = @marker),
                 (SELECT COUNT(*) FROM framework."InboxMessages" WHERE "Id" = @event AND "HandlerName" = @handler)
             """, connection);
         command.Parameters.AddWithValue("marker", $"dispatch-{integrationEvent.Id:N}");
@@ -165,7 +164,7 @@ public sealed class DedicatedTenantRoutingTests(TrislabWebApplicationFactory fac
                 using (var scope = provider.CreateScope())
                 {
                     await scope.ServiceProvider.GetRequiredService<EventingDbContext>().Database.MigrateAsync();
-                    await scope.ServiceProvider.GetRequiredService<CatalogDbContext>().Database.MigrateAsync();
+                    await scope.ServiceProvider.GetRequiredService<TestDbContext>().Database.MigrateAsync();
                     if (webhooks) await scope.ServiceProvider.GetRequiredService<WebhookDbContext>().Database.MigrateAsync();
                 }
                 using (var scope = provider.CreateScope())
@@ -217,7 +216,7 @@ public sealed class DedicatedTenantRoutingTests(TrislabWebApplicationFactory fac
                 await using var connection = new NpgsqlConnection(DefaultConnection);
                 await connection.OpenAsync();
                 await using var command = new NpgsqlCommand("""
-                    DELETE FROM catalog."Brands" WHERE "Name" = ANY(@markers);
+                    DELETE FROM testhost."Items" WHERE "Name" = ANY(@markers);
                     DELETE FROM framework."InboxMessages" WHERE "Id" = ANY(@ids);
                     DELETE FROM framework."OutboxMessages" WHERE "Id" = ANY(@ids);
                     """, connection);
@@ -258,7 +257,7 @@ public sealed class DedicatedTenantRoutingTests(TrislabWebApplicationFactory fac
                 .WithDistributedCacheStore(TimeSpan.FromMinutes(60))
                 .WithStore<EFCoreStore<TenantDbContext, AppTenantInfo>>(ServiceLifetime.Scoped);
             services.AddEventingCore(configuration);
-            services.AddTrislabDbContext<CatalogDbContext>(CatalogDbContext.Schema);
+            services.AddTrislabDbContext<TestDbContext>(TestDbContext.Schema);
             services.Replace(ServiceDescriptor.Singleton<IEventTenantScope, FinbuckleEventTenantScope>());
             services.Replace(ServiceDescriptor.Singleton<IEventingDrainScope, FinbuckleEventingDrainScope>());
             services.AddScoped<IIntegrationEventHandler<FileFinalizedIntegrationEvent>, FileEventMarkerHandler>();
@@ -288,11 +287,11 @@ public sealed class DedicatedTenantRoutingTests(TrislabWebApplicationFactory fac
         }
     }
 
-    public sealed class FileEventMarkerHandler(CatalogDbContext context) : IIntegrationEventHandler<FileFinalizedIntegrationEvent>
+    internal sealed class FileEventMarkerHandler(TestDbContext context) : IIntegrationEventHandler<FileFinalizedIntegrationEvent>
     {
         public async Task HandleAsync(FileFinalizedIntegrationEvent integrationEvent, CancellationToken ct = default)
         {
-            context.Brands.Add(Brand.Create($"dispatch-{integrationEvent.Id:N}", null, null));
+            context.Items.Add(TestItem.Create($"dispatch-{integrationEvent.Id:N}"));
             await context.SaveChangesAsync(ct);
         }
     }
