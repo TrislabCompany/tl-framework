@@ -26,11 +26,36 @@ public class DefaultUploaderOnlyPolicyTests
     }
 
     [Fact]
-    public async Task CanListAsync_Should_FollowTheAttachRule_ByDefault()
+    public async Task CanListAsync_Should_AllowOnly_TheCallersOwnUserId()
     {
         IFileAccessPolicy p = new DefaultUploaderOnlyPolicy("MyFiles");
+        var me = Guid.NewGuid();
+        (await p.CanListAsync(me, me.ToString(), default)).ShouldBeTrue();
+        (await p.CanListAsync(Guid.NewGuid(), me.ToString(), default)).ShouldBeFalse();
+        (await p.CanListAsync(null, me.ToString(), default)).ShouldBeFalse();
+        (await p.CanListAsync(me, "", default)).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task CanListAsync_Should_FollowTheAttachRule_WhenAPolicyDoesNotOverrideIt()
+    {
+        IFileAccessPolicy p = new AttachOnlyPolicy();
         (await p.CanListAsync(Guid.NewGuid(), "user-1", default)).ShouldBeTrue();
         (await p.CanListAsync(Guid.NewGuid(), "", default)).ShouldBeFalse();
+    }
+
+    private sealed class AttachOnlyPolicy : IFileAccessPolicy
+    {
+        public string OwnerType => "Thing";
+
+        public Task<bool> CanAttachAsync(Guid? ownerId, string currentUserId, CancellationToken cancellationToken)
+            => Task.FromResult(!string.IsNullOrEmpty(currentUserId));
+
+        public Task<bool> CanReadAsync(FileAccessContext context, string currentUserId, CancellationToken cancellationToken)
+            => Task.FromResult(false);
+
+        public Task<bool> CanDeleteAsync(FileAccessContext context, string currentUserId, CancellationToken cancellationToken)
+            => Task.FromResult(false);
     }
 
     [Fact]

@@ -19,8 +19,8 @@ namespace Trislab.Modules.Files.Features.v1.ListOwnerFiles;
 /// <summary>
 /// Lists an owner's available files through its owner type's policy: <see cref="IFileAccessPolicy.CanListAsync"/>
 /// gates the list, and <see cref="IFileAccessPolicy.CanReadAsync"/> filters it per file before paging, so a page
-/// is always full and the total counts only what the caller may see. The policy runs once per file of the owner,
-/// which is fine for a record's attachments, not for an owner with thousands of files.
+/// is always full. Only the owner's <see cref="MaxCandidates"/> newest available files are considered, so a request
+/// makes at most that many policy calls; <c>TotalCount</c> is the number of readable files within that window.
 /// </summary>
 public sealed class ListOwnerFilesQueryHandler(
     FilesDbContext db,
@@ -29,6 +29,9 @@ public sealed class ListOwnerFilesQueryHandler(
     IStorageService storage)
     : IQueryHandler<ListOwnerFilesQuery, PagedResponse<FileAssetDto>>
 {
+    /// <summary>The most files of one owner a list considers: its newest available ones. Attachments are fewer.</summary>
+    public const int MaxCandidates = 500;
+
     public async ValueTask<PagedResponse<FileAssetDto>> Handle(ListOwnerFilesQuery q, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(q);
@@ -50,14 +53,15 @@ public sealed class ListOwnerFilesQueryHandler(
                 .Localized<FilesResources>("Files.NotAllowedToList");
         }
 
-        // Uploads store the policy's spelling; the caller's is matched too for files stored before that.
+        // Uploads store the policy's spelling of the owner type, so it is matched exactly.
         var ownerType = policy.OwnerType;
         var candidates = await db.FileAssets.AsNoTracking()
-            .Where(f => (f.OwnerType == ownerType || f.OwnerType == q.OwnerType)
+            .Where(f => f.OwnerType == ownerType
                 && f.OwnerId == q.OwnerId
                 && f.Status == FileAssetStatus.Available)
             .OrderByDescending(f => f.CreatedAtUtc)
             .ThenByDescending(f => f.Id)
+            .Take(MaxCandidates)
             .Select(f => new FileAccessContext(f.Id, f.OwnerType, f.OwnerId, f.CreatedByUserId, (int)f.Visibility))
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);

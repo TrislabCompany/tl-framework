@@ -15,7 +15,7 @@ namespace TestHost;
 /// samples, and nothing else:
 /// <list type="bullet">
 /// <item>a tenant-scoped entity with its own DbContext and schema (<see cref="TestItem"/>), for the eventing, outbox and storage tests;</item>
-/// <item>a file access policy for an owner type (<see cref="TestItemFileAccessPolicy"/>);</item>
+/// <item>file access policies for two owner types (<see cref="TestItemFileAccessPolicy"/>, and <see cref="TestDocumentFileAccessPolicy"/>, whose reads are per file);</item>
 /// <item>a publisher of <c>UserNotificationRequestedIntegrationEvent</c> (<c>POST /api/v1/test/notifications</c>);</item>
 /// <item>a channel membership for the realtime hub (<see cref="TestChannelMembership"/>, <c>/api/v1/test/channels</c>).</item>
 /// </list>
@@ -32,6 +32,7 @@ internal sealed class TestModule : IModule
         builder.Services.AddScoped<IDbInitializer, TestDbInitializer>();
 
         builder.Services.AddScoped<IFileAccessPolicy, TestItemFileAccessPolicy>();
+        builder.Services.AddScoped<IFileAccessPolicy, TestDocumentFileAccessPolicy>();
         builder.Services.AddIntegrationEventHandlers(typeof(TestModule).Assembly);
 
         // One in-memory membership serves the hub's two lookups.
