@@ -2,9 +2,8 @@ using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Core.Common;
 using Trislab.Framework.Core.Exceptions;
 using Trislab.Framework.Eventing.Outbox;
-using Trislab.Framework.Jobs.Services;
 using Trislab.Framework.Mailing;
-using Trislab.Framework.Mailing.Services;
+using Trislab.Framework.Jobs.Mail;
 using Trislab.Framework.Shared.Constants;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Modules.Identity.Contracts.Events;
@@ -28,8 +27,7 @@ namespace Trislab.Modules.Identity.Services;
 internal sealed class UserRegistrationService(
     UserManager<TrislabUser> userManager,
     IdentityDbContext db,
-    IJobService jobService,
-    IMailService mailService,
+    IBackgroundMailer mailer,
     IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
     IOutboxStore outboxStore,
     IdentityAuditor auditor,
@@ -98,7 +96,7 @@ internal sealed class UserRegistrationService(
             db.TenantMemberships.Add(TenantMembership.CreateAccepted(user.Id, tenantId));
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             await MembershipRules.AssignDefaultRoleAndGroupsAsync(userManager, db, user, "SelfRegistration", cancellationToken).ConfigureAwait(false);
-            await SendConfirmationEmailAsync(user, origin, cancellationToken).ConfigureAwait(false);
+            await SendConfirmationEmailAsync(user, origin).ConfigureAwait(false);
             await PublishUserRegisteredAsync(user, "Identity", cancellationToken).ConfigureAwait(false);
         }
 
@@ -191,7 +189,7 @@ internal sealed class UserRegistrationService(
                 .Localized<IdentityResources>("Identity.EmailAlreadyConfirmed", user.Email!);
         }
 
-        await SendConfirmationEmailAsync(user, origin, cancellationToken);
+        await SendConfirmationEmailAsync(user, origin);
     }
 
     public async Task<string> ConfirmPhoneNumberAsync(string userId, string code, CancellationToken cancellationToken = default)
@@ -321,10 +319,10 @@ internal sealed class UserRegistrationService(
                 actionLabel: "Sign in"),
             textBody: $"You already have an account with this address. Sign in: {signIn}");
 
-        jobService.Enqueue("email", () => mailService.SendAsync(mail, CancellationToken.None));
+        mailer.Enqueue(mail);
     }
 
-    private async Task SendConfirmationEmailAsync(TrislabUser user, string origin, CancellationToken cancellationToken)
+    private async Task SendConfirmationEmailAsync(TrislabUser user, string origin)
     {
         if (string.IsNullOrEmpty(user.Email))
         {
@@ -340,7 +338,7 @@ internal sealed class UserRegistrationService(
             emailBody,
             textBody: $"Please confirm your email address using the following link: {emailVerificationUri}");
 
-        jobService.Enqueue("email", () => mailService.SendAsync(mailRequest, cancellationToken));
+        mailer.Enqueue(mailRequest);
     }
 
     private async Task PublishUserRegisteredAsync(

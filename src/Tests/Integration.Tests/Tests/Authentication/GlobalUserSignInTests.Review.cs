@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Identity;
+using Hangfire;
+using Hangfire.Storage;
+using Trislab.Framework.Jobs.Mail;
 using Integration.Tests.Infrastructure;
 using Trislab.Modules.Auditing.Persistence;
 using Trislab.Modules.Identity.Data;
@@ -242,5 +245,40 @@ public sealed partial class GlobalUserSignInTests
             .Select(r => r.TenantId ?? "<none>")
             .Distinct()
             .ToList();
+    }
+
+    // ---- E-mailed links never sit in the job store ----------------------------------------------------------
+
+    [Fact]
+    public async Task A_Queued_Invitation_Keeps_Its_Link_And_Address_Out_Of_The_Job_Store()
+    {
+        var tenantId = await CreateTenantAsync("jobstore");
+        using var admin = await _auth.CreateAuthenticatedClientAsync(AdminEmail(tenantId), TestConstants.DefaultPassword, tenantId);
+        var email = $"jobstore-{Guid.NewGuid():N}@example.com";
+        await TestUsers.InviteAsync(admin, email);
+        var token = await TestUsers.WaitForInvitationTokenAsync(email);
+
+        // The job that sent it stays in Hangfire's storage until it expires: what is stored is ciphertext.
+        var storage = _factory.Services.GetRequiredService<JobStorage>();
+        var monitor = storage.GetMonitoringApi();
+        var ids = monitor.SucceededJobs(0, (int)monitor.SucceededListCount()).Select(j => j.Key)
+            .Concat(monitor.ProcessingJobs(0, (int)monitor.ProcessingCount()).Select(j => j.Key))
+            .Concat(monitor.FailedJobs(0, (int)monitor.FailedCount()).Select(j => j.Key))
+            .Concat(monitor.EnqueuedJobs("email", 0, int.MaxValue).Select(j => j.Key))
+            .Distinct()
+            .ToList();
+
+        using var connection = storage.GetConnection();
+        var stored = ids
+            .Select(id => connection.GetJobData(id))
+            .Where(data => data?.Job is not null)
+            .Select(data => (Type: data.Job.Type.Name, Payload: InvocationData.SerializeJob(data.Job).SerializePayload()))
+            .ToList();
+
+        stored.ShouldContain(j => j.Type == nameof(SendQueuedMailJob), "the invitation is sent by the encrypted mail job");
+        foreach (var secret in new[] { token, Uri.EscapeDataString(token), email })
+        {
+            stored.ShouldNotContain(j => j.Payload.Contains(secret, StringComparison.Ordinal), "no job holds the invitation link or the address in clear");
+        }
     }
 }

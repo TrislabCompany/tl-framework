@@ -7,9 +7,8 @@ using System.Text;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Core.Exceptions;
 using Trislab.Framework.Eventing.Abstractions;
-using Trislab.Framework.Jobs.Services;
 using Trislab.Framework.Mailing;
-using Trislab.Framework.Mailing.Services;
+using Trislab.Framework.Jobs.Mail;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Web.Frontend;
 using Trislab.Modules.Auditing.Contracts;
@@ -55,8 +54,7 @@ public sealed class MembershipInvitationService(
     IMultiTenantStore<AppTenantInfo> tenantStore,
     IEventTenantScope tenantScope,
     IServiceScopeFactory scopeFactory,
-    IJobService jobService,
-    IMailService mailService,
+    IBackgroundMailer mailer,
     IFrontendOriginResolver originResolver,
     IOptions<InvitationOptions> options,
     IdentityAuditor auditor,
@@ -517,7 +515,7 @@ public sealed class MembershipInvitationService(
                 actionLabel: "Accept the invitation"),
             textBody: $"{intro} {link}");
 
-        jobService.Enqueue("email", () => mailService.SendAsync(mail, CancellationToken.None));
+        mailer.Enqueue(mail);
 
         if (logger.IsEnabled(LogLevel.Information))
         {

@@ -1,8 +1,7 @@
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Core.Exceptions;
-using Trislab.Framework.Jobs.Services;
 using Trislab.Framework.Mailing;
-using Trislab.Framework.Mailing.Services;
+using Trislab.Framework.Jobs.Mail;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Modules.Auditing.Contracts;
 using Trislab.Modules.Identity.Contracts.Services;
@@ -20,8 +19,7 @@ namespace Trislab.Modules.Identity.Services;
 internal sealed class UserPasswordService(
     UserManager<TrislabUser> userManager,
     IdentityDbContext db,
-    IJobService jobService,
-    IMailService mailService,
+    IBackgroundMailer mailer,
     IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
     IPasswordHistoryService passwordHistoryService,
     IdentityAuditor auditor,
@@ -85,7 +83,7 @@ internal sealed class UserPasswordService(
                 actionLabel: "Reset password"),
             textBody: $"Please reset your password using the following link: {resetPasswordUri}");
 
-        jobService.Enqueue(() => mailService.SendAsync(mailRequest, CancellationToken.None));
+        mailer.Enqueue(mailRequest);
     }
 
     public async Task ResetPasswordAsync(string email, string password, string token, CancellationToken cancellationToken)

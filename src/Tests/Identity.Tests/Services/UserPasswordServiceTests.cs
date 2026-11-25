@@ -1,8 +1,6 @@
-using System.Linq.Expressions;
 using Finbuckle.MultiTenant.Abstractions;
-using Trislab.Framework.Jobs.Services;
 using Trislab.Framework.Mailing;
-using Trislab.Framework.Mailing.Services;
+using Trislab.Framework.Jobs.Mail;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Modules.Identity.Domain;
 using Trislab.Modules.Identity.Services;
@@ -20,40 +18,28 @@ public sealed class UserPasswordServiceTests
     private const string TenantId = "codefi";
 
     private readonly UserManager<TrislabUser> _userManager;
-    private readonly IJobService _jobService;
-    private readonly IMailService _mailService;
+    private readonly IBackgroundMailer _mailer;
     private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor;
 
     public UserPasswordServiceTests()
     {
         _userManager = Substitute.For<UserManager<TrislabUser>>(
             Substitute.For<IUserStore<TrislabUser>>(), null, null, null, null, null, null, null, null);
-        _jobService = Substitute.For<IJobService>();
-        _mailService = Substitute.For<IMailService>();
+        _mailer = Substitute.For<IBackgroundMailer>();
         _tenantAccessor = Substitute.For<IMultiTenantContextAccessor<AppTenantInfo>>();
 
         var mtContext = Substitute.For<IMultiTenantContext<AppTenantInfo>>();
         mtContext.TenantInfo.Returns(new AppTenantInfo(TenantId, TenantId, "Codefi"));
         _tenantAccessor.MultiTenantContext.Returns(mtContext);
-
-        // The mail job is enqueued as an expression; compile + invoke it so the captured MailRequest
-        // reaches the (mocked) mail service exactly as production would build it.
-        _jobService.Enqueue(Arg.Any<Expression<Func<Task>>>())
-            .Returns(ci =>
-            {
-                ci.Arg<Expression<Func<Task>>>().Compile().Invoke();
-                return "job-1";
-            });
-        _mailService.SendAsync(Arg.Any<MailRequest>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
     }
 
     private UserPasswordService CreateSut() =>
-        new(_userManager, null!, _jobService, _mailService, _tenantAccessor, null!, null!, TimeProvider.System,
+        new(_userManager, null!, _mailer, _tenantAccessor, null!, null!, TimeProvider.System,
             Microsoft.Extensions.Options.Options.Create(new SelfRegistrationOptions { MinimumResponseTime = TimeSpan.Zero }));
 
     private MailRequest CaptureSentMail()
     {
-        var call = _mailService.ReceivedCalls().Single();
+        var call = _mailer.ReceivedCalls().Single();
         return (MailRequest)call.GetArguments()[0]!;
     }
 
@@ -141,6 +127,6 @@ public sealed class UserPasswordServiceTests
         await sut.ForgotPasswordAsync("ghost@codefi.com.br", "https://appbase.codefi.com.br/", CancellationToken.None);
 
         // Assert
-        _jobService.DidNotReceive().Enqueue(Arg.Any<Expression<Func<Task>>>());
+        _mailer.DidNotReceive().Enqueue(Arg.Any<MailRequest>());
     }
 }

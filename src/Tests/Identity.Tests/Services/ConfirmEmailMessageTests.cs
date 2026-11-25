@@ -3,8 +3,7 @@ using System.Text;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Eventing.Outbox;
-using Trislab.Framework.Jobs.Services;
-using Trislab.Framework.Mailing.Services;
+using Trislab.Framework.Jobs.Mail;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Modules.Identity.Domain;
 using Trislab.Modules.Identity.Localization;
@@ -49,8 +48,7 @@ public sealed class ConfirmEmailMessageTests
         var sut = new UserRegistrationService(
             userManager,
             db: null!,
-            Substitute.For<IJobService>(),
-            Substitute.For<IMailService>(),
+            Substitute.For<IBackgroundMailer>(),
             tenant,
             Substitute.For<IOutboxStore>(),
             null!,

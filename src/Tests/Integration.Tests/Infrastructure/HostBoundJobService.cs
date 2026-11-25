@@ -27,6 +27,8 @@ internal sealed class HostBoundJobService(IBackgroundJobClient client) : IJobSer
 
     public string Enqueue<T>(Expression<Func<T, Task>> methodCall) => client.Enqueue(methodCall);
 
+    public string Enqueue<T>(string queue, Expression<Func<T, Task>> methodCall) => client.Enqueue(queue, methodCall);
+
     public bool Requeue(string jobId) => client.Requeue(jobId);
 
     public bool Requeue(string jobId, string fromState) => client.Requeue(jobId, fromState);

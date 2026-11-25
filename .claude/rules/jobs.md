@@ -13,12 +13,18 @@ paths:
 Inject `IJobService` (`Jobs/Services/IJobService.cs`) and use it; don't call Hangfire's `BackgroundJob` directly in feature code.
 
 ```csharp
-jobService.Enqueue(() => mailService.SendAsync(req, CancellationToken.None));   // default queue
-jobService.Enqueue("email", () => mailService.SendAsync(req, CancellationToken.None));
+jobService.Enqueue<PurgeJob>(j => j.RunAsync(tenantId, CancellationToken.None));    // default queue
+jobService.Enqueue<PurgeJob>("email", j => j.RunAsync(tenantId, CancellationToken.None));
 jobService.Schedule(() => DoLater(), TimeSpan.FromMinutes(5));
 ```
 
 Queues: `default`, `email` (5 workers, 30s poll). Storage auto-selected from `DatabaseOptions.Provider` (Postgres/MSSQL).
+
+**A job's arguments are stored in clear** in the job tables, and shown in the dashboard, until the job expires. Pass ids, never secrets, tokens or message bodies.
+
+## E-mail in the background — `IBackgroundMailer`
+
+Queue e-mail with `IBackgroundMailer.Enqueue(request)` (`Jobs/Mail/`), never `jobService.Enqueue(() => mailService.SendAsync(request, …))`. The queue encrypts the message with ASP.NET Data Protection (purpose `Trislab.Framework.Mailing.Queue.v1`) and runs `SendQueuedMailJob` on the `email` queue, so invitation, reset and confirmation links never sit readable in the job store. The key ring is the host's: Redis when caching is configured, which every replica shares. `QueuedMailTests` (Architecture.Tests) fails on a send inside a job expression.
 
 ## Recurring jobs — `IRecurringJobManager`
 
