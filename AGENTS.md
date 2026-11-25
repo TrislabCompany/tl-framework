@@ -97,12 +97,23 @@ the integration, performance and security tests; a product runs them in its own 
 - Releases are tags `vX.Y.Z`, created only by an organization owner and never moved; `packages.yml` publishes the packages (`docs/packages.md`). The framework has no app, so there is no deploy or release workflow for images here.
 - Before asking for review, run the `code-reviewer` and `architecture-guard` subagents. A review checks: correctness and edge cases, a test for each behaviour change, logs per `logging.md`, contracts compatible per `api-conventions.md`, docs updated, no secrets.
 
+## Development mode: breaking changes are allowed
+
+The framework, the starters and the products are still in development. No product runs in production, and there is no real data to keep. Until Trislab ends this mode here, it overrides every compatibility rule in this repository (the platform contract below, `api-conventions.md`, `buildingblocks-protection.md`, `docs/packages.md`, `docs/architecture.md`):
+
+- **Change in place.** Rename or remove an endpoint, a field, a contract, an event, a setting or a public type when that gives the better design. No `v2` endpoint or event, no `[Obsolete]` step, no expand and contract.
+- **Migrations may break.** A migration may drop, rename or reshape columns and tables, with no data migration. Add a new migration; never edit one that is already on `main`.
+- **Say what breaks.** The PR body lists every breaking change under "Breaking changes for the starters", with what a starter or product has to change. The starters adopt them when they upgrade.
+- **What doesn't change:** tests for every behaviour, the security rules, the module boundaries and the golden rules below.
+
+The mode ends when the first product goes to production. Then this section is removed and the compatibility rules apply again.
+
 ## Platform contract (do not break)
 
 The apps are built in the starters, but they rely on what the packages do, so keep these true:
 
 - A package reads its settings only as options; the platform's names (`DATABASE_URL`, `REDIS_URL`, `S3_*`, `JWT_SIGNING_KEY`, …) are mapped onto the options by the product's host, never read by a package.
-- Migrations are backward compatible: the previous API revision keeps serving on the migrated database.
+- Migrations are backward compatible: the previous API revision keeps serving on the migrated database. Not yet: during development mode breaking changes are allowed (`AGENTS.md`, "Development mode").
 
 ## Golden rules (do not break)
 

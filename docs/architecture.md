@@ -44,4 +44,4 @@ A user account is global: one per e-mail address, with one password, one second 
 
 ## 3. Migrations
 
-Each module ships its own migrations, in the `Migrations/` folder of its runtime project, and keeps its migrations history in its own schema, so a product that leaves a module out gets none of its tables. Each module started from one `Baseline` migration. The previous revision runs on the migrated database until the new one is ready, so every migration must be backward compatible (a product's migrator applies them, as the test host does in its provisioning pass).
+Each module ships its own migrations, in the `Migrations/` folder of its runtime project, and keeps its migrations history in its own schema, so a product that leaves a module out gets none of its tables. Each module started from one `Baseline` migration. The previous revision runs on the migrated database until the new one is ready, so every migration must be backward compatible (a product's migrator applies them, as the test host does in its provisioning pass). Not yet: in development mode a migration may break, with no data migration (`AGENTS.md`, "Development mode").
