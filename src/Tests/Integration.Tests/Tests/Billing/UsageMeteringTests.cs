@@ -105,7 +105,7 @@ public sealed class UsageMeteringTests
         // Touch the server so module endpoint mapping (which registers the job) runs
         _ = _factory.Server;
 
-        var connection = JobStorage.Current.GetConnection();
+        using var connection = _factory.Services.GetRequiredService<JobStorage>().GetConnection();
         var recurringJobs = connection.GetRecurringJobs();
 
         var billingJob = recurringJobs.FirstOrDefault(j => j.Id == "billing-monthly-invoices");

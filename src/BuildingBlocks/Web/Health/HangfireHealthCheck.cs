@@ -6,13 +6,12 @@ namespace Trislab.Framework.Web.Health;
 /// <summary>
 /// Health check that verifies Hangfire storage is accessible.
 /// </summary>
-public sealed class HangfireHealthCheck : IHealthCheck
+public sealed class HangfireHealthCheck(JobStorage storage) : IHealthCheck
 {
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
         try
         {
-            var storage = JobStorage.Current;
             using var connection = storage.GetConnection();
             return Task.FromResult(HealthCheckResult.Healthy("Hangfire storage is accessible."));
         }

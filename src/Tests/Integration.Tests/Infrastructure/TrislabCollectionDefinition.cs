@@ -10,7 +10,7 @@ public sealed class TrislabCollectionDefinition : ICollectionFixture<TrislabWebA
 /// <summary>
 /// The single-tenant host. Each module that supports single-tenant mode has tests in this collection (a test class
 /// written once as an abstract base, with a derived class per mode). The two hosts share process-wide statics
-/// (module loader, Hangfire storage, the audit publisher), so the two collections run one after the other.
+/// (the module loader, the audit publisher), so the two collections run one after the other.
 /// </summary>
 [CollectionDefinition(Name, DisableParallelization = true)]
 public sealed class SingleTenantCollectionDefinition : ICollectionFixture<SingleTenantWebApplicationFactory>

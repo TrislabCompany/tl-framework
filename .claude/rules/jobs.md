@@ -10,7 +10,7 @@ paths:
 
 ## Fire-and-forget / scheduled — `IJobService`
 
-Inject `IJobService` (`Jobs/Services/IJobService.cs`) and use it; don't call Hangfire's `BackgroundJob` directly in feature code.
+Inject `IJobService` (`Jobs/Services/IJobService.cs`) and use it. Never Hangfire's statics (`BackgroundJob`, `RecurringJob`, `JobStorage.Current`, `GlobalConfiguration`): they belong to whichever host configured Hangfire last. The storage, the activator (`TrislabJobActivator`) and the filters are per-host DI singletons; inject `JobStorage`, `IBackgroundJobClient` or `IRecurringJobManager` when you need them. `JobsDependencyInjectionTests` (Architecture.Tests) fails on a static.
 
 ```csharp
 jobService.Enqueue<PurgeJob>(j => j.RunAsync(tenantId, CancellationToken.None));    // default queue
