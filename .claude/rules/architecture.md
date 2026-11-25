@@ -11,7 +11,7 @@ Modular Monolith + Vertical Slice Architecture (VSA). Read this before adding/mo
 
 ## Layers & dependency direction
 
-```
+```text
 Host (composition root: a product's, or the test host)  →  Modules.{Name} (runtime)  →  Modules.{Name}.Contracts (public API)
                          →  BuildingBlocks (shared framework)
 ```
@@ -22,7 +22,7 @@ Host (composition root: a product's, or the test host)  →  Modules.{Name} (run
 
 ## Module = runtime + Contracts
 
-```
+```text
 Modules.Identity/            ← runtime (internal): handlers, services, domain, data
 Modules.Identity.Contracts/  ← public: ICommand/IQuery types, DTOs, events, service interfaces
 ```
@@ -33,7 +33,7 @@ Cross-module communication: through Contracts service interfaces or integration 
 
 Each feature is a vertical slice in `Features/v{version}/{Area}/{Feature}/`:
 
-```
+```text
 Features/v1/Users/RegisterUser/
 ├── RegisterUserEndpoint.cs          # minimal API endpoint
 ├── RegisterUserCommandHandler.cs    # CQRS handler (public sealed)

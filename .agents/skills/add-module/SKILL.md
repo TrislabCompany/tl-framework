@@ -15,7 +15,7 @@ A new module has its own domain entities and is a distinct bounded context. An o
 
 ## Projects
 
-```
+```text
 src/Modules/{Name}/
 ├── Modules.{Name}/            ← runtime (internal): Domain/, Data/, Features/v1/, {Name}Module.cs
 └── Modules.{Name}.Contracts/  ← public API: v1/ (commands/queries), Dtos/, Authorization/, Events/
