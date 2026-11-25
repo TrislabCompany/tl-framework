@@ -1,7 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using Integration.Tests.Infrastructure;
-using Integration.Tests.Tests.Sessions;
 
 namespace Integration.Tests.Tests.Authentication;
 
@@ -11,7 +10,7 @@ namespace Integration.Tests.Tests.Authentication;
 /// answers with the list to choose from. Operators stay in root.
 /// </summary>
 [Collection(TrislabCollectionDefinition.Name)]
-public sealed class GlobalUserSignInTests
+public sealed partial class GlobalUserSignInTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
@@ -112,19 +111,18 @@ public sealed class GlobalUserSignInTests
         var root = await SignInAsync(TestConstants.RootAdminEmail, TestConstants.DefaultPassword);
         TenantClaim(root.AccessToken!).ShouldBe(TestConstants.RootTenantId);
 
+        // A tenant admin may invite the operator's address (the answer reveals nothing), but the operator can't accept.
         var tenantId = await CreateTenantAsync("op");
         using var admin = await _auth.CreateAuthenticatedClientAsync(AdminEmail(tenantId), TestConstants.DefaultPassword, tenantId);
-        using var response = await admin.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = "Op",
-            lastName = "Erator",
-            email = TestConstants.RootAdminEmail,
-            userName = $"op-{Guid.NewGuid():N}"[..20],
-            password = TestConstants.DefaultPassword,
-            confirmPassword = TestConstants.DefaultPassword,
-        });
+        var before = await TestUsers.InvitationCountAsync(TestConstants.RootAdminEmail);
+        await TestUsers.InviteAsync(admin, TestConstants.RootAdminEmail);
+        var token = await TestUsers.WaitForInvitationTokenAsync(TestConstants.RootAdminEmail, before);
+
+        using var operatorClient = Bearer(root.AccessToken!);
+        using var response = await operatorClient.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/invitations/accept", new { token });
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest, "operator accounts stay in the root tenant");
+        (await response.Content.ReadAsStringAsync()).ShouldContain("Identity.OperatorAccountsStayInRoot");
     }
 
     [Fact]
@@ -174,30 +172,30 @@ public sealed class GlobalUserSignInTests
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
-    private async Task<(string TenantA, string TenantB, SeededUser User)> CreateUserInTwoTenantsAsync(string prefix)
+    private async Task<(string TenantA, string TenantB, InvitedUser User)> CreateUserInTwoTenantsAsync(string prefix)
     {
         var tenantA = await CreateTenantAsync($"{prefix}a");
         var tenantB = await CreateTenantAsync($"{prefix}b");
 
         using var adminA = await _auth.CreateAuthenticatedClientAsync(AdminEmail(tenantA), TestConstants.DefaultPassword, tenantA);
-        var user = await IdentityUserSeeder.CreateLoginableUserAsync(_factory, adminA, $"{prefix}-user", tenantA);
+        var user = await TestUsers.InviteAndAcceptAsync(_factory, adminA, $"{prefix}-user");
 
-        // Registering the same e-mail in tenant B adds the existing account: same id, same password.
+        // Tenant B invites the same address: the existing account accepts while signed in, keeping its password.
         using var adminB = await _auth.CreateAuthenticatedClientAsync(AdminEmail(tenantB), TestConstants.DefaultPassword, tenantB);
-        using var response = await adminB.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = "Other",
-            lastName = "Name",
-            email = user.Email,
-            userName = $"ignored-{Guid.NewGuid():N}"[..20],
-            password = "Another@1234!",
-            confirmPassword = "Another@1234!",
-        });
-        response.StatusCode.ShouldBe(HttpStatusCode.Created, await response.Content.ReadAsStringAsync());
-        var added = await response.Content.ReadFromJsonAsync<RegisterResult>(JsonOptions);
-        added!.UserId.ShouldBe(user.UserId);
+        var token = await InviteExistingAsync(adminB, user.Email);
+        var signedIn = await SignInAsync(user.Email, user.Password, tenantA);
+        using var owner = Bearer(signedIn.AccessToken!);
+        using var accept = await owner.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/invitations/accept", new { token });
+        accept.StatusCode.ShouldBe(HttpStatusCode.OK, await accept.Content.ReadAsStringAsync());
 
         return (tenantA, tenantB, user);
+    }
+
+    private static async Task<string> InviteExistingAsync(HttpClient admin, string email)
+    {
+        var before = await TestUsers.InvitationCountAsync(email);
+        await TestUsers.InviteAsync(admin, email, "Other", "Name");
+        return await TestUsers.WaitForInvitationTokenAsync(email, before);
     }
 
     private static string AdminEmail(string tenantId) => $"admin-{tenantId}@tenant.com";

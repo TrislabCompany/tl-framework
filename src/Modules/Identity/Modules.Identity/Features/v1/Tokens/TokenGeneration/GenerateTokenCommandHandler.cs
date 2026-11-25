@@ -16,13 +16,16 @@ public sealed class GenerateTokenCommandHandler
     private readonly TenantSignInService _signIn;
     private readonly ISecurityAudit _securityAudit;
     private readonly IRequestContext _requestContext;
+    private readonly AuditSubjectHasher _subjectHasher;
 
     public GenerateTokenCommandHandler(
         IIdentityService identityService,
         TenantSignInService signIn,
         ISecurityAudit securityAudit,
-        IRequestContext requestContext)
+        IRequestContext requestContext,
+        AuditSubjectHasher subjectHasher)
     {
+        _subjectHasher = subjectHasher;
         _identityService = identityService;
         _signIn = signIn;
         _securityAudit = securityAudit;
@@ -52,7 +55,8 @@ public sealed class GenerateTokenCommandHandler
         catch (UnauthorizedException)
         {
             await _securityAudit.LoginFailedAsync(
-                subjectIdOrName: request.Email,
+                // Never the address itself in the audit trail: a keyed hash still links repeated attempts.
+                subjectIdOrName: _subjectHasher.Email(request.Email),
                 clientId: caller.ClientId,
                 reason: "InvalidCredentials",
                 ip: caller.IpAddress,

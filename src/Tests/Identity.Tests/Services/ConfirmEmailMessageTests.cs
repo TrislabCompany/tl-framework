@@ -30,11 +30,13 @@ public sealed class ConfirmEmailMessageTests
     public async Task ConfirmEmailAsync_returns_the_success_message_in_the_request_language(string culture, string expected)
     {
         // Arrange
-        var user = new TrislabUser { Id = "u1", Email = "u@codefi.com.br", UserName = "u", EmailConfirmed = false };
+        var user = new TrislabUser { Id = "u1", Email = "u@codefi.com.br", UserName = "u", EmailConfirmed = false, PasswordHash = "hash" };
         var userManager = Substitute.For<UserManager<TrislabUser>>(
             Substitute.For<IUserStore<TrislabUser>>(), null, null, null, null, null, null, null, null);
         userManager.Users.Returns(new[] { user }.AsAsyncQueryable());
         userManager.ConfirmEmailAsync(user, "token").Returns(IdentityResult.Success);
+        userManager.VerifyUserTokenAsync(user, Arg.Any<string>(), UserManager<TrislabUser>.ConfirmEmailTokenPurpose, "token").Returns(true);
+        userManager.CheckPasswordAsync(user, "Secret@1234!").Returns(true);
 
         var tenant = Substitute.For<IMultiTenantContextAccessor<AppTenantInfo>>();
         tenant.MultiTenantContext.Returns(new MultiTenantContext<AppTenantInfo>(new AppTenantInfo("root", "root")));
@@ -51,8 +53,9 @@ public sealed class ConfirmEmailMessageTests
             Substitute.For<IMailService>(),
             tenant,
             Substitute.For<IOutboxStore>(),
-            Substitute.For<Trislab.Framework.Core.Context.ICurrentUser>(),
-            new IdentityErrorDescriber(),
+            null!,
+            TimeProvider.System,
+            Microsoft.Extensions.Options.Options.Create(new SelfRegistrationOptions { MinimumResponseTime = TimeSpan.Zero }),
             localizer);
         var code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes("token"));
 
@@ -61,7 +64,7 @@ public sealed class ConfirmEmailMessageTests
         try
         {
             // Act
-            var message = await sut.ConfirmEmailAsync("u1", code, "root", CancellationToken.None);
+            var message = await sut.ConfirmEmailAsync("u1", code, "Secret@1234!", "root", CancellationToken.None);
 
             // Assert
             message.ShouldBe(expected);

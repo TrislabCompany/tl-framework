@@ -298,4 +298,25 @@
   <data name="Identity.OperatorAccountsStayInRoot" xml:space="preserve">
     <value>Operator accounts belong to the operator console only and cannot join an organisation.</value>
   </data>
+  <data name="Identity.SelfRegistrationClosed" xml:space="preserve">
+    <value>Sign-up is not open here.</value>
+  </data>
+  <data name="Identity.AlreadyAMember" xml:space="preserve">
+    <value>This user is already a member.</value>
+  </data>
+  <data name="Identity.InvitationNotFound" xml:space="preserve">
+    <value>The invitation was not found.</value>
+  </data>
+  <data name="Identity.InvitationSignInRequired" xml:space="preserve">
+    <value>Sign in to the invited account to accept the invitation.</value>
+  </data>
+  <data name="Identity.InvitationForAnotherAccount" xml:space="preserve">
+    <value>This invitation is for another account.</value>
+  </data>
+  <data name="Identity.InvitationPasswordRequired" xml:space="preserve">
+    <value>Choose a password to accept the invitation.</value>
+  </data>
+  <data name="Identity.InvitationInvalid" xml:space="preserve">
+    <value>The invitation is invalid, has expired or was already used.</value>
+  </data>
 </root>

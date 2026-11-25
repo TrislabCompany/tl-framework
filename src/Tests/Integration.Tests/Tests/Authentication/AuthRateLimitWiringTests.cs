@@ -18,7 +18,12 @@ public sealed class AuthRateLimitWiringTests
         "forgot-password",
         "reset-password",
         "confirm-email",
-        "self-register"
+        "self-register",
+        "token/select",
+        "token/switch",
+        "invitations/accept",
+        // Sending an invitation sends an e-mail: limited like the anonymous mail-sending endpoints.
+        "invitations",
     };
 
     private readonly TrislabWebApplicationFactory _factory;
@@ -66,5 +71,22 @@ public sealed class AuthRateLimitWiringTests
 
         missing.ShouldBeEmpty(
             $"Auth-sensitive endpoints missing rate limiting:\n  - {string.Join("\n  - ", missing)}");
+    }
+
+    // Not a list to keep up to date: every public Identity endpoint, today's and tomorrow's, is rate limited.
+    [Fact]
+    public void Every_Anonymous_Identity_Endpoint_Has_The_Auth_Rate_Limit()
+    {
+        _ = _factory.Server;
+
+        var unlimited = _factory.Services.GetRequiredService<EndpointDataSource>().Endpoints
+            .OfType<RouteEndpoint>()
+            .Where(e => e.RoutePattern.RawText?.Contains("/identity/", StringComparison.OrdinalIgnoreCase) == true
+                && e.Metadata.GetMetadata<Microsoft.AspNetCore.Authorization.IAllowAnonymous>() is not null
+                && e.Metadata.GetMetadata<EnableRateLimitingAttribute>()?.PolicyName != AuthPolicy)
+            .Select(e => $"{string.Join(",", e.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? [])} {e.RoutePattern.RawText}")
+            .ToList();
+
+        unlimited.ShouldBeEmpty($"Anonymous Identity endpoints without the '{AuthPolicy}' rate limit:\n  - {string.Join("\n  - ", unlimited)}");
     }
 }

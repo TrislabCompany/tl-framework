@@ -17,7 +17,7 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
     {
         ArgumentNullException.ThrowIfNull(command);
 
-        string userId = await _userService.RegisterAsync(
+        await _userService.RegisterAsync(
             command.FirstName,
             command.LastName,
             command.Email,
@@ -28,6 +28,6 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
             command.Origin ?? string.Empty,
             cancellationToken).ConfigureAwait(false);
 
-        return new RegisterUserResponse(userId);
+        return RegisterUserResponse.CheckYourEmail;
     }
 }

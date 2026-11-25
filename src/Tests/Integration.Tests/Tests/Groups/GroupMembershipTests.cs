@@ -6,10 +6,12 @@ namespace Integration.Tests.Tests.Groups;
 [Collection(TrislabCollectionDefinition.Name)]
 public sealed class GroupMembershipTests
 {
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
     public GroupMembershipTests(TrislabWebApplicationFactory factory)
     {
+        _factory = factory;
         _auth = new AuthHelper(factory);
     }
 
@@ -20,16 +22,7 @@ public sealed class GroupMembershipTests
         var uniqueId = Guid.NewGuid().ToString("N")[..8];
 
         // Create a user and a group
-        var userResponse = await client.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = "GroupMember",
-            lastName = "Test",
-            email = $"member-{uniqueId}@example.com",
-            userName = $"member-{uniqueId}",
-            password = "Test@1234!",
-            confirmPassword = "Test@1234!"
-        });
-        var user = await userResponse.DeserializeAsync<RegisterResult>();
+        var user = await TestUsers.InviteAndAcceptAsync(_factory, client, "member", "GroupMember", "Test");
 
         var groupResponse = await client.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/groups", new
         {
@@ -55,16 +48,7 @@ public sealed class GroupMembershipTests
         var uniqueId = Guid.NewGuid().ToString("N")[..8];
 
         // Create user, group, and add membership
-        var userResponse = await client.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = "GroupQuery",
-            lastName = "Test",
-            email = $"grpquery-{uniqueId}@example.com",
-            userName = $"grpquery-{uniqueId}",
-            password = "Test@1234!",
-            confirmPassword = "Test@1234!"
-        });
-        var user = await userResponse.DeserializeAsync<RegisterResult>();
+        var user = await TestUsers.InviteAndAcceptAsync(_factory, client, "member", "GroupQuery", "Test");
 
         var groupResponse = await client.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/groups", new
         {
@@ -92,16 +76,7 @@ public sealed class GroupMembershipTests
         var uniqueId = Guid.NewGuid().ToString("N")[..8];
 
         // Create user, group, add, then remove
-        var userResponse = await client.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = "RemoveMe",
-            lastName = "Test",
-            email = $"remove-{uniqueId}@example.com",
-            userName = $"remove-{uniqueId}",
-            password = "Test@1234!",
-            confirmPassword = "Test@1234!"
-        });
-        var user = await userResponse.DeserializeAsync<RegisterResult>();
+        var user = await TestUsers.InviteAndAcceptAsync(_factory, client, "member", "RemoveMe", "Test");
 
         var groupResponse = await client.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/groups", new
         {

@@ -52,7 +52,7 @@ public sealed class EmailConfirmationTests
 
         // Users are global: the membership puts the user in the root tenant, where the assertion reads it.
         var identityDb = scope.ServiceProvider.GetRequiredService<Trislab.Modules.Identity.Data.IdentityDbContext>();
-        identityDb.TenantMemberships.Add(TenantMembership.Create(user.Id, TestConstants.RootTenantId));
+        identityDb.TenantMemberships.Add(TenantMembership.CreateAccepted(user.Id, TestConstants.RootTenantId));
         await identityDb.SaveChangesAsync();
 
         // Generate confirmation token and encode it as the API expects
@@ -63,7 +63,15 @@ public sealed class EmailConfirmationTests
         using var client = _factory.CreateClient();
         client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
 
-        var response = await client.GetAsync($"{TestConstants.IdentityBasePath}/confirm-email?userId={user.Id}&code={Uri.EscapeDataString(encodedCode)}&tenant={TestConstants.RootTenantId}");
+        // The link alone isn't enough: the person who signed up proves it with the password.
+        using (var withoutPassword = await client.PostAsJsonAsync(
+            $"{TestConstants.IdentityBasePath}/confirm-email", new { userId = user.Id, code = encodedCode, password = "Not@TheOwners1" }))
+        {
+            withoutPassword.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        }
+
+        var response = await client.PostAsJsonAsync(
+            $"{TestConstants.IdentityBasePath}/confirm-email", new { userId = user.Id, code = encodedCode, password = TestConstants.DefaultPassword });
 
         // Assert
         var errorContent = await response.Content.ReadAsStringAsync();
@@ -108,13 +116,12 @@ public sealed class EmailConfirmationTests
         client.DefaultRequestHeaders.Add("tenant", TestConstants.RootTenantId);
 
         var invalidCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes("invalid-code"));
-        var response = await client.GetAsync($"{TestConstants.IdentityBasePath}/confirm-email?userId={user.Id}&code={invalidCode}&tenant={TestConstants.RootTenantId}");
+        var response = await client.PostAsJsonAsync(
+            $"{TestConstants.IdentityBasePath}/confirm-email", new { userId = user.Id, code = invalidCode, password = TestConstants.DefaultPassword });
 
         // Assert
-        // The endpoint currently returns Ok(result) where result is the message from UserService.
-        // Let's check what UserService.ConfirmEmailAsync returns on failure.
-        var message = await response.Content.ReadAsStringAsync();
-        message.ShouldContain("Error", Case.Insensitive);
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await response.Content.ReadAsStringAsync()).ShouldContain("Identity.EmailConfirmationError");
 
         // Verify user is still NOT confirmed
         var updatedUser = await userManager.FindByIdAsync(user.Id.ToString());

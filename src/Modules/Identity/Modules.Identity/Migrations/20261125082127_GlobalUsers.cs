@@ -62,12 +62,73 @@ namespace Trislab.Modules.Identity.Migrations
                 table: "PasswordHistory");
 
             migrationBuilder.AddColumn<string>(
+                name: "App",
+                schema: "identity",
+                table: "UserSessions",
+                type: "character varying(32)",
+                maxLength: 32,
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "PreviousRefreshTokenHash",
+                schema: "identity",
+                table: "UserSessions",
+                type: "character varying(256)",
+                maxLength: 256,
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "SecurityStampHash",
+                schema: "identity",
+                table: "UserSessions",
+                type: "character varying(64)",
+                maxLength: 64,
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
                 name: "DefaultTenantId",
                 schema: "identity",
                 table: "Users",
                 type: "character varying(64)",
                 maxLength: 64,
                 nullable: true);
+
+            migrationBuilder.CreateTable(
+                name: "MembershipInvitations",
+                schema: "identity",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    MembershipId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
+                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    TokenHash = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    CreatedBy = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
+                    CreatedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ExpiresOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    AcceptedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    RevokedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    RevokedBy = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: true),
+                    TenantId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MembershipInvitations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SignInSelections",
+                schema: "identity",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
+                    ExpiresOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SignInSelections", x => x.Id);
+                });
 
             migrationBuilder.CreateTable(
                 name: "TenantMemberships",
@@ -78,7 +139,9 @@ namespace Trislab.Modules.Identity.Migrations
                     UserId = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
                     TenantId = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreatedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    AcceptedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    InvitedBy = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -93,6 +156,12 @@ namespace Trislab.Modules.Identity.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserSessions_PreviousRefreshTokenHash",
+                schema: "identity",
+                table: "UserSessions",
+                column: "PreviousRefreshTokenHash");
+
+            migrationBuilder.CreateIndex(
                 name: "EmailIndex",
                 schema: "identity",
                 table: "Users",
@@ -105,6 +174,25 @@ namespace Trislab.Modules.Identity.Migrations
                 table: "Users",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MembershipInvitations_MembershipId",
+                schema: "identity",
+                table: "MembershipInvitations",
+                column: "MembershipId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MembershipInvitations_TokenHash",
+                schema: "identity",
+                table: "MembershipInvitations",
+                column: "TokenHash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SignInSelections_ExpiresOnUtc",
+                schema: "identity",
+                table: "SignInSelections",
+                column: "ExpiresOnUtc");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TenantMemberships_TenantId",
@@ -124,8 +212,21 @@ namespace Trislab.Modules.Identity.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "MembershipInvitations",
+                schema: "identity");
+
+            migrationBuilder.DropTable(
+                name: "SignInSelections",
+                schema: "identity");
+
+            migrationBuilder.DropTable(
                 name: "TenantMemberships",
                 schema: "identity");
+
+            migrationBuilder.DropIndex(
+                name: "IX_UserSessions_PreviousRefreshTokenHash",
+                schema: "identity",
+                table: "UserSessions");
 
             migrationBuilder.DropIndex(
                 name: "EmailIndex",
@@ -136,6 +237,21 @@ namespace Trislab.Modules.Identity.Migrations
                 name: "UserNameIndex",
                 schema: "identity",
                 table: "Users");
+
+            migrationBuilder.DropColumn(
+                name: "App",
+                schema: "identity",
+                table: "UserSessions");
+
+            migrationBuilder.DropColumn(
+                name: "PreviousRefreshTokenHash",
+                schema: "identity",
+                table: "UserSessions");
+
+            migrationBuilder.DropColumn(
+                name: "SecurityStampHash",
+                schema: "identity",
+                table: "UserSessions");
 
             migrationBuilder.DropColumn(
                 name: "DefaultTenantId",

@@ -6,10 +6,12 @@ namespace Integration.Tests.Tests.Users;
 [Collection(TrislabCollectionDefinition.Name)]
 public sealed class UserManagementGuardTests
 {
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
     public UserManagementGuardTests(TrislabWebApplicationFactory factory)
     {
+        _factory = factory;
         _auth = new AuthHelper(factory);
     }
 
@@ -28,20 +30,9 @@ public sealed class UserManagementGuardTests
     public async Task DeleteUser_Should_ReturnBadRequest_When_TargetIsAdmin()
     {
         using var client = await _auth.CreateRootAdminClientAsync();
-        var uniqueId = Guid.NewGuid().ToString("N")[..8];
 
-        // Register a fresh user
-        var registerResponse = await client.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = "Other",
-            lastName = "Admin",
-            email = $"otheradmin-{uniqueId}@example.com",
-            userName = $"otheradmin-{uniqueId}",
-            password = "Test@1234!",
-            confirmPassword = "Test@1234!"
-        });
-        registerResponse.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var registered = await registerResponse.DeserializeAsync<RegisterResult>();
+        // Invite a fresh user
+        var registered = await TestUsers.InviteAndAcceptAsync(_factory, client, "usr", "Other", "Admin");
 
         // Promote the new user to Admin
         var (adminRole, basicRole) = await GetSystemRolesAsync(client);

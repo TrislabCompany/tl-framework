@@ -7,13 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Finbuckle.MultiTenant;
-using Finbuckle.MultiTenant.Abstractions;
-using Trislab.Framework.Shared.Multitenancy;
-using Trislab.Modules.Identity.Domain;
 using Integration.Tests.Infrastructure;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Integration.Tests.Tests.Impersonation;
 
@@ -458,10 +452,10 @@ public sealed class ImpersonationTests : IAsyncLifetime
     [Fact]
     public async Task Start_Should_Return403_When_CallerLacksImpersonatePerm()
     {
-        // Arrange — a freshly registered non-admin user only carries the Basic
+        // Arrange — a freshly invited non-admin user only carries the Basic
         // role, which does NOT include Users.Impersonate.
         using var tenantAdminClient = await CreateTenantAdminClientAsync();
-        var (basicEmail, basicPassword) = await RegisterAndConfirmUserAsync(tenantAdminClient, _tenantId, "basic");
+        var (basicEmail, basicPassword) = await InviteAndAcceptUserAsync(tenantAdminClient, "basic");
         using var basicClient = await _auth.CreateAuthenticatedClientAsync(basicEmail, basicPassword, _tenantId);
 
         // Act
@@ -481,7 +475,7 @@ public sealed class ImpersonationTests : IAsyncLifetime
     {
         // Arrange
         using var tenantAdminClient = await CreateTenantAdminClientAsync();
-        var (basicEmail, basicPassword) = await RegisterAndConfirmUserAsync(tenantAdminClient, _tenantId, "basicview");
+        var (basicEmail, basicPassword) = await InviteAndAcceptUserAsync(tenantAdminClient, "basicview");
         using var basicClient = await _auth.CreateAuthenticatedClientAsync(basicEmail, basicPassword, _tenantId);
 
         // Act
@@ -503,7 +497,7 @@ public sealed class ImpersonationTests : IAsyncLifetime
         var grant = active!.First(g => g.ImpersonatedUserId == _tenantAdminUserId);
 
         using var tenantAdminClient = await CreateTenantAdminClientAsync();
-        var (basicEmail, basicPassword) = await RegisterAndConfirmUserAsync(tenantAdminClient, _tenantId, "basicrev");
+        var (basicEmail, basicPassword) = await InviteAndAcceptUserAsync(tenantAdminClient, "basicrev");
         using var basicClient = await _auth.CreateAuthenticatedClientAsync(basicEmail, basicPassword, _tenantId);
 
         // Act
@@ -834,61 +828,14 @@ public sealed class ImpersonationTests : IAsyncLifetime
     }
 
     /// <summary>
-    /// Register a non-admin user inside the given tenant and force-confirm their
-    /// email (the test factory has no SMTP). Returns the credentials so the
-    /// caller can sign in. The fresh user only gets the Basic role — useful for
+    /// Invite a non-admin user into the admin client's tenant and accept the invitation. Returns the
+    /// credentials so the caller can sign in. The fresh user only gets the Basic role, useful for
     /// "lacks permission" tests.
     /// </summary>
-    private async Task<(string email, string password)> RegisterAndConfirmUserAsync(
-        HttpClient adminClient,
-        string tenantId,
-        string prefix)
+    private async Task<(string email, string password)> InviteAndAcceptUserAsync(HttpClient adminClient, string prefix)
     {
-        var unique = Guid.NewGuid().ToString("N")[..8];
-        var email = $"{prefix}-{unique}@imptest.com";
-        var userName = $"{prefix}{unique}";
-        const string password = "Test@1234!";
-
-        // Endpoint is `/identity/register` (not `/identity/users/register`) —
-        // mirrors the seed pattern of the other tests.
-        using var response = await adminClient.PostAsJsonAsync(
-            $"{TestConstants.IdentityBasePath}/register", new
-            {
-                firstName = prefix,
-                lastName = "User",
-                email,
-                userName,
-                password,
-                confirmPassword = password,
-            });
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var registered = await response.Content.ReadFromJsonAsync<RegisterResult>(Json);
-
-        await ConfirmEmailAsync(tenantId, registered!.UserId);
-        return (email, password);
-    }
-
-    private async Task ConfirmEmailAsync(string tenantId, string userId)
-    {
-        using var scope = _factory.Services.CreateScope();
-        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-        var tenant = await tenantStore.GetAsync(tenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
-
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
-        var user = await userManager.FindByIdAsync(userId);
-        user.ShouldNotBeNull();
-        if (!user.EmailConfirmed)
-        {
-            user.EmailConfirmed = true;
-            (await userManager.UpdateAsync(user)).Succeeded.ShouldBeTrue();
-        }
-    }
-
-    private sealed class RegisterResult
-    {
-        public string UserId { get; set; } = default!;
+        var user = await TestUsers.InviteAndAcceptAsync(_factory, adminClient, prefix, prefix, "User");
+        return (user.Email, user.Password);
     }
 
     private static async Task CreateTenantAsync(HttpClient rootClient, string tenantId, string adminEmail)

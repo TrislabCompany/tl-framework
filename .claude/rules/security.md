@@ -58,3 +58,17 @@ Opt-in per endpoint with **`.WithIdempotency()`** on **authenticated** POST/PUTs
 `QuotaEnforcementMiddleware` charges 1 `ApiCalls` unit per request via `CheckAndRecordAsync`; over-limit → 429 + ProblemDetails + `Retry-After`, and sets `HttpContext.Items[QuotaRejected]` so auditing can tag it. Resources: `ApiCalls` (counter), `StorageBytes`, `Users`, `ActiveFeatureFlags` (gauges). Skips health/metrics, unresolved tenants, and the root tenant. **Pipeline:** runs after auth (needs tenant) and after the rate limiter. Inject `TimeProvider` (not `DateTimeOffset.UtcNow`) for any time math here — the subsystem is `TimeProvider`-based.
 
 `IQuotaService`: `CheckAsync` (no mutation), `RecordAsync` (increment), `CheckAndRecordAsync` (atomic — won't increment past the limit). Store: Redis (`RedisQuotaService`) or per-process `InMemoryQuotaService` (dev/test). `NoopQuotaService` when disabled.
+
+## Identity: accounts, invitations and sessions (`Modules/Identity`)
+
+The rules every change to sign-in, users or sessions keeps (details in `modules/identity.md`):
+
+- **Nobody but the owner sets a password or confirms an e-mail.** Users join a tenant by invitation; the owner accepts the single-use, hashed, expiring, revocable link. No endpoint lets an administrator set another user's password or confirm another user's e-mail.
+- **No account enumeration.** Sign-in, self-registration, forgot-password and reset answer the same, and take the same least time, whether or not an address has an account; a lockout is shown only to a caller with the right password.
+- **Re-check after the password.** Every token the server issues after sign-in (selection, refresh, switch) re-checks the account, the stamp, the membership, the tenant and the app boundary.
+- **Tokens:** selection tokens work once; refresh tokens rotate atomically and their reuse ends the session; an access token names its session (`sess`), and a tenant switch needs that session live; a password change or reset ends every session of the account, in one transaction with the new password.
+- **Confirming an e-mail needs the code and the password** (`POST /confirm-email`): the code proves the mailbox, the password proves who signed up, so registering someone else's address never yields an account its owner confirms by opening the link.
+- **Invitations:** the answer and its least duration are the same for a new and an existing address; an account created for an invitation that is revoked unclaimed is deleted with it.
+- **Known residual:** e-mailed links (invitation, reset, confirmation) sit in clear in the job store until the e-mail job is cleaned up; see the follow-ups in the PR. Audit records name a failed sign-in by a keyed hash of the address (`AuditSubjectHasher`, an HMAC with a key derived from the JWT signing key), never the address.
+- **Audit every security event** with `IdentityAuditor` (`SecurityAction`), in the tenant the event is about. Never put a password, a token or an e-mail body in an audit record or a log.
+- **Rate-limit** every anonymous Identity endpoint, and sending an invitation (it sends an e-mail), with the `auth` policy. `AuthRateLimitWiringTests` finds every anonymous Identity endpoint by its metadata, so a new one can't be missed; listing and revoking invitations are Admin calls under the global limiter.

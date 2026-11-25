@@ -14,7 +14,9 @@ paths:
 
 The test host composes the framework's modules like a product's host does, plus one tiny test module (`TestHost/Module/`): a tenant-scoped entity with its own DbContext (`TestItem`), a file access policy for the owner type `TestItem`, `POST /api/v1/test/notifications` (publishes `UserNotificationRequestedIntegrationEvent`), and in-memory channels for the realtime hub (`/api/v1/test/channels`). A framework test that needs an entity, a policy, a notification or a channel uses these; it never needs a sample or a product module, and the framework's tests never reference product code. `TestHostProvisioning` does what a product's migrator does (migrate, seed, role sync) for the root tenant, or the fixed tenant in single-tenant mode; the factories call it.
 
-`TrislabWebApplicationFactory` (`Integration.Tests/Infrastructure/`) boots the containers, overlays in-memory config, swaps `IMailService` → `NoOpMailService`, and rewires storage to rustfs, including the keyed presign client.
+`TrislabWebApplicationFactory` (`Integration.Tests/Infrastructure/`) boots the containers, overlays in-memory config, and rewires storage to rustfs, including the keyed presign client.
+
+**E-mail goes to Mailpit.** The hosts send through the real `SmtpMailService` into one Mailpit container shared by the whole run (`Infrastructure/Mailpit.cs`). A test reads what a user would get with `Mailpit.WaitForMessageAsync(address, match)`: subject, text and HTML bodies, attachments. Give each test its own recipient address, since the catcher is shared; `TestUsers.InviteAndAcceptAsync` reads the invitation link from the real e-mail. Unit tests keep an in-memory `IMailService` fake.
 
 ## Must-know gotchas
 
@@ -23,6 +25,7 @@ The test host composes the framework's modules like a product's host does, plus 
 - **SignalR tests force long-polling** — TestServer has no WebSocket. Configure the client transport accordingly.
 - **Rate limiting is read eagerly** — `Integration.Middleware.Tests` sets `RateLimitingOptions:Enabled` via env var **before** host build, since flipping it after has no effect.
 - **Test order is not guaranteed** (xUnit v3 orders differently from v2, and it shifted several hidden dependencies). Clean up shared state you create. Tenants pointing at an unreachable database go through `_factory.RemoveTenantsAsync(ids)` in `DisposeAsync`, or all-tenant jobs run by later tests count them as failures. Don't assume a new tenant's audit rows fit on page 1, because provisioning writes its seed data as `EntityChange` rows.
+- **Hangfire keeps its job storage and activator in process-wide statics**, so a job queued by one test host can run on another (the two tenancy modes run side by side). Never assert a job's effect through one host's in-memory service; assert what reaches real infrastructure (Mailpit, the database). `HostBoundJobService` queues on each host's own storage.
 - **`WithWebHostBuilder` hosts share two statics with the shared host**: Hangfire's `JobStorage.Current` and the static `Audit` publisher. `PrimaryHostStaticsRestorer` points both back at the shared host when a derived host stops. Always dispose derived factories (`await using`).
 
 ## Endpoint authorization

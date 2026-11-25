@@ -22,19 +22,20 @@ public static class SelfRegisterUserEndpoint
         {
             // Self-service flow: the confirmation link lands on the SPA the user registered from.
             command.Origin = originResolver.ResolveForCurrentRequest();
-            var result = await mediator.Send(command, cancellationToken);
-            return TypedResults.Created($"/api/v1/identity/users/{result.UserId}", result);
+            // 202 with the same body whether or not the address had an account: never an account id.
+            return TypedResults.Accepted((string?)null, await mediator.Send(command, cancellationToken));
         })
         .WithName("SelfRegisterUser")
         .WithSummary("Self register user")
-        .WithDescription("Allow a user to self-register. Anonymous; in multi-tenant mode the tenant is identified via the tenant header, in single-tenant mode it is the fixed tenant.")
+        .WithDescription("Self-registration. Anonymous; in multi-tenant mode the tenant header names the tenant (not root), in single-tenant mode it is the fixed tenant. The answer (202, check_your_email) and its timing are the same whether the address has an account: a new address gets a confirmation e-mail, an existing account's owner an e-mail saying so. Rate limited.")
         // Deliberately NOT .WithIdempotency(): the entry key scopes by caller, and every unauthenticated
         // caller is the same "anon" caller, so two people registering on one tenant with the same
         // low-entropy key would collide — the second would replay the first's 201 and never get an
         // account. Retries are already safe here, the unique-email constraint rejects the duplicate.
         .AllowAnonymous()
         .RequireTenantHeaderWhenMultitenant()
-        .Produces<RegisterUserResponse>(StatusCodes.Status201Created)
+        .Produces<RegisterUserResponse>(StatusCodes.Status202Accepted)
+        .Produces(StatusCodes.Status403Forbidden)
         .Produces(StatusCodes.Status400BadRequest);
     }
 }

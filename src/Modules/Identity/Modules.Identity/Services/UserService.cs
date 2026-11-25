@@ -18,7 +18,7 @@ internal sealed class UserService(
     IUserPermissionService permissionService) : IUserService
 {
     // Registration operations (delegated to IUserRegistrationService)
-    public Task<string> RegisterAsync(
+    public Task RegisterAsync(
         string firstName,
         string lastName,
         string email,
@@ -30,14 +30,8 @@ internal sealed class UserService(
         CancellationToken cancellationToken)
         => registrationService.RegisterAsync(firstName, lastName, email, userName, password, confirmPassword, phoneNumber, origin, cancellationToken);
 
-    public Task<string> GetOrCreateFromPrincipalAsync(ClaimsPrincipal principal, CancellationToken cancellationToken = default)
-        => registrationService.GetOrCreateFromPrincipalAsync(principal, cancellationToken);
-
-    public Task<string> ConfirmEmailAsync(string userId, string code, string tenant, CancellationToken cancellationToken)
-        => registrationService.ConfirmEmailAsync(userId, code, tenant, cancellationToken);
-
-    public Task AdminConfirmEmailAsync(string userId, CancellationToken cancellationToken = default)
-        => registrationService.AdminConfirmEmailAsync(userId, cancellationToken);
+    public Task<string> ConfirmEmailAsync(string userId, string code, string password, string tenant, CancellationToken cancellationToken)
+        => registrationService.ConfirmEmailAsync(userId, code, password, tenant, cancellationToken);
 
     public Task ResendConfirmationEmailAsync(string userId, string origin, CancellationToken cancellationToken = default)
         => registrationService.ResendConfirmationEmailAsync(userId, origin, cancellationToken);

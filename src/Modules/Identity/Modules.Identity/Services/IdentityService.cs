@@ -1,6 +1,7 @@
 using Trislab.Framework.Core.Exceptions;
 using Trislab.Framework.Shared.Constants;
 using Trislab.Framework.Eventing.Abstractions;
+using Trislab.Modules.Auditing.Contracts;
 using Trislab.Modules.Identity.Contracts.Services;
 using Trislab.Modules.Identity.Data;
 using Trislab.Modules.Identity.Domain;
@@ -17,7 +18,22 @@ namespace Trislab.Modules.Identity.Services;
 
 public sealed class IdentityService : IIdentityService
 {
+    /// <summary>
+    /// Claim with a short hash of the account's security stamp. A password, second-factor or stamp change makes
+    /// it stale, which ends the sessions and stops tenant switches made with older tokens.
+    /// </summary>
+    public const string SecurityStampClaim = "sst";
+
+    /// <summary>The id of the session an access token belongs to. A tenant switch needs that session to be live.</summary>
+    public const string SessionClaim = "sess";
+
+    // A real PBKDF2 hash of a random password, verified when the e-mail is unknown, so an unknown address costs
+    // the same time as a wrong password and the timing does not reveal which addresses have accounts.
+    private static readonly Lazy<string> DummyHash = new(() =>
+        new PasswordHasher<TrislabUser>().HashPassword(new TrislabUser(), Guid.NewGuid().ToString("N")));
+
     private readonly UserManager<TrislabUser> _userManager;
+    private readonly IdentityAuditor _auditor;
     private readonly ILogger<IdentityService> _logger;
     private readonly IEventTenantScope _tenantScope;
     private readonly IServiceScopeFactory _scopeFactory;
@@ -26,8 +42,10 @@ public sealed class IdentityService : IIdentityService
         UserManager<TrislabUser> userManager,
         ILogger<IdentityService> logger,
         IEventTenantScope tenantScope,
-        IServiceScopeFactory scopeFactory)
+        IServiceScopeFactory scopeFactory,
+        IdentityAuditor auditor)
     {
+        _auditor = auditor;
         _userManager = userManager;
         _logger = logger;
         _tenantScope = tenantScope;
@@ -140,17 +158,26 @@ public sealed class IdentityService : IIdentityService
     {
         // The store looks e-mail up across all accounts: an account is global, not a tenant's.
         var user = await _userManager.FindByEmailAsync(email.Trim().Normalize());
-        if (user is null)
+
+        // An invited account whose owner hasn't accepted yet has no password: it answers exactly like an unknown
+        // address (the same dummy hash work, no failed-attempt count), so the timing doesn't reveal it either.
+        if (user is null || string.IsNullOrEmpty(user.PasswordHash))
         {
-            // Generic 401 — never confirm or deny account existence from this path.
+            // Generic 401 — never confirm or deny account existence from this path, not even by the timing.
+            _userManager.PasswordHasher.VerifyHashedPassword(new TrislabUser(), DummyHash.Value, password);
             throw new UnauthorizedException();
         }
 
-        // Lockout check runs BEFORE password check so an attacker can't tell a locked
-        // account from a wrong-password one on every request.
+        // A locked account answers like a wrong password unless the password is right, so a lockout does not reveal
+        // that the address has an account. Its owner, who knows the password, learns about the lockout.
         if (_userManager.SupportsUserLockout && await _userManager.IsLockedOutAsync(user))
         {
             _logger.LogWarning("Login attempted for locked account {UserId}", user.Id);
+            if (!await _userManager.CheckPasswordAsync(user, password))
+            {
+                throw new UnauthorizedException();
+            }
+
             throw new CustomException(
                 "Account is temporarily locked due to too many failed login attempts. Try again later.",
                 errors: null,
@@ -168,6 +195,9 @@ public sealed class IdentityService : IIdentityService
                     _logger.LogWarning(
                         "Account {UserId} locked out after exceeding failed login threshold.",
                         user.Id);
+                    await _auditor.WriteForAccountAsync(
+                        SecurityAction.AccountLockedOut, user.Id, "TooManyFailedSignIns",
+                        severity: AuditSeverity.Warning).ConfigureAwait(false);
                 }
             }
             throw new UnauthorizedException();
@@ -181,6 +211,10 @@ public sealed class IdentityService : IIdentityService
 
         return user;
     }
+
+    /// <summary>A short, one-way hash of a security stamp: enough to compare, nothing to learn from.</summary>
+    public static string StampHash(string? securityStamp) =>
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(securityStamp ?? string.Empty)).AsSpan(0, 8));
 
     internal static List<Claim> CreateBasicClaims(TrislabUser user, string tenantId)
     {
@@ -200,7 +234,8 @@ public sealed class IdentityService : IIdentityService
             new(ClaimConstants.Fullname, fullName),
             new(ClaimTypes.Surname, user.LastName ?? string.Empty),
             new(ClaimConstants.Tenant, tenantId),
-            new(ClaimConstants.ImageUrl, user.ImageUrl?.ToString() ?? string.Empty)
+            new(ClaimConstants.ImageUrl, user.ImageUrl?.ToString() ?? string.Empty),
+            new(SecurityStampClaim, StampHash(user.SecurityStamp)),
         };
 
         // OIDC-standard `locale` claim, emitted ONLY when the user explicitly chose a language.

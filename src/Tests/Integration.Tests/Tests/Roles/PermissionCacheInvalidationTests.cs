@@ -298,7 +298,7 @@ public sealed class PermissionCacheInvalidationTests
 
         // Users are global: the membership is what puts the user in the tenant.
         var identityDb = scope.ServiceProvider.GetRequiredService<Trislab.Modules.Identity.Data.IdentityDbContext>();
-        identityDb.TenantMemberships.Add(TenantMembership.Create(user.Id, TestConstants.RootTenantId));
+        identityDb.TenantMemberships.Add(TenantMembership.CreateAccepted(user.Id, TestConstants.RootTenantId));
         await identityDb.SaveChangesAsync();
 
         return (email, password, user.Id);

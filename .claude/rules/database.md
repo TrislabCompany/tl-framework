@@ -23,6 +23,7 @@ Read before touching entities, DbContexts, migrations, or query filters.
 
 - `BaseDbContext` auto-applies a tenant query filter to every entity. **Isolation is on by default.**
 - Opt out **only** via `IGlobalEntity` (e.g. `BillingPlan`, `ImpersonationGrant`, `Outbox`/`InboxMessage`).
+- **The one exception is Identity's global user account.** ASP.NET Identity's own types can't carry the marker, so `IdentityDbContext.AccountTypes` lists them: `TrislabUser`, `IdentityUserClaim`, `IdentityUserLogin`, `IdentityUserToken`, `IdentityUserPasskey`. Identity's other global entities are `IGlobalEntity` (`PasswordHistory`, `ImpersonationGrant`, `SignInSelection`). `Architecture.Tests/IdentityGlobalEntitiesTests` fails on any other global Identity entity: a new one is a security decision, made on purpose.
 - A subclass DbContext that overrides `OnModelCreating` **must call `base.OnModelCreating(modelBuilder)` LAST**, or the auto-applied filters are lost.
 - Cross-tenant reads use `IgnoreQueryFilters()` **plus an explicit re-filter** — never rely on the absence of the filter.
 - **Query-filter naming:** SoftDelete filter is *named*; the tenant filter stays *anonymous* (Finbuckle owns it). Don't rename the tenant filter.

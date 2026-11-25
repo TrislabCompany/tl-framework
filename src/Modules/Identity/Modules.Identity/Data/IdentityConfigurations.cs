@@ -137,7 +137,47 @@ public class TenantMembershipConfig : IEntityTypeConfiguration<TenantMembership>
             .HasForeignKey(m => m.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Property(m => m.InvitedBy).HasMaxLength(450);
+        builder.Ignore(m => m.IsPending);
+
         builder.HasIndex(m => new { m.UserId, m.TenantId }).IsUnique();
         builder.HasIndex(m => m.TenantId);
+    }
+}
+
+public class MembershipInvitationConfig : IEntityTypeConfiguration<MembershipInvitation>
+{
+    public void Configure(EntityTypeBuilder<MembershipInvitation> builder)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        builder
+            .ToTable("MembershipInvitations", IdentityModuleConstants.SchemaName)
+            .IsMultiTenant();
+
+        builder.HasKey(i => i.Id);
+        builder.Property(i => i.Id).ValueGeneratedNever();
+        builder.Property(i => i.UserId).IsRequired().HasMaxLength(450);
+        builder.Property(i => i.Email).IsRequired().HasMaxLength(256);
+        builder.Property(i => i.TokenHash).IsRequired().HasMaxLength(128);
+        builder.Property(i => i.CreatedBy).IsRequired().HasMaxLength(450);
+        builder.Property(i => i.RevokedBy).HasMaxLength(450);
+
+        builder.HasIndex(i => i.TokenHash).IsUnique();
+        builder.HasIndex(i => i.MembershipId);
+    }
+}
+
+public class SignInSelectionConfig : IEntityTypeConfiguration<SignInSelection>
+{
+    public void Configure(EntityTypeBuilder<SignInSelection> builder)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        builder.ToTable("SignInSelections", IdentityModuleConstants.SchemaName);
+        builder.HasKey(s => s.Id);
+        builder.Property(s => s.Id).ValueGeneratedNever();
+        builder.Property(s => s.UserId).IsRequired().HasMaxLength(450);
+        builder.HasIndex(s => s.ExpiresOnUtc);
     }
 }

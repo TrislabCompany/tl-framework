@@ -3,6 +3,8 @@ using Trislab.Framework.Core.Exceptions;
 using Trislab.Modules.Identity.Contracts.v1.TwoFactor;
 using Trislab.Modules.Identity.Domain;
 using Trislab.Modules.Identity.Localization;
+using Trislab.Modules.Auditing.Contracts;
+using Trislab.Modules.Identity.Services;
 using Mediator;
 using Microsoft.AspNetCore.Identity;
 
@@ -13,11 +15,13 @@ public sealed class VerifyEnrollTwoFactorCommandHandler
 {
     private readonly UserManager<TrislabUser> _userManager;
     private readonly ICurrentUser _currentUser;
+    private readonly IdentityAuditor _auditor;
 
-    public VerifyEnrollTwoFactorCommandHandler(UserManager<TrislabUser> userManager, ICurrentUser currentUser)
+    public VerifyEnrollTwoFactorCommandHandler(UserManager<TrislabUser> userManager, ICurrentUser currentUser, IdentityAuditor auditor)
     {
         _userManager = userManager;
         _currentUser = currentUser;
+        _auditor = auditor;
     }
 
     public async ValueTask<bool> Handle(
@@ -51,6 +55,8 @@ public sealed class VerifyEnrollTwoFactorCommandHandler
         }
 
         await _userManager.SetTwoFactorEnabledAsync(user, true);
+        // The change rotated the security stamp, so the account's sessions end at their next refresh.
+        await _auditor.WriteAsync(SecurityAction.TwoFactorEnabled, user.Id, "TwoFactorEnabled", ct: cancellationToken).ConfigureAwait(false);
         return true;
     }
 }

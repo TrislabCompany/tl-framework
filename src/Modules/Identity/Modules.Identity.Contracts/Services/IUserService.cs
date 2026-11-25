@@ -1,6 +1,5 @@
 ﻿using Trislab.Framework.Shared.Storage;
 using Trislab.Modules.Identity.Contracts.DTOs;
-using System.Security.Claims;
 
 namespace Trislab.Modules.Identity.Contracts.Services;
 
@@ -13,12 +12,10 @@ public interface IUserService
     Task<int> GetCountAsync(CancellationToken cancellationToken);
     Task<UserDto> GetAsync(string userId, CancellationToken cancellationToken);
     Task ToggleStatusAsync(bool activateUser, string userId, CancellationToken cancellationToken);
-    Task<string> GetOrCreateFromPrincipalAsync(ClaimsPrincipal principal, CancellationToken cancellationToken = default);
-    Task<string> RegisterAsync(string firstName, string lastName, string email, string userName, string password, string confirmPassword, string phoneNumber, string origin, CancellationToken cancellationToken);
+    Task RegisterAsync(string firstName, string lastName, string email, string userName, string password, string confirmPassword, string phoneNumber, string origin, CancellationToken cancellationToken);
     Task UpdateAsync(string userId, string firstName, string lastName, string phoneNumber, FileUploadRequest image, bool deleteCurrentImage, string? locale, IReadOnlyList<string>? expectedConcurrencyStamps, CancellationToken cancellationToken = default);
     Task DeleteAsync(string userId, CancellationToken cancellationToken = default);
-    Task<string> ConfirmEmailAsync(string userId, string code, string tenant, CancellationToken cancellationToken);
-    Task AdminConfirmEmailAsync(string userId, CancellationToken cancellationToken = default);
+    Task<string> ConfirmEmailAsync(string userId, string code, string password, string tenant, CancellationToken cancellationToken);
     Task ResendConfirmationEmailAsync(string userId, string origin, CancellationToken cancellationToken = default);
     Task<string> ConfirmPhoneNumberAsync(string userId, string code, CancellationToken cancellationToken = default);
 

@@ -24,12 +24,50 @@ internal sealed class UserStatusService(
     IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
     ICurrentUser currentUser,
     IUserPermissionService permissions,
+    IdentityAuditor auditor,
+    TimeProvider timeProvider,
     IAuditClient auditClient) : IUserStatusService
 {
-    // Soft-delete is functionally identical to deactivation — delegate so the same admin/self/last-admin
-    // guards and audit pipeline apply uniformly to both DELETE /users/{id} and PATCH /users/{id}.
-    public Task DeleteAsync(string userId, CancellationToken cancellationToken = default)
-        => ToggleStatusAsync(activateUser: false, userId, cancellationToken);
+    /// <summary>
+    /// Removes the user from the current tenant: the membership, the user's roles and groups here and their
+    /// sessions here go; the account and its other tenants stay. The same guards as a deactivation apply.
+    /// </summary>
+    public async Task DeleteAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        EnsureValidTenant();
+        var context = await BuildToggleContextAsync(userId, activateUser: false, cancellationToken);
+        await ValidateTogglePermissionsAsync(context, cancellationToken);
+
+        var tenantId = context.TenantId!;
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+        var actor = context.ActorId.ToString();
+        var revoked = 0;
+
+        // All or nothing: a half-removed member (no roles, but still a member) must not be possible.
+        var strategy = db.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+            await db.UserRoles.Where(ur => ur.UserId == userId).ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
+            await db.UserGroups.Where(ug => ug.UserId == userId).ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
+            await db.MembershipInvitations
+                .Where(i => i.UserId == userId && i.AcceptedOnUtc == null && i.RevokedOnUtc == null)
+                .ExecuteUpdateAsync(u => u.SetProperty(i => i.RevokedOnUtc, now).SetProperty(i => i.RevokedBy, actor), cancellationToken)
+                .ConfigureAwait(false);
+            await db.TenantMemberships.Where(m => m.Id == context.Membership.Id).ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
+            revoked = await SessionRevocation.RevokeAsync(db, userId, tenantId, actor, "MembershipRemoved", now, cancellationToken).ConfigureAwait(false);
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        }).ConfigureAwait(false);
+
+        await permissions.InvalidatePermissionCacheAsync(userId, cancellationToken).ConfigureAwait(false);
+
+        await auditor.WriteAsync(
+            SecurityAction.MembershipRemoved,
+            userId,
+            "MembershipRemoved",
+            new Dictionary<string, object?> { ["actorId"] = context.ActorId.ToString(), ["tenant"] = tenantId, ["sessionsRevoked"] = revoked },
+            ct: cancellationToken).ConfigureAwait(false);
+    }
 
     public async Task ToggleStatusAsync(bool activateUser, string userId, CancellationToken cancellationToken)
     {
@@ -150,8 +188,23 @@ internal sealed class UserStatusService(
     {
         await db.SaveChangesAsync(cancellationToken);
 
-        // A deactivated member has no permissions here; drop the cached set either way.
+        // A deactivated member has no permissions here and no sessions: end them now, not at the next refresh.
+        var revoked = 0;
+        if (!context.ActivateUser)
+        {
+            revoked = await SessionRevocation.RevokeAsync(
+                db, context.TargetUser.Id, context.TenantId, context.ActorId.ToString(), "MembershipDeactivated",
+                timeProvider.GetUtcNow().UtcDateTime, cancellationToken).ConfigureAwait(false);
+        }
+
         await permissions.InvalidatePermissionCacheAsync(context.TargetUser.Id, cancellationToken);
+
+        await auditor.WriteAsync(
+            context.ActivateUser ? SecurityAction.MembershipActivated : SecurityAction.MembershipDeactivated,
+            context.TargetUser.Id,
+            context.ActivateUser ? "MembershipActivated" : "MembershipDeactivated",
+            new Dictionary<string, object?> { ["actorId"] = context.ActorId.ToString(), ["tenant"] = context.TenantId, ["sessionsRevoked"] = revoked },
+            ct: cancellationToken).ConfigureAwait(false);
 
         await auditClient.WriteActivityAsync(
             ActivityKind.Command,

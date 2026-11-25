@@ -1,13 +1,7 @@
 using System.Net.Http.Json;
-using Finbuckle.MultiTenant;
-using Finbuckle.MultiTenant.Abstractions;
-using Trislab.Framework.Shared.Multitenancy;
-using Trislab.Modules.Identity.Domain;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Integration.Tests.Tests.Realtime;
 
@@ -146,43 +140,12 @@ public sealed class TypingIndicatorTests
 
     private async Task<(UserCredentials user, string accessToken)> RegisterAndSignInAsync(HttpClient adminClient, string prefix)
     {
-        var unique = Guid.NewGuid().ToString("N")[..8];
-        var email = $"{prefix}-{unique}@example.com";
-        var userName = $"{prefix}{unique}";
-        const string password = "Test@1234!";
-
-        using var response = await adminClient.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = prefix,
-            lastName = "Test",
-            email,
-            userName,
-            password,
-            confirmPassword = password,
-        });
-        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.Created);
-        var registered = await response.DeserializeAsync<RegisterResult>();
-
-        // Bypass /register's email-confirmation gate.
-        using var scope = _factory.Services.CreateScope();
-        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
-            .GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
-        var user = await userManager.FindByIdAsync(registered.UserId);
-        user.ShouldNotBeNull();
-        if (!user.EmailConfirmed)
-        {
-            user.EmailConfirmed = true;
-            (await userManager.UpdateAsync(user)).Succeeded.ShouldBeTrue();
-        }
-
-        var token = await _auth.GetTokenAsync(email, password);
-        return (new UserCredentials(registered.UserId, userName, email), token.AccessToken);
+        var invited = await TestUsers.InviteAndAcceptAsync(_factory, adminClient, prefix, prefix, "Test");
+        var token = await _auth.GetTokenAsync(invited.Email, invited.Password);
+        return (new UserCredentials(invited.UserId, invited.Email), token.AccessToken);
     }
 
-    private sealed record UserCredentials(string Id, string UserName, string Email);
+    private sealed record UserCredentials(string Id, string Email);
     private sealed record TypingPayload(Guid ChannelId, string UserId);
 
     private sealed class EventInbox<T> : IDisposable

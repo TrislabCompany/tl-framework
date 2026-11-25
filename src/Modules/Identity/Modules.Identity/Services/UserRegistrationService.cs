@@ -1,6 +1,5 @@
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Core.Common;
-using Trislab.Framework.Core.Context;
 using Trislab.Framework.Core.Exceptions;
 using Trislab.Framework.Eventing.Outbox;
 using Trislab.Framework.Jobs.Services;
@@ -17,10 +16,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
+using Trislab.Modules.Auditing.Contracts;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Net;
-using System.Security.Claims;
 using System.Text;
 
 namespace Trislab.Modules.Identity.Services;
@@ -32,39 +32,17 @@ internal sealed class UserRegistrationService(
     IMailService mailService,
     IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
     IOutboxStore outboxStore,
-    ICurrentUser currentUser,
-    IdentityErrorDescriber errorDescriber,
+    IdentityAuditor auditor,
+    TimeProvider timeProvider,
+    IOptions<SelfRegistrationOptions> registrationOptions,
     IStringLocalizer<IdentityResources> localizer) : IUserRegistrationService
 {
-    public async Task<string> GetOrCreateFromPrincipalAsync(ClaimsPrincipal principal, CancellationToken cancellationToken = default)
-    {
-        EnsureValidTenant();
-        ArgumentNullException.ThrowIfNull(principal);
-
-        var email = ExtractEmailFromPrincipal(principal);
-
-        // The store looks the e-mail up across all accounts. An account that is not a member here yet joins.
-        var existingUser = await userManager.FindByEmailAsync(email);
-        if (existingUser is not null)
-        {
-            if (!await IsMemberAsync(existingUser.Id, cancellationToken))
-            {
-                await AddMembershipAsync(existingUser, cancellationToken);
-                await AssignDefaultRoleAndGroupsAsync(existingUser, "ExternalAuth", cancellationToken);
-            }
-
-            return existingUser.Id;
-        }
-
-        var user = await CreateUserFromPrincipalAsync(principal, email);
-        await AddMembershipAsync(user, cancellationToken);
-        await AssignDefaultRoleAndGroupsAsync(user, "ExternalAuth", cancellationToken);
-        await PublishUserRegisteredAsync(user, "Identity.ExternalAuth", cancellationToken);
-
-        return user.Id;
-    }
-
-    public async Task<string> RegisterAsync(
+    /// <summary>
+    /// Self-registration in the current tenant. It never tells whether the address has an account: the answer
+    /// and its timing are the same either way. A new address gets an account and a confirmation e-mail; an
+    /// address with an account gets an e-mail telling its owner, and nothing else changes.
+    /// </summary>
+    public async Task RegisterAsync(
         string firstName,
         string lastName,
         string email,
@@ -75,77 +53,124 @@ internal sealed class UserRegistrationService(
         string origin,
         CancellationToken cancellationToken)
     {
-        EnsureValidTenant();
-        ValidatePasswordMatch(password, confirmPassword);
+        var started = timeProvider.GetTimestamp();
+        var tenantId = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id
+            ?? throw new UnauthorizedException("invalid tenant").Localized("Error.InvalidTenant");
 
-        // Accounts are global. An administrator who registers an e-mail that already has an account adds that
-        // account to this tenant: it keeps its own password, name and confirmed e-mail.
-        if (currentUser.IsAuthenticated() && await userManager.FindByEmailAsync(email) is TrislabUser existing)
+        // The operator console has no sign-up: operators are invited by an operator.
+        if (string.Equals(tenantId, MultitenancyConstants.Root.Id, StringComparison.Ordinal))
         {
-            return await AddExistingAccountAsync(existing, cancellationToken);
+            throw new ForbiddenException("self-registration is not open for the operator console")
+                .Localized<IdentityResources>("Identity.SelfRegistrationClosed");
         }
 
-        var user = await CreateUserWithPasswordAsync(firstName, lastName, email, userName, password, phoneNumber);
-        await AddMembershipAsync(user, cancellationToken);
-        await AssignDefaultRoleAndGroupsAsync(user, "System", cancellationToken);
-        await SendConfirmationEmailAsync(user, origin, cancellationToken);
-        await PublishUserRegisteredAsync(user, "Identity", cancellationToken);
+        ValidatePasswordMatch(password, confirmPassword);
 
-        return user.Id;
+        // Check the password policy before looking the address up, so a weak password fails the same way for both.
+        var candidate = new TrislabUser { Email = email, UserName = userName };
+        await EnsurePasswordPolicyAsync(candidate, password).ConfigureAwait(false);
+
+        var existing = await userManager.FindByEmailAsync(userManager.NormalizeEmail(email)).ConfigureAwait(false);
+        if (existing is not null)
+        {
+            // Spend the same work as creating an account (the password hash), then tell the owner by e-mail.
+            _ = userManager.PasswordHasher.HashPassword(candidate, password);
+            SendExistingAccountNotice(existing, origin);
+            await auditor.WriteAsync(
+                SecurityAction.PolicyFailed,
+                existing.Id,
+                "SelfRegistrationExistingAccount",
+                new Dictionary<string, object?> { ["tenant"] = tenantId },
+                AuditSeverity.Information,
+                cancellationToken).ConfigureAwait(false);
+        }
+        else
+        {
+            userName = await UniqueUserNameAsync(userName).ConfigureAwait(false);
+            var user = await CreateUserWithPasswordAsync(firstName, lastName, email, userName, password, phoneNumber).ConfigureAwait(false);
+            if (user is null)
+            {
+                // Another request created the address a moment ago: answer as for an existing account.
+                await ResponseTime.PadAsync(timeProvider, started, registrationOptions.Value.MinimumResponseTime, cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
+            db.TenantMemberships.Add(TenantMembership.CreateAccepted(user.Id, tenantId));
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await MembershipRules.AssignDefaultRoleAndGroupsAsync(userManager, db, user, "SelfRegistration", cancellationToken).ConfigureAwait(false);
+            await SendConfirmationEmailAsync(user, origin, cancellationToken).ConfigureAwait(false);
+            await PublishUserRegisteredAsync(user, "Identity", cancellationToken).ConfigureAwait(false);
+        }
+
+        await ResponseTime.PadAsync(timeProvider, started, registrationOptions.Value.MinimumResponseTime, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<string> ConfirmEmailAsync(string userId, string code, string tenant, CancellationToken cancellationToken)
+    public async Task<string> ConfirmEmailAsync(string userId, string code, string password, string tenant, CancellationToken cancellationToken)
     {
         EnsureValidTenant();
 
+        // The same least duration whatever went wrong, so the timing tells nothing either.
+        var started = timeProvider.GetTimestamp();
+        try
+        {
+            return await ConfirmEmailCoreAsync(userId, code, password, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            await ResponseTime.PadAsync(timeProvider, started, registrationOptions.Value.MinimumResponseTime, CancellationToken.None).ConfigureAwait(false);
+        }
+    }
+
+    private async Task<string> ConfirmEmailCoreAsync(string userId, string code, string password, CancellationToken cancellationToken)
+    {
         // The e-mail belongs to the global account: the signed link is the proof, whatever the tenant.
         var user = await userManager.Users
             .IgnoreQueryFilters([IdentityDbContext.MembershipFilter])
             .Where(u => u.Id == userId && !u.EmailConfirmed)
             .FirstOrDefaultAsync(cancellationToken);
 
-        _ = user ?? throw new CustomException("An error occurred while confirming E-Mail.")
-            .Localized<IdentityResources>("Identity.EmailConfirmationError");
+        string? decoded;
+        try
+        {
+            decoded = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+        }
+        catch (FormatException)
+        {
+            decoded = null;
+        }
 
-        code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
-        var result = await userManager.ConfirmEmailAsync(user, code);
+        // The code proves the mailbox, the password proves the person who signed up. Both are needed: someone who
+        // registered another person's address can't have the account confirmed by its owner opening the link.
+        // One generic failure for an unknown id, a confirmed account, a wrong code or a wrong password: the
+        // anonymous endpoint must not tell them apart, nor echo an address.
+        if (user is null || decoded is null || string.IsNullOrEmpty(user.PasswordHash)
+            || (userManager.SupportsUserLockout && await userManager.IsLockedOutAsync(user))
+            || !await userManager.VerifyUserTokenAsync(
+                user, userManager.Options.Tokens.EmailConfirmationTokenProvider, UserManager<TrislabUser>.ConfirmEmailTokenPurpose, decoded))
+        {
+            throw ConfirmationFailed();
+        }
 
+        if (!await userManager.CheckPasswordAsync(user, password))
+        {
+            // A wrong password counts towards the lockout, as at sign-in, so the link can't be used to guess it.
+            if (userManager.SupportsUserLockout)
+            {
+                await userManager.AccessFailedAsync(user);
+            }
+
+            throw ConfirmationFailed();
+        }
+
+        var result = await userManager.ConfirmEmailAsync(user, decoded);
         return result.Succeeded
-            // The success text is what the confirm-email page shows the user, so it localizes like the
-            // failure below; the old developer hint about /api/tokens is gone from the user's screen.
             ? localizer["Identity.EmailConfirmed", user.Email!].Value
-            : throw new CustomException(string.Format(CultureInfo.InvariantCulture, "An error occurred while confirming {0}", user.Email))
-                .Localized<IdentityResources>("Identity.EmailConfirmationFailedFor", user.Email!);
+            : throw ConfirmationFailed();
     }
 
-    public async Task AdminConfirmEmailAsync(string userId, CancellationToken cancellationToken = default)
-    {
-        EnsureValidTenant();
-
-        var user = await userManager.Users
-            .Where(u => u.Id == userId)
-            .FirstOrDefaultAsync(cancellationToken)
-            ?? throw new NotFoundException($"User {userId} was not found.")
-                .Localized<IdentityResources>("Identity.UserNotFoundById", userId);
-
-        // Idempotent: a second confirm is a no-op rather than an error.
-        if (user.EmailConfirmed)
-        {
-            return;
-        }
-
-        user.EmailConfirmed = true;
-        var result = await userManager.UpdateAsync(user);
-        if (!result.Succeeded)
-        {
-            throw new CustomException(string.Format(
-                CultureInfo.InvariantCulture,
-                "An error occurred while confirming the email for {0}: {1}",
-                user.Email,
-                string.Join("; ", result.Errors.Select(e => e.Description))))
-                .Localized<IdentityResources>("Identity.EmailConfirmationFailedWithErrors", user.Email!, string.Join("; ", result.Errors.Select(e => e.Description)));
-        }
-    }
+    private static CustomException ConfirmationFailed() =>
+        new CustomException("An error occurred while confirming E-Mail.", errors: null, HttpStatusCode.BadRequest)
+            .Localized<IdentityResources>("Identity.EmailConfirmationError");
 
     public async Task ResendConfirmationEmailAsync(string userId, string origin, CancellationToken cancellationToken = default)
     {
@@ -189,127 +214,12 @@ internal sealed class UserRegistrationService(
                 .Localized<IdentityResources>("Identity.PhoneConfirmationFailedFor", user.PhoneNumber!);
     }
 
-    private async Task<string> AddExistingAccountAsync(TrislabUser existing, CancellationToken cancellationToken)
-    {
-        if (await IsMemberAsync(existing.Id, cancellationToken))
-        {
-            throw new CustomException(
-                "Unable to register the user.",
-                [errorDescriber.DuplicateEmail(existing.Email!).Description],
-                HttpStatusCode.BadRequest)
-                .Localized<IdentityResources>("Identity.UnableToRegisterUser");
-        }
-
-        await AddMembershipAsync(existing, cancellationToken);
-        await AssignDefaultRoleAndGroupsAsync(existing, "System", cancellationToken);
-        await PublishUserRegisteredAsync(existing, "Identity", cancellationToken);
-        return existing.Id;
-    }
-
-    private Task<bool> IsMemberAsync(string userId, CancellationToken cancellationToken) =>
-        db.TenantMemberships.AnyAsync(m => m.UserId == userId, cancellationToken);
-
-    /// <summary>
-    /// Adds an account to the current tenant. An operator (a member of root) stays in root only: operators
-    /// reach other tenants through impersonation, so a root account never joins another tenant, and an
-    /// account of another tenant never becomes an operator this way.
-    /// </summary>
-    private async Task AddMembershipAsync(TrislabUser user, CancellationToken cancellationToken)
-    {
-        var tenantId = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id
-            ?? throw new UnauthorizedException("invalid tenant").Localized("Error.InvalidTenant");
-
-        var otherTenants = await db.TenantMemberships
-            .IgnoreQueryFilters()
-            .Where(m => m.UserId == user.Id && m.TenantId != tenantId)
-            .Select(m => m.TenantId)
-            .ToListAsync(cancellationToken);
-
-        var joiningRoot = string.Equals(tenantId, MultitenancyConstants.Root.Id, StringComparison.Ordinal);
-        if ((joiningRoot && otherTenants.Count > 0) || otherTenants.Contains(MultitenancyConstants.Root.Id))
-        {
-            throw new CustomException(
-                "Operator accounts belong to the root tenant only.",
-                errors: null,
-                HttpStatusCode.BadRequest)
-                .Localized<IdentityResources>("Identity.OperatorAccountsStayInRoot");
-        }
-
-        db.TenantMemberships.Add(TenantMembership.Create(user.Id, tenantId));
-        await db.SaveChangesAsync(cancellationToken);
-    }
-
     private void EnsureValidTenant()
     {
         if (string.IsNullOrWhiteSpace(multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id))
         {
             throw new UnauthorizedException("invalid tenant").Localized("Error.InvalidTenant");
         }
-    }
-
-    private static string ExtractEmailFromPrincipal(ClaimsPrincipal principal)
-    {
-        return principal.FindFirstValue(ClaimTypes.Email)
-            ?? principal.FindFirstValue("email")
-            ?? throw new CustomException("Email claim is required for external authentication.")
-                .Localized<IdentityResources>("Identity.EmailClaimRequired");
-    }
-
-    private async Task<TrislabUser> CreateUserFromPrincipalAsync(ClaimsPrincipal principal, string email)
-    {
-        var (firstName, lastName, userName) = ExtractUserInfoFromPrincipal(principal, email);
-
-        userName = await EnsureUniqueUserNameAsync(userName);
-
-        var user = new TrislabUser
-        {
-            Email = email,
-            UserName = userName,
-            FirstName = firstName,
-            LastName = lastName,
-            EmailConfirmed = true,
-            PhoneNumberConfirmed = false,
-        };
-
-        var result = await userManager.CreateAsync(user);
-        if (!result.Succeeded)
-        {
-            var errors = result.Errors.Select(e => e.Description).ToList();
-            throw new CustomException(
-                "Failed to create user from external principal.",
-                errors,
-                HttpStatusCode.BadRequest)
-                .Localized<IdentityResources>("Identity.FailedToCreateUserFromPrincipal");
-        }
-
-        return user;
-    }
-
-    private static (string firstName, string lastName, string userName) ExtractUserInfoFromPrincipal(
-        ClaimsPrincipal principal, string email)
-    {
-        var firstName = principal.FindFirstValue(ClaimTypes.GivenName)
-            ?? principal.FindFirstValue("given_name")
-            ?? string.Empty;
-
-        var lastName = principal.FindFirstValue(ClaimTypes.Surname)
-            ?? principal.FindFirstValue("family_name")
-            ?? string.Empty;
-
-        var userName = principal.FindFirstValue(ClaimTypes.Name)
-            ?? principal.FindFirstValue("preferred_username")
-            ?? email.Split('@')[0];
-
-        return (firstName, lastName, userName);
-    }
-
-    private async Task<string> EnsureUniqueUserNameAsync(string userName)
-    {
-        if (await userManager.FindByNameAsync(userName) is not null)
-        {
-            return $"{userName}_{Guid.NewGuid():N}"[..20];
-        }
-        return userName;
     }
 
     private static void ValidatePasswordMatch(string password, string confirmPassword)
@@ -324,7 +234,7 @@ internal sealed class UserRegistrationService(
         }
     }
 
-    private async Task<TrislabUser> CreateUserWithPasswordAsync(
+    private async Task<TrislabUser?> CreateUserWithPasswordAsync(
         string firstName,
         string lastName,
         string email,
@@ -344,6 +254,11 @@ internal sealed class UserRegistrationService(
         };
 
         var result = await userManager.CreateAsync(user, password);
+        if (!result.Succeeded && result.Errors.Any(e => e.Code == nameof(IdentityErrorDescriber.DuplicateEmail)))
+        {
+            return null;
+        }
+
         if (!result.Succeeded)
         {
             // Identity create failures (duplicate email/username, password policy, …) are
@@ -360,27 +275,53 @@ internal sealed class UserRegistrationService(
         return user;
     }
 
-    private async Task AssignDefaultRoleAndGroupsAsync(
-        TrislabUser user,
-        string source,
-        CancellationToken cancellationToken = default)
+    private async Task EnsurePasswordPolicyAsync(TrislabUser candidate, string password)
     {
-        await userManager.AddToRoleAsync(user, RoleConstants.Basic);
-
-        var defaultGroups = await db.Groups
-            .AsNoTracking()
-            .Where(g => g.IsDefault && !g.IsDeleted)
-            .ToListAsync(cancellationToken);
-
-        foreach (var group in defaultGroups)
+        var errors = new List<string>();
+        foreach (var validator in userManager.PasswordValidators)
         {
-            db.UserGroups.Add(UserGroup.Create(user.Id, group.Id, source));
+            var result = await validator.ValidateAsync(userManager, candidate, password).ConfigureAwait(false);
+            errors.AddRange(result.Errors.Select(e => e.Description));
         }
 
-        if (defaultGroups.Count > 0)
+        if (errors.Count > 0)
         {
-            await db.SaveChangesAsync(cancellationToken);
+            throw new CustomException("Unable to register the user.", errors, HttpStatusCode.BadRequest)
+                .Localized<IdentityResources>("Identity.UnableToRegisterUser");
         }
+    }
+
+    // A user name is not secret, but "taken" would still tell a caller that someone signed up with it:
+    // a taken name gets a short random suffix instead of an error.
+    private async Task<string> UniqueUserNameAsync(string userName)
+    {
+        if (await userManager.FindByNameAsync(userManager.NormalizeName(userName)).ConfigureAwait(false) is null)
+        {
+            return userName;
+        }
+
+        return $"{userName}-{Convert.ToHexStringLower(System.Security.Cryptography.RandomNumberGenerator.GetBytes(3))}";
+    }
+
+    private void SendExistingAccountNotice(TrislabUser existing, string origin)
+    {
+        if (string.IsNullOrEmpty(existing.Email))
+        {
+            return;
+        }
+
+        var signIn = $"{origin.TrimEnd('/')}/login";
+        var mail = new MailRequest(
+            new Collection<string> { existing.Email },
+            "Someone tried to sign up with your address",
+            HtmlEmail.LinkAction(
+                heading: "You already have an account",
+                intro: "Someone just tried to create an account with this e-mail address. You already have one: sign in, or reset your password if you forgot it. If it wasn't you, you can ignore this message.",
+                actionUrl: signIn,
+                actionLabel: "Sign in"),
+            textBody: $"You already have an account with this address. Sign in: {signIn}");
+
+        jobService.Enqueue("email", () => mailService.SendAsync(mail, CancellationToken.None));
     }
 
     private async Task SendConfirmationEmailAsync(TrislabUser user, string origin, CancellationToken cancellationToken)

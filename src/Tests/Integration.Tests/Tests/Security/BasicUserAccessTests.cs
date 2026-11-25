@@ -29,7 +29,9 @@ public abstract class BasicUserAccessTestsBase
 
     private async Task<(SeededUser User, HttpClient Client)> CreateBasicClientAsync(HttpClient adminClient, string prefix)
     {
-        var user = await IdentityUserSeeder.CreateLoginableUserAsync(_factory, adminClient, prefix, _factory.TenantId);
+        // The first name carries the prefix, so a lookup by name finds the user; the user name is generated.
+        var invited = await TestUsers.InviteAndAcceptAsync(_factory, adminClient, prefix, firstName: prefix);
+        var user = new SeededUser(invited.UserId, invited.Email, invited.Password);
         var client = await _auth.CreateAuthenticatedClientAsync(user.Email, user.Password, _factory.TenantId);
         return (user, client);
     }

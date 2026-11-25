@@ -34,17 +34,20 @@ public class IdentityDbContext : IdentityDbContext<TrislabUser,
     IdentityUserToken<string>,
     IdentityUserPasskey<string>>, IMultiTenantDbContext
 {
-    /// <summary>Name of the query filter that limits users to the members of the current tenant.</summary>
+    /// <summary>Name of the query filter that limits users to the members of the current tenant who accepted (active or not); pending invitees stay invisible.</summary>
     public const string MembershipFilter = "TenantMembership";
 
-    /// <summary>Entities of the global user account: never tenant-scoped.</summary>
-    private static readonly Type[] AccountTypes =
+    /// <summary>
+    /// Entities of the global user account, never tenant-scoped though they don't carry <see cref="IGlobalEntity"/>
+    /// (they are ASP.NET Identity's own types). Every other entity of this context is tenant-scoped unless it is an
+    /// <see cref="IGlobalEntity"/>. <c>IdentityGlobalEntitiesTests</c> holds the model to exactly this rule.
+    /// </summary>
+    public static readonly IReadOnlyList<Type> AccountTypes =
     [
         typeof(TrislabUser),
         typeof(IdentityUserClaim<string>),
         typeof(IdentityUserLogin<string>),
         typeof(IdentityUserToken<string>),
-        typeof(IdentityUserPasskey<string>),
     ];
 
     public IdentityDbContext(
@@ -64,7 +67,18 @@ public class IdentityDbContext : IdentityDbContext<TrislabUser,
     /// <summary>The tenant this context was created for, or null outside a tenant (sign-in, refresh).</summary>
     public string? CurrentTenantId => TenantInfo?.Id;
 
+    /// <summary>
+    /// The account with this id whatever the current tenant, or none: for work on the account itself (its password,
+    /// its e-mail), which a reset link or a sign-in reaches without a membership in the request's tenant.
+    /// </summary>
+    public Task<TrislabUser?> FindAccountAsync(string userId, CancellationToken cancellationToken = default) =>
+        Users.IgnoreQueryFilters([MembershipFilter]).SingleOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
     public DbSet<TenantMembership> TenantMemberships => Set<TenantMembership>();
+
+    public DbSet<MembershipInvitation> MembershipInvitations => Set<MembershipInvitation>();
+
+    public DbSet<SignInSelection> SignInSelections => Set<SignInSelection>();
 
     public DbSet<PasswordHistory> PasswordHistories => Set<PasswordHistory>();
 
@@ -80,7 +94,7 @@ public class IdentityDbContext : IdentityDbContext<TrislabUser,
 
     /// <summary>The active members of the current tenant.</summary>
     public IQueryable<TrislabUser> ActiveMembers =>
-        Users.Where(u => TenantMemberships.Any(m => m.UserId == u.Id && m.IsActive));
+        Users.Where(u => TenantMemberships.Any(m => m.UserId == u.Id && m.IsActive && m.AcceptedOnUtc != null));
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -110,7 +124,7 @@ public class IdentityDbContext : IdentityDbContext<TrislabUser,
         // filter itself; the explicit comparison keeps this filter correct on its own.
         builder.Entity<TrislabUser>().HasQueryFilter(
             MembershipFilter,
-            u => TenantMemberships.Any(m => m.UserId == u.Id && m.TenantId == CurrentTenantId));
+            u => TenantMemberships.Any(m => m.UserId == u.Id && m.TenantId == CurrentTenantId && m.AcceptedOnUtc != null));
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)

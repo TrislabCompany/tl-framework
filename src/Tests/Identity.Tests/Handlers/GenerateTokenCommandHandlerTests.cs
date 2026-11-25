@@ -22,6 +22,9 @@ public sealed class GenerateTokenCommandHandlerTests
     private readonly IRequestContext _requestContext = Substitute.For<IRequestContext>();
     private readonly GenerateTokenCommandHandler _sut;
 
+    private static readonly AuditSubjectHasher Hasher = new(Microsoft.Extensions.Options.Options.Create(
+        new Trislab.Modules.Identity.Authorization.Jwt.JwtOptions { SigningKey = new string('k', 64) }));
+
     public GenerateTokenCommandHandlerTests()
     {
         _requestContext.IpAddress.Returns("203.0.113.5");
@@ -29,7 +32,7 @@ public sealed class GenerateTokenCommandHandlerTests
 
         // The sign-in service is never reached when the credentials fail.
         var signIn = new TenantSignInService(null!, null!, null!, null!, null!, null!, null!, null!, null!, null!);
-        _sut = new GenerateTokenCommandHandler(_identityService, signIn, _securityAudit, _requestContext);
+        _sut = new GenerateTokenCommandHandler(_identityService, signIn, _securityAudit, _requestContext, Hasher);
     }
 
     [Fact]
@@ -41,8 +44,10 @@ public sealed class GenerateTokenCommandHandlerTests
 
         await Should.ThrowAsync<UnauthorizedException>(async () => await _sut.Handle(command, CancellationToken.None));
 
+        // The audit names the address by a one-way hash, never in clear: the trail must not collect e-mails
+        // that someone typed, which may not even be theirs.
         await _securityAudit.Received(1).LoginFailedAsync(
-            "user@example.com", "web", "InvalidCredentials", "203.0.113.5", Arg.Any<CancellationToken>());
+            Hasher.Email("user@example.com"), "web", "InvalidCredentials", "203.0.113.5", Arg.Any<CancellationToken>());
     }
 
     [Fact]

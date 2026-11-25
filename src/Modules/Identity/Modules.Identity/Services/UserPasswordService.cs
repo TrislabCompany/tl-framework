@@ -4,12 +4,14 @@ using Trislab.Framework.Jobs.Services;
 using Trislab.Framework.Mailing;
 using Trislab.Framework.Mailing.Services;
 using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Modules.Auditing.Contracts;
 using Trislab.Modules.Identity.Contracts.Services;
 using Trislab.Modules.Identity.Data;
 using Trislab.Modules.Identity.Domain;
 using Trislab.Modules.Identity.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Text;
 
@@ -22,9 +24,25 @@ internal sealed class UserPasswordService(
     IMailService mailService,
     IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
     IPasswordHistoryService passwordHistoryService,
-    IPasswordExpiryService passwordExpiryService) : IUserPasswordService
+    IdentityAuditor auditor,
+    TimeProvider timeProvider,
+    Microsoft.Extensions.Options.IOptions<SelfRegistrationOptions> responseOptions) : IUserPasswordService
 {
     public async Task ForgotPasswordAsync(string email, string origin, CancellationToken cancellationToken)
+    {
+        // The same answer and the same least duration whether or not the address has an account.
+        var started = timeProvider.GetTimestamp();
+        try
+        {
+            await SendResetLinkAsync(email, origin).ConfigureAwait(false);
+        }
+        finally
+        {
+            await ResponseTime.PadAsync(timeProvider, started, responseOptions.Value.MinimumResponseTime, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private async Task SendResetLinkAsync(string email, string origin)
     {
         // The password belongs to the global account, so no tenant is needed: the store looks the e-mail
         // up across all accounts.
@@ -72,27 +90,85 @@ internal sealed class UserPasswordService(
 
     public async Task ResetPasswordAsync(string email, string password, string token, CancellationToken cancellationToken)
     {
-        var user = await userManager.FindByEmailAsync(email);
-        if (user == null)
+        // The same least duration whatever the outcome: the timing must not tell an unknown address from a bad token.
+        var started = timeProvider.GetTimestamp();
+        try
         {
-            throw new NotFoundException("user not found").Localized<IdentityResources>("Identity.UserNotFound");
+            await ResetPasswordCoreAsync(email, password, token, cancellationToken).ConfigureAwait(false);
         }
-
-        token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
-        var result = await userManager.ResetPasswordAsync(user, token, password);
-
-        if (!result.Succeeded)
+        finally
         {
-            var errors = result.Errors.Select(e => e.Description).ToList();
-            throw new CustomException("error resetting password", errors)
-                .Localized<IdentityResources>("Identity.ErrorResettingPassword");
+            await ResponseTime.PadAsync(timeProvider, started, responseOptions.Value.MinimumResponseTime, CancellationToken.None).ConfigureAwait(false);
         }
-
-        // Raise domain event for password reset
-        var tenantId = multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id;
-        user.RecordPasswordChanged(wasReset: true, tenantId);
-        await db.SaveChangesAsync(cancellationToken);
     }
+
+    private async Task ResetPasswordCoreAsync(string email, string password, string token, CancellationToken cancellationToken)
+    {
+        // The password belongs to the global account, so the reset needs no tenant. An unknown address fails
+        // exactly like a wrong token: the reset must not reveal which addresses have accounts.
+        var user = await userManager.FindByEmailAsync(email);
+        string? decodedToken;
+        try
+        {
+            decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+        }
+        catch (FormatException)
+        {
+            decodedToken = null;
+        }
+
+        // The token is checked before anything else, so only the mailbox owner learns whether the new
+        // password was used before.
+        if (user is null || decodedToken is null || !await userManager.VerifyUserTokenAsync(
+                user, userManager.Options.Tokens.PasswordResetTokenProvider, UserManager<TrislabUser>.ResetPasswordTokenPurpose, decodedToken))
+        {
+            throw ResetFailed([userManager.ErrorDescriber.InvalidToken().Description]);
+        }
+
+        if (await passwordHistoryService.IsPasswordInHistoryAsync(user.Id, password, cancellationToken).ConfigureAwait(false))
+        {
+            throw new CustomException("password used recently", [], System.Net.HttpStatusCode.BadRequest)
+                .Localized("Validation.PasswordRecentlyUsed");
+        }
+
+        // All or nothing: a reset that stopped half-way would leave a new password with the old sessions still alive.
+        var tenantId = multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id;
+        var revoked = 0;
+        var strategy = db.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+
+            var result = await userManager.ResetPasswordAsync(user, decodedToken, password);
+            if (!result.Succeeded)
+            {
+                throw ResetFailed(result.Errors.Select(e => e.Description).ToList());
+            }
+
+            // The reset link reached the mailbox: that confirms the e-mail, and it ends a lockout.
+            user.EmailConfirmed = true;
+            user.LockoutEnd = null;
+            user.AccessFailedCount = 0;
+            user.LastPasswordChangeDate = timeProvider.GetUtcNow().UtcDateTime;
+            user.RecordPasswordChanged(wasReset: true, tenantId);
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await passwordHistoryService.SavePasswordHistoryAsync(user.Id, cancellationToken).ConfigureAwait(false);
+
+            // The reset rotated the security stamp, so no session could refresh anyway; ending them now
+            // makes the session list honest at once, in every tenant of the account.
+            revoked = await SessionRevocation.RevokeAsync(
+                db, user.Id, tenantId: null, user.Id, "PasswordReset", timeProvider.GetUtcNow().UtcDateTime, cancellationToken).ConfigureAwait(false);
+
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        }).ConfigureAwait(false);
+
+        await auditor.WriteForAccountAsync(SecurityAction.PasswordReset, user.Id, "PasswordReset",
+            new Dictionary<string, object?> { ["sessionsRevoked"] = revoked }, ct: cancellationToken).ConfigureAwait(false);
+    }
+
+    private static CustomException ResetFailed(IReadOnlyCollection<string> errors) =>
+        new CustomException("error resetting password", errors.ToList(), System.Net.HttpStatusCode.BadRequest)
+            .Localized<IdentityResources>("Identity.ErrorResettingPassword");
 
     public async Task ChangePasswordAsync(string password, string newPassword, string confirmNewPassword, string userId, CancellationToken cancellationToken = default)
     {
@@ -100,24 +176,36 @@ internal sealed class UserPasswordService(
 
         _ = user ?? throw new NotFoundException("user not found").Localized<IdentityResources>("Identity.UserNotFound");
 
-        var result = await userManager.ChangePasswordAsync(user, password, newPassword);
-
-        if (!result.Succeeded)
-        {
-            var errors = result.Errors.Select(e => e.Description).ToList();
-            throw new CustomException("failed to change password", errors)
-                .Localized<IdentityResources>("Identity.FailedToChangePassword");
-        }
-
-        // Raise domain event for password change
+        // All or nothing, like the reset: a change that stopped half-way would leave the old sessions alive.
         var tenantId = multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id;
-        user.RecordPasswordChanged(wasReset: false, tenantId);
-        await db.SaveChangesAsync(cancellationToken);
+        var revoked = 0;
+        var strategy = db.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
 
-        // Update password expiry date
-        await passwordExpiryService.UpdateLastPasswordChangeDateAsync(userId, cancellationToken);
+            var result = await userManager.ChangePasswordAsync(user, password, newPassword);
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description).ToList();
+                throw new CustomException("failed to change password", errors, System.Net.HttpStatusCode.BadRequest)
+                    .Localized<IdentityResources>("Identity.FailedToChangePassword");
+            }
 
-        // Save to history
-        await passwordHistoryService.SavePasswordHistoryAsync(userId, cancellationToken);
+            user.LastPasswordChangeDate = timeProvider.GetUtcNow().UtcDateTime;
+            user.RecordPasswordChanged(wasReset: false, tenantId);
+            await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await passwordHistoryService.SavePasswordHistoryAsync(user.Id, cancellationToken).ConfigureAwait(false);
+
+            // The change rotated the security stamp, so no session could refresh anyway; ending them now makes
+            // the session list honest at once, in every tenant of the account.
+            revoked = await SessionRevocation.RevokeAsync(
+                db, user.Id, tenantId: null, user.Id, "PasswordChanged", timeProvider.GetUtcNow().UtcDateTime, cancellationToken).ConfigureAwait(false);
+
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        }).ConfigureAwait(false);
+
+        await auditor.WriteForAccountAsync(SecurityAction.PasswordChanged, user.Id, "PasswordChanged",
+            new Dictionary<string, object?> { ["sessionsRevoked"] = revoked }, ct: cancellationToken).ConfigureAwait(false);
     }
 }

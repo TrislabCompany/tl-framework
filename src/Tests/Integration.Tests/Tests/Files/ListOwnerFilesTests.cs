@@ -4,10 +4,8 @@ using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Modules.Files.Contracts.v1.DTOs;
 using Trislab.Modules.Files.Data;
-using Trislab.Modules.Identity.Domain;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
-using Microsoft.AspNetCore.Identity;
 using TestHost;
 
 namespace Integration.Tests.Tests.Files;
@@ -237,41 +235,8 @@ public sealed class ListOwnerFilesAcrossUsersTests
     private async Task<HttpClient> RegisterAndLoginAsync(string prefix)
     {
         using var adminClient = await _auth.CreateRootAdminClientAsync();
-        var unique = Guid.NewGuid().ToString("N")[..8];
-        var email = $"{prefix}-{unique}@example.com";
-        const string password = "Test@1234!";
-
-        using var response = await adminClient.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = prefix,
-            lastName = "Test",
-            email,
-            userName = $"{prefix}{unique}",
-            password,
-            confirmPassword = password,
-        });
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var registered = await response.DeserializeAsync<RegisterResult>();
-
-        // The tenant context is set inline (AsyncLocal) so UserManager's query filter resolves the tenant.
-        using (var scope = _factory.Services.CreateScope())
-        {
-            var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
-                .GetAsync(TestConstants.RootTenantId);
-            scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-                new MultiTenantContext<AppTenantInfo>(tenant);
-
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
-            var user = await userManager.FindByIdAsync(registered.UserId);
-            user.ShouldNotBeNull();
-            if (!user.EmailConfirmed)
-            {
-                user.EmailConfirmed = true;
-                (await userManager.UpdateAsync(user)).Succeeded.ShouldBeTrue();
-            }
-        }
-
-        return await _auth.CreateAuthenticatedClientAsync(email, password);
+        var user = await TestUsers.InviteAndAcceptAsync(_factory, adminClient, prefix, prefix, "Test");
+        return await _auth.CreateAuthenticatedClientAsync(user.Email, user.Password);
     }
 }
 

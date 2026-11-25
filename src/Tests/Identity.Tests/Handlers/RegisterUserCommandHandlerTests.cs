@@ -1,4 +1,3 @@
-using AutoFixture;
 using Trislab.Modules.Identity.Contracts.Services;
 using Trislab.Modules.Identity.Contracts.v1.Users.RegisterUser;
 using Trislab.Modules.Identity.Features.v1.Users.RegisterUser;
@@ -14,19 +13,17 @@ public sealed class RegisterUserCommandHandlerTests
 {
     private readonly IUserService _userService;
     private readonly RegisterUserCommandHandler _sut;
-    private readonly IFixture _fixture;
 
     public RegisterUserCommandHandlerTests()
     {
         _userService = Substitute.For<IUserService>();
         _sut = new RegisterUserCommandHandler(_userService);
-        _fixture = new Fixture();
     }
 
     #region Handle - Happy Path Tests
 
     [Fact]
-    public async Task Handle_Should_ReturnRegisteredUserId_When_RegistrationIsSuccessful()
+    public async Task Handle_Should_ReturnTheSameAnswer_Without_An_AccountId()
     {
         // Arrange
         var command = new RegisterUserCommand
@@ -41,8 +38,6 @@ public sealed class RegisterUserCommandHandlerTests
             Origin = "web"
         };
 
-        var expectedUserId = _fixture.Create<string>();
-
         _userService.RegisterAsync(
             command.FirstName,
             command.LastName,
@@ -53,14 +48,14 @@ public sealed class RegisterUserCommandHandlerTests
             command.PhoneNumber,
             command.Origin,
             Arg.Any<CancellationToken>())
-            .Returns(expectedUserId);
+            .Returns(Task.CompletedTask);
 
         // Act
         var result = await _sut.Handle(command, CancellationToken.None);
 
         // Assert
         result.ShouldNotBeNull();
-        result.UserId.ShouldBe(expectedUserId);
+        result.ShouldBe(RegisterUserResponse.CheckYourEmail, "the answer never carries an account id");
     }
 
     [Fact]
@@ -79,9 +74,8 @@ public sealed class RegisterUserCommandHandlerTests
             Origin = "mobile"
         };
 
-        var userId = _fixture.Create<string>();
         _userService.RegisterAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(userId);
+            .Returns(Task.CompletedTask);
 
         // Act
         await _sut.Handle(command, CancellationToken.None);
@@ -115,9 +109,8 @@ public sealed class RegisterUserCommandHandlerTests
             Origin = "web"
         };
 
-        var userId = _fixture.Create<string>();
         _userService.RegisterAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(userId);
+            .Returns(Task.CompletedTask);
 
         // Act
         await _sut.Handle(command, CancellationToken.None);
@@ -151,9 +144,8 @@ public sealed class RegisterUserCommandHandlerTests
             Origin = null
         };
 
-        var userId = _fixture.Create<string>();
         _userService.RegisterAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(userId);
+            .Returns(Task.CompletedTask);
 
         // Act
         await _sut.Handle(command, CancellationToken.None);
@@ -234,12 +226,11 @@ public sealed class RegisterUserCommandHandlerTests
             Origin = "web"
         };
 
-        var userId = _fixture.Create<string>();
         using var cts = new CancellationTokenSource();
         var cancellationToken = cts.Token;
 
         _userService.RegisterAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), cancellationToken)
-            .Returns(userId);
+            .Returns(Task.CompletedTask);
 
         // Act
         await _sut.Handle(command, cancellationToken);
@@ -277,15 +268,14 @@ public sealed class RegisterUserCommandHandlerTests
             Origin = ""
         };
 
-        var userId = _fixture.Create<string>();
         _userService.RegisterAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(userId);
+            .Returns(Task.CompletedTask);
 
         // Act
         var result = await _sut.Handle(command, CancellationToken.None);
 
         // Assert
-        result.UserId.ShouldBe(userId);
+        result.Status.ShouldBe("check_your_email");
         await _userService.Received(1).RegisterAsync("", "", "test@example.com", "testuser", "Password123!", "Password123!", "", "", Arg.Any<CancellationToken>());
     }
 

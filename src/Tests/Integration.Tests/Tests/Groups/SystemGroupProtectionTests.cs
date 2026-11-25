@@ -6,10 +6,12 @@ namespace Integration.Tests.Tests.Groups;
 [Collection(TrislabCollectionDefinition.Name)]
 public sealed class SystemGroupProtectionTests
 {
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
     public SystemGroupProtectionTests(TrislabWebApplicationFactory factory)
     {
+        _factory = factory;
         _auth = new AuthHelper(factory);
     }
 
@@ -69,19 +71,8 @@ public sealed class SystemGroupProtectionTests
         using var client = await _auth.CreateRootAdminClientAsync();
         var allUsersGroup = await GetGroupByNameAsync(client, "All Users");
 
-        // Register a fresh user — UserRegistrationService auto-assigns them to every default group.
-        var uniqueId = Guid.NewGuid().ToString("N")[..8];
-        var registerResponse = await client.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = "DefaultGroup",
-            lastName = "Member",
-            email = $"defaultgroup-{uniqueId}@example.com",
-            userName = $"defaultgroup-{uniqueId}",
-            password = "Test@1234!",
-            confirmPassword = "Test@1234!"
-        });
-        registerResponse.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var registered = await registerResponse.DeserializeAsync<RegisterResult>();
+        // Invite a fresh user — accepting the invitation auto-assigns them to every default group.
+        var registered = await TestUsers.InviteAndAcceptAsync(_factory, client, "defaultgroup", "DefaultGroup", "Member");
 
         var response = await client.DeleteAsync(
             $"{TestConstants.IdentityBasePath}/groups/{allUsersGroup.Id}/members/{registered.UserId}");

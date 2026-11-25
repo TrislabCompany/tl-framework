@@ -48,7 +48,8 @@ public sealed class UserPasswordServiceTests
     }
 
     private UserPasswordService CreateSut() =>
-        new(_userManager, null!, _jobService, _mailService, _tenantAccessor, null!, null!);
+        new(_userManager, null!, _jobService, _mailService, _tenantAccessor, null!, null!, TimeProvider.System,
+            Microsoft.Extensions.Options.Options.Create(new SelfRegistrationOptions { MinimumResponseTime = TimeSpan.Zero }));
 
     private MailRequest CaptureSentMail()
     {

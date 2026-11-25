@@ -50,6 +50,8 @@ public sealed class SwitchTenantCommandHandler : ICommandHandler<SwitchTenantCom
             .SwitchAsync(
                 _currentUser.GetUserId().ToString(),
                 _currentUser.GetTenant(),
+                _currentUser.GetUserClaims()?.FirstOrDefault(c => c.Type == IdentityService.SecurityStampClaim)?.Value,
+                _currentUser.GetUserClaims()?.FirstOrDefault(c => c.Type == IdentityService.SessionClaim)?.Value,
                 request.Tenant.Trim(),
                 request.SetDefault,
                 request.App,

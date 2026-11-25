@@ -20,7 +20,6 @@ public sealed class SessionService : ISessionService
     private readonly IMultiTenantContextAccessor<AppTenantInfo> _multiTenantContextAccessor;
     private readonly ILogger<SessionService> _logger;
     private readonly TimeProvider _timeProvider;
-    private readonly Parser _uaParser;
 
     public SessionService(
         IdentityDbContext db,
@@ -34,7 +33,6 @@ public sealed class SessionService : ISessionService
         _multiTenantContextAccessor = multiTenantContextAccessor;
         _logger = logger;
         _timeProvider = timeProvider;
-        _uaParser = Parser.GetDefault();
     }
 
     private void EnsureValidTenant()
@@ -43,6 +41,26 @@ public sealed class SessionService : ISessionService
         {
             throw new UnauthorizedException("Invalid tenant").Localized("Error.InvalidTenant");
         }
+    }
+
+    private static readonly Parser SharedUaParser = Parser.GetDefault();
+
+    /// <summary>A new session with the device details read from the user agent.</summary>
+    internal static UserSession NewSession(string userId, string refreshTokenHash, string ipAddress, string userAgent, DateTime expiresAt, Guid? id = null)
+    {
+        var clientInfo = SharedUaParser.Parse(userAgent);
+        return UserSession.Create(
+            userId: userId,
+            refreshTokenHash: refreshTokenHash,
+            ipAddress: ipAddress,
+            userAgent: userAgent,
+            expiresAt: expiresAt,
+            deviceType: DeviceTypeClassifier.Classify(clientInfo.Device.Family),
+            browser: clientInfo.UA.Family,
+            browserVersion: clientInfo.UA.Major,
+            operatingSystem: clientInfo.OS.Family,
+            osVersion: clientInfo.OS.Major,
+            id: id);
     }
 
     public async Task<UserSessionDto> CreateSessionAsync(
@@ -55,19 +73,7 @@ public sealed class SessionService : ISessionService
     {
         EnsureValidTenant();
 
-        var clientInfo = _uaParser.Parse(userAgent);
-
-        var session = UserSession.Create(
-            userId: userId,
-            refreshTokenHash: refreshTokenHash,
-            ipAddress: ipAddress,
-            userAgent: userAgent,
-            expiresAt: expiresAt,
-            deviceType: DeviceTypeClassifier.Classify(clientInfo.Device.Family),
-            browser: clientInfo.UA.Family,
-            browserVersion: clientInfo.UA.Major,
-            operatingSystem: clientInfo.OS.Family,
-            osVersion: clientInfo.OS.Major);
+        var session = NewSession(userId, refreshTokenHash, ipAddress, userAgent, expiresAt);
 
         _db.UserSessions.Add(session);
         await _db.SaveChangesAsync(cancellationToken);

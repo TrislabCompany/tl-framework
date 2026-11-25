@@ -25,7 +25,7 @@ public sealed class RefreshTokenCommandHandler
 
         // The session that holds the refresh token names the user and the tenant, so no tenant header is needed.
         var token = await _signIn
-            .RefreshAsync(request.RefreshToken, request.Token, _requestContext.ClientId, cancellationToken)
+            .RefreshAsync(request.RefreshToken, request.Token, request.App, _requestContext.ClientId, cancellationToken)
             .ConfigureAwait(false);
 
         return new RefreshTokenCommandResponse(

@@ -4,8 +4,6 @@ using System.Text.Json.Serialization;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Eventing.Persistence;
-using Trislab.Framework.Mailing;
-using Trislab.Framework.Mailing.Services;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Shared.Persistence;
 using Trislab.Modules.InvoiceDocuments.Contracts;
@@ -401,10 +399,8 @@ public abstract class InvoiceDocumentsEndpointTestsBase
         using var send = await client.PostAsJsonAsync($"{BasePath}/documents/{id}/send", new { message = "Thank you" });
         send.StatusCode.ShouldBe(HttpStatusCode.OK);
 
-        var mail = ((NoOpMailService)_factory.Services.GetRequiredService<IMailService>()).Sent
-            .Last(m => m.To.Contains(email));
-        mail.AttachmentData.Keys.ShouldContain(k => k.EndsWith(".pdf", StringComparison.Ordinal));
-        mail.Body!.ShouldContain("Thank you");
+        var mail = await Mailpit.WaitForMessageAsync(email, m => m.Body.Contains("Thank you", StringComparison.Ordinal));
+        (mail.Attachments ?? []).ShouldContain(a => a.FileName.EndsWith(".pdf", StringComparison.Ordinal));
         (await GetDocumentAsync(client, id)).SentAtUtc.ShouldNotBeNull();
     }
 

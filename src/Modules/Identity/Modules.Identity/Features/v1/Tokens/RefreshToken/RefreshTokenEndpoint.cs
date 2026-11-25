@@ -18,10 +18,11 @@ public static class RefreshTokenEndpoint
         return endpoint.MapPost("/token/refresh",
             [AllowAnonymous] async Task<Results<Ok<RefreshTokenCommandResponse>, UnauthorizedHttpResult, ProblemHttpResult>>
             ([FromBody] RefreshTokenCommand command,
+            [FromHeader(Name = TokenGeneration.GenerateTokenEndpoint.AppHeader)] string? app,
             [FromServices] IMediator mediator,
             CancellationToken ct) =>
             {
-                var response = await mediator.Send(command, ct);
+                var response = await mediator.Send(command with { App = app }, ct);
                 return TypedResults.Ok(response);
             })
             .WithName("RefreshJwtTokens")

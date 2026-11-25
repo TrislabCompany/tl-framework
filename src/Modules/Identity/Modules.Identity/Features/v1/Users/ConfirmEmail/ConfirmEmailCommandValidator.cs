@@ -15,6 +15,9 @@ public sealed class ConfirmEmailCommandValidator : AbstractValidator<ConfirmEmai
         RuleFor(x => x.Code)
             .NotEmpty().WithMessage(_ => localizer["Validation.ConfirmationCodeRequired"]);
 
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage(_ => localizer["Validation.PasswordRequired"]);
+
         RuleFor(x => x.Tenant)
             .NotEmpty().WithMessage(_ => localizer["Validation.TenantRequired"]);
     }

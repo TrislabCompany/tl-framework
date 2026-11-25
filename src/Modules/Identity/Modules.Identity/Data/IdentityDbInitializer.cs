@@ -3,6 +3,7 @@ using Trislab.Framework.Persistence;
 using Trislab.Framework.Shared.Constants;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Modules.Identity.Domain;
+using Trislab.Modules.Identity.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +19,7 @@ internal sealed class IdentityDbInitializer(
     TimeProvider timeProvider,
     IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
     ITenantInitialPasswordBuffer passwordBuffer,
+    IServiceProvider services,
     IConfiguration configuration) : IDbInitializer
 {
     public async Task MigrateAsync(CancellationToken cancellationToken)
@@ -197,10 +199,13 @@ internal sealed class IdentityDbInitializer(
         var tenantId = multiTenantContextAccessor.MultiTenantContext.TenantInfo.Id;
 
         // Accounts are global: the admin e-mail may already have an account (the same person runs another
-        // tenant). Then that account joins this tenant with its own password, and no new account is made.
+        // tenant). Then that account is invited, like any other: its owner accepts with their own account, and
+        // until then the membership is pending. The operator's initial password is never applied to it.
+        var isNewAccount = false;
         if (await userManager.FindByEmailAsync(multiTenantContextAccessor.MultiTenantContext.TenantInfo.AdminEmail.ToUpperInvariant())
             is not TrislabUser adminUser)
         {
+            isNewAccount = true;
             var initialPassword = ResolveInitialAdminPassword(multiTenantContextAccessor.MultiTenantContext.TenantInfo.Id);
             if (initialPassword is null)
             {
@@ -246,7 +251,7 @@ internal sealed class IdentityDbInitializer(
             }
         }
 
-        await EnsureMembershipAsync(adminUser.Id, tenantId, cancellationToken);
+        await EnsureMembershipAsync(adminUser, tenantId, isNewAccount, cancellationToken);
 
         // Assign role to user
         if (!await userManager.IsInRoleAsync(adminUser, RoleConstants.Admin))
@@ -259,8 +264,9 @@ internal sealed class IdentityDbInitializer(
         }
     }
 
-    private async Task EnsureMembershipAsync(string userId, string tenantId, CancellationToken cancellationToken)
+    private async Task EnsureMembershipAsync(TrislabUser account, string tenantId, bool isNewAccount, CancellationToken cancellationToken)
     {
+        var userId = account.Id;
         var tenants = await context.TenantMemberships
             .IgnoreQueryFilters()
             .Where(m => m.UserId == userId)
@@ -280,8 +286,19 @@ internal sealed class IdentityDbInitializer(
                 $"The admin e-mail of tenant '{tenantId}' belongs to an account of another tenant, and operator accounts stay in the root tenant only.");
         }
 
-        context.TenantMemberships.Add(TenantMembership.Create(userId, tenantId));
-        await context.SaveChangesAsync(cancellationToken);
+        if (isNewAccount)
+        {
+            context.TenantMemberships.Add(TenantMembership.CreateAccepted(userId, tenantId));
+            await context.SaveChangesAsync(cancellationToken);
+            return;
+        }
+
+        // The invitation needs the mail and job services. A host without them (a bare migrator) can't invite, and a
+        // pending membership nobody can accept would leave the tenant without an administrator: stop instead.
+        var invitations = services.GetService(typeof(MembershipInvitationService)) as MembershipInvitationService
+            ?? throw new InvalidOperationException(
+                $"The admin e-mail of tenant '{tenantId}' already has an account, which has to be invited; this host can't send invitations. Create the tenant from the API, or use a new address.");
+        await invitations.InviteExistingAccountAsync(account, tenantId, invitedBy: "system", cancellationToken);
     }
 
     /// <summary>

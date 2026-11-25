@@ -86,12 +86,12 @@ public sealed class DetailedTestExceptionHandler : IExceptionHandler
                     })
                     .ToArray();
                 problemDetails.Extensions["entries"] = entries;
-
-                // Stack trace head — first user-code frame is usually the smoking gun.
-                problemDetails.Extensions["stack"] = string.Join(
-                    "\n",
-                    (exception.StackTrace ?? "").Split('\n').Take(10));
             }
+
+            // Stack trace head — first user-code frame is usually the smoking gun.
+            problemDetails.Extensions["stack"] = string.Join(
+                "\n",
+                (exception.StackTrace ?? "").Split('\n').Take(10));
         }
 
         problemDetails.Status = statusCode;

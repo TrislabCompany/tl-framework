@@ -1,13 +1,11 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
-using Trislab.Modules.Identity.Domain;
 using Trislab.Modules.Notifications.Contracts.v1.DTOs;
 using Trislab.Modules.Notifications.Data;
 using Trislab.Modules.Notifications.Domain;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
-using Microsoft.AspNetCore.Identity;
 
 namespace Integration.Tests.Tests.Notifications;
 
@@ -356,48 +354,8 @@ public abstract class NotificationsEndpointTestsBase
     private async Task<UserCredentials> RegisterFreshUserAsync(string prefix = "user")
     {
         using var adminClient = await _auth.CreateRootAdminClientAsync();
-        var unique = Guid.NewGuid().ToString("N")[..8];
-        var email = $"{prefix}-{unique}@example.com";
-        var userName = $"{prefix}{unique}";
-        const string password = "Test@1234!";
-
-        using var response = await adminClient.PostAsJsonAsync(
-            $"{TestConstants.IdentityBasePath}/register",
-            new
-            {
-                firstName = prefix,
-                lastName = "Test",
-                email,
-                userName,
-                password,
-                confirmPassword = password,
-            });
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var registered = await response.DeserializeAsync<RegisterResult>();
-
-        // /token/issue rejects unconfirmed users with 401; force-confirm in-process so the test
-        // can sign in immediately.
-        await ConfirmEmailAsync(registered.UserId);
-
-        return new UserCredentials(registered.UserId, email, password);
-    }
-
-    private async Task ConfirmEmailAsync(string userId)
-    {
-        using var scope = _factory.Services.CreateScope();
-        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-        var tenant = await tenantStore.GetAsync(_factory.TenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
-
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
-        var user = await userManager.FindByIdAsync(userId);
-        user.ShouldNotBeNull();
-        if (!user.EmailConfirmed)
-        {
-            user.EmailConfirmed = true;
-            (await userManager.UpdateAsync(user)).Succeeded.ShouldBeTrue();
-        }
+        var user = await TestUsers.InviteAndAcceptAsync(_factory, adminClient, prefix, prefix, "Test");
+        return new UserCredentials(user.UserId, user.Email, user.Password);
     }
 
     /// <summary>
