@@ -1,12 +1,9 @@
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
-using Trislab.Framework.Shared.Persistence;
 using Trislab.Modules.Identity.Data;
 using Trislab.Modules.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using NSubstitute;
 using Shouldly;
 using Xunit;
@@ -24,16 +21,7 @@ public class IdentityDbContextModelTests
             .UseNpgsql("Host=arch;Database=arch;Username=arch;Password=arch")
             .Options;
 
-        var settings = Options.Create(new DatabaseOptions
-        {
-            Provider = "postgresql",
-            ConnectionString = string.Empty,
-        });
-
-        var environment = Substitute.For<IHostEnvironment>();
-        environment.EnvironmentName.Returns("Production");
-
-        return new IdentityDbContext(accessor, options, settings, environment);
+        return new IdentityDbContext(accessor, options);
     }
 
     // User.Locale holds a BCP-47 tag, which is short and bounded. Unbounded `text`
@@ -51,5 +39,30 @@ public class IdentityDbContextModelTests
         locale.GetMaxLength().ShouldBe(
             10,
             "an unbounded locale column accepts arbitrary input for a value that is always a short BCP-47 tag");
+    }
+
+    // Users are global: one account per e-mail across tenants, so the user table carries no tenant.
+    [Fact]
+    public void User_Is_Global_With_A_Unique_Email()
+    {
+        using var context = CreateContext();
+
+        var user = context.Model.FindEntityType(typeof(TrislabUser))!;
+        user.FindProperty("TenantId").ShouldBeNull("a user account belongs to no tenant");
+        user.GetIndexes().Single(i => i.GetDatabaseName() == "EmailIndex").IsUnique.ShouldBeTrue();
+        user.GetIndexes().Single(i => i.GetDatabaseName() == "UserNameIndex").IsUnique.ShouldBeTrue();
+    }
+
+    // Access to a tenant is a membership, and the membership is tenant-scoped.
+    [Fact]
+    public void Membership_Is_Tenant_Scoped_And_Unique_Per_User_And_Tenant()
+    {
+        using var context = CreateContext();
+
+        var membership = context.Model.FindEntityType(typeof(TenantMembership))!;
+        membership.FindProperty("TenantId").ShouldNotBeNull();
+        membership.GetIndexes()
+            .Single(i => i.Properties.Select(p => p.Name).SequenceEqual([nameof(TenantMembership.UserId), nameof(TenantMembership.TenantId)]))
+            .IsUnique.ShouldBeTrue();
     }
 }

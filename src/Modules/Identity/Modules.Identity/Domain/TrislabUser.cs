@@ -4,6 +4,11 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Trislab.Modules.Identity.Domain;
 
+/// <summary>
+/// A user account. Accounts are global: one per e-mail address, with one password and one second
+/// factor, whatever the number of tenants. Access to a tenant is a <see cref="TenantMembership"/>;
+/// roles, groups and sessions belong to the membership's tenant.
+/// </summary>
 public class TrislabUser : IdentityUser, IHasDomainEvents
 {
     private readonly List<IDomainEvent> _domainEvents = [];
@@ -11,9 +16,11 @@ public class TrislabUser : IdentityUser, IHasDomainEvents
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public Uri? ImageUrl { get; set; }
-    public bool IsActive { get; set; }
-    public string? RefreshToken { get; set; }
-    public DateTime RefreshTokenExpiryTime { get; set; }
+
+    /// <summary>The tenant sign-in opens when the user has more than one. Null until the user picks one.</summary>
+    public string? DefaultTenantId { get; set; }
+
+    public virtual ICollection<TenantMembership> Memberships { get; set; } = new List<TenantMembership>();
 
     /// <summary>BCP 47 UI language tag (e.g. "sl-SI"); null resolves to the default culture.</summary>
     public string? Locale { get; set; }
@@ -48,29 +55,6 @@ public class TrislabUser : IdentityUser, IHasDomainEvents
         AddDomainEvent(PasswordChangedEvent.Create(
             userId: Id,
             wasReset: wasReset,
-            tenantId: tenantId));
-    }
-
-    /// <summary>Sets user to active and records UserActivatedEvent.</summary>
-    public void Activate(string? activatedBy = null, string? tenantId = null)
-    {
-        if (IsActive) return;
-        IsActive = true;
-        AddDomainEvent(UserActivatedEvent.Create(
-            userId: Id,
-            activatedBy: activatedBy,
-            tenantId: tenantId));
-    }
-
-    /// <summary>Sets user to inactive and records UserDeactivatedEvent.</summary>
-    public void Deactivate(string? deactivatedBy = null, string? reason = null, string? tenantId = null)
-    {
-        if (!IsActive) return;
-        IsActive = false;
-        AddDomainEvent(UserDeactivatedEvent.Create(
-            userId: Id,
-            deactivatedBy: deactivatedBy,
-            reason: reason,
             tenantId: tenantId));
     }
 

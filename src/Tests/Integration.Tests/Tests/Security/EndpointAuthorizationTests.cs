@@ -28,6 +28,7 @@ public sealed class EndpointAuthorizationTests
     private static readonly Dictionary<string, string> AnonymousEndpoints = new(StringComparer.OrdinalIgnoreCase)
     {
         ["POST api/v{version:apiVersion}/identity/token/issue"] = "Sign-in itself: the caller has no token yet. Rate limited with the auth policy.",
+        ["POST api/v{version:apiVersion}/identity/token/select"] = "Finishes a sign-in that answered with the tenant list: the caller has only the short-lived selection token. Rate limited.",
         ["POST api/v{version:apiVersion}/identity/token/refresh"] = "Exchanges a refresh token for a new access token; the access token has expired. Rate limited.",
         ["POST api/v{version:apiVersion}/identity/self-register"] = "A new user registers before signing in. Rate limited.",
         ["POST api/v{version:apiVersion}/identity/forgot-password"] = "A user who cannot sign in asks for a reset link. Rate limited.",

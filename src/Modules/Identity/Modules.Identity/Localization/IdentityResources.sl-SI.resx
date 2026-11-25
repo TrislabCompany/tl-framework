@@ -289,4 +289,13 @@
   <data name="Validation.LookupSearchTooShort" xml:space="preserve">
     <value>Za iskanje vnesite najmanj toliko znakov: {0}.</value>
   </data>
+  <data name="Identity.SelectionTokenInvalid" xml:space="preserve">
+    <value>Izbira organizacije je potekla. Znova se prijavite.</value>
+  </data>
+  <data name="Identity.NotATenantMember" xml:space="preserve">
+    <value>Niste član te organizacije.</value>
+  </data>
+  <data name="Identity.OperatorAccountsStayInRoot" xml:space="preserve">
+    <value>Operaterski računi so samo za operatersko konzolo in se ne morejo pridružiti organizaciji.</value>
+  </data>
 </root>

@@ -47,7 +47,8 @@ public sealed class SearchUsersQueryHandler : IQueryHandler<SearchUsersQuery, Pa
 
         if (query.IsActive.HasValue)
         {
-            users = users.Where(u => u.IsActive == query.IsActive.Value);
+            // Memberships is tenant-filtered: "active" is the user's state in this tenant.
+            users = users.Where(u => u.Memberships.Any(m => m.IsActive) == query.IsActive.Value);
         }
 
         if (query.EmailConfirmed.HasValue)
@@ -76,7 +77,7 @@ public sealed class SearchUsersQueryHandler : IQueryHandler<SearchUsersQuery, Pa
             FirstName = u.FirstName,
             LastName = u.LastName,
             Email = u.Email,
-            IsActive = u.IsActive,
+            IsActive = u.Memberships.Any(m => m.IsActive),
             EmailConfirmed = u.EmailConfirmed,
             PhoneNumber = u.PhoneNumber,
             ImageUrl = u.ImageUrl != null ? u.ImageUrl.ToString() : null
@@ -100,7 +101,7 @@ public sealed class SearchUsersQueryHandler : IQueryHandler<SearchUsersQuery, Pa
         ["lastname"] = u => u.LastName,
         ["email"] = u => u.Email,
         ["username"] = u => u.UserName,
-        ["isactive"] = u => u.IsActive
+        ["isactive"] = u => u.Memberships.Any(m => m.IsActive)
     };
 
     private static IQueryable<TrislabUser> ApplySorting(IQueryable<TrislabUser> query, string? sort)

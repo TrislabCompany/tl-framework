@@ -6,6 +6,7 @@ using Trislab.Modules.Identity.Contracts.DTOs;
 using Trislab.Modules.Identity.Contracts.Services;
 using Trislab.Modules.Identity.Contracts.v1.Impersonation.EndImpersonation;
 using Trislab.Modules.Identity.Localization;
+using Trislab.Modules.Identity.Services;
 using Mediator;
 using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
@@ -17,7 +18,7 @@ public sealed class EndImpersonationCommandHandler
     : ICommandHandler<EndImpersonationCommand, TokenResponse>
 {
     private readonly IIdentityService _identityService;
-    private readonly ITokenService _tokenService;
+    private readonly TenantSignInService _signIn;
     private readonly ISecurityAudit _securityAudit;
     private readonly ICurrentUser _currentUser;
     private readonly IRequestContext _requestContext;
@@ -26,7 +27,7 @@ public sealed class EndImpersonationCommandHandler
 
     public EndImpersonationCommandHandler(
         IIdentityService identityService,
-        ITokenService tokenService,
+        TenantSignInService signIn,
         ISecurityAudit securityAudit,
         ICurrentUser currentUser,
         IRequestContext requestContext,
@@ -34,7 +35,7 @@ public sealed class EndImpersonationCommandHandler
         ILogger<EndImpersonationCommandHandler> logger)
     {
         _identityService = identityService;
-        _tokenService = tokenService;
+        _signIn = signIn;
         _securityAudit = securityAudit;
         _currentUser = currentUser;
         _requestContext = requestContext;
@@ -99,10 +100,13 @@ public sealed class EndImpersonationCommandHandler
                 .Localized<IdentityResources>("Identity.OriginalActorNotFound");
         }
 
-        var (subject, actorClaims) = actorClaimsResult.Value;
-
-        var token = await _tokenService.IssueAsync(subject, actorClaims, actorTenantId, cancellationToken);
-        await _identityService.StoreRefreshTokenAsync(subject, token.RefreshToken, token.RefreshTokenExpiresAt, cancellationToken);
+        // The actor's own tokens, with a new session in the actor's tenant that holds the refresh token.
+        var caller = new SignInCaller(
+            _requestContext.IpAddress ?? "unknown",
+            _requestContext.UserAgent ?? "unknown",
+            _requestContext.ClientId ?? "unknown");
+        var token = await _signIn.IssueAsync(
+            actorClaimsResult.Value.Subject, actorTenantId, TokenIssueKind.ImpersonationEnded, caller, impersonatedTenantId, cancellationToken);
 
         await _securityAudit.ImpersonationEndedAsync(
             actorUserId: actorUserId,

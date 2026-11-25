@@ -132,10 +132,11 @@ public sealed class SingleTenantModeTests
         scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
             new MultiTenantContext<AppTenantInfo>(tenant);
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
-        var stamped = await userManager.Users
-            .Where(u => u.Email == TestConstants.SingleTenantAdminEmail)
-            .Select(u => EF.Property<string>(u, "TenantId"))
+        // Users are global; the admin's membership carries the tenant.
+        var db = scope.ServiceProvider.GetRequiredService<Trislab.Modules.Identity.Data.IdentityDbContext>();
+        var stamped = await db.TenantMemberships
+            .Where(m => m.User!.Email == TestConstants.SingleTenantAdminEmail)
+            .Select(m => EF.Property<string>(m, "TenantId"))
             .SingleAsync();
 
         stamped.ShouldBe(TestConstants.SingleTenantId);
@@ -151,7 +152,7 @@ public sealed class MultitenantModeTests
     public MultitenantModeTests(TrislabWebApplicationFactory factory) => _factory = factory;
 
     [Fact]
-    public async Task SignIn_Should_Return400_Without_ATenantHeader()
+    public async Task SignIn_Should_Open_TheUsersTenant_Without_ATenantHeader()
     {
         using var client = _factory.CreateClient();
 
@@ -159,7 +160,8 @@ public sealed class MultitenantModeTests
             $"{TestConstants.IdentityBasePath}/token/issue",
             new { email = TestConstants.RootAdminEmail, password = TestConstants.DefaultPassword });
 
-        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var token = await response.DeserializeAsync<TokenResult>();
+        JwtPayload.Claim(token.AccessToken, "tenant").ShouldBe(TestConstants.RootTenantId);
     }
 
     [Fact]

@@ -12,9 +12,20 @@ public class ApplicationUserConfig : IEntityTypeConfiguration<TrislabUser>
     {
         ArgumentNullException.ThrowIfNull(builder);
 
+        // Users are global: one account per e-mail address across all tenants. Tenant access is a
+        // TenantMembership; IdentityDbContext adds the query filter that limits users to the members
+        // of the current tenant.
+        builder.ToTable("Users", IdentityModuleConstants.SchemaName);
+
+        // Identity enforces RequireUniqueEmail in its validator; the index makes it hold under races too.
         builder
-            .ToTable("Users", IdentityModuleConstants.SchemaName)
-            .IsMultiTenant();
+            .HasIndex(u => u.NormalizedEmail)
+            .IsUnique()
+            .HasDatabaseName("EmailIndex");
+
+        builder
+            .Property(u => u.DefaultTenantId)
+                .HasMaxLength(64);
 
         builder
             .Property(u => u.ObjectId)
@@ -79,9 +90,8 @@ public class IdentityUserClaimConfig : IEntityTypeConfiguration<IdentityUserClai
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder
-            .ToTable("UserClaims", IdentityModuleConstants.SchemaName)
-            .IsMultiTenant();
+        // Belongs to the global user account (the authenticator key is a user token), so not tenant-scoped.
+        builder.ToTable("UserClaims", IdentityModuleConstants.SchemaName);
     }
 }
 
@@ -91,9 +101,8 @@ public class IdentityUserLoginConfig : IEntityTypeConfiguration<IdentityUserLogi
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder
-            .ToTable("UserLogins", IdentityModuleConstants.SchemaName)
-            .IsMultiTenant();
+        // Belongs to the global user account (the authenticator key is a user token), so not tenant-scoped.
+        builder.ToTable("UserLogins", IdentityModuleConstants.SchemaName);
     }
 }
 
@@ -103,8 +112,32 @@ public class IdentityUserTokenConfig : IEntityTypeConfiguration<IdentityUserToke
     {
         ArgumentNullException.ThrowIfNull(builder);
 
+        // Belongs to the global user account (the authenticator key is a user token), so not tenant-scoped.
+        builder.ToTable("UserTokens", IdentityModuleConstants.SchemaName);
+    }
+}
+public class TenantMembershipConfig : IEntityTypeConfiguration<TenantMembership>
+{
+    public void Configure(EntityTypeBuilder<TenantMembership> builder)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
         builder
-            .ToTable("UserTokens", IdentityModuleConstants.SchemaName)
+            .ToTable("TenantMemberships", IdentityModuleConstants.SchemaName)
             .IsMultiTenant();
+
+        builder.HasKey(m => m.Id);
+        builder.Property(m => m.Id).ValueGeneratedNever();
+        builder.Property(m => m.UserId).IsRequired().HasMaxLength(450);
+        builder.Property(m => m.TenantId).IsRequired().HasMaxLength(64);
+
+        builder
+            .HasOne(m => m.User)
+            .WithMany(u => u.Memberships)
+            .HasForeignKey(m => m.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(m => new { m.UserId, m.TenantId }).IsUnique();
+        builder.HasIndex(m => m.TenantId);
     }
 }

@@ -26,7 +26,7 @@ What the packages give a product, with no change:
 
 - **Multi-tenancy:** a tenant catalog, provisioning, plans and per-tenant themes; every tenant's data is filtered by tenant in every query.
 - **Single-tenant mode:** the same framework for an app that serves one organisation: set `TenancyOptions:Mode` to `SingleTenant` and name the fixed tenant. There is no tenant catalog, sign-up, plan or operator console, a sign-in names no tenant, and the data is still stamped with the tenant. Every module declares the modes it supports ([modules.md](docs/modules.md#5-tenancy-modes), [architecture.md](docs/architecture.md#2-tenancy-mode)).
-- **Identity:** sign-in with JWTs, users, roles, permissions, groups, sessions, impersonation and two-factor sign-in.
+- **Identity:** sign-in with JWTs, global users with a membership per tenant (one account, a tenant chooser and a tenant switch), roles, permissions, groups, sessions, impersonation and two-factor sign-in.
 - **The modules:** Auditing, Files, SubscriptionsUsage, InvoiceDocuments, Notifications and Webhooks ([modules.md](docs/modules.md)). `Architecture.Tests` guards their boundaries. The sample modules Catalog, Tickets and Chat are in `tl-product-saas`.
 - **The building blocks:** persistence, caching, eventing with an outbox, background jobs with Hangfire, mail, file storage, quotas, rate limiting, security headers and OpenTelemetry.
 - **Migrations:** each module ships its own, in its package; the product's migrator applies them (`tl-product-saas`).

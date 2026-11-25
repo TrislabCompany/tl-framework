@@ -6,6 +6,7 @@ using Trislab.Framework.Shared.Constants;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Modules.Auditing.Contracts;
 using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Data;
 using Trislab.Modules.Identity.Domain;
 using Trislab.Modules.Identity.Localization;
 using Microsoft.AspNetCore.Identity;
@@ -13,10 +14,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Trislab.Modules.Identity.Services;
 
+/// <summary>
+/// Activates and deactivates users in the current tenant. A user account is global, so this changes the
+/// user's membership here, never the account: the user keeps their other tenants.
+/// </summary>
 internal sealed class UserStatusService(
     UserManager<TrislabUser> userManager,
+    IdentityDbContext db,
     IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
     ICurrentUser currentUser,
+    IUserPermissionService permissions,
     IAuditClient auditClient) : IUserStatusService
 {
     // Soft-delete is functionally identical to deactivation — delegate so the same admin/self/last-admin
@@ -60,15 +67,20 @@ internal sealed class UserStatusService(
         var actor = await userManager.FindByIdAsync(actorId.ToString())
             ?? throw new UnauthorizedException("current user not found").Localized("Error.NoCurrentUser");
 
-        var targetUser = await userManager.Users
-            .Where(u => u.Id == userId)
-            .FirstOrDefaultAsync(cancellationToken)
-            ?? throw new NotFoundException("User Not Found.").Localized<IdentityResources>("Identity.UserNotFound");
+        var membership = await db.TenantMemberships
+            .Include(m => m.User)
+            .Where(m => m.UserId == userId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (membership?.User is not TrislabUser targetUser)
+        {
+            throw new NotFoundException("User Not Found.").Localized<IdentityResources>("Identity.UserNotFound");
+        }
 
         return new ToggleStatusContext(
             ActorId: actorId,
             Actor: actor,
             TargetUser: targetUser,
+            Membership: membership,
             ActivateUser: activateUser,
             TenantId: multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id);
     }
@@ -108,8 +120,11 @@ internal sealed class UserStatusService(
         ToggleStatusContext context,
         CancellationToken cancellationToken)
     {
-        var activeAdmins = await userManager.GetUsersInRoleAsync(RoleConstants.Admin);
-        if (!activeAdmins.Any(u => u.IsActive))
+        var admins = await userManager.GetUsersInRoleAsync(RoleConstants.Admin);
+        var adminIds = admins.Select(u => u.Id).ToList();
+        var hasActiveAdmin = await db.TenantMemberships
+            .AnyAsync(m => adminIds.Contains(m.UserId) && m.IsActive, cancellationToken);
+        if (!hasActiveAdmin)
         {
             await AuditPolicyFailureAsync(context, "NoActiveAdmins", cancellationToken);
             throw new CustomException("Tenant must have at least one active administrator.", Array.Empty<string>(), HttpStatusCode.BadRequest)
@@ -121,11 +136,11 @@ internal sealed class UserStatusService(
     {
         if (context.ActivateUser)
         {
-            context.TargetUser.Activate(context.ActorId.ToString(), context.TenantId);
+            context.Membership.Activate(context.ActorId.ToString());
         }
         else
         {
-            context.TargetUser.Deactivate(context.ActorId.ToString(), "Status toggled by administrator", context.TenantId);
+            context.Membership.Deactivate(context.ActorId.ToString(), "Status toggled by administrator");
         }
     }
 
@@ -133,12 +148,10 @@ internal sealed class UserStatusService(
         ToggleStatusContext context,
         CancellationToken cancellationToken)
     {
-        var result = await userManager.UpdateAsync(context.TargetUser);
-        if (!result.Succeeded)
-        {
-            throw new CustomException("Toggle status failed", result.Errors.Select(e => e.Description).ToList(), HttpStatusCode.BadRequest)
-                .Localized<IdentityResources>("Identity.ToggleStatusFailed");
-        }
+        await db.SaveChangesAsync(cancellationToken);
+
+        // A deactivated member has no permissions here; drop the cached set either way.
+        await permissions.InvalidatePermissionCacheAsync(context.TargetUser.Id, cancellationToken);
 
         await auditClient.WriteActivityAsync(
             ActivityKind.Command,
@@ -182,6 +195,7 @@ internal sealed class UserStatusService(
         Guid ActorId,
         TrislabUser Actor,
         TrislabUser TargetUser,
+        TenantMembership Membership,
         bool ActivateUser,
         string? TenantId);
 }

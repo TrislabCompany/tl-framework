@@ -112,10 +112,14 @@ public sealed class ChangePasswordTests
             Email = email,
             UserName = email.Split('@')[0],
             EmailConfirmed = true,
-            IsActive = true
         };
         var result = await userManager.CreateAsync(user, password);
         result.Succeeded.ShouldBeTrue(string.Join("; ", result.Errors.Select(e => e.Description)));
+
+        // Users are global: the membership is what puts the user in the tenant.
+        var identityDb = scope.ServiceProvider.GetRequiredService<Trislab.Modules.Identity.Data.IdentityDbContext>();
+        identityDb.TenantMemberships.Add(TenantMembership.Create(user.Id, TestConstants.RootTenantId));
+        await identityDb.SaveChangesAsync();
     }
 
     #endregion

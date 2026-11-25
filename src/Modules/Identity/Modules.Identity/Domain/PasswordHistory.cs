@@ -1,6 +1,9 @@
+using Trislab.Framework.Core.Domain;
+
 namespace Trislab.Modules.Identity.Domain;
 
-public class PasswordHistory
+/// <summary>Earlier password hashes of a (global) user account, so it is not tenant-scoped.</summary>
+public class PasswordHistory : IGlobalEntity
 {
     public int Id { get; init; }
     public string UserId { get; private set; } = default!;

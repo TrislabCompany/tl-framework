@@ -27,14 +27,16 @@ internal sealed class UserProfileService(
 {
     public async Task<UserDto> GetAsync(string userId, CancellationToken cancellationToken)
     {
-        // Relies on Finbuckle's tenant filter — callers can only ever read
-        // their own user record, which is in the request's resolved tenant.
-        var user = await userManager.Users
+        // The membership filter limits users to the members of the request's tenant; "active" is the
+        // membership's state there, not the (global) account's.
+        var row = await userManager.Users
             .AsNoTracking()
             .Where(u => u.Id == userId)
+            .Select(u => new { User = u, IsActive = u.Memberships.Any(m => m.IsActive) })
             .FirstOrDefaultAsync(cancellationToken);
 
-        _ = user ?? throw new NotFoundException("user not found").Localized<IdentityResources>("Identity.UserNotFound");
+        _ = row ?? throw new NotFoundException("user not found").Localized<IdentityResources>("Identity.UserNotFound");
+        var user = row.User;
 
         return new UserDto
         {
@@ -44,7 +46,7 @@ internal sealed class UserProfileService(
             FirstName = user.FirstName,
             LastName = user.LastName,
             ImageUrl = ResolveImageUrl(user.ImageUrl),
-            IsActive = user.IsActive,
+            IsActive = row.IsActive,
             EmailConfirmed = user.EmailConfirmed,
             PhoneNumber = user.PhoneNumber,
             TwoFactorEnabled = user.TwoFactorEnabled,
@@ -58,9 +60,12 @@ internal sealed class UserProfileService(
 
     public async Task<List<UserDto>> GetListAsync(CancellationToken cancellationToken)
     {
-        var users = await userManager.Users.AsNoTracking().ToListAsync(cancellationToken);
+        var users = await userManager.Users
+            .AsNoTracking()
+            .Select(u => new { User = u, IsActive = u.Memberships.Any(m => m.IsActive) })
+            .ToListAsync(cancellationToken);
         var result = new List<UserDto>(users.Count);
-        foreach (var user in users)
+        foreach (var (user, isActive) in users.Select(r => (r.User, r.IsActive)))
         {
             result.Add(new UserDto
             {
@@ -70,7 +75,7 @@ internal sealed class UserProfileService(
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 ImageUrl = ResolveImageUrl(user.ImageUrl),
-                IsActive = user.IsActive
+                IsActive = isActive
             });
         }
 

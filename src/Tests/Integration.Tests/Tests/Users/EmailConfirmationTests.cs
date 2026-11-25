@@ -50,6 +50,11 @@ public sealed class EmailConfirmationTests
         var createResult = await userManager.CreateAsync(user, TestConstants.DefaultPassword);
         createResult.Succeeded.ShouldBeTrue();
 
+        // Users are global: the membership puts the user in the root tenant, where the assertion reads it.
+        var identityDb = scope.ServiceProvider.GetRequiredService<Trislab.Modules.Identity.Data.IdentityDbContext>();
+        identityDb.TenantMemberships.Add(TenantMembership.Create(user.Id, TestConstants.RootTenantId));
+        await identityDb.SaveChangesAsync();
+
         // Generate confirmation token and encode it as the API expects
         var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
         var encodedCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));

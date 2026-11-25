@@ -1,7 +1,6 @@
-using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Core.Exceptions;
 using Trislab.Framework.Shared.Constants;
-using Trislab.Framework.Shared.Multitenancy;
+using Trislab.Framework.Eventing.Abstractions;
 using Trislab.Modules.Identity.Contracts.Services;
 using Trislab.Modules.Identity.Data;
 using Trislab.Modules.Identity.Domain;
@@ -9,7 +8,7 @@ using Trislab.Modules.Identity.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
@@ -20,50 +19,40 @@ public sealed class IdentityService : IIdentityService
 {
     private readonly UserManager<TrislabUser> _userManager;
     private readonly ILogger<IdentityService> _logger;
-    private readonly IMultiTenantContextAccessor<AppTenantInfo>? _multiTenantContextAccessor;
-    private readonly IGroupRoleService _groupRoleService;
-    private readonly TimeProvider _timeProvider;
-    private readonly IdentityDbContext _dbContext;
-    private readonly int _gracePeriodDays;
+    private readonly IEventTenantScope _tenantScope;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     public IdentityService(
         UserManager<TrislabUser> userManager,
-        IMultiTenantContextAccessor<AppTenantInfo>? multiTenantContextAccessor,
         ILogger<IdentityService> logger,
-        IGroupRoleService groupRoleService,
-        TimeProvider timeProvider,
-        IdentityDbContext dbContext,
-        IOptions<TenantGraceOptions> graceOptions)
+        IEventTenantScope tenantScope,
+        IServiceScopeFactory scopeFactory)
     {
-        ArgumentNullException.ThrowIfNull(graceOptions);
         _userManager = userManager;
-        _multiTenantContextAccessor = multiTenantContextAccessor;
         _logger = logger;
-        _groupRoleService = groupRoleService;
-        _timeProvider = timeProvider;
-        _dbContext = dbContext;
-        _gracePeriodDays = graceOptions.Value.GracePeriodDays;
+        _tenantScope = tenantScope;
+        _scopeFactory = scopeFactory;
     }
 
-    public async Task<(string Subject, IEnumerable<Claim> Claims)?>
-        ValidateCredentialsAsync(string email, string password, string? twoFactorCode = null, CancellationToken ct = default)
+    public async Task<string> ValidateCredentialsAsync(string email, string password, string? twoFactorCode = null, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(email);
         ArgumentNullException.ThrowIfNull(password);
 
-        var tenant = GetValidatedTenant();
         var user = await FindAndValidateUserByCredentialsAsync(email, password);
 
-        ValidateUserStatus(user);
-        ValidateTenantStatus(tenant);
+        if (!user.EmailConfirmed)
+        {
+            throw new UnauthorizedException("email not confirmed")
+                .Localized<IdentityResources>("Identity.EmailNotConfirmed");
+        }
 
         if (user.TwoFactorEnabled)
         {
             await VerifyTwoFactorOrThrowAsync(user, twoFactorCode);
         }
 
-        var claims = await BuildUserClaimsAsync(user, tenant.Id, ct);
-        return (user.Id, claims);
+        return user.Id;
     }
 
     private async Task VerifyTwoFactorOrThrowAsync(TrislabUser user, string? twoFactorCode)
@@ -91,102 +80,65 @@ public sealed class IdentityService : IIdentityService
     }
 
     public async Task<(string Subject, IEnumerable<Claim> Claims)?>
-        ValidateRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
-    {
-        var tenant = GetValidatedTenant();
-        var user = await FindUserByRefreshTokenAsync(refreshToken, tenant.Id, ct);
-
-        ValidateRefreshTokenExpiry(user);
-        ValidateUserStatus(user);
-        ValidateTenantStatus(tenant);
-
-        var claims = await BuildUserClaimsAsync(user, tenant.Id, ct);
-        return (user.Id, claims);
-    }
-
-    public async Task StoreRefreshTokenAsync(string subject, string refreshToken, DateTime expiresAtUtc, CancellationToken ct = default)
-    {
-        // Targeted UPDATE bypasses tracking + Finbuckle interceptors (which NRE on cross-tenant IgnoreQueryFilters).
-        // Safe: user IDs are globally unique GUIDs, so exactly one row matches Id == subject regardless of tenant.
-        var hashedToken = HashToken(refreshToken);
-        var updated = await _dbContext.Users
-            .IgnoreQueryFilters()
-            .Where(u => u.Id == subject)
-            .ExecuteUpdateAsync(
-                s => s.SetProperty(u => u.RefreshToken, hashedToken)
-                      .SetProperty(u => u.RefreshTokenExpiryTime, expiresAtUtc),
-                ct).ConfigureAwait(false);
-
-        if (updated == 0)
-        {
-            throw new UnauthorizedException("user not found").Localized<IdentityResources>("Identity.UserNotFound");
-        }
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug(
-                "Stored refresh token for user {UserId}. Token hash: {TokenHash}, Expires: {ExpiresAt}",
-                subject, hashedToken[..Math.Min(8, hashedToken.Length)], expiresAtUtc);
-        }
-    }
-
-    public async Task<(string Subject, IEnumerable<Claim> Claims)?>
         BuildClaimsForUserAsync(string userId, string tenantId, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(userId);
         ArgumentNullException.ThrowIfNull(tenantId);
 
-        // IgnoreQueryFilters bypasses Finbuckle's tenant filter so root-tenant callers can
-        // resolve users in other tenants during impersonation.
-        var user = await _userManager.Users
-            .IgnoreQueryFilters()
-            .Where(u => u.Id == userId && EF.Property<string>(u, "TenantId") == tenantId)
-            .FirstOrDefaultAsync(ct);
+        // Roles, groups and the membership are tenant-scoped, so read them in the target tenant's own scope:
+        // the tenant filters then do the isolation, whatever tenant the current request is in.
+        (string Subject, IEnumerable<Claim> Claims)? result = null;
+        await _tenantScope.ExecuteAsync(tenantId, async token =>
+        {
+            await using var scope = _scopeFactory.CreateAsyncScope();
+            result = await BuildClaimsInScopeAsync(scope.ServiceProvider, userId, tenantId, token).ConfigureAwait(false);
+        }, ct).ConfigureAwait(false);
 
-        if (user is null)
+        return result;
+    }
+
+    /// <summary>
+    /// Builds a member's claims with the services of a scope that is already in <paramref name="tenantId"/>.
+    /// Returns null when the user is not a member there; a deactivated membership throws a 401.
+    /// </summary>
+    internal static async Task<(string Subject, IEnumerable<Claim> Claims)?> BuildClaimsInScopeAsync(
+        IServiceProvider services, string userId, string tenantId, CancellationToken ct)
+    {
+        var db = services.GetRequiredService<IdentityDbContext>();
+
+        var member = await db.TenantMemberships
+            .AsNoTracking()
+            .Where(m => m.UserId == userId)
+            .Select(m => new { m.IsActive, m.User })
+            .FirstOrDefaultAsync(ct)
+            .ConfigureAwait(false);
+
+        if (member?.User is null)
         {
             return null;
         }
 
-        ValidateUserStatus(user);
+        if (!member.IsActive)
+        {
+            throw new UnauthorizedException("user is deactivated")
+                .Localized<IdentityResources>("Identity.UserDeactivated");
+        }
+
+        var user = member.User;
+        var userManager = services.GetRequiredService<UserManager<TrislabUser>>();
+        var groupRoles = services.GetRequiredService<IGroupRoleService>();
 
         var claims = CreateBasicClaims(user, tenantId);
-
-        var userRoleIds = await _dbContext.UserRoles
-            .IgnoreQueryFilters()
-            .Where(ur => ur.UserId == userId)
-            .Select(ur => ur.RoleId)
-            .ToListAsync(ct);
-
-        if (userRoleIds.Count > 0)
-        {
-            var roleNames = await _dbContext.Roles
-                .IgnoreQueryFilters()
-                .Where(r => userRoleIds.Contains(r.Id) && EF.Property<string>(r, "TenantId") == tenantId)
-                .Select(r => r.Name!)
-                .ToListAsync(ct);
-
-            claims.AddRange(roleNames.Select(r => new Claim(ClaimTypes.Role, r)));
-        }
+        var directRoles = await userManager.GetRolesAsync(user).ConfigureAwait(false);
+        var viaGroups = await groupRoles.GetUserGroupRolesAsync(user.Id, ct).ConfigureAwait(false);
+        claims.AddRange(directRoles.Union(viaGroups).Distinct().Select(r => new Claim(ClaimTypes.Role, r)));
 
         return (user.Id, claims);
     }
 
-    private AppTenantInfo GetValidatedTenant()
-    {
-        var tenant = _multiTenantContextAccessor!.MultiTenantContext.TenantInfo
-            ?? throw new UnauthorizedException();
-
-        if (string.IsNullOrWhiteSpace(tenant.Id))
-        {
-            throw new UnauthorizedException();
-        }
-
-        return tenant;
-    }
-
     private async Task<TrislabUser> FindAndValidateUserByCredentialsAsync(string email, string password)
     {
+        // The store looks e-mail up across all accounts: an account is global, not a tenant's.
         var user = await _userManager.FindByEmailAsync(email.Trim().Normalize());
         if (user is null)
         {
@@ -230,87 +182,6 @@ public sealed class IdentityService : IIdentityService
         return user;
     }
 
-    private async Task<TrislabUser> FindUserByRefreshTokenAsync(string refreshToken, string tenantId, CancellationToken ct)
-    {
-        var hashedToken = HashToken(refreshToken);
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug(
-                "Validating refresh token for tenant {TenantId}. Token hash: {TokenHash}",
-                tenantId, hashedToken[..Math.Min(8, hashedToken.Length)]);
-        }
-
-        var user = await _userManager.Users
-            .FirstOrDefaultAsync(u => u.RefreshToken == hashedToken, ct);
-
-        if (user is null)
-        {
-            _logger.LogWarning("No user found with matching refresh token hash for tenant {TenantId}", tenantId);
-            throw new UnauthorizedException("refresh token is invalid or expired")
-                .Localized<IdentityResources>("Identity.RefreshTokenInvalidOrExpired");
-        }
-
-        return user;
-    }
-
-    private void ValidateRefreshTokenExpiry(TrislabUser user)
-    {
-        var now = _timeProvider.GetUtcNow().UtcDateTime;
-        if (user.RefreshTokenExpiryTime <= now)
-        {
-            _logger.LogWarning(
-                "Refresh token expired for user {UserId}. Expired at: {ExpiryTime}, Current time: {CurrentTime}",
-                user.Id, user.RefreshTokenExpiryTime, now);
-            throw new UnauthorizedException("refresh token is invalid or expired")
-                .Localized<IdentityResources>("Identity.RefreshTokenInvalidOrExpired");
-        }
-    }
-
-    private static void ValidateUserStatus(TrislabUser user)
-    {
-        if (!user.IsActive)
-        {
-            throw new UnauthorizedException("user is deactivated")
-                .Localized<IdentityResources>("Identity.UserDeactivated");
-        }
-
-        if (!user.EmailConfirmed)
-        {
-            throw new UnauthorizedException("email not confirmed")
-                .Localized<IdentityResources>("Identity.EmailNotConfirmed");
-        }
-    }
-
-    private void ValidateTenantStatus(AppTenantInfo tenant)
-    {
-        if (tenant.Id == MultitenancyConstants.Root.Id)
-        {
-            return;
-        }
-
-        if (!tenant.IsActive)
-        {
-            throw new UnauthorizedException($"tenant {tenant.Id} is deactivated")
-                .Localized<IdentityResources>("Identity.TenantDeactivated", tenant.Id);
-        }
-
-        // Honor the billing grace period: a lapsed tenant can still authenticate until
-        // ValidUpto + grace (matching the request-time guard in MultitenancyModule).
-        if (_timeProvider.GetUtcNow().UtcDateTime > tenant.ValidUpto.AddDays(_gracePeriodDays))
-        {
-            throw new UnauthorizedException($"tenant {tenant.Id} validity has expired")
-                .Localized<IdentityResources>("Identity.TenantValidityExpired", tenant.Id);
-        }
-    }
-
-    private async Task<List<Claim>> BuildUserClaimsAsync(TrislabUser user, string tenantId, CancellationToken ct)
-    {
-        var claims = CreateBasicClaims(user, tenantId);
-        await AddRoleClaimsAsync(claims, user, ct);
-        return claims;
-    }
-
     internal static List<Claim> CreateBasicClaims(TrislabUser user, string tenantId)
     {
         var fullName = $"{user.FirstName} {user.LastName}".Trim();
@@ -341,21 +212,5 @@ public sealed class IdentityService : IIdentityService
         }
 
         return claims;
-    }
-
-    private async Task AddRoleClaimsAsync(List<Claim> claims, TrislabUser user, CancellationToken ct)
-    {
-        var directRoles = await _userManager.GetRolesAsync(user);
-        var groupRoles = await _groupRoleService.GetUserGroupRolesAsync(user.Id, ct);
-
-        var allRoles = directRoles.Union(groupRoles).Distinct();
-        claims.AddRange(allRoles.Select(r => new Claim(ClaimTypes.Role, r)));
-    }
-
-    private static string HashToken(string token)
-    {
-        var bytes = System.Text.Encoding.UTF8.GetBytes(token);
-        var hash = System.Security.Cryptography.SHA256.HashData(bytes);
-        return Convert.ToBase64String(hash);
     }
 }

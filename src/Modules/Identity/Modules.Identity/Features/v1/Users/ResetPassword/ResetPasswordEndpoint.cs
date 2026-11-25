@@ -25,7 +25,6 @@ public static class ResetPasswordEndpoint
         .WithSummary("Reset password")
         .WithDescription("Reset the user's password using the provided verification token.")
         .AllowAnonymous()
-        .RequireTenantHeaderWhenMultitenant()
         .Produces(StatusCodes.Status200OK);
     }
 }

@@ -24,7 +24,7 @@ public sealed class GetUserLookupQueryHandler(
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        IQueryable<TrislabUser> users = userManager.Users.AsNoTracking().Where(u => u.IsActive);
+        IQueryable<TrislabUser> users = userManager.Users.AsNoTracking().Where(u => u.Memberships.Any(m => m.IsActive));
 
         if (query.Ids is { Length: > 0 })
         {

@@ -26,8 +26,8 @@ internal sealed class UserPasswordService(
 {
     public async Task ForgotPasswordAsync(string email, string origin, CancellationToken cancellationToken)
     {
-        EnsureValidTenant();
-
+        // The password belongs to the global account, so no tenant is needed: the store looks the e-mail
+        // up across all accounts.
         var user = await userManager.FindByEmailAsync(email);
 
         // Anti-enumeration: respond identically regardless of registration — a real user gets the
@@ -44,14 +44,17 @@ internal sealed class UserPasswordService(
         // slash from the configured origin (Uri.ToString adds one for a host-only URL → "//reset-password"
         // misses the client route) and include the tenant the reset page requires. QueryHelpers URL-encodes
         // each value, so reserved chars in the email (e.g. '+') survive.
-        var resetPasswordUri = QueryHelpers.AddQueryString(
-            $"{origin.TrimEnd('/')}/reset-password",
-            new Dictionary<string, string?>
-            {
-                ["token"] = token,
-                ["email"] = email,
-                ["tenant"] = multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id,
-            });
+        var query = new Dictionary<string, string?>
+        {
+            ["token"] = token,
+            ["email"] = email,
+        };
+        if (multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id is { Length: > 0 } tenantId)
+        {
+            query["tenant"] = tenantId;
+        }
+
+        var resetPasswordUri = QueryHelpers.AddQueryString($"{origin.TrimEnd('/')}/reset-password", query);
         // The body is sent as text/html, so the link has to be an anchor: a bare URL in an HTML part is
         // not auto-linked by most clients, which is how the reset link reached users as dead text.
         var mailRequest = new MailRequest(
@@ -69,8 +72,6 @@ internal sealed class UserPasswordService(
 
     public async Task ResetPasswordAsync(string email, string password, string token, CancellationToken cancellationToken)
     {
-        EnsureValidTenant();
-
         var user = await userManager.FindByEmailAsync(email);
         if (user == null)
         {
@@ -118,13 +119,5 @@ internal sealed class UserPasswordService(
 
         // Save to history
         await passwordHistoryService.SavePasswordHistoryAsync(userId, cancellationToken);
-    }
-
-    private void EnsureValidTenant()
-    {
-        if (string.IsNullOrWhiteSpace(multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id))
-        {
-            throw new UnauthorizedException("invalid tenant").Localized("Error.InvalidTenant");
-        }
     }
 }

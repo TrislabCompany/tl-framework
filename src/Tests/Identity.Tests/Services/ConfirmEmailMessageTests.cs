@@ -51,6 +51,8 @@ public sealed class ConfirmEmailMessageTests
             Substitute.For<IMailService>(),
             tenant,
             Substitute.For<IOutboxStore>(),
+            Substitute.For<Trislab.Framework.Core.Context.ICurrentUser>(),
+            new IdentityErrorDescriber(),
             localizer);
         var code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes("token"));
 

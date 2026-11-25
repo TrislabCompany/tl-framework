@@ -14,8 +14,10 @@ public sealed class MissingTenantTests
         _factory = factory;
     }
 
+    // The password belongs to the global account, so forgot-password needs no tenant. It still answers
+    // the same for an unknown e-mail (no account enumeration).
     [Fact]
-    public async Task ForgotPassword_Should_Return400_When_TenantHeaderMissing()
+    public async Task ForgotPassword_Should_NotNeed_ATenantHeader()
     {
         using var client = _factory.CreateClient(); // anonymous, NO tenant header
 
@@ -23,19 +25,8 @@ public sealed class MissingTenantTests
             $"{TestConstants.IdentityBasePath}/forgot-password",
             new { email = "nobody@example.com" });
 
-        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-    }
-
-    [Fact]
-    public async Task ResetPassword_Should_Return400_When_TenantHeaderMissing()
-    {
-        using var client = _factory.CreateClient(); // anonymous, NO tenant header
-
-        var response = await client.PostAsJsonAsync(
-            $"{TestConstants.IdentityBasePath}/reset-password",
-            new { email = "nobody@example.com", token = "x", password = "Test@1234!" });
-
-        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        response.StatusCode.ShouldNotBe(HttpStatusCode.BadRequest);
+        response.IsSuccessStatusCode.ShouldBeTrue();
     }
 
     [Fact]

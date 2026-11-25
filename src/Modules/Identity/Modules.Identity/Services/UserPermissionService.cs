@@ -35,8 +35,6 @@ internal sealed class UserPermissionService(
         Flags = HybridCacheEntryFlags.DisableCompression,
     };
 
-    private static readonly string[] Tags = [CacheKeys.Tags.Permissions];
-
     public async Task<List<string>?> GetPermissionsAsync(string userId, CancellationToken cancellationToken)
     {
         var set = await GetOrLoadAsync(userId, cancellationToken).ConfigureAwait(false);
@@ -54,21 +52,29 @@ internal sealed class UserPermissionService(
         return set.Contains(permission);
     }
 
+    // A user is global and has roles in each tenant, so an entry is per user and tenant. Every entry of a
+    // user carries the user's tag, so one invalidation clears the user's permissions in all tenants.
     public Task InvalidatePermissionCacheAsync(string userId, CancellationToken cancellationToken)
-        => cache.RemoveAsync(CacheKeys.UserPermissions(userId), cancellationToken).AsTask();
+        => cache.RemoveByTagAsync(UserTag(userId), cancellationToken).AsTask();
+
+    internal static string UserTag(string userId) => CacheKeys.UserPermissions(userId);
+
+    internal static string EntryKey(string userId, string? tenantId) => $"{CacheKeys.UserPermissions(userId)}:t:{tenantId}";
 
     private ValueTask<PermissionSet> GetOrLoadAsync(string userId, CancellationToken cancellationToken)
     {
         // Stateless factory overload — the factory is a static method group, so the runtime
         // reuses a cached delegate and no closure is allocated per call (including L1 hits).
-        var state = new FactoryState(userManager, roleManager, db, CallerTenantOtherThanResolved(userId), scopeFactory, userId);
+        var homeTenant = CallerTenantOtherThanResolved(userId);
+        var state = new FactoryState(userManager, roleManager, db, homeTenant, scopeFactory, userId);
+        var tenantId = homeTenant ?? tenantAccessor.MultiTenantContext.TenantInfo?.Id;
 
         return cache.GetOrCreateAsync(
-            CacheKeys.UserPermissions(userId),
+            EntryKey(userId, tenantId),
             state,
             LoadPermissionsAsync,
             options: EntryOptions,
-            tags: Tags,
+            tags: [CacheKeys.Tags.Permissions, UserTag(userId)],
             cancellationToken: cancellationToken);
     }
 
@@ -121,8 +127,13 @@ internal sealed class UserPermissionService(
         string userId,
         CancellationToken ct)
     {
+        // The membership filter limits users to the tenant's members; a deactivated member has no permissions.
         var user = await userManager.FindByIdAsync(userId).ConfigureAwait(false);
         _ = user ?? throw new UnauthorizedException();
+        if (!await db.TenantMemberships.AnyAsync(m => m.UserId == userId && m.IsActive, ct).ConfigureAwait(false))
+        {
+            return PermissionSet.Empty;
+        }
 
         var userRoles = await userManager.GetRolesAsync(user).ConfigureAwait(false);
 

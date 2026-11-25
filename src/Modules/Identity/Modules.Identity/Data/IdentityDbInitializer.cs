@@ -194,7 +194,11 @@ internal sealed class IdentityDbInitializer(
             return;
         }
 
-        if (await userManager.Users.FirstOrDefaultAsync(u => u.Email == multiTenantContextAccessor.MultiTenantContext.TenantInfo.AdminEmail, cancellationToken)
+        var tenantId = multiTenantContextAccessor.MultiTenantContext.TenantInfo.Id;
+
+        // Accounts are global: the admin e-mail may already have an account (the same person runs another
+        // tenant). Then that account joins this tenant with its own password, and no new account is made.
+        if (await userManager.FindByEmailAsync(multiTenantContextAccessor.MultiTenantContext.TenantInfo.AdminEmail.ToUpperInvariant())
             is not TrislabUser adminUser)
         {
             var initialPassword = ResolveInitialAdminPassword(multiTenantContextAccessor.MultiTenantContext.TenantInfo.Id);
@@ -223,7 +227,6 @@ internal sealed class IdentityDbInitializer(
                 // {OriginUrl}/… URL at seed time pinned it to the seeder's localhost origin
                 // (migrator has no OriginOptions). Leave null → the SPA renders initials.
                 ImageUrl = null,
-                IsActive = true
             };
 
             if (logger.IsEnabled(LogLevel.Information))
@@ -243,6 +246,8 @@ internal sealed class IdentityDbInitializer(
             }
         }
 
+        await EnsureMembershipAsync(adminUser.Id, tenantId, cancellationToken);
+
         // Assign role to user
         if (!await userManager.IsInRoleAsync(adminUser, RoleConstants.Admin))
         {
@@ -252,6 +257,31 @@ internal sealed class IdentityDbInitializer(
             }
             await userManager.AddToRoleAsync(adminUser, RoleConstants.Admin);
         }
+    }
+
+    private async Task EnsureMembershipAsync(string userId, string tenantId, CancellationToken cancellationToken)
+    {
+        var tenants = await context.TenantMemberships
+            .IgnoreQueryFilters()
+            .Where(m => m.UserId == userId)
+            .Select(m => m.TenantId)
+            .ToListAsync(cancellationToken);
+
+        if (tenants.Contains(tenantId))
+        {
+            return;
+        }
+
+        // Operators stay in root: an operator's e-mail can't be a tenant's admin, and the reverse.
+        var root = MultitenancyConstants.Root.Id;
+        if (tenants.Count > 0 && (string.Equals(tenantId, root, StringComparison.Ordinal) || tenants.Contains(root)))
+        {
+            throw new InvalidOperationException(
+                $"The admin e-mail of tenant '{tenantId}' belongs to an account of another tenant, and operator accounts stay in the root tenant only.");
+        }
+
+        context.TenantMemberships.Add(TenantMembership.Create(userId, tenantId));
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     /// <summary>

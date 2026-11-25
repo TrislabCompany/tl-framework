@@ -41,6 +41,9 @@ using Trislab.Modules.Identity.Features.v1.Sessions.GetUserSessions;
 using Trislab.Modules.Identity.Features.v1.Sessions.RevokeAllSessions;
 using Trislab.Modules.Identity.Features.v1.Sessions.RevokeSession;
 using Trislab.Modules.Identity.Features.v1.Tokens.RefreshToken;
+using Trislab.Modules.Identity.Features.v1.Tokens.TenantSelection;
+using Trislab.Modules.Identity.Features.v1.Tokens.TenantSwitch;
+using Trislab.Modules.Identity.Features.v1.Users.GetMyTenants;
 using Trislab.Modules.Identity.Features.v1.Tokens.TokenGeneration;
 using Trislab.Modules.Identity.Features.v1.TwoFactor.Disable;
 using Trislab.Modules.Identity.Features.v1.TwoFactor.Enroll;
@@ -118,6 +121,7 @@ public class IdentityModule : IModule
         services.AddTransient<IRoleService, RoleService>();
         services.AddTrislabStorage(builder.Configuration);
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<TenantSignInService>();
         services.AddTrislabDbContext<IdentityDbContext>(IdentityModuleConstants.SchemaName);
         // Eventing itself is bootstrapped by the host (AddEventingCore) — the outbox is framework
         // infrastructure, not Identity's. Handler registration stays per module.
@@ -171,6 +175,7 @@ public class IdentityModule : IModule
             options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
         })
            .AddEntityFrameworkStores<IdentityDbContext>()
+           .AddUserStore<TrislabUserStore>()
            .AddDefaultTokenProviders();
 
         //metrics
@@ -196,6 +201,8 @@ public class IdentityModule : IModule
         // tokens
         group.MapGenerateTokenEndpoint().AllowAnonymous().RequireRateLimiting("auth");
         group.MapRefreshTokenEndpoint().AllowAnonymous().RequireRateLimiting("auth");
+        group.MapTenantSelectionEndpoint().RequireRateLimiting("auth");
+        group.MapTenantSwitchEndpoint().RequireRateLimiting("auth");
 
         // The outbox is dispatched by the framework's OutboxDispatcherHostedService (on by default), which now claims
         // rows with FOR UPDATE SKIP LOCKED so several instances can drain safely. This module still registers no
@@ -223,6 +230,7 @@ public class IdentityModule : IModule
         group.MapGetUserByIdEndpoint();
         group.MapGetCurrentUserPermissionsEndpoint();
         group.MapGetMeEndpoint();
+        group.MapGetMyTenantsEndpoint();
         group.MapGetUserRolesEndpoint();
         group.MapGetUsersListEndpoint();
         group.MapSearchUsersEndpoint();

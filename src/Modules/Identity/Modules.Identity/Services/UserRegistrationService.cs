@@ -1,5 +1,6 @@
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Core.Common;
+using Trislab.Framework.Core.Context;
 using Trislab.Framework.Core.Exceptions;
 using Trislab.Framework.Eventing.Outbox;
 using Trislab.Framework.Jobs.Services;
@@ -31,6 +32,8 @@ internal sealed class UserRegistrationService(
     IMailService mailService,
     IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
     IOutboxStore outboxStore,
+    ICurrentUser currentUser,
+    IdentityErrorDescriber errorDescriber,
     IStringLocalizer<IdentityResources> localizer) : IUserRegistrationService
 {
     public async Task<string> GetOrCreateFromPrincipalAsync(ClaimsPrincipal principal, CancellationToken cancellationToken = default)
@@ -40,13 +43,21 @@ internal sealed class UserRegistrationService(
 
         var email = ExtractEmailFromPrincipal(principal);
 
+        // The store looks the e-mail up across all accounts. An account that is not a member here yet joins.
         var existingUser = await userManager.FindByEmailAsync(email);
         if (existingUser is not null)
         {
+            if (!await IsMemberAsync(existingUser.Id, cancellationToken))
+            {
+                await AddMembershipAsync(existingUser, cancellationToken);
+                await AssignDefaultRoleAndGroupsAsync(existingUser, "ExternalAuth", cancellationToken);
+            }
+
             return existingUser.Id;
         }
 
         var user = await CreateUserFromPrincipalAsync(principal, email);
+        await AddMembershipAsync(user, cancellationToken);
         await AssignDefaultRoleAndGroupsAsync(user, "ExternalAuth", cancellationToken);
         await PublishUserRegisteredAsync(user, "Identity.ExternalAuth", cancellationToken);
 
@@ -64,9 +75,18 @@ internal sealed class UserRegistrationService(
         string origin,
         CancellationToken cancellationToken)
     {
+        EnsureValidTenant();
         ValidatePasswordMatch(password, confirmPassword);
 
+        // Accounts are global. An administrator who registers an e-mail that already has an account adds that
+        // account to this tenant: it keeps its own password, name and confirmed e-mail.
+        if (currentUser.IsAuthenticated() && await userManager.FindByEmailAsync(email) is TrislabUser existing)
+        {
+            return await AddExistingAccountAsync(existing, cancellationToken);
+        }
+
         var user = await CreateUserWithPasswordAsync(firstName, lastName, email, userName, password, phoneNumber);
+        await AddMembershipAsync(user, cancellationToken);
         await AssignDefaultRoleAndGroupsAsync(user, "System", cancellationToken);
         await SendConfirmationEmailAsync(user, origin, cancellationToken);
         await PublishUserRegisteredAsync(user, "Identity", cancellationToken);
@@ -78,7 +98,9 @@ internal sealed class UserRegistrationService(
     {
         EnsureValidTenant();
 
+        // The e-mail belongs to the global account: the signed link is the proof, whatever the tenant.
         var user = await userManager.Users
+            .IgnoreQueryFilters([IdentityDbContext.MembershipFilter])
             .Where(u => u.Id == userId && !u.EmailConfirmed)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -167,6 +189,56 @@ internal sealed class UserRegistrationService(
                 .Localized<IdentityResources>("Identity.PhoneConfirmationFailedFor", user.PhoneNumber!);
     }
 
+    private async Task<string> AddExistingAccountAsync(TrislabUser existing, CancellationToken cancellationToken)
+    {
+        if (await IsMemberAsync(existing.Id, cancellationToken))
+        {
+            throw new CustomException(
+                "Unable to register the user.",
+                [errorDescriber.DuplicateEmail(existing.Email!).Description],
+                HttpStatusCode.BadRequest)
+                .Localized<IdentityResources>("Identity.UnableToRegisterUser");
+        }
+
+        await AddMembershipAsync(existing, cancellationToken);
+        await AssignDefaultRoleAndGroupsAsync(existing, "System", cancellationToken);
+        await PublishUserRegisteredAsync(existing, "Identity", cancellationToken);
+        return existing.Id;
+    }
+
+    private Task<bool> IsMemberAsync(string userId, CancellationToken cancellationToken) =>
+        db.TenantMemberships.AnyAsync(m => m.UserId == userId, cancellationToken);
+
+    /// <summary>
+    /// Adds an account to the current tenant. An operator (a member of root) stays in root only: operators
+    /// reach other tenants through impersonation, so a root account never joins another tenant, and an
+    /// account of another tenant never becomes an operator this way.
+    /// </summary>
+    private async Task AddMembershipAsync(TrislabUser user, CancellationToken cancellationToken)
+    {
+        var tenantId = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id
+            ?? throw new UnauthorizedException("invalid tenant").Localized("Error.InvalidTenant");
+
+        var otherTenants = await db.TenantMemberships
+            .IgnoreQueryFilters()
+            .Where(m => m.UserId == user.Id && m.TenantId != tenantId)
+            .Select(m => m.TenantId)
+            .ToListAsync(cancellationToken);
+
+        var joiningRoot = string.Equals(tenantId, MultitenancyConstants.Root.Id, StringComparison.Ordinal);
+        if ((joiningRoot && otherTenants.Count > 0) || otherTenants.Contains(MultitenancyConstants.Root.Id))
+        {
+            throw new CustomException(
+                "Operator accounts belong to the root tenant only.",
+                errors: null,
+                HttpStatusCode.BadRequest)
+                .Localized<IdentityResources>("Identity.OperatorAccountsStayInRoot");
+        }
+
+        db.TenantMemberships.Add(TenantMembership.Create(user.Id, tenantId));
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
     private void EnsureValidTenant()
     {
         if (string.IsNullOrWhiteSpace(multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id))
@@ -197,7 +269,6 @@ internal sealed class UserRegistrationService(
             LastName = lastName,
             EmailConfirmed = true,
             PhoneNumberConfirmed = false,
-            IsActive = true
         };
 
         var result = await userManager.CreateAsync(user);
@@ -268,7 +339,6 @@ internal sealed class UserRegistrationService(
             LastName = lastName,
             UserName = userName,
             PhoneNumber = phoneNumber,
-            IsActive = true,
             EmailConfirmed = false,
             PhoneNumberConfirmed = false,
         };
