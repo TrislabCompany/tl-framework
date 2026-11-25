@@ -62,8 +62,8 @@ public sealed class WebhookDispatchJob
         // Like SqlAuditSink: fresh scope, set tenant context first, then resolve the DbContext so its
         // Finbuckle filter reads a real TenantInfo instead of a null one from the outer scope.
         using var scope = _scopeFactory.CreateScope();
-        var store = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-        var tenant = await store.GetAsync(tenantId).ConfigureAwait(false);
+        var store = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
+        var tenant = await store.GetAsync(tenantId, cancellationToken).ConfigureAwait(false);
         if (tenant is null)
         {
             _logger.LogWarning(
@@ -71,8 +71,7 @@ public sealed class WebhookDispatchJob
                 subscriptionId, tenantId);
             return;
         }
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var dbContext = scope.ServiceProvider.GetRequiredService<WebhookDbContext>();
 

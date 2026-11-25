@@ -194,11 +194,10 @@ public sealed class S3StorageKeyLayoutTests
         if (quotas is not null)
         {
             services.AddSingleton(quotas);
-            var accessor = Substitute.For<IMultiTenantContextAccessor<AppTenantInfo>>();
+            var accessor = Substitute.For<ITenantAccessor>();
             if (tenantId is not null)
             {
-                accessor.MultiTenantContext.Returns(
-                    new MultiTenantContext<AppTenantInfo>(new AppTenantInfo(tenantId, tenantId)));
+                accessor.TenantInfo.Returns(new AppTenantInfo(tenantId, tenantId));
             }
             services.AddSingleton(accessor);
         }

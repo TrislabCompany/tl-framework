@@ -18,8 +18,8 @@ public sealed class BillingService : IBillingService
 {
     private readonly BillingDbContext _db;
     private readonly IUsageReporter _usageReporter;
-    private readonly IMultiTenantStore<AppTenantInfo> _tenantStore;
-    private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor;
+    private readonly IMultiTenantStore<AppTenantInfo, string> _tenantStore;
+    private readonly ITenantAccessor _tenantAccessor;
     private readonly IOutboxWriter _outbox;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<BillingService> _logger;
@@ -27,8 +27,8 @@ public sealed class BillingService : IBillingService
     public BillingService(
         BillingDbContext db,
         IUsageReporter usageReporter,
-        IMultiTenantStore<AppTenantInfo> tenantStore,
-        IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+        IMultiTenantStore<AppTenantInfo, string> tenantStore,
+        ITenantAccessor tenantAccessor,
         IOutboxWriter outbox,
         TimeProvider timeProvider,
         ILogger<BillingService> logger)
@@ -122,7 +122,7 @@ public sealed class BillingService : IBillingService
         int periodMonth,
         CancellationToken cancellationToken = default)
     {
-        var tenants = await _tenantStore.GetAllAsync().ConfigureAwait(false);
+        var tenants = await _tenantStore.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var activeTenantIds = tenants.Where(t => t.IsActive).Select(t => t.Id).ToList();
         var subscribedTenantIds = await _db.Subscriptions
             .Where(s => s.Status == SubscriptionStatus.Active && activeTenantIds.Contains(s.TenantId))
@@ -292,7 +292,7 @@ public sealed class BillingService : IBillingService
     // mutates any invoice; a tenant caller is pinned to its own (cross-tenant id → 404, can't mutate).
     private async Task<Invoice> LoadInvoiceAsync(Guid invoiceId, CancellationToken cancellationToken)
     {
-        var callerTenantId = _tenantAccessor.MultiTenantContext?.TenantInfo?.Id
+        var callerTenantId = _tenantAccessor.TenantInfo?.Id
             ?? throw new UnauthorizedException("Tenant context is required.").Localized("Error.TenantContextRequired");
         var isRoot = callerTenantId == MultitenancyConstants.Root.Id;
 

@@ -92,10 +92,9 @@ public sealed class WebhookDispatchJobTests
         // The job must have persisted a delivery row tagged with the unique event type.
         using var readScope = _factory.Services.CreateScope();
         var tenant = await readScope.ServiceProvider
-            .GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+            .GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
             .GetAsync(TestConstants.RootTenantId);
-        readScope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = readScope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var db = readScope.ServiceProvider.GetRequiredService<WebhookDbContext>();
         var delivery = await db.Deliveries

@@ -1,5 +1,5 @@
+using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using Finbuckle.MultiTenant.Stores;
 using Trislab.Framework.Core.Exceptions;
 using Trislab.Framework.Persistence;
 using Trislab.Framework.Shared.Multitenancy;
@@ -20,7 +20,7 @@ namespace Trislab.Modules.Multitenancy.Services;
 
 public sealed class TenantService : ITenantService
 {
-    private readonly IMultiTenantStore<AppTenantInfo> _tenantStore;
+    private readonly IMultiTenantStore<AppTenantInfo, string> _tenantStore;
     private readonly DatabaseOptions _config;
     private readonly IServiceProvider _serviceProvider;
     private readonly TenantDbContext _dbContext;
@@ -30,7 +30,7 @@ public sealed class TenantService : ITenantService
     private readonly ILogger<TenantService> _logger;
 
     public TenantService(
-        IMultiTenantStore<AppTenantInfo> tenantStore,
+        IMultiTenantStore<AppTenantInfo, string> tenantStore,
         IOptions<DatabaseOptions> config,
         IServiceProvider serviceProvider,
         TenantDbContext dbContext,
@@ -65,8 +65,8 @@ public sealed class TenantService : ITenantService
 
         tenant.Activate();
 
-        await _tenantStore.UpdateAsync(tenant).ConfigureAwait(false);
-        await RefreshTenantCacheAsync(tenant).ConfigureAwait(false);
+        await _tenantStore.UpdateAsync(tenant, cancellationToken).ConfigureAwait(false);
+        await RefreshTenantCacheAsync(tenant, cancellationToken).ConfigureAwait(false);
 
         return $"tenant {id} is now activated";
     }
@@ -88,8 +88,8 @@ public sealed class TenantService : ITenantService
             // the ctor seeds now+1mo, so it would reject a term computed from an earlier 'now'.
             ValidUpto = DateTime.SpecifyKind(validUpto, DateTimeKind.Utc),
         };
-        await _tenantStore.AddAsync(tenant).ConfigureAwait(false);
-        await RefreshTenantCacheAsync(tenant).ConfigureAwait(false);
+        await _tenantStore.AddAsync(tenant, cancellationToken).ConfigureAwait(false);
+        await RefreshTenantCacheAsync(tenant, cancellationToken).ConfigureAwait(false);
 
         return tenant.Id;
     }
@@ -98,8 +98,7 @@ public sealed class TenantService : ITenantService
     {
         using var scope = _serviceProvider.CreateScope();
 
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         foreach (var initializer in scope.ServiceProvider.GetServices<IDbInitializer>())
         {
@@ -111,8 +110,7 @@ public sealed class TenantService : ITenantService
     {
         using var scope = _serviceProvider.CreateScope();
 
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         foreach (var initializer in scope.ServiceProvider.GetServices<IDbInitializer>())
         {
@@ -129,7 +127,7 @@ public sealed class TenantService : ITenantService
                 .Localized<MultitenancyResources>("Multitenancy.TenantAlreadyDeactivated", id);
         }
 
-        int tenantCount = (await _tenantStore.GetAllAsync().ConfigureAwait(false)).Count(t => t.IsActive);
+        int tenantCount = (await _tenantStore.GetAllAsync(cancellationToken).ConfigureAwait(false)).Count(t => t.IsActive);
         if (tenantCount <= 1)
         {
             throw new CustomException("At least one active tenant is required.")
@@ -143,16 +141,16 @@ public sealed class TenantService : ITenantService
         }
 
         tenant.Deactivate();
-        await _tenantStore.UpdateAsync(tenant).ConfigureAwait(false);
-        await RefreshTenantCacheAsync(tenant).ConfigureAwait(false);
+        await _tenantStore.UpdateAsync(tenant, cancellationToken).ConfigureAwait(false);
+        await RefreshTenantCacheAsync(tenant, cancellationToken).ConfigureAwait(false);
         return $"tenant {id} is now deactivated";
     }
 
     public async Task<bool> ExistsWithIdAsync(string id, CancellationToken cancellationToken = default) =>
-        await _tenantStore.GetAsync(id).ConfigureAwait(false) is not null;
+        await _tenantStore.GetAsync(id, cancellationToken).ConfigureAwait(false) is not null;
 
     public async Task<bool> ExistsWithNameAsync(string name, CancellationToken cancellationToken = default) =>
-        (await _tenantStore.GetAllAsync().ConfigureAwait(false)).Any(t => t.Name == name);
+        (await _tenantStore.GetAllAsync(cancellationToken).ConfigureAwait(false)).Any(t => t.Name == name);
 
     public async Task<PagedResponse<TenantDto>> GetAllAsync(GetTenantsQuery query, CancellationToken cancellationToken)
     {
@@ -221,8 +219,8 @@ public sealed class TenantService : ITenantService
             tenant.Plan = newPlanKey;
         }
 
-        await _tenantStore.UpdateAsync(tenant).ConfigureAwait(false);
-        await RefreshTenantCacheAsync(tenant).ConfigureAwait(false);
+        await _tenantStore.UpdateAsync(tenant, cancellationToken).ConfigureAwait(false);
+        await RefreshTenantCacheAsync(tenant, cancellationToken).ConfigureAwait(false);
 
         return (periodStart, newValidUpto, planChanged);
     }
@@ -237,8 +235,8 @@ public sealed class TenantService : ITenantService
         var previous = tenant.ValidUpto;
         tenant.ValidUpto = normalized;
 
-        await _tenantStore.UpdateAsync(tenant).ConfigureAwait(false);
-        await RefreshTenantCacheAsync(tenant).ConfigureAwait(false);
+        await _tenantStore.UpdateAsync(tenant, cancellationToken).ConfigureAwait(false);
+        await RefreshTenantCacheAsync(tenant, cancellationToken).ConfigureAwait(false);
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
@@ -251,20 +249,18 @@ public sealed class TenantService : ITenantService
     }
 
     private async Task<AppTenantInfo> GetTenantInfoAsync(string id, CancellationToken cancellationToken = default) =>
-        await _tenantStore.GetAsync(id).ConfigureAwait(false)
+        await _tenantStore.GetAsync(id, cancellationToken).ConfigureAwait(false)
             ?? throw new NotFoundException($"{typeof(AppTenantInfo).Name} {id} Not Found.")
                 .Localized<MultitenancyResources>("Multitenancy.TenantNotFound", id);
 
-    // Finbuckle resolves via the distributed-cache store first (60-min TTL) while the injected store only
-    // writes EF, so push the new state into the cache store too — otherwise flips lag until cache expiry.
-    private async Task RefreshTenantCacheAsync(AppTenantInfo tenant)
+    // Finbuckle resolves through the tenant cache first (60-min sliding expiry) while the injected store only
+    // writes EF, so push the new state into every cache too — otherwise flips lag until cache expiry.
+    private async Task RefreshTenantCacheAsync(AppTenantInfo tenant, CancellationToken cancellationToken = default)
     {
-        var cacheStore = _serviceProvider
-            .GetServices<IMultiTenantStore<AppTenantInfo>>()
-            .FirstOrDefault(s => s.GetType() == typeof(DistributedCacheStore<AppTenantInfo>));
-        if (cacheStore is not null)
+        var tenants = _serviceProvider.GetRequiredService<TenantManager<AppTenantInfo, string>>();
+        foreach (var cache in tenants.Caches)
         {
-            await cacheStore.UpdateAsync(tenant).ConfigureAwait(false);
+            await cache.SetAsync(tenant, cancellationToken).ConfigureAwait(false);
         }
     }
 }

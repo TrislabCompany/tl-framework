@@ -250,7 +250,7 @@ public sealed class WebhookDeliveryTests
         var (subscriptionId, _) = await CreateSubscriptionAsync(client, secret: null);
 
         using var scope = capturingFactory.Services.CreateScope();
-        SetRootTenantContext(scope.ServiceProvider);
+        using var tenantUse = SetRootTenantContext(scope.ServiceProvider);
         var service = scope.ServiceProvider.GetRequiredService<IWebhookDeliveryService>();
 
         // Act
@@ -349,12 +349,11 @@ public sealed class WebhookDeliveryTests
         return result;
     }
 
-    private static void SetRootTenantContext(IServiceProvider sp)
+    private static IDisposable SetRootTenantContext(IServiceProvider sp)
     {
-        var tenant = sp.GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+        var tenant = sp.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
             .GetAsync(TestConstants.RootTenantId).GetAwaiter().GetResult();
-        sp.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        return sp.GetRequiredService<ITenantAccessor>().Use(tenant);
     }
 
     private static async Task CreateTenantAsync(HttpClient rootClient, string tenantId, string adminEmail)

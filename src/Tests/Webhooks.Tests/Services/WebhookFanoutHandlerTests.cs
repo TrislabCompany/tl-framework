@@ -7,6 +7,7 @@ using Trislab.Modules.Webhooks.Data;
 using Trislab.Modules.Webhooks.Domain;
 using Trislab.Modules.Webhooks.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -20,6 +21,7 @@ public sealed class WebhookFanoutHandlerTests
     private const string EventType = nameof(FakeIntegrationEvent);
 
     private readonly TestTenantAccessor _tenantAccessor = new();
+    private readonly string _databaseName = $"webhooks-{Guid.NewGuid():N}";
     private readonly IWebhookDispatcher _dispatcher = Substitute.For<IWebhookDispatcher>();
     private readonly IEventSerializer _serializer = Substitute.For<IEventSerializer>();
     private readonly ILogger<WebhookFanoutHandler<FakeIntegrationEvent>> _logger =
@@ -28,6 +30,9 @@ public sealed class WebhookFanoutHandlerTests
     public WebhookFanoutHandlerTests()
     {
         _serializer.Serialize(Arg.Any<IIntegrationEvent>()).Returns("{\"serialized\":true}");
+
+        // A context takes its tenant when it is built, so the seeding context needs the tenant first.
+        SetTenant(TenantId);
     }
 
     #region Happy Path
@@ -38,7 +43,7 @@ public sealed class WebhookFanoutHandlerTests
         await using var db = CreateContext();
         Guid subId = await SeedSubscriptionAsync(db, [EventType], isActive: true);
 
-        var handler = CreateHandler(db);
+        var handler = CreateHandler();
         await handler.HandleAsync(new FakeIntegrationEvent(TenantId));
 
         await _dispatcher.Received(1).EnqueueAsync(
@@ -51,7 +56,7 @@ public sealed class WebhookFanoutHandlerTests
         await using var db = CreateContext();
         Guid subId = await SeedSubscriptionAsync(db, ["*"], isActive: true);
 
-        var handler = CreateHandler(db);
+        var handler = CreateHandler();
         await handler.HandleAsync(new FakeIntegrationEvent(TenantId));
 
         await _dispatcher.Received(1).EnqueueAsync(
@@ -65,11 +70,30 @@ public sealed class WebhookFanoutHandlerTests
         await SeedSubscriptionAsync(db, [EventType], isActive: true);
         await SeedSubscriptionAsync(db, ["*"], isActive: true);
 
-        var handler = CreateHandler(db);
+        var handler = CreateHandler();
         await handler.HandleAsync(new FakeIntegrationEvent(TenantId));
 
         await _dispatcher.Received(2).EnqueueAsync(
             TenantId, Arg.Any<Guid>(), EventType, Arg.Any<string>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task HandleAsync_Should_ReadTheEventsTenant_When_TheCallerHoldsAnotherTenant()
+    {
+        await using var db = CreateContext();
+        Guid subId = await SeedSubscriptionAsync(db, [EventType], isActive: true);
+        var handler = CreateHandler();
+
+        // A background pump may still hold the tenant of the previous event, or none.
+        SetTenant("tenant-other");
+        await handler.HandleAsync(new FakeIntegrationEvent(TenantId));
+        _tenantAccessor.TenantInfo.ShouldNotBeNull().Id.ShouldBe("tenant-other", "the caller's tenant comes back");
+
+        SetTenant(null);
+        await handler.HandleAsync(new FakeIntegrationEvent(TenantId));
+
+        await _dispatcher.Received(2).EnqueueAsync(
+            TenantId, subId, EventType, Arg.Any<string>(), Arg.Any<CancellationToken>());
     }
 
     #endregion
@@ -82,7 +106,7 @@ public sealed class WebhookFanoutHandlerTests
         await using var db = CreateContext();
         await SeedSubscriptionAsync(db, [EventType], isActive: true);
 
-        var handler = CreateHandler(db);
+        var handler = CreateHandler();
         await handler.HandleAsync(new FakeIntegrationEvent(TenantId: null));
 
         await _dispatcher.DidNotReceiveWithAnyArgs().EnqueueAsync(default!, default, default!, default!, default);
@@ -95,7 +119,7 @@ public sealed class WebhookFanoutHandlerTests
         await using var db = CreateContext();
         await SeedSubscriptionAsync(db, [EventType], isActive: true);
 
-        var handler = CreateHandler(db);
+        var handler = CreateHandler();
         await handler.HandleAsync(new FakeIntegrationEvent("   "));
 
         await _dispatcher.DidNotReceiveWithAnyArgs().EnqueueAsync(default!, default, default!, default!, default);
@@ -107,7 +131,7 @@ public sealed class WebhookFanoutHandlerTests
         await using var db = CreateContext();
         await SeedSubscriptionAsync(db, ["some.other.event"], isActive: true);
 
-        var handler = CreateHandler(db);
+        var handler = CreateHandler();
         await handler.HandleAsync(new FakeIntegrationEvent(TenantId));
 
         await _dispatcher.DidNotReceiveWithAnyArgs().EnqueueAsync(default!, default, default!, default!, default);
@@ -120,7 +144,7 @@ public sealed class WebhookFanoutHandlerTests
         await using var db = CreateContext();
         await SeedSubscriptionAsync(db, [EventType], isActive: false);
 
-        var handler = CreateHandler(db);
+        var handler = CreateHandler();
         await handler.HandleAsync(new FakeIntegrationEvent(TenantId));
 
         await _dispatcher.DidNotReceiveWithAnyArgs().EnqueueAsync(default!, default, default!, default!, default);
@@ -141,7 +165,7 @@ public sealed class WebhookFanoutHandlerTests
             .EnqueueAsync(TenantId, first, EventType, Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(_ => throw new InvalidOperationException("transient enqueue failure"));
 
-        var handler = CreateHandler(db);
+        var handler = CreateHandler();
 
         // Must not bubble — a single bad subscription cannot abort fan-out to the rest.
         await Should.NotThrowAsync(async () => await handler.HandleAsync(new FakeIntegrationEvent(TenantId)));
@@ -154,7 +178,7 @@ public sealed class WebhookFanoutHandlerTests
     public async Task HandleAsync_Should_Throw_When_Event_Is_Null()
     {
         await using var db = CreateContext();
-        var handler = CreateHandler(db);
+        var handler = CreateHandler();
 
         await Should.ThrowAsync<ArgumentNullException>(async () => await handler.HandleAsync(null!));
     }
@@ -163,13 +187,19 @@ public sealed class WebhookFanoutHandlerTests
 
     #region Helpers
 
-    private WebhookFanoutHandler<FakeIntegrationEvent> CreateHandler(WebhookDbContext db) =>
-        new(db, _dispatcher, _serializer, _tenantAccessor, _logger);
+    private WebhookFanoutHandler<FakeIntegrationEvent> CreateHandler()
+    {
+        // The handler opens its own context on the same in-memory database.
+        var services = new ServiceCollection();
+        services.AddScoped(_ => CreateContext());
+        var scopes = services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
+        return new(scopes, _dispatcher, _serializer, _tenantAccessor, _logger);
+    }
 
     private WebhookDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<WebhookDbContext>()
-            .UseInMemoryDatabase($"webhooks-{Guid.NewGuid():N}")
+            .UseInMemoryDatabase(_databaseName)
             .Options;
 
         var settings = Options.Create(new DatabaseOptions());
@@ -197,23 +227,29 @@ public sealed class WebhookFanoutHandlerTests
         return sub.Id;
     }
 
-    private void SetTenant(string tenantId) =>
-        ((IMultiTenantContextSetter)_tenantAccessor).MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(new AppTenantInfo(tenantId, tenantId));
+    private void SetTenant(string? tenantId) =>
+        _tenantAccessor.Set(tenantId is null ? null : new AppTenantInfo(tenantId, tenantId));
 
     #endregion
 
-    private sealed class TestTenantAccessor : IMultiTenantContextAccessor<AppTenantInfo>, IMultiTenantContextSetter
+    private sealed class TestTenantAccessor : ITenantAccessor
     {
-        private IMultiTenantContext<AppTenantInfo> _context = new MultiTenantContext<AppTenantInfo>(new AppTenantInfo());
+        public AppTenantInfo? TenantInfo { get; private set; }
 
-        public IMultiTenantContext<AppTenantInfo> MultiTenantContext => _context;
+        public bool IsResolved => TenantInfo is not null;
 
-        IMultiTenantContext IMultiTenantContextAccessor.MultiTenantContext => _context;
+        public void Set(AppTenantInfo? tenant) => TenantInfo = tenant;
 
-        IMultiTenantContext IMultiTenantContextSetter.MultiTenantContext
+        public IDisposable Use(AppTenantInfo? tenant)
         {
-            set => _context = (IMultiTenantContext<AppTenantInfo>)value;
+            var previous = TenantInfo;
+            TenantInfo = tenant;
+            return new Restore(() => TenantInfo = previous);
+        }
+
+        private sealed class Restore(Action restore) : IDisposable
+        {
+            public void Dispose() => restore();
         }
     }
 }

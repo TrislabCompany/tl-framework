@@ -14,7 +14,7 @@ namespace Trislab.Modules.SubscriptionsUsage.Features.v1.Wallets.GetTopupRequest
 
 public sealed class GetTopupRequestsQueryHandler(
     BillingDbContext dbContext,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
+    ITenantAccessor tenantAccessor)
     : IQueryHandler<GetTopupRequestsQuery, PagedResponse<TopupRequestDto>>
 {
     public async ValueTask<PagedResponse<TopupRequestDto>> Handle(GetTopupRequestsQuery query, CancellationToken cancellationToken)
@@ -23,7 +23,7 @@ public sealed class GetTopupRequestsQueryHandler(
 
         // BillingDbContext is not tenant-filtered: only root gets the cross-tenant view (optionally
         // narrowed via query.TenantId); every other caller is forced to its own tenant.
-        var callerTenantId = tenantAccessor.MultiTenantContext?.TenantInfo?.Id
+        var callerTenantId = tenantAccessor.TenantInfo?.Id
             ?? throw new UnauthorizedException("Tenant context is required.").Localized("Error.TenantContextRequired");
         var isRoot = callerTenantId == MultitenancyConstants.Root.Id;
         var tenantFilter = isRoot ? query.TenantId : callerTenantId;

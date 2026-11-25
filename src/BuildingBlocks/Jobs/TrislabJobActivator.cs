@@ -1,6 +1,4 @@
-﻿﻿using Finbuckle.MultiTenant;
-using Finbuckle.MultiTenant.Abstractions;
-using Trislab.Framework.Core.Common;
+﻿using Trislab.Framework.Core.Common;
 using Trislab.Framework.Core.Context;
 using Trislab.Framework.Shared.Multitenancy;
 using Hangfire;
@@ -23,6 +21,7 @@ public class TrislabJobActivator : JobActivator
     {
         private readonly PerformContext _context;
         private readonly IServiceScope _scope;
+        private IDisposable? _tenantUse;
 
         public Scope(PerformContext context, IServiceScope scope)
         {
@@ -43,8 +42,9 @@ public class TrislabJobActivator : JobActivator
 
             if (tenantInfo is not null)
             {
-                _scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-                    .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenantInfo);
+                // Kept until the job's scope is disposed, so every service the job resolves sees the tenant, and
+                // the worker thread doesn't carry it into the next job.
+                _tenantUse = _scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenantInfo);
             }
 
             string userId = _context.GetJobParameter<string>(QueryStringKeys.UserId);
@@ -53,6 +53,12 @@ public class TrislabJobActivator : JobActivator
                 _scope.ServiceProvider.GetRequiredService<ICurrentUserInitializer>()
                     .SetCurrentUserId(userId);
             }
+        }
+
+        public override void DisposeScope()
+        {
+            _tenantUse?.Dispose();
+            _scope.Dispose();
         }
 
         public override object Resolve(Type type) =>

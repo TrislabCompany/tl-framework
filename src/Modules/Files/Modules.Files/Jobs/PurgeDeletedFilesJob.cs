@@ -34,8 +34,8 @@ public sealed class PurgeDeletedFilesJob(
         List<AppTenantInfo> tenants;
         using (var scope = scopeFactory.CreateScope())
         {
-            var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-            tenants = (await tenantStore.GetAllAsync().ConfigureAwait(false)).ToList();
+            var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
+            tenants = (await tenantStore.GetAllAsync(cancellationToken).ConfigureAwait(false)).ToList();
         }
 
         var cutoff = DateTimeOffset.UtcNow.AddDays(-options.Value.SoftDeleteRetentionDays);
@@ -58,8 +58,7 @@ public sealed class PurgeDeletedFilesJob(
         try
         {
             using var scope = scopeFactory.CreateScope();
-            scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-                .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+            using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
             var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
 
             // Soft-deleted rows are hidden by the soft-delete filter; lift only that one so the tenant

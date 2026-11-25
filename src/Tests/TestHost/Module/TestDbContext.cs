@@ -12,7 +12,7 @@ internal sealed class TestDbContext : BaseDbContext
     public const string Schema = "testhost";
 
     public TestDbContext(
-        IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+        ITenantAccessor multiTenantContextAccessor,
         DbContextOptions<TestDbContext> options,
         IOptions<DatabaseOptions> settings,
         IHostEnvironment environment) : base(multiTenantContextAccessor, options, settings, environment) { }

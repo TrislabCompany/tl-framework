@@ -18,7 +18,7 @@ public sealed class InvoiceDocumentsDbContext : BaseDbContext
     public const string Schema = "invoicedocuments";
 
     public InvoiceDocumentsDbContext(
-        IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+        ITenantAccessor multiTenantContextAccessor,
         DbContextOptions<InvoiceDocumentsDbContext> options,
         IOptions<DatabaseOptions> settings,
         IHostEnvironment environment) : base(multiTenantContextAccessor, options, settings, environment) { }

@@ -55,10 +55,9 @@ public sealed class SecurityAuditListBoundsTests
         using var scope = _factory.Services.CreateScope();
 
         // Tenant context is AsyncLocal — set inline in the same method as the DbContext call.
-        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
         var tenant = await tenantStore.GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var db = scope.ServiceProvider.GetRequiredService<AuditDbContext>();
         var now = DateTime.UtcNow;

@@ -78,11 +78,10 @@ public sealed class SessionCleanupTests
     {
         using var scope = _factory.Services.CreateScope();
         var tenant = await scope.ServiceProvider
-            .GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+            .GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
             .GetAsync(tenantId);
         tenant.ShouldNotBeNull();
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var user = await scope.ServiceProvider
             .GetRequiredService<UserManager<TrislabUser>>()
@@ -106,11 +105,10 @@ public sealed class SessionCleanupTests
     {
         using var scope = _factory.Services.CreateScope();
         var tenant = await scope.ServiceProvider
-            .GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+            .GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
             .GetAsync(tenantId);
         tenant.ShouldNotBeNull();
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
         return await db.UserSessions.AsNoTracking().AnyAsync(s => s.Id == sessionId);

@@ -46,8 +46,8 @@ public sealed class ProfileImageStorageSafetyTests
 
     private UserProfileService CreateSut()
     {
-        var tenant = Substitute.For<IMultiTenantContextAccessor<AppTenantInfo>>();
-        tenant.MultiTenantContext.Returns(new MultiTenantContext<AppTenantInfo>(new AppTenantInfo("root", "root")));
+        var tenant = Substitute.For<ITenantAccessor>();
+        tenant.TenantInfo.Returns(new AppTenantInfo("root", "root"));
         return new(_userManager, _signInManager, _storageService, tenant,
             Substitute.For<IRequestContextService>(), new IdentityErrorDescriber());
     }

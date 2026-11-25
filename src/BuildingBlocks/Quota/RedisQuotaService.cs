@@ -19,7 +19,7 @@ public sealed class RedisQuotaService : IQuotaService
     private readonly QuotaOptions _options;
     private readonly string _keyPrefix;
     private readonly QuotaPlanResolver _planResolver;
-    private readonly IMultiTenantContextAccessor<AppTenantInfo>? _tenantAccessor;
+    private readonly ITenantAccessor? _tenantAccessor;
     private readonly Dictionary<QuotaResource, IQuotaGaugeProvider> _gauges;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<RedisQuotaService> _logger;
@@ -31,7 +31,7 @@ public sealed class RedisQuotaService : IQuotaService
         IEnumerable<IQuotaGaugeProvider> gauges,
         TimeProvider timeProvider,
         ILogger<RedisQuotaService> logger,
-        IMultiTenantContextAccessor<AppTenantInfo>? tenantAccessor = null)
+        ITenantAccessor? tenantAccessor = null)
     {
         ArgumentNullException.ThrowIfNull(redis);
         ArgumentNullException.ThrowIfNull(options);
@@ -165,7 +165,7 @@ public sealed class RedisQuotaService : IQuotaService
             return (long.MaxValue, true);
         }
 
-        var tenant = _tenantAccessor?.MultiTenantContext?.TenantInfo;
+        var tenant = _tenantAccessor?.TenantInfo;
         // If the accessor resolved a different tenant than the one being checked (e.g. the caller
         // passed an explicit tenantId for a cross-tenant operation), we fall back to plan defaults.
         if (tenant is not null && !string.Equals(tenant.Id, tenantId, StringComparison.Ordinal))

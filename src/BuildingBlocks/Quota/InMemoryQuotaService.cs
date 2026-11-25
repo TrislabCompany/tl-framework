@@ -14,7 +14,7 @@ public sealed class InMemoryQuotaService : IQuotaService
     private readonly ConcurrentDictionary<string, long> _counters;
     private readonly QuotaOptions _options;
     private readonly QuotaPlanResolver _planResolver;
-    private readonly IMultiTenantContextAccessor<AppTenantInfo>? _tenantAccessor;
+    private readonly ITenantAccessor? _tenantAccessor;
     private readonly Dictionary<QuotaResource, IQuotaGaugeProvider> _gauges;
     private readonly TimeProvider _timeProvider;
 
@@ -24,7 +24,7 @@ public sealed class InMemoryQuotaService : IQuotaService
         QuotaPlanResolver planResolver,
         IEnumerable<IQuotaGaugeProvider> gauges,
         TimeProvider timeProvider,
-        IMultiTenantContextAccessor<AppTenantInfo>? tenantAccessor = null)
+        ITenantAccessor? tenantAccessor = null)
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(options);
@@ -125,7 +125,7 @@ public sealed class InMemoryQuotaService : IQuotaService
             return (long.MaxValue, true);
         }
 
-        var tenant = _tenantAccessor?.MultiTenantContext?.TenantInfo;
+        var tenant = _tenantAccessor?.TenantInfo;
         if (tenant is not null && !string.Equals(tenant.Id, tenantId, StringComparison.Ordinal))
         {
             tenant = null;

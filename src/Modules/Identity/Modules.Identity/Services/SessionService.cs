@@ -17,14 +17,14 @@ public sealed class SessionService : ISessionService
 {
     private readonly IdentityDbContext _db;
     private readonly ICurrentUser _currentUser;
-    private readonly IMultiTenantContextAccessor<AppTenantInfo> _multiTenantContextAccessor;
+    private readonly ITenantAccessor _multiTenantContextAccessor;
     private readonly ILogger<SessionService> _logger;
     private readonly TimeProvider _timeProvider;
 
     public SessionService(
         IdentityDbContext db,
         ICurrentUser currentUser,
-        IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+        ITenantAccessor multiTenantContextAccessor,
         ILogger<SessionService> logger,
         TimeProvider timeProvider)
     {
@@ -37,7 +37,7 @@ public sealed class SessionService : ISessionService
 
     private void EnsureValidTenant()
     {
-        if (string.IsNullOrWhiteSpace(_multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id))
+        if (string.IsNullOrWhiteSpace(_multiTenantContextAccessor?.TenantInfo?.Id))
         {
             throw new UnauthorizedException("Invalid tenant").Localized("Error.InvalidTenant");
         }
@@ -214,7 +214,7 @@ public sealed class SessionService : ISessionService
             };
         }
 
-        var tenantId = _multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id;
+        var tenantId = _multiTenantContextAccessor?.TenantInfo?.Id;
         session.Revoke(revokedBy, reason ?? "User requested", tenantId);
 
         await _db.SaveChangesAsync(cancellationToken);
@@ -256,7 +256,7 @@ public sealed class SessionService : ISessionService
 
         var sessions = await query.ToListAsync(cancellationToken);
 
-        var tenantId = _multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id;
+        var tenantId = _multiTenantContextAccessor?.TenantInfo?.Id;
         foreach (var session in sessions)
         {
             session.Revoke(revokedBy, reason ?? "User requested logout from all devices", tenantId);
@@ -284,7 +284,7 @@ public sealed class SessionService : ISessionService
             .Where(s => s.UserId == userId && !s.IsRevoked)
             .ToListAsync(cancellationToken);
 
-        var tenantId = _multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id;
+        var tenantId = _multiTenantContextAccessor?.TenantInfo?.Id;
         foreach (var session in sessions)
         {
             session.Revoke(revokedBy, reason ?? "Admin requested", tenantId);
@@ -317,7 +317,7 @@ public sealed class SessionService : ISessionService
             return false;
         }
 
-        var tenantId = _multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id;
+        var tenantId = _multiTenantContextAccessor?.TenantInfo?.Id;
         session.Revoke(revokedBy, reason ?? "Admin requested", tenantId);
 
         await _db.SaveChangesAsync(cancellationToken);

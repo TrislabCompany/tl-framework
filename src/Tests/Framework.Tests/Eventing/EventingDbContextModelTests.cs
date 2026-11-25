@@ -19,8 +19,8 @@ public class EventingDbContextModelTests
 {
     private static EventingDbContext CreateContext()
     {
-        var accessor = Substitute.For<IMultiTenantContextAccessor<AppTenantInfo>>();
-        accessor.MultiTenantContext.Returns(new MultiTenantContext<AppTenantInfo>(new AppTenantInfo()));
+        var accessor = Substitute.For<ITenantAccessor>();
+        accessor.TenantInfo.Returns(new AppTenantInfo("test", "test"));
 
         var options = new DbContextOptionsBuilder<EventingDbContext>()
             .UseNpgsql("Host=arch;Database=arch;Username=arch;Password=arch")

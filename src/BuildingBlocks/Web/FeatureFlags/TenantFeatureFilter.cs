@@ -13,13 +13,13 @@ namespace Trislab.Framework.Web.FeatureFlags;
 [FilterAlias("Tenant")]
 public sealed class TenantFeatureFilter(
     IHttpContextAccessor httpContextAccessor,
-    IMultiTenantContextAccessor<AppTenantInfo>? tenantContextAccessor = null) : IFeatureFilter
+    ITenantAccessor? tenantContextAccessor = null) : IFeatureFilter
 {
     public Task<bool> EvaluateAsync(FeatureFilterEvaluationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var tenantId = tenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id;
+        var tenantId = tenantContextAccessor?.TenantInfo?.Id;
         if (string.IsNullOrWhiteSpace(tenantId))
         {
             // Fall back to header if tenant context not yet resolved

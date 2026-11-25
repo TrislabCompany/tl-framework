@@ -28,7 +28,7 @@ internal sealed class UserRegistrationService(
     UserManager<TrislabUser> userManager,
     IdentityDbContext db,
     IBackgroundMailer mailer,
-    IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+    ITenantAccessor multiTenantContextAccessor,
     IOutboxStore outboxStore,
     IdentityAuditor auditor,
     TimeProvider timeProvider,
@@ -52,7 +52,7 @@ internal sealed class UserRegistrationService(
         CancellationToken cancellationToken)
     {
         var started = timeProvider.GetTimestamp();
-        var tenantId = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id
+        var tenantId = multiTenantContextAccessor.TenantInfo?.Id
             ?? throw new UnauthorizedException("invalid tenant").Localized("Error.InvalidTenant");
 
         // The operator console has no sign-up: operators are invited by an operator.
@@ -214,7 +214,7 @@ internal sealed class UserRegistrationService(
 
     private void EnsureValidTenant()
     {
-        if (string.IsNullOrWhiteSpace(multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id))
+        if (string.IsNullOrWhiteSpace(multiTenantContextAccessor?.TenantInfo?.Id))
         {
             throw new UnauthorizedException("invalid tenant").Localized("Error.InvalidTenant");
         }
@@ -346,7 +346,7 @@ internal sealed class UserRegistrationService(
         string source,
         CancellationToken cancellationToken = default)
     {
-        var tenantId = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id;
+        var tenantId = multiTenantContextAccessor.TenantInfo?.Id;
         user.RecordRegistered(tenantId);
 
         await db.SaveChangesAsync(cancellationToken);
@@ -382,7 +382,7 @@ internal sealed class UserRegistrationService(
         verificationUri = QueryHelpers.AddQueryString(
             verificationUri,
             MultitenancyConstants.Identifier,
-            multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id!);
+            multiTenantContextAccessor?.TenantInfo?.Id!);
 
         return verificationUri;
     }

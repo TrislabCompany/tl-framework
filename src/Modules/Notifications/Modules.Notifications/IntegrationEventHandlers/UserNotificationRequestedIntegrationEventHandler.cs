@@ -21,7 +21,7 @@ namespace Trislab.Modules.Notifications.IntegrationEventHandlers;
 public sealed class UserNotificationRequestedIntegrationEventHandler(
     NotificationsDbContext db,
     IHubContext<AppHub> hub,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+    ITenantAccessor tenantAccessor,
     ILogger<UserNotificationRequestedIntegrationEventHandler> logger)
     : IIntegrationEventHandler<UserNotificationRequestedIntegrationEvent>
 {
@@ -31,7 +31,7 @@ public sealed class UserNotificationRequestedIntegrationEventHandler(
 
         // Fail loud on a tenant mismatch rather than write to the wrong tenant: the DbContext captures its
         // tenant at construction, so a future publisher omitting the context would leak cross-tenant silently.
-        var ambientTenantId = tenantAccessor.MultiTenantContext.TenantInfo?.Id;
+        var ambientTenantId = tenantAccessor.TenantInfo?.Id;
         if (!string.Equals(ambientTenantId, @event.TenantId, StringComparison.Ordinal))
         {
             throw new InvalidOperationException(

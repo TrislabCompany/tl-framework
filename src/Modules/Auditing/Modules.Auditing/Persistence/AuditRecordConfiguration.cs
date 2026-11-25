@@ -10,7 +10,7 @@ public class AuditRecordConfiguration : IEntityTypeConfiguration<AuditRecord>
     {
         ArgumentNullException.ThrowIfNull(builder);
         builder.ToTable("AuditRecords", AuditDbContext.Schema);
-        builder.IsMultiTenant();
+        builder.IsMultiTenant<string>();
         builder.HasKey(x => x.Id);
         builder.Property(x => x.EventType).HasConversion<int>();
         builder.Property(x => x.Severity).HasConversion<byte>();

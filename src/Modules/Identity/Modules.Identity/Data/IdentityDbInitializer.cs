@@ -17,7 +17,7 @@ internal sealed class IdentityDbInitializer(
     RoleManager<TrislabRole> roleManager,
     UserManager<TrislabUser> userManager,
     TimeProvider timeProvider,
-    IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+    ITenantAccessor multiTenantContextAccessor,
     ITenantInitialPasswordBuffer passwordBuffer,
     IServiceProvider services,
     IConfiguration configuration) : IDbInitializer
@@ -49,7 +49,7 @@ internal sealed class IdentityDbInitializer(
                 is not TrislabRole role)
             {
                 // create role
-                role = new TrislabRole(roleName, $"{roleName} Role for {multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id} Tenant");
+                role = new TrislabRole(roleName, $"{roleName} Role for {multiTenantContextAccessor.TenantInfo?.Id} Tenant");
                 await roleManager.CreateAsync(role);
             }
 
@@ -62,7 +62,7 @@ internal sealed class IdentityDbInitializer(
             {
                 await AssignPermissionsToRoleAsync(context, PermissionConstants.Admin, role, cancellationToken);
 
-                if (multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id == MultitenancyConstants.Root.Id)
+                if (multiTenantContextAccessor.TenantInfo?.Id == MultitenancyConstants.Root.Id)
                 {
                     await AssignPermissionsToRoleAsync(context, PermissionConstants.Root, role, cancellationToken);
                 }
@@ -89,7 +89,7 @@ internal sealed class IdentityDbInitializer(
         {
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Seeding {Role} Permission '{Permission}' for '{TenantId}' Tenant.", role.Name, claim.ClaimValue, multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id);
+                logger.LogInformation("Seeding {Role} Permission '{Permission}' for '{TenantId}' Tenant.", role.Name, claim.ClaimValue, multiTenantContextAccessor.TenantInfo?.Id);
             }
             await dbContext.RoleClaims.AddAsync(claim, cancellationToken);
         }
@@ -111,12 +111,12 @@ internal sealed class IdentityDbInitializer(
             dbContext.ChangeTracker.Clear();
         }
 
-        logger.LogRoleClaimsAlreadyInserted(role.Name, multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id);
+        logger.LogRoleClaimsAlreadyInserted(role.Name, multiTenantContextAccessor.TenantInfo?.Id);
     }
 
     private async Task SeedSystemGroupsAsync(CancellationToken cancellationToken = default)
     {
-        var tenantId = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id;
+        var tenantId = multiTenantContextAccessor.TenantInfo?.Id;
         if (string.IsNullOrWhiteSpace(tenantId))
         {
             return;
@@ -191,42 +191,42 @@ internal sealed class IdentityDbInitializer(
 
     private async Task SeedAdminUserAsync(CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id) || string.IsNullOrWhiteSpace(multiTenantContextAccessor.MultiTenantContext.TenantInfo?.AdminEmail))
+        if (string.IsNullOrWhiteSpace(multiTenantContextAccessor.TenantInfo?.Id) || string.IsNullOrWhiteSpace(multiTenantContextAccessor.TenantInfo?.AdminEmail))
         {
             return;
         }
 
-        var tenantId = multiTenantContextAccessor.MultiTenantContext.TenantInfo.Id;
+        var tenantId = multiTenantContextAccessor.TenantInfo.Id;
 
         // Accounts are global: the admin e-mail may already have an account (the same person runs another
         // tenant). Then that account is invited, like any other: its owner accepts with their own account, and
         // until then the membership is pending. The operator's initial password is never applied to it.
         var isNewAccount = false;
-        if (await userManager.FindByEmailAsync(multiTenantContextAccessor.MultiTenantContext.TenantInfo.AdminEmail.ToUpperInvariant())
+        if (await userManager.FindByEmailAsync(multiTenantContextAccessor.TenantInfo.AdminEmail.ToUpperInvariant())
             is not TrislabUser adminUser)
         {
             isNewAccount = true;
-            var initialPassword = ResolveInitialAdminPassword(multiTenantContextAccessor.MultiTenantContext.TenantInfo.Id);
+            var initialPassword = ResolveInitialAdminPassword(multiTenantContextAccessor.TenantInfo.Id);
             if (initialPassword is null)
             {
                 // No password (SEED_ADMIN_PASSWORD in a stamp): no admin account rather than one with a guessable password.
                 if (logger.IsEnabled(LogLevel.Warning))
                 {
-                    logger.LogWarning("No initial admin password for '{TenantId}' Tenant, so no admin user is seeded.", multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id);
+                    logger.LogWarning("No initial admin password for '{TenantId}' Tenant, so no admin user is seeded.", multiTenantContextAccessor.TenantInfo?.Id);
                 }
                 return;
             }
 
-            string adminUserName = $"{multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id.Trim()}.{RoleConstants.Admin}".ToUpperInvariant();
+            string adminUserName = $"{multiTenantContextAccessor.TenantInfo?.Id.Trim()}.{RoleConstants.Admin}".ToUpperInvariant();
             adminUser = new TrislabUser
             {
-                FirstName = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id.Trim().ToUpperInvariant(),
+                FirstName = multiTenantContextAccessor.TenantInfo?.Id.Trim().ToUpperInvariant(),
                 LastName = RoleConstants.Admin,
-                Email = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.AdminEmail,
+                Email = multiTenantContextAccessor.TenantInfo?.AdminEmail,
                 UserName = adminUserName,
                 EmailConfirmed = true,
                 PhoneNumberConfirmed = true,
-                NormalizedEmail = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.AdminEmail.ToUpperInvariant(),
+                NormalizedEmail = multiTenantContextAccessor.TenantInfo?.AdminEmail.ToUpperInvariant(),
                 NormalizedUserName = adminUserName.ToUpperInvariant(),
                 // No default avatar: the asset was never shipped, and baking an absolute
                 // {OriginUrl}/… URL at seed time pinned it to the seeder's localhost origin
@@ -236,7 +236,7 @@ internal sealed class IdentityDbInitializer(
 
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Seeding Default Admin User for '{TenantId}' Tenant.", multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id);
+                logger.LogInformation("Seeding Default Admin User for '{TenantId}' Tenant.", multiTenantContextAccessor.TenantInfo?.Id);
             }
             var password = new PasswordHasher<TrislabUser>();
             adminUser.PasswordHash = password.HashPassword(adminUser, initialPassword);
@@ -246,7 +246,7 @@ internal sealed class IdentityDbInitializer(
             if (!createResult.Succeeded)
             {
                 throw new InvalidOperationException(
-                    $"Failed to seed admin user for tenant '{multiTenantContextAccessor.MultiTenantContext.TenantInfo!.Id}': "
+                    $"Failed to seed admin user for tenant '{multiTenantContextAccessor.TenantInfo!.Id}': "
                     + string.Join("; ", createResult.Errors.Select(e => e.Description)));
             }
         }
@@ -258,7 +258,7 @@ internal sealed class IdentityDbInitializer(
         {
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Assigning Admin Role to Admin User for '{TenantId}' Tenant.", multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id);
+                logger.LogInformation("Assigning Admin Role to Admin User for '{TenantId}' Tenant.", multiTenantContextAccessor.TenantInfo?.Id);
             }
             await userManager.AddToRoleAsync(adminUser, RoleConstants.Admin);
         }

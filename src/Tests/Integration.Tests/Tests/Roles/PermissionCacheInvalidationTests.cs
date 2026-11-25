@@ -277,10 +277,9 @@ public sealed class PermissionCacheInvalidationTests
         using var scope = _factory.Services.CreateScope();
 
         var tenant = await scope.ServiceProvider
-            .GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+            .GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
             .GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
         var user = new TrislabUser
@@ -310,10 +309,9 @@ public sealed class PermissionCacheInvalidationTests
         using var scope = _factory.Services.CreateScope();
 
         var tenant = await scope.ServiceProvider
-            .GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+            .GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
             .GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<TrislabRole>>();
         var role = await roleManager.Roles.SingleAsync(r => r.Name == roleName);
@@ -329,10 +327,9 @@ public sealed class PermissionCacheInvalidationTests
         using var scope = _factory.Services.CreateScope();
 
         var tenant = await scope.ServiceProvider
-            .GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+            .GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
             .GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<TrislabRole>>();
         var role = await roleManager.Roles.SingleAsync(r => r.Name == roleName);
@@ -348,10 +345,9 @@ public sealed class PermissionCacheInvalidationTests
         using var scope = _factory.Services.CreateScope();
 
         var tenant = await scope.ServiceProvider
-            .GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+            .GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
             .GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         await scope.ServiceProvider.GetRequiredService<RolePermissionSyncer>().SyncAsync(CancellationToken.None);
     }

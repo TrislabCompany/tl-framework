@@ -19,7 +19,7 @@ public sealed class AuditDbContext : BaseDbContext
     public const string Schema = "audit";
 
     public AuditDbContext(
-    IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+    ITenantAccessor multiTenantContextAccessor,
     DbContextOptions<AuditDbContext> options,
     IOptions<DatabaseOptions> settings,
     IHostEnvironment environment) : base(multiTenantContextAccessor, options, settings, environment) { }

@@ -179,16 +179,11 @@ public sealed class WebhookFanoutTests
 
         // Install the tenant context on the calling scope for safety (the fanout handler installs
         // its own from the event's TenantId, but the in-memory bus creates a child scope).
-        if (!string.IsNullOrWhiteSpace(@event.TenantId))
-        {
-            var tenant = await sp.GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+        var tenant = string.IsNullOrWhiteSpace(@event.TenantId)
+            ? null
+            : await sp.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
                 .GetAsync(@event.TenantId).ConfigureAwait(false);
-            if (tenant is not null)
-            {
-                sp.GetRequiredService<IMultiTenantContextSetter>()
-                    .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
-            }
-        }
+        using var tenantUse = tenant is null ? null : sp.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var bus = sp.GetRequiredService<IEventBus>();
         await bus.PublishAsync(@event).ConfigureAwait(false);

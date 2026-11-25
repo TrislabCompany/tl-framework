@@ -105,19 +105,19 @@ public sealed class SingleTenantModeTests
         sp.GetRequiredService<ISingleTenantProvider>().Country.ShouldBe(TestConstants.SingleTenantCountry);
         sp.GetRequiredService<IEventTenantScope>().ShouldBeOfType<SingleTenantEventTenantScope>();
         sp.GetRequiredService<IQuotaService>().ShouldBeOfType<NoopQuotaService>();
-        sp.GetServices<IMultiTenantStore<AppTenantInfo>>().Count().ShouldBe(1);
+        sp.GetServices<IMultiTenantStore<AppTenantInfo, string>>().Count().ShouldBe(1);
     }
 
     [Fact]
     public async Task EventScope_Should_RunInTheFixedTenant_WhateverIdTheEventCarries()
     {
         var scopeService = _factory.Services.GetRequiredService<IEventTenantScope>();
-        var accessor = _factory.Services.GetRequiredService<IMultiTenantContextAccessor<AppTenantInfo>>();
+        var accessor = _factory.Services.GetRequiredService<ITenantAccessor>();
         string? seen = null;
 
         await scopeService.ExecuteAsync("anything", _ =>
         {
-            seen = accessor.MultiTenantContext?.TenantInfo?.Id;
+            seen = accessor.TenantInfo?.Id;
             return Task.CompletedTask;
         });
 
@@ -129,8 +129,7 @@ public sealed class SingleTenantModeTests
     {
         using var scope = _factory.Services.CreateScope();
         var tenant = scope.ServiceProvider.GetRequiredService<ISingleTenantProvider>().Tenant;
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         // Users are global; the admin's membership carries the tenant.
         var db = scope.ServiceProvider.GetRequiredService<Trislab.Modules.Identity.Data.IdentityDbContext>();
@@ -185,6 +184,9 @@ public sealed class MultitenantModeTests
 
         scope.ServiceProvider.GetService<ISingleTenantProvider>().ShouldBeNull();
         scope.ServiceProvider.GetRequiredService<IEventTenantScope>().ShouldBeOfType<FinbuckleEventTenantScope>();
-        scope.ServiceProvider.GetServices<IMultiTenantStore<AppTenantInfo>>().Count().ShouldBeGreaterThan(1);
+        // The tenant catalog is the store; the distributed cache in front of it is one of the manager's caches.
+        var tenants = scope.ServiceProvider.GetRequiredService<TenantManager<AppTenantInfo, string>>();
+        tenants.Store.GetType().Name.ShouldStartWith("EFCoreStore");
+        tenants.Caches.ShouldNotBeEmpty();
     }
 }

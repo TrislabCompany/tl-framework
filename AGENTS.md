@@ -43,7 +43,7 @@ tests that guard them. Multitenancy, auth, auditing, billing, files and more are
 apps built from them (the hosts, the React apps, the samples) live in `tl-product-saas` and
 `tl-product-webapp`, never here.
 
-- **Backend** — .NET 11, EF Core 10, PostgreSQL, Redis, JWT + ASP.NET Identity, Finbuckle multitenancy,
+- **Backend** — .NET 11, EF Core 11, PostgreSQL, Redis, JWT + ASP.NET Identity, Finbuckle multitenancy,
   Hangfire, OpenAPI/Scalar, Serilog + OpenTelemetry.
 - **Frontend** — `packages/framework-ui` (React 19, TypeScript 6, i18next).
 
@@ -71,7 +71,7 @@ apps built from them (the hosts, the React apps, the samples) live in `tl-produc
 | Framework | .NET 11 / C# latest | Framework | React 19 + Vite 8 + TS 6.x |
 | CQRS | Mediator 3.x (source-gen) | Data | TanStack Query v5 |
 | Validation | FluentValidation 12.x | Routing | React Router 7 |
-| ORM / DB | EF Core 10 / PostgreSQL (Npgsql) | UI | Radix + Tailwind v4 + CVA (shadcn) |
+| ORM / DB | EF Core 11 / PostgreSQL (Npgsql) | UI | Radix + Tailwind v4 + CVA (shadcn) |
 | Auth | JWT Bearer + ASP.NET Identity | Forms | react-hook-form + zod (**admin only**) |
 | Multitenancy | Finbuckle 10.x | Realtime | SSE, SignalR (backend) |
 | Cache / Jobs | Redis, Hangfire | Tests | Vitest, in Node and in Chromium with Playwright (`packages/framework-ui`) |

@@ -132,7 +132,7 @@ public sealed class PurgeJobsTests
     private async Task RunJobAsync<TJob>(Func<TJob, Task> invoke) where TJob : notnull
     {
         using var scope = _factory.Services.CreateScope();
-        SetTenantContext(scope);
+        using var tenantUse = SetTenantContext(scope);
         // The jobs are scheduled via IRecurringJobManager (Hangfire's JobActivator constructs them
         // through ActivatorUtilities) rather than registered in the container, so we mirror that
         // here instead of GetRequiredService.
@@ -140,14 +140,13 @@ public sealed class PurgeJobsTests
         await invoke(job);
     }
 
-    private static void SetTenantContext(IServiceScope scope)
+    private static IDisposable SetTenantContext(IServiceScope scope)
     {
         // Set the Finbuckle tenant context INLINE in this scope — the FilesDbContext tenant filter
         // dereferences it, so a missing context surfaces as an NRE.
-        var tenant = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+        var tenant = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
             .GetAsync(TestConstants.RootTenantId).GetAwaiter().GetResult();
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
+        return scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
     }
 
     private async Task<bool> ObjectExistsAsync(string storageKey)
@@ -160,7 +159,7 @@ public sealed class PurgeJobsTests
     private async Task<bool> RowExistsIgnoringFiltersAsync(Guid id)
     {
         using var scope = _factory.Services.CreateScope();
-        SetTenantContext(scope);
+        using var tenantUse = SetTenantContext(scope);
         var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
         return await db.FileAssets.IgnoreQueryFilters().AnyAsync(f => f.Id == id);
     }
@@ -168,7 +167,7 @@ public sealed class PurgeJobsTests
     private async Task BackdateDeletedOnUtcAsync(Guid id, DateTimeOffset when)
     {
         using var scope = _factory.Services.CreateScope();
-        SetTenantContext(scope);
+        using var tenantUse = SetTenantContext(scope);
         var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
         await db.FileAssets
             .IgnoreQueryFilters()
@@ -179,7 +178,7 @@ public sealed class PurgeJobsTests
     private async Task BackdateUploadDeadlineAsync(Guid id, DateTimeOffset when)
     {
         using var scope = _factory.Services.CreateScope();
-        SetTenantContext(scope);
+        using var tenantUse = SetTenantContext(scope);
         var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
         await db.FileAssets
             .IgnoreQueryFilters()
@@ -237,7 +236,7 @@ public sealed class PurgeJobsTests
     private async Task<string> ReadStorageKeyAsync(Guid id)
     {
         using var scope = _factory.Services.CreateScope();
-        SetTenantContext(scope);
+        using var tenantUse = SetTenantContext(scope);
         var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
         var key = await db.FileAssets
             .IgnoreQueryFilters()

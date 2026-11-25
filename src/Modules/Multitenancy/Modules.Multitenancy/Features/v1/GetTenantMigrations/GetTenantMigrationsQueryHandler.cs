@@ -13,11 +13,11 @@ namespace Trislab.Modules.Multitenancy.Features.v1.GetTenantMigrations;
 public sealed class GetTenantMigrationsQueryHandler
     : IQueryHandler<GetTenantMigrationsQuery, IReadOnlyCollection<TenantMigrationStatusDto>>
 {
-    private readonly IMultiTenantStore<AppTenantInfo> _tenantStore;
+    private readonly IMultiTenantStore<AppTenantInfo, string> _tenantStore;
     private readonly IServiceScopeFactory _scopeFactory;
 
     public GetTenantMigrationsQueryHandler(
-        IMultiTenantStore<AppTenantInfo> tenantStore,
+        IMultiTenantStore<AppTenantInfo, string> tenantStore,
         IServiceScopeFactory scopeFactory)
     {
         _tenantStore = tenantStore;
@@ -28,7 +28,7 @@ public sealed class GetTenantMigrationsQueryHandler
         GetTenantMigrationsQuery query,
         CancellationToken cancellationToken)
     {
-        var tenants = await _tenantStore.GetAllAsync().ConfigureAwait(false);
+        var tenants = await _tenantStore.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         var tenantMigrationStatuses = new List<TenantMigrationStatusDto>();
 
@@ -46,8 +46,7 @@ public sealed class GetTenantMigrationsQueryHandler
             {
                 using IServiceScope tenantScope = _scopeFactory.CreateScope();
 
-                tenantScope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-                    .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+                using var tenantUse = tenantScope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
                 var dbContext = tenantScope.ServiceProvider.GetRequiredService<TenantDbContext>();
 

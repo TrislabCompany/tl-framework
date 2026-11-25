@@ -48,7 +48,7 @@ public class ApplicationRoleConfig : IEntityTypeConfiguration<TrislabRole>
 
         builder
             .ToTable("Roles", IdentityModuleConstants.SchemaName)
-            .IsMultiTenant()
+            .IsMultiTenant<string>()
                 .AdjustUniqueIndexes();
     }
 }
@@ -61,7 +61,7 @@ public class ApplicationRoleClaimConfig : IEntityTypeConfiguration<TrislabRoleCl
 
         builder
             .ToTable("RoleClaims", IdentityModuleConstants.SchemaName)
-            .IsMultiTenant();
+            .IsMultiTenant<string>();
 
         // One row per grant. ClaimValue is nullable and PostgreSQL treats NULLs as distinct here,
         // which is fine: a null-valued claim grants nothing and the permission sync removes it.
@@ -80,7 +80,7 @@ public class IdentityUserRoleConfig : IEntityTypeConfiguration<IdentityUserRole<
 
         builder
             .ToTable("UserRoles", IdentityModuleConstants.SchemaName)
-            .IsMultiTenant();
+            .IsMultiTenant<string>();
     }
 }
 
@@ -124,7 +124,7 @@ public class TenantMembershipConfig : IEntityTypeConfiguration<TenantMembership>
 
         builder
             .ToTable("TenantMemberships", IdentityModuleConstants.SchemaName)
-            .IsMultiTenant();
+            .IsMultiTenant<string>();
 
         builder.HasKey(m => m.Id);
         builder.Property(m => m.Id).ValueGeneratedNever();
@@ -153,7 +153,7 @@ public class MembershipInvitationConfig : IEntityTypeConfiguration<MembershipInv
 
         builder
             .ToTable("MembershipInvitations", IdentityModuleConstants.SchemaName)
-            .IsMultiTenant();
+            .IsMultiTenant<string>();
 
         builder.HasKey(i => i.Id);
         builder.Property(i => i.Id).ValueGeneratedNever();

@@ -212,14 +212,13 @@ public sealed class TopupApprovalTests
         using var scope = _factory.Services.CreateScope();
 
         // Finbuckle context must be set INLINE (AsyncLocal; lost across awaited helpers).
-        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
 
         // BillingDbContext is not tenant-filtered so we only need a valid tenant in the store.
         // Fall back to root context for synthetic/cross-tenant seeding (root is always present).
         var tenant = await tenantStore.GetAsync(tenantId)
             ?? await tenantStore.GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var db = scope.ServiceProvider.GetRequiredService<BillingDbContext>();
         await action(db);

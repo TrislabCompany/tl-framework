@@ -1,4 +1,4 @@
-using Finbuckle.MultiTenant.Abstractions;
+using Finbuckle.MultiTenant;
 using Trislab.Framework.Eventing.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
 
@@ -14,14 +14,14 @@ namespace Trislab.Framework.Tenancy;
 /// </summary>
 public sealed class TenantStoreDrainTargetProvider : IEventingDrainTargetProvider
 {
-    private readonly IMultiTenantStore<AppTenantInfo> _tenantStore;
+    private readonly TenantManager<AppTenantInfo, string> _tenants;
 
-    public TenantStoreDrainTargetProvider(IMultiTenantStore<AppTenantInfo> tenantStore)
-        => _tenantStore = tenantStore;
+    public TenantStoreDrainTargetProvider(TenantManager<AppTenantInfo, string> tenants)
+        => _tenants = tenants;
 
     public async Task<IReadOnlyList<EventingDrainTarget>> GetTargetsAsync(CancellationToken ct = default)
     {
-        var tenants = await _tenantStore.GetAllAsync().ConfigureAwait(false);
+        var tenants = await _tenants.GetAllAsync(ct).ConfigureAwait(false);
 
         var dedicated = tenants
             .Where(t => t.IsActive && !string.IsNullOrWhiteSpace(t.ConnectionString))

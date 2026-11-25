@@ -11,7 +11,7 @@ namespace Trislab.Modules.SubscriptionsUsage.Features.v1.Invoices.GetInvoicePdf;
 
 public sealed class GetInvoicePdfQueryHandler(
     BillingDbContext dbContext,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+    ITenantAccessor tenantAccessor,
     IInvoicePdfRenderer renderer)
     : IQueryHandler<GetInvoicePdfQuery, InvoicePdfResult>
 {
@@ -21,7 +21,7 @@ public sealed class GetInvoicePdfQueryHandler(
 
         // BillingDbContext is not tenant-filtered: root may download ANY tenant's invoice PDF; a tenant
         // caller is pinned to its own, so a cross-tenant id resolves to 404 and never leaks a PDF.
-        var callerTenantId = tenantAccessor.MultiTenantContext?.TenantInfo?.Id
+        var callerTenantId = tenantAccessor.TenantInfo?.Id
             ?? throw new UnauthorizedException("Tenant context is required.").Localized("Error.TenantContextRequired");
         var isRoot = callerTenantId == MultitenancyConstants.Root.Id;
 

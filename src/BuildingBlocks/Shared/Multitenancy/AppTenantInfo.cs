@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Trislab.Framework.Shared.Multitenancy;
 
-public class AppTenantInfo : TenantInfo, IAppTenantInfo
+public class AppTenantInfo : TenantInfo<string>, IAppTenantInfo
 {
     // Parameterless constructor for tooling/EF.
     [SetsRequiredMembers]
@@ -34,6 +34,9 @@ public class AppTenantInfo : TenantInfo, IAppTenantInfo
         // Add Default 1 Month Validity for all new tenants. Something like a DEMO period for tenants.
         ValidUpto = TimeProvider.System.GetUtcNow().UtcDateTime.AddMonths(1);
     }
+
+    /// <summary>The tenant's display name (Finbuckle 11's <c>TenantInfo&lt;TId&gt;</c> has only the id and identifier).</summary>
+    public string? Name { get; set; }
 
     public string ConnectionString { get; set; } = string.Empty;
     public string AdminEmail { get; set; } = default!;

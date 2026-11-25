@@ -1,3 +1,4 @@
+using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Shared.Persistence;
@@ -17,16 +18,16 @@ namespace Multitenancy.Tests.Services;
 /// </summary>
 public sealed class TenantServiceRenewClockTests
 {
-    private readonly IMultiTenantStore<AppTenantInfo> _store = Substitute.For<IMultiTenantStore<AppTenantInfo>>();
+    private readonly IMultiTenantStore<AppTenantInfo, string> _store = Substitute.For<IMultiTenantStore<AppTenantInfo, string>>();
     private readonly IServiceProvider _serviceProvider = Substitute.For<IServiceProvider>();
     private readonly TimeProvider _clock = Substitute.For<TimeProvider>();
 
     private TenantService CreateSut()
     {
-        // RefreshTenantCacheAsync resolves IEnumerable<IMultiTenantStore<...>>; return empty so it no-ops.
+        // RefreshTenantCacheAsync refreshes the TenantManager's caches; with none it no-ops.
         _serviceProvider
-            .GetService(typeof(IEnumerable<IMultiTenantStore<AppTenantInfo>>))
-            .Returns(Array.Empty<IMultiTenantStore<AppTenantInfo>>());
+            .GetService(typeof(TenantManager<AppTenantInfo, string>))
+            .Returns(new TenantManager<AppTenantInfo, string>(_store, [], NullLoggerFactory.Instance));
 
         return new TenantService(
             _store,

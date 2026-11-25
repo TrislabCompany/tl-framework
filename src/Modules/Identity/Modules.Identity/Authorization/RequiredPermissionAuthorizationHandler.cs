@@ -11,7 +11,7 @@ namespace Trislab.Modules.Identity.Authorization;
 
 public sealed class RequiredPermissionAuthorizationHandler(
     IUserService userService,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor) : AuthorizationHandler<PermissionAuthorizationRequirement>
+    ITenantAccessor tenantAccessor) : AuthorizationHandler<PermissionAuthorizationRequirement>
 {
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionAuthorizationRequirement requirement)
     {
@@ -74,7 +74,7 @@ public sealed class RequiredPermissionAuthorizationHandler(
     private bool IsRootTenant()
     {
         return string.Equals(
-            tenantAccessor.MultiTenantContext?.TenantInfo?.Id,
+            tenantAccessor.TenantInfo?.Id,
             MultitenancyConstants.Root.Id,
             StringComparison.Ordinal);
     }

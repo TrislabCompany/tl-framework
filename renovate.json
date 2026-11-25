@@ -1,11 +1,4 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>TrislabCompany/tl-platform//renovate/default"],
-  "packageRules": [
-    {
-      "description": "Finbuckle 10 fails at run time on EF Core 11, and Finbuckle 11 changes the tenancy API. Finbuckle, EF Core and Npgsql's provider move to 11 together in their own PR (tl-product-ideas D-41); until then Renovate holds them on 10.x.",
-      "matchPackageNames": ["Finbuckle.**", "Microsoft.EntityFrameworkCore**", "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore", "Npgsql**"],
-      "allowedVersions": "<11"
-    }
-  ]
+  "extends": ["github>TrislabCompany/tl-platform//renovate/default"]
 }

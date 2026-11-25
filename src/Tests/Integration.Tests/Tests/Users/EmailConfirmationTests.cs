@@ -33,8 +33,8 @@ public sealed class EmailConfirmationTests
         using var scope = _factory.Services.CreateScope();
         
         // Set tenant context for UserManager
-        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>().GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>().GetAsync(TestConstants.RootTenantId);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
         var email = $"newuser_{Guid.NewGuid()}@test.com";
@@ -79,8 +79,8 @@ public sealed class EmailConfirmationTests
         
         // Verify user is now confirmed in a fresh scope to avoid stale EF cache
         using var assertScope = _factory.Services.CreateScope();
-        var assertTenant = await assertScope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>().GetAsync(TestConstants.RootTenantId);
-        assertScope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext = new MultiTenantContext<AppTenantInfo>(assertTenant);
+        var assertTenant = await assertScope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>().GetAsync(TestConstants.RootTenantId);
+        using var assertTenantUse = assertScope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(assertTenant);
         var assertUserManager = assertScope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
         
         var updatedUser = await assertUserManager.FindByIdAsync(user.Id.ToString());
@@ -95,8 +95,8 @@ public sealed class EmailConfirmationTests
         using var scope = _factory.Services.CreateScope();
 
         // Set tenant context for UserManager
-        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>().GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>().GetAsync(TestConstants.RootTenantId);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
         var email = $"invalid_{Guid.NewGuid()}@test.com";

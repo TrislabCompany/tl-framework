@@ -14,8 +14,8 @@ public class IdentityDbContextModelTests
 {
     private static IdentityDbContext CreateContext()
     {
-        var accessor = Substitute.For<IMultiTenantContextAccessor<AppTenantInfo>>();
-        accessor.MultiTenantContext.Returns(new MultiTenantContext<AppTenantInfo>(new AppTenantInfo()));
+        var accessor = Substitute.For<ITenantAccessor>();
+        accessor.TenantInfo.Returns(new AppTenantInfo("test", "test"));
 
         var options = new DbContextOptionsBuilder<IdentityDbContext>()
             .UseNpgsql("Host=arch;Database=arch;Username=arch;Password=arch")

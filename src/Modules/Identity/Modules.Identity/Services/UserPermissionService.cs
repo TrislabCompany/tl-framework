@@ -22,7 +22,7 @@ internal sealed class UserPermissionService(
     RoleManager<TrislabRole> roleManager,
     IdentityDbContext db,
     HybridCache cache,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+    ITenantAccessor tenantAccessor,
     IHttpContextAccessor httpContextAccessor,
     IServiceScopeFactory scopeFactory) : IUserPermissionService
 {
@@ -67,7 +67,7 @@ internal sealed class UserPermissionService(
         // reuses a cached delegate and no closure is allocated per call (including L1 hits).
         var homeTenant = CallerTenantOtherThanResolved(userId);
         var state = new FactoryState(userManager, roleManager, db, homeTenant, scopeFactory, userId);
-        var tenantId = homeTenant ?? tenantAccessor.MultiTenantContext.TenantInfo?.Id;
+        var tenantId = homeTenant ?? tenantAccessor.TenantInfo?.Id;
 
         return cache.GetOrCreateAsync(
             EntryKey(userId, tenantId),
@@ -92,7 +92,7 @@ internal sealed class UserPermissionService(
             return null;
         }
 
-        return string.Equals(claimTenant, tenantAccessor.MultiTenantContext.TenantInfo?.Id, StringComparison.Ordinal)
+        return string.Equals(claimTenant, tenantAccessor.TenantInfo?.Id, StringComparison.Ordinal)
             ? null
             : claimTenant;
     }
@@ -106,11 +106,10 @@ internal sealed class UserPermissionService(
 
         await using var scope = s.ScopeFactory.CreateAsyncScope();
         var services = scope.ServiceProvider;
-        var homeTenant = await services.GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
-            .GetAsync(homeTenantId).ConfigureAwait(false)
+        var homeTenant = await services.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
+            .GetAsync(homeTenantId, ct).ConfigureAwait(false)
             ?? throw new UnauthorizedException();
-        services.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(homeTenant);
+        using var tenantUse = services.GetRequiredService<ITenantAccessor>().Use(homeTenant);
 
         return await LoadInCurrentTenantAsync(
             services.GetRequiredService<UserManager<TrislabUser>>(),

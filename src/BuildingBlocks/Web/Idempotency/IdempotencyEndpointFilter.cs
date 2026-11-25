@@ -554,7 +554,7 @@ public sealed class IdempotencyEndpointFilter : IEndpointFilter
     private static string ResolveTenant(HttpContext httpContext)
     {
         var resolved = httpContext.RequestServices
-            .GetService<IMultiTenantContextAccessor<AppTenantInfo>>()?.MultiTenantContext?.TenantInfo?.Id;
+            .GetService<ITenantAccessor>()?.TenantInfo?.Id;
         if (!string.IsNullOrWhiteSpace(resolved))
         {
             return resolved;

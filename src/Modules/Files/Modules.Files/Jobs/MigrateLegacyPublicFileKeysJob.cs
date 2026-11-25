@@ -51,8 +51,8 @@ public sealed partial class MigrateLegacyPublicFileKeysJob(
         List<AppTenantInfo> tenants;
         using (var scope = scopeFactory.CreateScope())
         {
-            var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-            tenants = (await tenantStore.GetAllAsync().ConfigureAwait(false)).ToList();
+            var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
+            tenants = (await tenantStore.GetAllAsync(cancellationToken).ConfigureAwait(false)).ToList();
         }
 
         var moved = 0;
@@ -90,8 +90,7 @@ public sealed partial class MigrateLegacyPublicFileKeysJob(
                 // One scope per page. The tenant context goes on before anything resolves FilesDbContext:
                 // BaseDbContext captures the tenant (and its connection string) at construction.
                 using var scope = scopeFactory.CreateScope();
-                scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-                    .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+                using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
                 var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
                 var relocator = scope.ServiceProvider.GetRequiredService<FileStorageRelocator>();
 

@@ -12,7 +12,7 @@ namespace Trislab.Modules.SubscriptionsUsage.Features.v1.Subscriptions.AssignSub
 
 public sealed class AssignSubscriptionCommandHandler(
     BillingDbContext dbContext,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
+    ITenantAccessor tenantAccessor)
     : ICommandHandler<AssignSubscriptionCommand, Guid>
 {
     public async ValueTask<Guid> Handle(AssignSubscriptionCommand command, CancellationToken cancellationToken)
@@ -21,7 +21,7 @@ public sealed class AssignSubscriptionCommandHandler(
 
         // Only root may target an arbitrary tenant; a tenant caller is pinned to its own, so it can't
         // (re)assign or cancel another tenant's subscription via a foreign tenant id in the body.
-        var callerTenantId = tenantAccessor.MultiTenantContext?.TenantInfo?.Id
+        var callerTenantId = tenantAccessor.TenantInfo?.Id
             ?? throw new UnauthorizedException("Tenant context is required.").Localized("Error.TenantContextRequired");
         var isRoot = callerTenantId == MultitenancyConstants.Root.Id;
         var targetTenantId = isRoot ? command.TenantId : callerTenantId;

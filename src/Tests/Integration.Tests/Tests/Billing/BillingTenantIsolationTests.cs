@@ -453,10 +453,9 @@ public sealed class BillingTenantIsolationTests
     private async Task SeedDirectAsync(string tenantId, Func<BillingDbContext, Task> action)
     {
         using var scope = _factory.Services.CreateScope();
-        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
         var tenant = await tenantStore.GetAsync(tenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var db = scope.ServiceProvider.GetRequiredService<BillingDbContext>();
         await action(db);
@@ -498,9 +497,8 @@ public sealed class BillingTenantIsolationTests
     private async Task<Invoice?> InvokeGenerateInvoiceForPeriodAsync(string tenantId, int year, int month)
     {
         using var scope = _factory.Services.CreateScope();
-        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>().GetAsync(tenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
+        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>().GetAsync(tenantId);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
         var billing = scope.ServiceProvider.GetRequiredService<Trislab.Modules.SubscriptionsUsage.Services.IBillingService>();
         return await billing.GenerateInvoiceForPeriodAsync(tenantId, year, month);
     }

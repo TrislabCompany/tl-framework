@@ -23,14 +23,14 @@ public sealed class QuotaEnforcementMiddleware : IMiddleware
     private const string QuotaExceededType = "https://datatracker.ietf.org/doc/html/rfc6585#section-4";
 
     private readonly IQuotaService _quotaService;
-    private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor;
+    private readonly ITenantAccessor _tenantAccessor;
     private readonly QuotaOptions _options;
     private readonly ILogger<QuotaEnforcementMiddleware> _logger;
     private readonly TimeProvider _timeProvider;
 
     public QuotaEnforcementMiddleware(
         IQuotaService quotaService,
-        IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+        ITenantAccessor tenantAccessor,
         QuotaOptions options,
         ILogger<QuotaEnforcementMiddleware> logger,
         TimeProvider timeProvider)
@@ -59,7 +59,7 @@ public sealed class QuotaEnforcementMiddleware : IMiddleware
             return;
         }
 
-        var tenantId = _tenantAccessor.MultiTenantContext?.TenantInfo?.Id;
+        var tenantId = _tenantAccessor.TenantInfo?.Id;
         if (string.IsNullOrWhiteSpace(tenantId))
         {
             await next(context).ConfigureAwait(false);

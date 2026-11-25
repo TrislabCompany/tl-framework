@@ -18,7 +18,7 @@ namespace Trislab.Modules.Identity.Features.v1.Roles;
 
 public sealed class RoleService(RoleManager<TrislabRole> roleManager,
     IdentityDbContext context,
-    IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+    ITenantAccessor multiTenantContextAccessor,
     ICurrentUser currentUser,
     IUserPermissionService userPermissionService) : IRoleService
 {
@@ -196,7 +196,7 @@ public sealed class RoleService(RoleManager<TrislabRole> roleManager,
 
     private void FilterRootPermissions(List<string> permissions)
     {
-        if (multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id == MultitenancyConstants.Root.Id)
+        if (multiTenantContextAccessor?.TenantInfo?.Id == MultitenancyConstants.Root.Id)
         {
             // The root operator may manage root-only permissions.
             return;

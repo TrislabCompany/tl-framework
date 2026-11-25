@@ -1,4 +1,4 @@
-using Finbuckle.MultiTenant.Abstractions;
+﻿using Finbuckle.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.EntityFrameworkCore;
 using Finbuckle.MultiTenant.EntityFrameworkCore.Extensions;
 using Trislab.Framework.Core.Domain;
@@ -32,7 +32,7 @@ public class IdentityDbContext : IdentityDbContext<TrislabUser,
     IdentityUserLogin<string>,
     TrislabRoleClaim,
     IdentityUserToken<string>,
-    IdentityUserPasskey<string>>, IMultiTenantDbContext
+    IdentityUserPasskey<string>>, IMultiTenantDbContext<string>
 {
     /// <summary>Name of the query filter that limits users to the members of the current tenant who accepted (active or not); pending invitees stay invisible.</summary>
     public const string MembershipFilter = "TenantMembership";
@@ -51,14 +51,14 @@ public class IdentityDbContext : IdentityDbContext<TrislabUser,
     ];
 
     public IdentityDbContext(
-        IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+        ITenantAccessor multiTenantContextAccessor,
         DbContextOptions<IdentityDbContext> options) : base(options)
     {
         ArgumentNullException.ThrowIfNull(multiTenantContextAccessor);
-        TenantInfo = multiTenantContextAccessor.MultiTenantContext.TenantInfo;
+        TenantInfo = multiTenantContextAccessor.TenantInfo;
     }
 
-    public ITenantInfo? TenantInfo { get; }
+    public ITenantInfo<string>? TenantInfo { get; set; }
 
     public TenantMismatchMode TenantMismatchMode { get; set; } = TenantMismatchMode.Throw;
 
@@ -115,10 +115,10 @@ public class IdentityDbContext : IdentityDbContext<TrislabUser,
             if (typeof(IGlobalEntity).IsAssignableFrom(entityType.ClrType)) continue;
             if (entityType.FindAnnotation(Finbuckle.MultiTenant.EntityFrameworkCore.Constants.MultiTenantAnnotationName) is not null) continue;
 
-            builder.Entity(entityType.ClrType).IsMultiTenant().AdjustUniqueIndexes();
+            builder.Entity(entityType.ClrType).IsMultiTenant<string>().AdjustUniqueIndexes();
         }
 
-        builder.ConfigureMultiTenant();
+        builder.ConfigureMultiTenant<string>();
 
         // A user is visible in a tenant only through a membership there. TenantMemberships carries the tenant
         // filter itself; the explicit comparison keeps this filter correct on its own.
@@ -129,13 +129,13 @@ public class IdentityDbContext : IdentityDbContext<TrislabUser,
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
-        this.EnforceMultiTenant();
+        this.EnforceMultiTenant<IdentityDbContext, string>();
         return base.SaveChanges(acceptAllChangesOnSuccess);
     }
 
     public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
-        this.EnforceMultiTenant();
+        this.EnforceMultiTenant<IdentityDbContext, string>();
         return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken).ConfigureAwait(false);
     }
 }

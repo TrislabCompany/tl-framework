@@ -25,7 +25,7 @@ namespace Trislab.Framework.Eventing.Persistence;
 public class EventingDbContext : BaseDbContext
 {
     public EventingDbContext(
-        IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+        ITenantAccessor multiTenantContextAccessor,
         DbContextOptions<EventingDbContext> options,
         IOptions<DatabaseOptions> settings,
         IHostEnvironment environment)

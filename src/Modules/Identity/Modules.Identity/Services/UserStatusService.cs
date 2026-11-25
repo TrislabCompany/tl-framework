@@ -21,7 +21,7 @@ namespace Trislab.Modules.Identity.Services;
 internal sealed class UserStatusService(
     UserManager<TrislabUser> userManager,
     IdentityDbContext db,
-    IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+    ITenantAccessor multiTenantContextAccessor,
     ICurrentUser currentUser,
     IUserPermissionService permissions,
     IdentityAuditor auditor,
@@ -84,7 +84,7 @@ internal sealed class UserStatusService(
 
     private void EnsureValidTenant()
     {
-        if (string.IsNullOrWhiteSpace(multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id))
+        if (string.IsNullOrWhiteSpace(multiTenantContextAccessor?.TenantInfo?.Id))
         {
             throw new UnauthorizedException("invalid tenant").Localized("Error.InvalidTenant");
         }
@@ -120,7 +120,7 @@ internal sealed class UserStatusService(
             TargetUser: targetUser,
             Membership: membership,
             ActivateUser: activateUser,
-            TenantId: multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id);
+            TenantId: multiTenantContextAccessor?.TenantInfo?.Id);
     }
 
     private async Task ValidateTogglePermissionsAsync(

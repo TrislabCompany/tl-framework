@@ -24,8 +24,8 @@ internal static class EventingTestContext
         var connection = new SqliteConnection("DataSource=:memory:");
         connection.Open();
 
-        var accessor = Substitute.For<IMultiTenantContextAccessor<AppTenantInfo>>();
-        accessor.MultiTenantContext.Returns(new MultiTenantContext<AppTenantInfo>(new AppTenantInfo()));
+        var accessor = Substitute.For<ITenantAccessor>();
+        accessor.TenantInfo.Returns(new AppTenantInfo("test", "test"));
 
         var options = new DbContextOptionsBuilder<EventingDbContext>()
             .UseSqlite(connection)
@@ -60,7 +60,7 @@ internal static class EventingTestContext
         private readonly SqliteConnection _connection;
 
         public SqliteOwnedEventingDbContext(
-            IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+            ITenantAccessor multiTenantContextAccessor,
             DbContextOptions<EventingDbContext> options,
             IOptions<DatabaseOptions> settings,
             IHostEnvironment environment,

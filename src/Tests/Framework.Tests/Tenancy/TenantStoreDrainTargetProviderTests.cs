@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging.Abstractions;
+using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Tenancy;
@@ -43,11 +45,11 @@ public class TenantStoreDrainTargetProviderTests
             "a whitespace connection string is not a dedicated database");
     }
 
-    private static IMultiTenantStore<AppTenantInfo> StoreWith(params AppTenantInfo[] tenants)
+    private static TenantManager<AppTenantInfo, string> StoreWith(params AppTenantInfo[] tenants)
     {
-        var store = Substitute.For<IMultiTenantStore<AppTenantInfo>>();
-        store.GetAllAsync().Returns(tenants.AsEnumerable());
-        return store;
+        var store = Substitute.For<IMultiTenantStore<AppTenantInfo, string>>();
+        store.GetAllAsync(Arg.Any<CancellationToken>()).Returns(tenants.AsEnumerable());
+        return new TenantManager<AppTenantInfo, string>(store, [], NullLoggerFactory.Instance);
     }
 
     private static AppTenantInfo Tenant(string id, string? connectionString, bool isActive = true) =>

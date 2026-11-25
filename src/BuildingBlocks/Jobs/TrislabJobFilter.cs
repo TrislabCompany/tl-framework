@@ -37,8 +37,8 @@ public class TrislabJobFilter : IClientFilter
             return;
         }
 
-        var mtAccessor = scope.ServiceProvider.GetService<IMultiTenantContextAccessor>();
-        var tenantInfo = mtAccessor?.MultiTenantContext?.TenantInfo;
+        var mtAccessor = scope.ServiceProvider.GetService<ITenantAccessor>();
+        var tenantInfo = mtAccessor?.TenantInfo;
         if (tenantInfo is not null)
         {
             context.SetJobParameter(MultitenancyConstants.Identifier, tenantInfo);

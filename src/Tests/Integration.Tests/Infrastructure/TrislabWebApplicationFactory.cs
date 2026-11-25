@@ -108,7 +108,7 @@ public class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsy
     {
         ArgumentNullException.ThrowIfNull(tenantIds);
         using var scope = Services.CreateScope();
-        var store = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+        var store = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
         foreach (var tenantId in tenantIds)
         {
             await store.RemoveAsync(tenantId);

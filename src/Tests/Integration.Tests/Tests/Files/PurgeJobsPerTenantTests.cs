@@ -221,10 +221,9 @@ public sealed class PurgeJobsPerTenantTests
     private async Task<string> ReadStorageKeyAsync(string tenantId, Guid id)
     {
         using var scope = _factory.Services.CreateScope();
-        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>().GetAsync(tenantId);
+        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>().GetAsync(tenantId);
         tenant.ShouldNotBeNull();
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
         var key = await db.FileAssets.IgnoreQueryFilters()
@@ -238,10 +237,9 @@ public sealed class PurgeJobsPerTenantTests
     private async Task BackdateAsync(string tenantId, Guid id, DateTimeOffset? deletedOnUtc, DateTimeOffset? uploadDeadline)
     {
         using var scope = _factory.Services.CreateScope();
-        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>().GetAsync(tenantId);
+        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>().GetAsync(tenantId);
         tenant.ShouldNotBeNull();
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
         var query = db.FileAssets.IgnoreQueryFilters().Where(f => f.Id == id);
@@ -254,10 +252,9 @@ public sealed class PurgeJobsPerTenantTests
     private async Task<bool> RowExistsIgnoringFiltersAsync(string tenantId, Guid id)
     {
         using var scope = _factory.Services.CreateScope();
-        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>().GetAsync(tenantId);
+        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>().GetAsync(tenantId);
         tenant.ShouldNotBeNull();
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
         return await db.FileAssets.IgnoreQueryFilters().AnyAsync(f => f.Id == id);

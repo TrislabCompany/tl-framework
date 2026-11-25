@@ -11,7 +11,7 @@ namespace Trislab.Modules.SubscriptionsUsage.Features.v1.Usage.GetUsageSnapshots
 
 public sealed class GetUsageSnapshotsQueryHandler(
     BillingDbContext dbContext,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
+    ITenantAccessor tenantAccessor)
     : IQueryHandler<GetUsageSnapshotsQuery, IReadOnlyList<UsageSnapshotDto>>
 {
     public async ValueTask<IReadOnlyList<UsageSnapshotDto>> Handle(GetUsageSnapshotsQuery query, CancellationToken cancellationToken)
@@ -20,7 +20,7 @@ public sealed class GetUsageSnapshotsQueryHandler(
 
         // UsageSnapshots is not tenant-filtered. Only the root operator may read across tenants
         // (optionally narrowed via query.TenantId); any other caller is forced to its own tenant.
-        var callerTenantId = tenantAccessor.MultiTenantContext?.TenantInfo?.Id
+        var callerTenantId = tenantAccessor.TenantInfo?.Id
             ?? throw new UnauthorizedException("Tenant context is required.").Localized("Error.TenantContextRequired");
         var isRoot = callerTenantId == MultitenancyConstants.Root.Id;
         var tenantFilter = isRoot ? query.TenantId : callerTenantId;

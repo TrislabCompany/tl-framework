@@ -55,14 +55,14 @@ public sealed class TenancyRegistrationTests
         using var provider = builder.Services.BuildServiceProvider();
         using var scope = provider.CreateScope();
 
-        var resolver = scope.ServiceProvider.GetRequiredService<ITenantResolver<AppTenantInfo>>();
+        var resolver = scope.ServiceProvider.GetRequiredService<ITenantResolver<AppTenantInfo, string>>();
         var resolved = await resolver.ResolveAsync(new object());
 
-        resolved.TenantInfo.ShouldNotBeNull();
-        resolved.TenantInfo.Id.ShouldBe("main");
-        resolved.TenantInfo.Name.ShouldBe("Main Organisation");
-        resolved.TenantInfo.IsActive.ShouldBeTrue();
-        resolved.TenantInfo.AdminEmail.ShouldBe("admin@main.test");
+        resolved.ShouldNotBeNull();
+        resolved.Id.ShouldBe("main");
+        resolved.Name.ShouldBe("Main Organisation");
+        resolved.IsActive.ShouldBeTrue();
+        resolved.AdminEmail.ShouldBe("admin@main.test");
         scope.ServiceProvider.GetRequiredService<ISingleTenantProvider>().Country.ShouldBe("SI");
         scope.ServiceProvider.GetRequiredService<IEventTenantScope>().ShouldBeOfType<SingleTenantEventTenantScope>();
     }

@@ -22,13 +22,13 @@ internal sealed class QuotaMeteredStorageService : IStorageService
 {
     private readonly IStorageService _inner;
     private readonly IQuotaService _quotas;
-    private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor;
+    private readonly ITenantAccessor _tenantAccessor;
     private readonly ILogger<QuotaMeteredStorageService> _logger;
 
     public QuotaMeteredStorageService(
         IStorageService inner,
         IQuotaService quotas,
-        IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+        ITenantAccessor tenantAccessor,
         ILogger<QuotaMeteredStorageService> logger)
     {
         ArgumentNullException.ThrowIfNull(inner);
@@ -46,7 +46,7 @@ internal sealed class QuotaMeteredStorageService : IStorageService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var tenantId = _tenantAccessor.MultiTenantContext?.TenantInfo?.Id;
+        var tenantId = _tenantAccessor.TenantInfo?.Id;
         if (string.IsNullOrWhiteSpace(tenantId))
         {
             return await _inner.UploadAsync<T>(request, fileType, cancellationToken).ConfigureAwait(false);
@@ -98,7 +98,7 @@ internal sealed class QuotaMeteredStorageService : IStorageService
 
     public async Task RemoveAsync(string path, CancellationToken cancellationToken = default)
     {
-        var tenantId = _tenantAccessor.MultiTenantContext?.TenantInfo?.Id;
+        var tenantId = _tenantAccessor.TenantInfo?.Id;
 
         // Probe size before delete so we can debit the exact amount. Missing objects report 0.
         long size = 0;
@@ -130,7 +130,7 @@ internal sealed class QuotaMeteredStorageService : IStorageService
     {
         await _inner.CopyAsync(sourceKey, destinationKey, cancellationToken).ConfigureAwait(false);
 
-        var tenantId = _tenantAccessor.MultiTenantContext?.TenantInfo?.Id;
+        var tenantId = _tenantAccessor.TenantInfo?.Id;
         if (string.IsNullOrWhiteSpace(tenantId))
         {
             return;

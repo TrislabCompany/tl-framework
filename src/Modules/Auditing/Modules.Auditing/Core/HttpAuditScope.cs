@@ -22,12 +22,12 @@ namespace Trislab.Modules.Auditing;
 public sealed class HttpAuditScope : IAuditScope
 {
     private readonly IHttpContextAccessor _http;
-    private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenant;
+    private readonly ITenantAccessor _tenant;
     private readonly ICurrentUser? _currentUser;
 
     public HttpAuditScope(
         IHttpContextAccessor httpContextAccessor,
-        IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+        ITenantAccessor tenantAccessor,
         ICurrentUser? currentUser = null)
     {
         _http = httpContextAccessor;
@@ -36,7 +36,7 @@ public sealed class HttpAuditScope : IAuditScope
     }
 
     public string? TenantId =>
-        _tenant.MultiTenantContext?.TenantInfo?.Id
+        _tenant.TenantInfo?.Id
         ?? _http.HttpContext?.User?.FindFirstValue(MultitenancyConstants.Identifier)
         ?? _http.HttpContext?.Request?.Headers[MultitenancyConstants.Identifier].FirstOrDefault()
         ?? _http.HttpContext?.Items["TenantId"] as string

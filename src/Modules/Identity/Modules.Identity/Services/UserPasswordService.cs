@@ -20,7 +20,7 @@ internal sealed class UserPasswordService(
     UserManager<TrislabUser> userManager,
     IdentityDbContext db,
     IBackgroundMailer mailer,
-    IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+    ITenantAccessor multiTenantContextAccessor,
     IPasswordHistoryService passwordHistoryService,
     IdentityAuditor auditor,
     TimeProvider timeProvider,
@@ -65,7 +65,7 @@ internal sealed class UserPasswordService(
             ["token"] = token,
             ["email"] = email,
         };
-        if (multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id is { Length: > 0 } tenantId)
+        if (multiTenantContextAccessor?.TenantInfo?.Id is { Length: > 0 } tenantId)
         {
             query["tenant"] = tenantId;
         }
@@ -130,7 +130,7 @@ internal sealed class UserPasswordService(
         }
 
         // All or nothing: a reset that stopped half-way would leave a new password with the old sessions still alive.
-        var tenantId = multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id;
+        var tenantId = multiTenantContextAccessor?.TenantInfo?.Id;
         var revoked = 0;
         var strategy = db.Database.CreateExecutionStrategy();
         await strategy.ExecuteAsync(async () =>
@@ -175,7 +175,7 @@ internal sealed class UserPasswordService(
         _ = user ?? throw new NotFoundException("user not found").Localized<IdentityResources>("Identity.UserNotFound");
 
         // All or nothing, like the reset: a change that stopped half-way would leave the old sessions alive.
-        var tenantId = multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id;
+        var tenantId = multiTenantContextAccessor?.TenantInfo?.Id;
         var revoked = 0;
         var strategy = db.Database.CreateExecutionStrategy();
         await strategy.ExecuteAsync(async () =>
