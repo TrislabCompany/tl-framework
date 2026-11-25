@@ -181,17 +181,11 @@ public sealed class TenantProvisioningService : ITenantProvisioningService
                 .Localized<MultitenancyResources>("Multitenancy.ProvisioningCorrelationNotFound", correlationId, tenantId);
     }
 
-    private static bool TryEnsureJobStorage()
+    // A host without background jobs (a migrator) registers no JobStorage: provisioning then runs inline.
+    private bool TryEnsureJobStorage()
     {
-        try
-        {
-            _ = JobStorage.Current;
-            return true;
-        }
-        catch (InvalidOperationException)
-        {
-            return false;
-        }
+        using var scope = _scopeFactory.CreateScope();
+        return scope.ServiceProvider.GetService<JobStorage>() is not null;
     }
 
     private async Task RunInlineProvisioningAsync(string tenantId, string correlationId, CancellationToken cancellationToken)

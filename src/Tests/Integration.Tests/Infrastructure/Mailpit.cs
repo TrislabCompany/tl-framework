@@ -9,9 +9,8 @@ namespace Integration.Tests.Infrastructure;
 /// One Mailpit SMTP catcher for the whole test run. The hosts send through the framework's real
 /// <c>SmtpMailService</c>, so a test checks the e-mail a user would get: recipient, subject, bodies and attachments.
 /// <para>
-/// It is shared by every test host on purpose. Hangfire keeps its job storage and activator in process-wide
-/// statics, so an e-mail job queued by one test host can run on another; with one catcher the message arrives
-/// whichever host sends it. Tests tell their messages apart by recipient, so each test uses its own address.
+/// It is shared by every test host, the two tenancy modes included. Tests tell their messages apart by recipient,
+/// so each test uses its own address.
 /// </para>
 /// </summary>
 internal static class Mailpit

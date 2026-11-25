@@ -3,7 +3,6 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using Trislab.Framework.Jobs.Services;
 using Trislab.Framework.Persistence;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Tenancy;
@@ -21,7 +20,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
@@ -34,9 +32,6 @@ public class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsy
     internal const string S3AccessKey = "rustfsadmin";
     internal const string S3SecretKey = "rustfsadmin";
     internal const string S3Bucket = "tl-integration-test-uploads";
-
-    /// <summary>The shared host's Hangfire storage; see <see cref="PrimaryHostStaticsRestorer"/>.</summary>
-    internal static JobStorage? PrimaryJobStorage { get; private set; }
 
     /// <summary>The shared host's audit configurator; see <see cref="PrimaryHostStaticsRestorer"/>.</summary>
     internal static AuditingConfigurator? PrimaryAuditingConfigurator { get; private set; }
@@ -80,7 +75,6 @@ public class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsy
 
         // Force host creation via the Server property (no leaked HttpClient)
         _ = Server;
-        PrimaryJobStorage = Services.GetRequiredService<JobStorage>();
         PrimaryAuditingConfigurator = Services.GetServices<IHostedService>().OfType<AuditingConfigurator>().Single();
 
         // Migrate + seed the root tenant (the fixed tenant in single-tenant mode). The semaphore stops test classes sharing the DB
@@ -264,7 +258,9 @@ public class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsy
                 services.Remove(service);
             }
 
-            services.AddHangfire(config => config.UseInMemoryStorage());
+            // Each host has its own job storage; the framework registers Hangfire per host, so a job runs on the
+            // host that queued it.
+            services.AddSingleton<JobStorage>(_ => new InMemoryStorage(new InMemoryStorageOptions()));
             services.AddHostedService<PrimaryHostStaticsRestorer>();
             services.AddHangfireServer(options =>
             {
@@ -272,9 +268,6 @@ public class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsy
                 options.Queues = ["default", "email"];
                 options.WorkerCount = 2;
             });
-            // Enqueue on this host's own Hangfire storage, not the static one another test host may own (HostBoundJobService).
-            services.RemoveAll<IJobService>();
-            services.AddTransient<IJobService, HostBoundJobService>();
 
             services.PostConfigure<JwtBearerOptions>(
                 JwtBearerDefaults.AuthenticationScheme,

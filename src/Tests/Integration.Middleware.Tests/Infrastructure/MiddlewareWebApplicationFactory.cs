@@ -212,7 +212,8 @@ public sealed class MiddlewareWebApplicationFactory : WebApplicationFactory<Prog
                 services.Remove(service);
             }
 
-            services.AddHangfire(config => config.UseInMemoryStorage());
+            services.AddHangfire(_ => { });
+            services.AddSingleton<JobStorage>(_ => new InMemoryStorage(new InMemoryStorageOptions()));
             services.AddHangfireServer(options =>
             {
                 options.SchedulePollingInterval = TimeSpan.FromSeconds(1);

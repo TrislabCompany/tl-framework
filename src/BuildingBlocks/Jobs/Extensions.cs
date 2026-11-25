@@ -3,7 +3,10 @@ using Trislab.Framework.Jobs.Mail;
 using Trislab.Framework.Jobs.Services;
 using Trislab.Framework.Shared.Persistence;
 using Hangfire;
+using Hangfire.Common;
 using Hangfire.PostgreSql;
+using Hangfire.PostgreSql.Factories;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
@@ -30,34 +33,25 @@ public static class Extensions
             options.SchedulePollingInterval = TimeSpan.FromSeconds(30);
         });
 
-        services.AddHangfire((provider, config) =>
+        // Hangfire's global configuration (JobStorage.Current, JobActivator.Current, GlobalJobFilters) is
+        // process-wide. Everything this host uses is its own instead: the storage, the activator and the filters
+        // are DI singletons, which the server, IBackgroundJobClient, IRecurringJobManager and the dashboard
+        // resolve from this host's container. Nothing reads the statics (JobsDependencyInjectionTests).
+        services.AddHangfire(_ => { });
+        services.AddSingleton<JobStorage>(provider => CreateStorage(provider.GetRequiredService<IConfiguration>()));
+        services.AddSingleton<JobActivator>(provider => new TrislabJobActivator(provider.GetRequiredService<IServiceScopeFactory>()));
+        services.AddSingleton<IJobFilterProvider>(provider =>
         {
-            var configuration = provider.GetRequiredService<IConfiguration>();
-            var dbOptions = configuration.GetSection(nameof(DatabaseOptions)).Get<DatabaseOptions>()
-                ?? throw new CustomException("Database options not found").Localized("Jobs.DatabaseOptionsNotFound");
-
-            switch (dbOptions.Provider.ToUpperInvariant())
+            var hostFilters = new JobFilterCollection
             {
-                case DbProviders.PostgreSQL:
-                    config.UsePostgreSqlStorage(o =>
-                    {
-                        o.UseNpgsqlConnection(dbOptions.ConnectionString);
-                    });
-                    break;
+                new TrislabJobFilter(provider),
+                new LogJobFilter(),
+                new HangfireTelemetryFilter(),
+            };
 
-                case DbProviders.MSSQL:
-                    config.UseSqlServerStorage(dbOptions.ConnectionString);
-                    break;
-
-                default:
-                    throw new CustomException($"Hangfire storage provider {dbOptions.Provider} is not supported")
-                        .Localized("Jobs.UnsupportedStorageProvider", dbOptions.Provider);
-            }
-
-            config.UseActivator(new TrislabJobActivator(provider.GetRequiredService<IServiceScopeFactory>()));
-            config.UseFilter(new TrislabJobFilter(provider));
-            config.UseFilter(new LogJobFilter());
-            config.UseFilter(new HangfireTelemetryFilter());
+            // Hangfire's own providers keep the built-in filters (retries, continuations, statistics) and the
+            // attributes on job methods; this host's filters come on top.
+            return new JobFilterProviderCollection(JobFilterProviders.Providers, hostFilters);
         });
 
         // Deferred stale lock cleanup — runs after app starts accepting requests
@@ -72,6 +66,26 @@ public static class Extensions
         services.AddTransient<SendQueuedMailJob>();
 
         return services;
+    }
+
+    private static PostgreSqlStorage CreatePostgreSqlStorage(string connectionString)
+    {
+        var options = new PostgreSqlStorageOptions();
+        return new PostgreSqlStorage(new NpgsqlConnectionFactory(connectionString, options), options);
+    }
+
+    private static JobStorage CreateStorage(IConfiguration configuration)
+    {
+        var dbOptions = configuration.GetSection(nameof(DatabaseOptions)).Get<DatabaseOptions>()
+            ?? throw new CustomException("Database options not found").Localized("Jobs.DatabaseOptionsNotFound");
+
+        return dbOptions.Provider.ToUpperInvariant() switch
+        {
+            DbProviders.PostgreSQL => CreatePostgreSqlStorage(dbOptions.ConnectionString),
+            DbProviders.MSSQL => new SqlServerStorage(dbOptions.ConnectionString),
+            _ => throw new CustomException($"Hangfire storage provider {dbOptions.Provider} is not supported")
+                .Localized("Jobs.UnsupportedStorageProvider", dbOptions.Provider),
+        };
     }
 
 

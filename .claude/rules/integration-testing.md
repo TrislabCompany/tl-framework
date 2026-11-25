@@ -25,8 +25,8 @@ The test host composes the framework's modules like a product's host does, plus 
 - **SignalR tests force long-polling** — TestServer has no WebSocket. Configure the client transport accordingly.
 - **Rate limiting is read eagerly** — `Integration.Middleware.Tests` sets `RateLimitingOptions:Enabled` via env var **before** host build, since flipping it after has no effect.
 - **Test order is not guaranteed** (xUnit v3 orders differently from v2, and it shifted several hidden dependencies). Clean up shared state you create. Tenants pointing at an unreachable database go through `_factory.RemoveTenantsAsync(ids)` in `DisposeAsync`, or all-tenant jobs run by later tests count them as failures. Don't assume a new tenant's audit rows fit on page 1, because provisioning writes its seed data as `EntityChange` rows.
-- **Hangfire keeps its job storage and activator in process-wide statics**, so a job queued by one test host can run on another (the two tenancy modes run side by side). Never assert a job's effect through one host's in-memory service; assert what reaches real infrastructure (Mailpit, the database). `HostBoundJobService` queues on each host's own storage.
-- **`WithWebHostBuilder` hosts share two statics with the shared host**: Hangfire's `JobStorage.Current` and the static `Audit` publisher. `PrimaryHostStaticsRestorer` points both back at the shared host when a derived host stops. Always dispose derived factories (`await using`).
+- **Each host has its own Hangfire**: the framework registers the storage, the activator and the filters as DI singletons, and the test hosts register an in-memory `JobStorage`. A job runs on the host that queued it. Read a host's jobs through `factory.Services.GetRequiredService<JobStorage>()`, never `JobStorage.Current`.
+- **`WithWebHostBuilder` hosts share one static with the shared host**: the static `Audit` publisher. `PrimaryHostStaticsRestorer` points it back at the shared host when a derived host stops. Always dispose derived factories (`await using`).
 
 ## Endpoint authorization
 
