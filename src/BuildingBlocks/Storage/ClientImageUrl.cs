@@ -22,7 +22,7 @@ public static class ClientImageUrl
             return false;
         }
 
-        if (value.StartsWith('/'))
+        if (value.StartsWith('/', StringComparison.Ordinal))
         {
             return !value.StartsWith("//", StringComparison.Ordinal)
                 && !value.Contains('\\', StringComparison.Ordinal)

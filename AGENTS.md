@@ -1,7 +1,7 @@
 # This repository
 
 > `tl-framework`: the framework every Trislab SaaS product and webapp is built on. The packages of a modular
-> .NET 10 monolith and a React 19 UI package, with their tests, derived from an open-source starter kit and
+> .NET 11 monolith and a React 19 UI package, with their tests, derived from an open-source starter kit and
 > adapted to the platform contract (`README.md`, `docs/`). It holds only packages and tests: no app, no host.
 
 ## Role
@@ -43,7 +43,7 @@ tests that guard them. Multitenancy, auth, auditing, billing, files and more are
 apps built from them (the hosts, the React apps, the samples) live in `tl-product-saas` and
 `tl-product-webapp`, never here.
 
-- **Backend** — .NET 10, EF Core 10, PostgreSQL, Redis, JWT + ASP.NET Identity, Finbuckle multitenancy,
+- **Backend** — .NET 11, EF Core 10, PostgreSQL, Redis, JWT + ASP.NET Identity, Finbuckle multitenancy,
   Hangfire, OpenAPI/Scalar, Serilog + OpenTelemetry.
 - **Frontend** — `packages/framework-ui` (React 19, TypeScript 6, i18next).
 
@@ -68,7 +68,7 @@ apps built from them (the hosts, the React apps, the samples) live in `tl-produc
 
 | Backend | | Frontend | |
 |---|---|---|---|
-| Framework | .NET 10 / C# latest | Framework | React 19 + Vite 8 + TS 6.x |
+| Framework | .NET 11 / C# latest | Framework | React 19 + Vite 8 + TS 6.x |
 | CQRS | Mediator 3.x (source-gen) | Data | TanStack Query v5 |
 | Validation | FluentValidation 12.x | Routing | React Router 7 |
 | ORM / DB | EF Core 10 / PostgreSQL (Npgsql) | UI | Radix + Tailwind v4 + CVA (shadcn) |

@@ -33,14 +33,15 @@ public sealed class SlovenianRulePackTests
     // ─── VAT ─────────────────────────────────────────────────────────
 
     [Theory]
-    [InlineData("S", 0.22)]
-    [InlineData("R1", 0.095)]
-    [InlineData("R2", 0.05)]
-    public void Rated_Codes_Should_Give_Their_Rate_And_No_Note(string code, double rate)
+    [InlineData("S", "0.22")]
+    [InlineData("R1", "0.095")]
+    [InlineData("R2", "0.05")]
+    public void Rated_Codes_Should_Give_Their_Rate_And_No_Note(string code, string rate)
     {
         var decision = Pack.DecideTax(Tax(code));
 
-        decision.Rate.ShouldBe((decimal)rate);
+        // A string, not a double: (decimal)0.22 is not exactly 0.22m since .NET 11.
+        decision.Rate.ShouldBe(decimal.Parse(rate, System.Globalization.CultureInfo.InvariantCulture));
         decision.Note.ShouldBeNull();
     }
 

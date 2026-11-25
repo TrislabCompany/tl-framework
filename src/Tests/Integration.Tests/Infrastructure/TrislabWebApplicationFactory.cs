@@ -338,7 +338,7 @@ public class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsy
 
     protected override IHost CreateHost(IHostBuilder builder)
     {
-        // Disable ValidateOnBuild for .NET 10 minimal API dual-host model
+        // Disable ValidateOnBuild for the minimal API dual-host model
         builder.UseServiceProviderFactory(new DefaultServiceProviderFactory(new ServiceProviderOptions
         {
             ValidateOnBuild = false,
