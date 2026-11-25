@@ -7,13 +7,13 @@ export const TENANT = __ENV.TENANT || 'root';
 const ADMIN_EMAIL = __ENV.ADMIN_EMAIL || 'admin@root.com';
 // The development password of the seeded administrator (src/Tests/TestHost/appsettings.Development.json).
 const ADMIN_PASSWORD = __ENV.ADMIN_PASSWORD || '123Pa$$word!';
-const SEED_USERS = parseInt(__ENV.SEED_USERS || '40', 10);
 const SEED_NOTIFICATIONS = parseInt(__ENV.SEED_NOTIFICATIONS || '60', 10);
 
 const JSON_HEADERS = { 'Content-Type': 'application/json', tenant: TENANT };
 
-// Runs once before the test. The host seeded the root tenant, its administrator and the roles when it
-// started; this adds rows so that the list endpoints page through real data: users and notifications.
+// Runs once before the test. The host seeded the root tenant, its administrator, the roles and 40 members
+// (TestHost__SeedUsers in compose.yaml: users join only by invitation, which a script can't accept); this adds
+// notifications, so that the list endpoints page through real data.
 export function seed() {
   const login = http.post(
     `${BASE_URL}/api/v1/identity/token/issue`,
@@ -29,21 +29,6 @@ export function seed() {
   const profile = http.get(`${BASE_URL}/api/v1/identity/profile`, { headers });
   const adminId = profile.json('id');
 
-  const run = Date.now();
-  for (let i = 0; i < SEED_USERS; i++) {
-    http.post(
-      `${BASE_URL}/api/v1/identity/register`,
-      JSON.stringify({
-        firstName: 'Perf',
-        lastName: `User${i}`,
-        email: `perf-${run}-${i}@example.com`,
-        userName: `perf-${run}-${i}`,
-        password: 'Perf-Seed-Pa55word!',
-        confirmPassword: 'Perf-Seed-Pa55word!',
-      }),
-      { headers },
-    );
-  }
   for (let i = 0; i < SEED_NOTIFICATIONS; i++) {
     http.post(
       `${BASE_URL}/api/v1/test/notifications`,

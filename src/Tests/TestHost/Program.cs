@@ -115,6 +115,8 @@ if (app.Configuration.GetValue<bool>("TestHost:Provision"))
 {
     await TestHostProvisioning.EnsureBucketAsync(app.Services, app.Lifetime.ApplicationStopping);
     await TestHostProvisioning.ProvisionAsync(app.Services, app.Lifetime.ApplicationStopping);
+    await TestHostProvisioning.SeedMembersAsync(
+        app.Services, app.Configuration.GetValue<int>("TestHost:SeedUsers"), app.Lifetime.ApplicationStopping);
 }
 
 await app.RunAsync();
