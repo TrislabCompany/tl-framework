@@ -35,7 +35,7 @@ To try the packages locally: `dotnet pack src/App.slnx -c Release -o <folder>`, 
 All packages share one version, the framework's: `Version` in `src/Directory.Build.props` for an untagged build, and the tag's version for a release. There is no version per package.
 
 - **PATCH:** a fix; no change to a contract, endpoint or setting.
-- **MINOR:** something new, or a change that stays compatible. A change that removes something goes in two steps: first it is marked obsolete, and the removal follows one MINOR later. A migration is always backward compatible ([architecture.md section 3](architecture.md#3-migrations)).
+- **MINOR:** something new, or a change that stays compatible. A change that removes something goes in two steps: first it is marked obsolete, and the removal follows one MINOR later. A migration is always backward compatible ([architecture.md section 3](architecture.md#3-migrations)). **Not yet:** in development mode a MINOR may break anything, and the release notes list what breaks (`AGENTS.md`, "Development mode").
 - **MAJOR:** reserved for a break that can't be done in two steps.
 
 A release is a tag `vX.Y.Z` on `main`, created by an organization owner. The tag runs `.github/workflows/packages.yml`, which packs every package at the tag's version and publishes it to GitHub Packages: the NuGet packages, then each npm package in `packages/`. A version that is already published is skipped, so a re-run is safe. The first release is `v0.1.0`; a release candidate `vX.Y.Z-rc.<n>` publishes prerelease packages, and its npm packages go to the dist-tag `next`.

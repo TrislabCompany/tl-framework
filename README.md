@@ -68,7 +68,7 @@ Renovate keeps the versions current.
 2. **Open your first PR:** change something in `src/` or `packages/`, push a branch and open a PR. `ci / ci` must pass and a code owner must approve.
 3. **Release:** a tag `vX.Y.Z` on `main`, created by an organization owner, publishes every package ([packages.md](docs/packages.md#2-one-version-for-everything)).
 4. **Add a module:** a runtime project and a `.Contracts` project in `src/Modules/`, registered in the test host ([modules.md](docs/modules.md#2-add-a-module)). The product registers it in its own host.
-5. **Add a migration:** change the module's model, then `dotnet ef migrations add <Name>` into the module's own `Migrations/` folder. Keep it backward compatible.
+5. **Add a migration:** change the module's model, then `dotnet ef migrations add <Name>` into the module's own `Migrations/` folder. Keep it backward compatible once products are in production; in development mode it may break (`AGENTS.md`).
 
 ## More
 

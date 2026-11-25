@@ -18,7 +18,7 @@ Changes to BuildingBlocks affect ALL modules across the entire framework. These 
 ## If Approved
 
 - Make minimal, focused changes
-- Ensure backward compatibility
+- Ensure backward compatibility, except in development mode (`AGENTS.md`), where a breaking change is listed in the PR instead
 - Update all affected modules
 - Run full test suite: `dotnet test src/App.slnx`
 - Document the change

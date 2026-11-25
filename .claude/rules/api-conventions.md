@@ -71,6 +71,8 @@ Use `Specification<T>` (`src/BuildingBlocks/Persistence/Specifications/`) for qu
 
 The API, the `.Contracts` projects and the integration events are contracts: the two front ends, other modules and older revisions of the API depend on them: during a rollout two revisions serve side by side (the platform contract above in `AGENTS.md`).
 
+> Not yet: during development mode breaking changes are allowed (`AGENTS.md`, "Development mode"). The rules below apply once the first product is in production.
+
 - **Inside a version, change only by adding.** A new optional field, a new endpoint, a new enum value at the end. Never rename or remove a field, change its type, make an optional field required, or change a route or status code.
 - **A breaking change is a new version**: `v2` of the endpoint and its contracts in `Contracts/v2/`, with `v1` kept until the front ends have moved. `ApiVersioningTests` checks that the namespaces match.
 - **Integration events are versioned contracts.** Add fields only, with a default a consumer can live without. A breaking change is a new event type (`InvoiceIssuedV2IntegrationEvent`); publish both until every consumer has moved. A consumer ignores fields it doesn't know.

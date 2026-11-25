@@ -2,8 +2,11 @@
 
 <!-- What this PR changes, and why. -->
 
+## Breaking changes for the starters
+
+<!-- Every rename, removal or reshape of an endpoint, contract, event, setting, public type or table, and what a starter or product has to change. "None" when there are none. -->
+
 ## Checklist
 
 - [ ] `dotnet test src/App.slnx` passes locally, and `npm test` in each changed package
-- [ ] Is the migration backward compatible? The previous revision of the API keeps serving on the migrated database until the new one is ready, or there is no migration
-- [ ] The API, `.Contracts` and integration events only gained fields, or the breaking change is a new version
+- [ ] Breaking changes (API, `.Contracts`, integration events, settings, public types, migrations) are listed under "Breaking changes for the starters", or there are none. In development mode they are allowed (`AGENTS.md`)
