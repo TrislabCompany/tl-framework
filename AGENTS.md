@@ -62,7 +62,7 @@ apps built from them (the hosts, the React apps, the samples) live in `tl-produc
 | `.github/workflows/packages.yml` | On a release tag, publishes the NuGet and npm packages to GitHub Packages (`docs/packages.md`). |
 | `scripts/` | Scripts for repetitive work, listed in `scripts/README.md` (porting upstream commits). |
 | `docs/` | How the repository works: getting started, architecture, modules, packages, bot protection, the upstream log. |
-| `renovate/framework.json` | The Renovate preset products extend for framework upgrades (`docs/packages.md`). |
+| `renovate/framework.json` | The Renovate preset the starters extend: one PR per framework release, raising `TrislabFrameworkVersion` and `framework-ui` together; it does nothing in a product repository (`docs/packages.md`). |
 
 ## Tech stack
 

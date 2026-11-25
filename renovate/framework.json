@@ -1,23 +1,54 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Framework upgrades for a product built on tl-framework (docs/packages.md section 3): every Trislab package in one pull request per framework version; a patch merges itself once CI passes, a minor or major waits for review.",
+  "description": "For the starters (tl-product-saas, tl-product-webapp): one PR per framework release vX.Y.Z that raises TrislabFrameworkVersion and @trislabcompany/framework-ui together. In a product repository the template update raises them instead (tl-product-ideas D-40), so this does nothing there.",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "The one framework version every Trislab.* NuGet package uses.",
+      "managerFilePatterns": ["/(^|/)Directory\\.Packages\\.props$/"],
+      "matchStrings": ["<TrislabFrameworkVersion>(?<currentValue>[^<]+)</TrislabFrameworkVersion>"],
+      "depNameTemplate": "Trislab framework",
+      "packageNameTemplate": "TrislabCompany/tl-framework",
+      "datasourceTemplate": "github-tags",
+      "extractVersionTemplate": "^v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "The framework's npm package, released with the same version.",
+      "managerFilePatterns": ["/(^|/)package\\.json$/"],
+      "matchStrings": ["\"@trislabcompany/framework-ui\":\\s*\"(?<currentValue>[^\"]+)\""],
+      "depNameTemplate": "@trislabcompany/framework-ui",
+      "packageNameTemplate": "TrislabCompany/tl-framework",
+      "datasourceTemplate": "github-tags",
+      "extractVersionTemplate": "^v(?<version>.+)$"
+    }
+  ],
   "packageRules": [
     {
-      "matchPackageNames": ["Trislab.Framework.**", "Trislab.Modules.**", "@trislabcompany/framework-**"],
-      "groupName": "tl-framework",
-      "groupSlug": "tl-framework",
-      "separateMajorMinor": true,
-      "separateMinorPatch": true
+      "description": "The npm manager can't read GitHub Packages without a token; the regex manager above moves it.",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["@trislabcompany/**"],
+      "enabled": false
     },
     {
-      "matchPackageNames": ["Trislab.Framework.**", "Trislab.Modules.**", "@trislabcompany/framework-**"],
-      "matchUpdateTypes": ["patch"],
-      "automerge": true
+      "description": "The NuGet manager would see each Trislab.* package on its own; the regex manager above moves them together.",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": ["Trislab.**"],
+      "enabled": false
     },
     {
-      "matchPackageNames": ["Trislab.Framework.**", "Trislab.Modules.**", "@trislabcompany/framework-**"],
-      "matchUpdateTypes": ["minor", "major"],
-      "automerge": false
+      "matchManagers": ["custom.regex"],
+      "matchPackageNames": ["TrislabCompany/tl-framework"],
+      "groupName": "Trislab framework",
+      "minimumReleaseAge": null,
+      "schedule": ["at any time"]
+    },
+    {
+      "description": "Product repositories take the framework with the template update, never on their own.",
+      "matchManagers": ["custom.regex"],
+      "matchPackageNames": ["TrislabCompany/tl-framework"],
+      "matchRepositories": ["!TrislabCompany/tl-product-saas", "!TrislabCompany/tl-product-webapp"],
+      "enabled": false
     }
   ]
 }
