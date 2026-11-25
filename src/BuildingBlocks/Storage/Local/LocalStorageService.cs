@@ -170,7 +170,7 @@ public sealed class LocalStorageService : IStorageService
 
         foreach (var segment in normalized.Split('/'))
         {
-            if (segment.Length == 0 || segment is "." or ".." || segment.EndsWith('.') || segment.EndsWith(' '))
+            if (segment.Length == 0 || segment is "." or ".." || segment.EndsWith('.', StringComparison.Ordinal) || segment.EndsWith(' ', StringComparison.Ordinal))
             {
                 return false;
             }

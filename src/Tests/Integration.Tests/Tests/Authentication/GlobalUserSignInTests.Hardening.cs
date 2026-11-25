@@ -633,7 +633,7 @@ public sealed partial class GlobalUserSignInTests
     }
 
     private static List<string> PropertyNames(string json) =>
-        JsonDocument.Parse(json).RootElement.EnumerateObject().Select(p => p.Name).OrderBy(n => n, StringComparer.Ordinal).ToList();
+        JsonElement.Parse(json).EnumerateObject().Select(p => p.Name).OrderBy(n => n, StringComparer.Ordinal).ToList();
 
     private sealed record InvitationRow(Guid Id, string Email, string Status);
 }

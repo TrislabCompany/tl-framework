@@ -241,7 +241,7 @@ public sealed class MiddlewareWebApplicationFactory : WebApplicationFactory<Prog
 
     protected override IHost CreateHost(IHostBuilder builder)
     {
-        // Disable ValidateOnBuild for .NET 10 minimal API dual-host model
+        // Disable ValidateOnBuild for the minimal API dual-host model
         builder.UseServiceProviderFactory(new DefaultServiceProviderFactory(new ServiceProviderOptions
         {
             ValidateOnBuild = false,

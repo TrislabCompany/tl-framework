@@ -4,7 +4,7 @@ The framework that Trislab's multi-tenant SaaS products and webapps are built on
 
 ## What it is
 
-The packages of a modular .NET 10 monolith: multi-tenancy, identity and the building blocks a SaaS product needs, and the React package `framework-ui`. It is derived from an MIT-licensed open-source starter kit ([THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)) and adapted to the platform. Nothing here runs by itself except the test host, `src/Tests/TestHost`, which the integration, performance and security tests use.
+The packages of a modular .NET 11 monolith: multi-tenancy, identity and the building blocks a SaaS product needs, and the React package `framework-ui`. It is derived from an MIT-licensed open-source starter kit ([THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)) and adapted to the platform. Nothing here runs by itself except the test host, `src/Tests/TestHost`, which the integration, performance and security tests use.
 
 ## When to use it
 
@@ -37,14 +37,14 @@ What the packages give a product, with no change:
 | Technology | Version |
 | --- | --- |
 | Upstream starter kit | Release `10.0.0`, MIT licence ([THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), which ships with every package); every later commit on its `main` is reviewed and synced ([upstream.md](docs/upstream.md)) |
-| .NET | SDK 10.0.404 (`global.json`) |
-| ASP.NET Core | 10.0.15 |
-| EF Core | 10.0.15, with Npgsql's provider 10.0.3 |
+| .NET | SDK 11.0.100 (`global.json`); the test host image on `sdk:11.0.100-resolute` and `aspnet:11.0.0-resolute-chiseled` (Ubuntu 26.04) |
+| ASP.NET Core | 11.0.0 |
+| EF Core | 10.0.15, with Npgsql's provider 10.0.3, on .NET 11; they move to 11 together with Finbuckle 11 (tl-product-ideas D-41) |
 | Hangfire | 1.8.23, stored in Postgres |
 | Redis-compatible cache | Optional; in-memory without it |
 | S3-compatible storage | rustfs 1.0.3 in the integration tests; AWS SDK for S3 4.0.104.8 |
 | RabbitMQ | Optional; RabbitMQ.Client 7.2.1; in-memory without it |
-| React, TypeScript | React 19.3.1, TypeScript 6.0.3, in `packages/framework-ui`; Node.js 22 with npm |
+| React, TypeScript | React 19.3.1, TypeScript 6.0.3, in `packages/framework-ui`; Node.js 24 with npm |
 | Postgres | 17.11 (`postgres:17.11-alpine`, in the integration tests) |
 | xUnit and Testcontainers | xUnit v3 4.0.2 (`xunit.v3.mtp-off`); Testcontainers 4.16.0 |
 

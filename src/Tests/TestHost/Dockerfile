@@ -5,7 +5,7 @@
 # The build context is the repository root:
 #   docker build -f src/Tests/TestHost/Dockerfile -t tl-test-host .
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0.404-noble@sha256:fe0fd4e93bd2fbb47c883b7a6369e5c8d3db8bf01cdc5981f6ee35fbdf3ff4fb AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0.100-resolute@sha256:2794448a07118a6eaf00f29ab5d2bf44928517ce5ff86505a63a69230374f599 AS build
 WORKDIR /repo
 # The whole of src/ but the other tests (Dockerfile.dockerignore): Directory.Build.props and
 # Directory.Packages.props hold the versions, and the host references every module.
@@ -16,7 +16,7 @@ RUN dotnet restore src/Tests/TestHost/TestHost.csproj
 RUN dotnet publish src/Tests/TestHost/TestHost.csproj --configuration Release --no-restore \
     -p:IsPublishable=true --output /app
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0.15-noble-chiseled@sha256:7c625e44e5d588b4d7b2a913e94ca4bd5098ce47442da404829e4c7936a764e1
+FROM mcr.microsoft.com/dotnet/aspnet:11.0.0-resolute-chiseled@sha256:045ba65412b8edcc2f70a779163bf4353d450f72535a0dddf6188d6d945bfaef
 WORKDIR /app
 COPY --from=build /app .
 USER $APP_UID

@@ -62,7 +62,7 @@ public static partial class StorageUploadKeys
         }
 
         string path = storedValue;
-        if (!storedValue.StartsWith('/') && Uri.TryCreate(storedValue, UriKind.Absolute, out var uri))
+        if (!storedValue.StartsWith('/', StringComparison.Ordinal) && Uri.TryCreate(storedValue, UriKind.Absolute, out var uri))
         {
             if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
             {

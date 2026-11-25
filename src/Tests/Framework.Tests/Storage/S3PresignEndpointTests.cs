@@ -80,13 +80,13 @@ public sealed class S3PresignEndpointTests
     }
 
     [Fact]
-    public void AddTrislabStorage_Should_PassStartupValidation_When_PresignServiceUrlIsAbsoluteHttpUrl()
+    public async Task AddTrislabStorage_Should_PassStartupValidation_When_PresignServiceUrlIsAbsoluteHttpUrl()
     {
         // Arrange
         using var provider = BuildProvider(InternalServiceUrl, PublicPresignServiceUrl);
 
         // Act
-        provider.GetRequiredService<IStartupValidator>().Validate();
+        await provider.GetRequiredService<IAsyncStartupValidator>().ValidateAsync(TestContext.Current.CancellationToken);
 
         // Assert — sanity: the rule below rejects bad values without rejecting a good one.
         provider.GetRequiredService<IOptions<Trislab.Framework.Storage.S3.S3StorageOptions>>().Value
@@ -103,17 +103,17 @@ public sealed class S3PresignEndpointTests
     [InlineData("ftp://public.example.test")]
     [InlineData("https://public.example.test/s3")]
     [InlineData("https://public.example.test/?region=x")]
-    public void AddTrislabStorage_Should_FailAtStartup_When_PresignServiceUrlIsNotAbsoluteHttpUrl(string presignServiceUrl)
+    public async Task AddTrislabStorage_Should_FailAtStartup_When_PresignServiceUrlIsNotAbsoluteHttpUrl(string presignServiceUrl)
     {
         // Arrange
         using var provider = BuildProvider(InternalServiceUrl, presignServiceUrl);
 
-        // Act — through IStartupValidator, which is what .ValidateOnStart() registers; resolving
+        // Act — through IAsyncStartupValidator, which is what .ValidateOnStart() registers; resolving
         // IOptions<>.Value would only fail on the first presign, long after boot.
-        var act = () => provider.GetRequiredService<IStartupValidator>().Validate();
+        var act = async () => await provider.GetRequiredService<IAsyncStartupValidator>().ValidateAsync(TestContext.Current.CancellationToken);
 
         // Assert
-        act.ShouldThrow<OptionsValidationException>()
+        (await act.ShouldThrowAsync<OptionsValidationException>())
             .Failures.ShouldContain(failure => failure.Contains("PresignServiceUrl", StringComparison.Ordinal));
     }
 
@@ -151,7 +151,7 @@ public sealed class S3PresignEndpointTests
     {
         // Arrange
         using var provider = BuildProvider(InternalServiceUrl, "  https://public.example.test  ");
-        provider.GetRequiredService<IStartupValidator>().Validate();
+        await provider.GetRequiredService<IAsyncStartupValidator>().ValidateAsync(TestContext.Current.CancellationToken);
         var storage = provider.GetRequiredService<IStorageService>();
 
         // Act

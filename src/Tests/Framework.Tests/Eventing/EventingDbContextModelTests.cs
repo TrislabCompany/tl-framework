@@ -79,7 +79,7 @@ public class EventingDbContextModelTests
 
         // Both are IGlobalEntity: the dispatcher scans across tenants within a database.
         //
-        // IReadOnlyEntityType.GetQueryFilter() is [Obsolete] in EF Core 10 in favour of the
+        // IReadOnlyEntityType.GetQueryFilter() is [Obsolete] since EF Core 10 in favour of the
         // named-filter API (GetDeclaredQueryFilters()), and this repo treats warnings as
         // errors, so we assert the same intent through the non-obsolete surface: neither
         // entity has ANY declared query filter. That is a stronger guarantee than "no

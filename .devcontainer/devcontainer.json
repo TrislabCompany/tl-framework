@@ -1,8 +1,8 @@
 {
     "name": "tl-framework",
-    "image": "mcr.microsoft.com/dotnet/sdk:10.0.404-noble",
+    "image": "mcr.microsoft.com/dotnet/sdk:11.0.100-resolute",
     "features": {
-        "ghcr.io/devcontainers/features/node:1": { "version": "22" },
+        "ghcr.io/devcontainers/features/node:1": { "version": "24" },
         "ghcr.io/devcontainers/features/docker-in-docker:2": {}
     },
     "postCreateCommand": "dotnet restore src/App.slnx && dotnet tool restore && npm --prefix packages/framework-ui ci",
