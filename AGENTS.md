@@ -58,7 +58,7 @@ apps built from them (the hosts, the React apps, the samples) live in `tl-produc
 | `tests/security` | The security checks of the test host: the endpoint-authorization test (in `Integration.Tests`), the ZAP scan of the running host on every pull request, and the findings accepted with a reason (`tests/security/README.md`). |
 | `tests/perf` | The k6 performance scripts: a smoke run on every pull request, a load run every night, both against the test host as a container (`tests/perf/README.md`). |
 | `packages/framework-ui` | The npm package `@trislabcompany/framework-ui`: the Trislab theme (CSS variables, Inter, `framework-ui-check-colors`), i18n, the language switch, formatting by language, the Turnstile widget. `npm test` runs in `ci / ci`. |
-| `.github/workflows/ci.yml` | The `ci / ci` check: `dotnet test src/App.slnx`, then `npm test` in each package. |
+| `.github/workflows/ci.yml` | The `ci / ci` check. A PR runs the tests it affects (`scripts/affected-tests.ps1`), lints the changed Markdown and reviews new dependencies; a docs-only PR only lints. A push to `main` runs every test. |
 | `.github/workflows/packages.yml` | On a release tag, publishes the NuGet and npm packages to GitHub Packages (`docs/packages.md`). |
 | `scripts/` | Scripts for repetitive work, listed in `scripts/README.md` (porting upstream commits). |
 | `docs/` | How the repository works: getting started, architecture, modules, packages, bot protection, the upstream log. |
