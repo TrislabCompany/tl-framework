@@ -28,8 +28,8 @@ public sealed class TenantMigrationsHealthCheck : IHealthCheck
     {
         using IServiceScope scope = _scopeFactory.CreateScope();
 
-        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-        var tenants = await tenantStore.GetAllAsync().ConfigureAwait(false);
+        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
+        var tenants = await tenantStore.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         var details = new Dictionary<string, object>();
         var tenantsWithPending = new List<string>();
@@ -41,8 +41,7 @@ public sealed class TenantMigrationsHealthCheck : IHealthCheck
             {
                 using IServiceScope tenantScope = scope.ServiceProvider.CreateScope();
 
-                tenantScope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-                    .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+                using var tenantUse = tenantScope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
                 var dbContext = tenantScope.ServiceProvider.GetRequiredService<TenantDbContext>();
 

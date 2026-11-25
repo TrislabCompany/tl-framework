@@ -79,8 +79,8 @@ internal sealed class RolePermissionSyncHostedService(
             try
             {
                 using var scope = serviceProvider.CreateScope();
-                var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-                var tenants = (await tenantStore.GetAllAsync().ConfigureAwait(false)).ToList();
+                var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
+                var tenants = (await tenantStore.GetAllAsync(stoppingToken).ConfigureAwait(false)).ToList();
                 if (tenants.Count > 0)
                 {
                     return tenants;
@@ -106,8 +106,7 @@ internal sealed class RolePermissionSyncHostedService(
         try
         {
             using var scope = serviceProvider.CreateScope();
-            scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-                .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+            using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
             var syncer = scope.ServiceProvider.GetRequiredService<RolePermissionSyncer>();
             await syncer.SyncAsync(stoppingToken).ConfigureAwait(false);

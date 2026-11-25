@@ -45,7 +45,7 @@ public sealed class StaleProfileLocalizationTests
             userManager,
             signInManager,
             Substitute.For<IStorageService>(),
-            Substitute.For<IMultiTenantContextAccessor<AppTenantInfo>>(),
+            Substitute.For<ITenantAccessor>(),
             Substitute.For<IRequestContextService>(),
             new IdentityErrorDescriber());
 

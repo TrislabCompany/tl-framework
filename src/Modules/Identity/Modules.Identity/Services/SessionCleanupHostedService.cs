@@ -65,8 +65,8 @@ public sealed class SessionCleanupHostedService : BackgroundService
         List<AppTenantInfo> tenants;
         using (var scope = _scopeFactory.CreateScope())
         {
-            var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-            tenants = (await tenantStore.GetAllAsync().ConfigureAwait(false)).ToList();
+            var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
+            tenants = (await tenantStore.GetAllAsync(cancellationToken).ConfigureAwait(false)).ToList();
         }
 
         // cutoffDate = now - retentionDays, so ExpiresAt < cutoffDate already implies ExpiresAt < now.
@@ -83,8 +83,7 @@ public sealed class SessionCleanupHostedService : BackgroundService
         try
         {
             using var scope = _scopeFactory.CreateScope();
-            scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-                .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+            using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
             var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
             var deleted = await db.UserSessions

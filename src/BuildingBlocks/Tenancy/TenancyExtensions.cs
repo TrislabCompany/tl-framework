@@ -3,7 +3,6 @@ using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using Finbuckle.MultiTenant.Extensions;
-using Finbuckle.MultiTenant.Stores;
 using Trislab.Framework.Eventing.Abstractions;
 using Trislab.Framework.Shared.Constants;
 using Trislab.Framework.Shared.Multitenancy;
@@ -83,7 +82,7 @@ public static class TenancyExtensions
     public static IApplicationBuilder UseTrislabTenancy(this IApplicationBuilder app)
     {
         ArgumentNullException.ThrowIfNull(app);
-        return app.UseMultiTenant();
+        return app.UseMultiTenant<string>();
     }
 
     private static void AddSingleTenant(IServiceCollection services, SingleTenantOptions options)
@@ -94,9 +93,13 @@ public static class TenancyExtensions
         // The static strategy resolves the fixed identifier for every request; the in-memory store holds the one
         // tenant. Nothing reads a claim, a header or a database, so a caller cannot choose a tenant.
         services
-            .AddMultiTenant<AppTenantInfo>()
+            .AddMultiTenant<AppTenantInfo, string>()
             .WithStaticStrategy(provider.Tenant.Identifier)
-            .WithInMemoryStore(store => store.Tenants.Add(provider.Tenant));
+            .WithStore<SingleTenantStore>(ServiceLifetime.Singleton, _ => new SingleTenantStore(provider.Tenant))
+            // The static strategy is not an ASP.NET Core one, so it doesn't add the per-request tenant scope
+            // that the claim and header strategies of multi-tenant mode add for us.
+            .AddHttpAmbientTenantScope();
+        services.TryAddSingleton<ITenantAccessor, AmbientTenantAccessor>();
 
         services.Replace(ServiceDescriptor.Singleton<IEventTenantScope, SingleTenantEventTenantScope>());
 
@@ -112,26 +115,10 @@ public static class TenancyExtensions
         services.Replace(ServiceDescriptor.Singleton<IEventingDrainScope, FinbuckleEventingDrainScope>());
         services.Replace(ServiceDescriptor.Scoped<IEventingDrainTargetProvider, TenantStoreDrainTargetProvider>());
 
-        services
-            .AddMultiTenant<AppTenantInfo>(options =>
-            {
-                options.Events.OnTenantResolveCompleted = async context =>
-                {
-                    if (context.MultiTenantContext.StoreInfo is null) return;
-                    if (context.MultiTenantContext.StoreInfo.StoreType != typeof(DistributedCacheStore<AppTenantInfo>))
-                    {
-                        var sp = ((HttpContext)context.Context).RequestServices;
-                        var distributedStore = sp
-                            .GetRequiredService<IEnumerable<IMultiTenantStore<AppTenantInfo>>>()
-                            .FirstOrDefault(s => s.GetType() == typeof(DistributedCacheStore<AppTenantInfo>));
+        services.TryAddSingleton<ITenantAccessor, AmbientTenantAccessor>();
 
-                        if (distributedStore is not null)
-                        {
-                            await distributedStore.AddAsync(context.MultiTenantContext.TenantInfo!).ConfigureAwait(false);
-                        }
-                    }
-                };
-            })
+        services
+            .AddMultiTenant<AppTenantInfo, string>()
             // Strategy chain: first non-null identifier wins (registration order).
             // ClaimStrategy authenticates on its own: UseMultiTenant() runs before UseAuthentication(), so Finbuckle
             // runs the default scheme's handler itself. An authenticated caller resolves to its tenant claim and a
@@ -150,8 +137,9 @@ public static class TenancyExtensions
 
                 return Task.FromResult<string?>(tenantIdentifier.ToString());
             })
-            // The catalog store (the Multitenancy module's) registers after this one, so the cache is asked first.
-            .WithDistributedCacheStore(TimeSpan.FromMinutes(60));
+            // The tenant manager asks this cache before the catalog store (the Multitenancy module's), and fills it
+            // on a miss.
+            .WithDistributedCacheStoreCache(entry => entry.SlidingExpiration = TimeSpan.FromMinutes(60));
     }
 
     private static Dictionary<string, string?> ToConfiguration(TenancyOptions options)

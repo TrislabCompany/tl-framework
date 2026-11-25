@@ -10,7 +10,7 @@ namespace Trislab.Modules.SubscriptionsUsage.Features.v1.Invoices.GenerateInvoic
 
 public sealed class GenerateInvoicesCommandHandler(
     IBillingService billing,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
+    ITenantAccessor tenantAccessor)
     : ICommandHandler<GenerateInvoicesCommand, int>
 {
     public async ValueTask<int> Handle(GenerateInvoicesCommand command, CancellationToken cancellationToken)
@@ -19,7 +19,7 @@ public sealed class GenerateInvoicesCommandHandler(
 
         // Platform-wide invoice generation runs across EVERY tenant — it is a root-operator action.
         // A tenant admin (who also holds Billing.Manage) must not be able to trigger it.
-        var callerTenantId = tenantAccessor.MultiTenantContext?.TenantInfo?.Id
+        var callerTenantId = tenantAccessor.TenantInfo?.Id
             ?? throw new UnauthorizedException("Tenant context is required.").Localized("Error.TenantContextRequired");
         if (callerTenantId != MultitenancyConstants.Root.Id)
         {

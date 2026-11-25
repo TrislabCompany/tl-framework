@@ -50,8 +50,8 @@ public sealed class InvitationOptions
 public sealed class MembershipInvitationService(
     UserManager<TrislabUser> userManager,
     IdentityDbContext db,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
-    IMultiTenantStore<AppTenantInfo> tenantStore,
+    ITenantAccessor tenantAccessor,
+    IMultiTenantStore<AppTenantInfo, string> tenantStore,
     IEventTenantScope tenantScope,
     IServiceScopeFactory scopeFactory,
     IBackgroundMailer mailer,
@@ -278,7 +278,7 @@ public sealed class MembershipInvitationService(
         }
 
         // A deactivated or lapsed tenant takes no new members.
-        var tenant = await tenantStore.GetAsync(tenantId).WaitAsync(ct).ConfigureAwait(false);
+        var tenant = await tenantStore.GetAsync(tenantId, ct).WaitAsync(ct).ConfigureAwait(false);
         if (!IsOpen(tenant, tenantId, now))
         {
             throw InvalidInvitation();
@@ -524,7 +524,7 @@ public sealed class MembershipInvitationService(
     }
 
     private string CurrentTenantId() =>
-        tenantAccessor.MultiTenantContext?.TenantInfo?.Id is { Length: > 0 } id
+        tenantAccessor.TenantInfo?.Id is { Length: > 0 } id
             ? id
             : throw new UnauthorizedException("invalid tenant").Localized("Error.InvalidTenant");
 

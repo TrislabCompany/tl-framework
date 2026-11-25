@@ -84,11 +84,11 @@ public sealed class {Name}DbContext : BaseDbContext
     public const string Schema = "{name}";
 
     public {Name}DbContext(
-        IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+        ITenantAccessor tenants,
         DbContextOptions<{Name}DbContext> options,
         IOptions<DatabaseOptions> settings,
         IHostEnvironment environment)
-        : base(multiTenantContextAccessor, options, settings, environment) { }
+        : base(tenants, options, settings, environment) { }
 
     public DbSet<{Entity}> {Entities} => Set<{Entity}>();
 

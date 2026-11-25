@@ -15,7 +15,7 @@ namespace Trislab.Framework.Persistence;
 public static class TenantIsolationExtensions
 {
     /// <summary>Finbuckle's per-entity annotation key. Reading this lets us skip
-    /// entities that already opted in via explicit <c>builder.IsMultiTenant()</c>.</summary>
+    /// entities that already opted in via explicit <c>builder.IsMultiTenant&lt;string&gt;()</c>.</summary>
     private const string FinbuckleMultiTenantAnnotation = "Finbuckle:MultiTenant";
 
     /// <summary>
@@ -41,7 +41,7 @@ public static class TenantIsolationExtensions
             if (typeof(IGlobalEntity).IsAssignableFrom(entityType.ClrType)) continue;
             if (entityType.FindAnnotation(FinbuckleMultiTenantAnnotation) is not null) continue;
 
-            modelBuilder.Entity(entityType.ClrType).IsMultiTenant().AdjustUniqueIndexes();
+            modelBuilder.Entity(entityType.ClrType).IsMultiTenant<string>().AdjustUniqueIndexes();
         }
     }
 }

@@ -19,19 +19,19 @@ namespace Trislab.Modules.Multitenancy.Services;
 /// </summary>
 public sealed class TenantExpiryScanJob
 {
-    private readonly IMultiTenantStore<AppTenantInfo> _tenantStore;
+    private readonly IMultiTenantStore<AppTenantInfo, string> _tenantStore;
     private readonly TenantDbContext _db;
     private readonly IOutboxWriter _outbox;
-    private readonly IMultiTenantContextSetter _tenantContextSetter;
+    private readonly ITenantAccessor _tenants;
     private readonly TimeProvider _timeProvider;
     private readonly TenantBillingOptions _options;
     private readonly ILogger<TenantExpiryScanJob> _logger;
 
     public TenantExpiryScanJob(
-        IMultiTenantStore<AppTenantInfo> tenantStore,
+        IMultiTenantStore<AppTenantInfo, string> tenantStore,
         TenantDbContext db,
         IOutboxWriter outbox,
-        IMultiTenantContextSetter tenantContextSetter,
+        ITenantAccessor tenants,
         TimeProvider timeProvider,
         IOptions<TenantBillingOptions> options,
         ILogger<TenantExpiryScanJob> logger)
@@ -40,7 +40,7 @@ public sealed class TenantExpiryScanJob
         _tenantStore = tenantStore;
         _db = db;
         _outbox = outbox;
-        _tenantContextSetter = tenantContextSetter;
+        _tenants = tenants;
         _timeProvider = timeProvider;
         _options = options.Value;
         _logger = logger;
@@ -48,7 +48,7 @@ public sealed class TenantExpiryScanJob
 
     public async Task RunAsync(CancellationToken cancellationToken)
     {
-        var tenants = await _tenantStore.GetAllAsync().ConfigureAwait(false);
+        var tenants = await _tenantStore.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var now = _timeProvider.GetUtcNow().UtcDateTime;
 
         var published = 0;
@@ -118,7 +118,7 @@ public sealed class TenantExpiryScanJob
 
         // Install the Finbuckle context before publishing: downstream handlers (e.g. webhook fan-out) use
         // tenant-filtered DbContexts that NRE without it, since a background job carries no HTTP request.
-        _tenantContextSetter.MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = _tenants.Use(tenant);
 
         await _outbox.AddAsync(BuildEvent(noticeType, tenant, validUpto, graceEnds, now), ct).ConfigureAwait(false);
         return true;

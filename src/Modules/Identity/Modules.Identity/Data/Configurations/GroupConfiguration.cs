@@ -13,7 +13,7 @@ public class GroupConfiguration : IEntityTypeConfiguration<Group>
 
         builder
             .ToTable("Groups", IdentityModuleConstants.SchemaName)
-            .IsMultiTenant();
+            .IsMultiTenant<string>();
 
         builder.HasKey(g => g.Id);
 

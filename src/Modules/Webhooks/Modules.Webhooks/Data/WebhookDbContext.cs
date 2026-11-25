@@ -14,7 +14,7 @@ public sealed class WebhookDbContext : BaseDbContext
     public const string Schema = "webhooks";
 
     public WebhookDbContext(
-        IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+        ITenantAccessor multiTenantContextAccessor,
         DbContextOptions<WebhookDbContext> options,
         IOptions<DatabaseOptions> settings,
         IHostEnvironment environment) : base(multiTenantContextAccessor, options, settings, environment) { }

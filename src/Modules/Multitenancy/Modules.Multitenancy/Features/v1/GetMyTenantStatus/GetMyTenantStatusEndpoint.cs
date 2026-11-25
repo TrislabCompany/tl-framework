@@ -13,11 +13,11 @@ public static class GetMyTenantStatusEndpoint
     public static RouteHandlerBuilder Map(IEndpointRouteBuilder endpoints)
     {
         return endpoints.MapGet("/me/status", async (
-                IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+                ITenantAccessor tenantAccessor,
                 ITenantService tenantService,
                 CancellationToken cancellationToken) =>
             {
-                var tenantId = tenantAccessor.MultiTenantContext?.TenantInfo?.Id;
+                var tenantId = tenantAccessor.TenantInfo?.Id;
                 if (string.IsNullOrEmpty(tenantId))
                 {
                     return Results.Unauthorized();

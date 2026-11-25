@@ -39,7 +39,8 @@ What the packages give a product, with no change:
 | Upstream starter kit | Release `10.0.0`, MIT licence ([THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), which ships with every package); every later commit on its `main` is reviewed and synced ([upstream.md](docs/upstream.md)) |
 | .NET | SDK 11.0.100 (`global.json`); the test host image on `sdk:11.0.100-resolute` and `aspnet:11.0.0-resolute-chiseled` (Ubuntu 26.04) |
 | ASP.NET Core | 11.0.0 |
-| EF Core | 10.0.15, with Npgsql's provider 10.0.3, on .NET 11; they move to 11 together with Finbuckle 11 (tl-product-ideas D-41) |
+| EF Core | 11.0.0, with Npgsql's provider 11.0.0 |
+| Finbuckle.MultiTenant | 11.0.0, under its Open Source Maintenance Fee EULA, accepted with `AcceptFinbuckleEULA` in `src/Directory.Build.props` (tl-product-ideas D-41); modules read and set the tenant through `ITenantAccessor` only |
 | Hangfire | 1.8.23, stored in Postgres |
 | Redis-compatible cache | Optional; in-memory without it |
 | S3-compatible storage | rustfs 1.0.3 in the integration tests; AWS SDK for S3 4.0.104.8 |

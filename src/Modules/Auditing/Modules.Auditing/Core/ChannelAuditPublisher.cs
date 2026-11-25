@@ -20,7 +20,7 @@ public sealed class ChannelAuditPublisher : IAuditPublisher
     private readonly Channel<AuditEnvelope> _security;
     private readonly int _defaultCapacity;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor;
+    private readonly ITenantAccessor _tenantAccessor;
     private readonly TimeProvider _timeProvider;
 
     public IAuditScope CurrentScope =>
@@ -29,7 +29,7 @@ public sealed class ChannelAuditPublisher : IAuditPublisher
 
     public ChannelAuditPublisher(
         IHttpContextAccessor httpContextAccessor,
-        IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+        ITenantAccessor tenantAccessor,
         TimeProvider timeProvider,
         int capacity = 50_000,
         int securityCapacity = 50_000)
@@ -161,7 +161,7 @@ public sealed class ChannelAuditPublisher : IAuditPublisher
         if (!needTenant && !needTrace && !needSpan) return env;
 
         var ambientTenant = needTenant
-            ? _tenantAccessor.MultiTenantContext?.TenantInfo?.Id
+            ? _tenantAccessor.TenantInfo?.Id
             : null;
         var activity = Activity.Current;
 

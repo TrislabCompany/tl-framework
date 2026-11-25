@@ -8,7 +8,7 @@ using Mediator;
 namespace Trislab.Modules.Identity.Features.v1.Permissions.GetPermissionCatalog;
 
 public sealed class GetPermissionCatalogQueryHandler(
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
+    ITenantAccessor tenantAccessor)
     : IQueryHandler<GetPermissionCatalogQuery, IReadOnlyList<PermissionCatalogEntryDto>>
 {
     public ValueTask<IReadOnlyList<PermissionCatalogEntryDto>> Handle(
@@ -16,7 +16,7 @@ public sealed class GetPermissionCatalogQueryHandler(
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        var tenantId = tenantAccessor.MultiTenantContext.TenantInfo?.Id;
+        var tenantId = tenantAccessor.TenantInfo?.Id;
         bool isRoot = string.Equals(tenantId, MultitenancyConstants.Root.Id, StringComparison.Ordinal);
 
         // Matches the same root-vs-admin rule used by RolePermissionSyncer so the catalog the

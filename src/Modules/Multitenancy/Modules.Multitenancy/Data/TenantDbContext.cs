@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Trislab.Modules.Multitenancy.Data;
 
-public class TenantDbContext : EFCoreStoreDbContext<AppTenantInfo>
+public class TenantDbContext : EFCoreStoreDbContext<AppTenantInfo, string>
 {
     public const string Schema = "tenant";
 

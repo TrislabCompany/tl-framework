@@ -11,14 +11,14 @@ namespace Trislab.Modules.SubscriptionsUsage.Features.v1.Subscriptions.GetSubscr
 
 public sealed class GetSubscriptionQueryHandler(
     BillingDbContext dbContext,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
+    ITenantAccessor tenantAccessor)
     : IQueryHandler<GetSubscriptionQuery, SubscriptionDto?>
 {
     public async ValueTask<SubscriptionDto?> Handle(GetSubscriptionQuery query, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        var callerTenantId = tenantAccessor.MultiTenantContext?.TenantInfo?.Id
+        var callerTenantId = tenantAccessor.TenantInfo?.Id
             ?? throw new UnauthorizedException("Tenant context is required.").Localized("Error.TenantContextRequired");
 
         // BillingDbContext is not tenant-filtered, so a tenant caller is pinned to its OWN

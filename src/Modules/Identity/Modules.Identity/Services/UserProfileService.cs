@@ -21,7 +21,7 @@ internal sealed class UserProfileService(
     UserManager<TrislabUser> userManager,
     SignInManager<TrislabUser> signInManager,
     IStorageService storageService,
-    IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+    ITenantAccessor multiTenantContextAccessor,
     IRequestContextService requestContext,
     IdentityErrorDescriber errorDescriber) : IUserProfileService
 {
@@ -252,7 +252,7 @@ internal sealed class UserProfileService(
 
     private void EnsureValidTenant()
     {
-        if (string.IsNullOrWhiteSpace(multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id))
+        if (string.IsNullOrWhiteSpace(multiTenantContextAccessor?.TenantInfo?.Id))
         {
             throw new UnauthorizedException("invalid tenant").Localized("Error.InvalidTenant");
         }

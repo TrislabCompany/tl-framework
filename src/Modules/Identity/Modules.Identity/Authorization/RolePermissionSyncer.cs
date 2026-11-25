@@ -24,7 +24,7 @@ namespace Trislab.Modules.Identity.Authorization;
 public sealed class RolePermissionSyncer(
     IdentityDbContext context,
     RoleManager<TrislabRole> roleManager,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+    ITenantAccessor tenantAccessor,
     HybridCache cache,
     TimeProvider timeProvider,
     IOptions<PermissionSyncOptions> options,
@@ -32,7 +32,7 @@ public sealed class RolePermissionSyncer(
 {
     public async Task SyncAsync(CancellationToken cancellationToken)
     {
-        var tenantId = tenantAccessor.MultiTenantContext.TenantInfo?.Id;
+        var tenantId = tenantAccessor.TenantInfo?.Id;
         bool isRoot = tenantId == MultitenancyConstants.Root.Id;
 
         int basicChanged = await SyncRoleAsync(RoleConstants.Basic, PermissionConstants.Basic, cancellationToken).ConfigureAwait(false);
@@ -98,12 +98,12 @@ public sealed class RolePermissionSyncer(
                     logger.LogInformation(
                         "Permission sync for '{Role}' in tenant '{Tenant}' lost a race with another instance; its changes are already applied",
                         roleName,
-                        tenantAccessor.MultiTenantContext.TenantInfo?.Id);
+                        tenantAccessor.TenantInfo?.Id);
                 }
 
                 return 0;
             case SaveOutcome.AlreadyInserted:
-                logger.LogRoleClaimsAlreadyInserted(roleName, tenantAccessor.MultiTenantContext.TenantInfo?.Id);
+                logger.LogRoleClaimsAlreadyInserted(roleName, tenantAccessor.TenantInfo?.Id);
                 return 0;
         }
 
@@ -115,7 +115,7 @@ public sealed class RolePermissionSyncer(
                     "Removed permission claim '{Permission}' from '{Role}' for tenant '{Tenant}': the permission catalog no longer grants it",
                     claim.ClaimValue,
                     roleName,
-                    tenantAccessor.MultiTenantContext.TenantInfo?.Id);
+                    tenantAccessor.TenantInfo?.Id);
             }
         }
 
@@ -125,7 +125,7 @@ public sealed class RolePermissionSyncer(
                 "Synced {Count} new permission claim(s) to '{Role}' for tenant '{Tenant}'",
                 toAdd.Count,
                 roleName,
-                tenantAccessor.MultiTenantContext.TenantInfo?.Id);
+                tenantAccessor.TenantInfo?.Id);
         }
 
         return toAdd.Count + toRemove.Count;
@@ -178,7 +178,7 @@ public sealed class RolePermissionSyncer(
                 logger.LogWarning(
                     "Skipped permission removal for '{Role}' in tenant '{Tenant}': the permission catalog grants it nothing",
                     roleName,
-                    tenantAccessor.MultiTenantContext.TenantInfo?.Id);
+                    tenantAccessor.TenantInfo?.Id);
             }
 
             return [];

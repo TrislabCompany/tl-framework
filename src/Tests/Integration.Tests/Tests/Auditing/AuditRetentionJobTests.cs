@@ -80,11 +80,10 @@ public sealed class AuditRetentionJobTests
     {
         using var scope = _factory.Services.CreateScope();
         var tenant = await scope.ServiceProvider
-            .GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+            .GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
             .GetAsync(tenantId);
         tenant.ShouldNotBeNull();
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var record = new AuditRecord
         {
@@ -108,11 +107,10 @@ public sealed class AuditRetentionJobTests
     {
         using var scope = _factory.Services.CreateScope();
         var tenant = await scope.ServiceProvider
-            .GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+            .GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
             .GetAsync(tenantId);
         tenant.ShouldNotBeNull();
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var db = scope.ServiceProvider.GetRequiredService<AuditDbContext>();
         return await db.AuditRecords.AsNoTracking().AnyAsync(a => a.Id == auditId);

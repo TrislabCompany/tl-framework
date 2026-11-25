@@ -28,11 +28,11 @@ public sealed class SqlAuditSink : IAuditSink
         foreach (var group in batch.GroupBy(e => e.TenantId))
         {
             using var scope = _scopeFactory.CreateScope();
-            var store = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+            var store = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
 
             var tenantInfo = group.Key is null
-                ? await store.GetAsync(MultitenancyConstants.Root.Id).ConfigureAwait(false)
-                : await store.GetAsync(group.Key).ConfigureAwait(false);
+                ? await store.GetAsync(MultitenancyConstants.Root.Id, ct).ConfigureAwait(false)
+                : await store.GetAsync(group.Key, ct).ConfigureAwait(false);
 
             if (tenantInfo is null)
             {
@@ -40,8 +40,7 @@ public sealed class SqlAuditSink : IAuditSink
                 continue;
             }
 
-            scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-                .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenantInfo);
+            using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenantInfo);
 
             var db = scope.ServiceProvider.GetRequiredService<AuditDbContext>();
 

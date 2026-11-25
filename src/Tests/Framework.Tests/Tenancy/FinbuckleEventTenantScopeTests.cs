@@ -12,7 +12,7 @@ namespace Framework.Tests.Tenancy;
 
 public sealed class FinbuckleEventTenantScopeTests
 {
-    private readonly StubAccessor _accessor = new();
+    private readonly AmbientTenantAccessor _accessor = new(new AmbientTenantContext<AppTenantInfo, string>());
 
     [Fact]
     public void Begin_Should_SetTenantContext_When_TenantIdProvided()
@@ -21,9 +21,9 @@ public sealed class FinbuckleEventTenantScopeTests
 
         using (sut.Begin("acme"))
         {
-            _accessor.MultiTenantContext.TenantInfo.ShouldNotBeNull();
-            _accessor.MultiTenantContext.TenantInfo.Id.ShouldBe("acme");
-            _accessor.MultiTenantContext.TenantInfo.Identifier.ShouldBe("acme");
+            _accessor.TenantInfo.ShouldNotBeNull();
+            _accessor.TenantInfo.Id.ShouldBe("acme");
+            _accessor.TenantInfo.Identifier.ShouldBe("acme");
         }
     }
 
@@ -31,54 +31,36 @@ public sealed class FinbuckleEventTenantScopeTests
     public void Begin_Should_RestorePreviousContext_When_Disposed()
     {
         // Seed a pre-existing ambient tenant.
-        ((IMultiTenantContextSetter)_accessor).MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(new AppTenantInfo("root", "root"));
+        using var root = _accessor.Use(new AppTenantInfo("root", "root"));
         var sut = CreateScope();
 
         using (sut.Begin("acme"))
         {
-            _accessor.MultiTenantContext.TenantInfo!.Id.ShouldBe("acme");
+            _accessor.TenantInfo!.Id.ShouldBe("acme");
         }
 
-        _accessor.MultiTenantContext.TenantInfo.Id.ShouldBe("root");
+        _accessor.TenantInfo.Id.ShouldBe("root");
     }
 
     [Fact]
     public void Begin_Should_LeaveContextUntouched_When_TenantIdNullOrWhitespace()
     {
         // Seed a known tenant so we can prove Begin(null/"") does not replace it.
-        ((IMultiTenantContextSetter)_accessor).MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(new AppTenantInfo("root", "root"));
+        using var root = _accessor.Use(new AppTenantInfo("root", "root"));
         var sut = CreateScope();
 
         using (sut.Begin(null))
         {
-            _accessor.MultiTenantContext.TenantInfo!.Id.ShouldBe("root");
+            _accessor.TenantInfo!.Id.ShouldBe("root");
         }
 
         using (sut.Begin("   "))
         {
-            _accessor.MultiTenantContext.TenantInfo.Id.ShouldBe("root");
+            _accessor.TenantInfo.Id.ShouldBe("root");
         }
     }
 
     private FinbuckleEventTenantScope CreateScope()
-        => new(_accessor, _accessor, Substitute.For<IServiceScopeFactory>(), NullLogger<FinbuckleEventTenantScope>.Instance);
+        => new(_accessor, Substitute.For<IServiceScopeFactory>(), NullLogger<FinbuckleEventTenantScope>.Instance);
 
-#pragma warning disable S2376 // Finbuckle's IMultiTenantContextSetter is a set-only contract.
-    private sealed class StubAccessor : IMultiTenantContextAccessor<AppTenantInfo>, IMultiTenantContextSetter
-    {
-        private IMultiTenantContext<AppTenantInfo> _context =
-            new MultiTenantContext<AppTenantInfo>(new AppTenantInfo());
-
-        public IMultiTenantContext<AppTenantInfo> MultiTenantContext => _context;
-
-        IMultiTenantContext IMultiTenantContextAccessor.MultiTenantContext => _context;
-
-        IMultiTenantContext IMultiTenantContextSetter.MultiTenantContext
-        {
-            set => _context = (IMultiTenantContext<AppTenantInfo>)value;
-        }
-    }
-#pragma warning restore S2376
 }

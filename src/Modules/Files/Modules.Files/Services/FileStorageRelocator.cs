@@ -38,7 +38,7 @@ public sealed partial class FileStorageRelocator(
     FilesDbContext db,
     IStorageService storage,
     IOutboxWriter outbox,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+    ITenantAccessor tenantAccessor,
     ILogger<FileStorageRelocator> logger)
 {
     /// <summary>
@@ -204,7 +204,7 @@ public sealed partial class FileStorageRelocator(
     private FileStorageKeyChangedIntegrationEvent NewEvent(FileAsset asset, string oldKey, string newKey) => new(
         Id: Guid.NewGuid(),
         OccurredOnUtc: DateTime.UtcNow,
-        TenantId: tenantAccessor.MultiTenantContext?.TenantInfo?.Id,
+        TenantId: tenantAccessor.TenantInfo?.Id,
         CorrelationId: Activity.Current?.Id ?? Guid.NewGuid().ToString(),
         Source: "Files",
         FileAssetId: asset.Id,

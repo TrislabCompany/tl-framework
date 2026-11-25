@@ -19,7 +19,7 @@ public sealed class TenantServiceStatusBoundaryTests
     private const int GraceDays = 7;
     private static readonly DateTime ValidUpto = new(2031, 6, 1, 0, 0, 0, DateTimeKind.Utc);
 
-    private readonly IMultiTenantStore<AppTenantInfo> _store = Substitute.For<IMultiTenantStore<AppTenantInfo>>();
+    private readonly IMultiTenantStore<AppTenantInfo, string> _store = Substitute.For<IMultiTenantStore<AppTenantInfo, string>>();
     private readonly TimeProvider _clock = Substitute.For<TimeProvider>();
 
     [Theory]

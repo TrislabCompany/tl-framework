@@ -23,7 +23,7 @@ public sealed class UserLocaleTests
     private readonly UserManager<TrislabUser> _userManager;
     private readonly SignInManager<TrislabUser> _signInManager;
     private readonly IStorageService _storageService;
-    private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor;
+    private readonly ITenantAccessor _tenantAccessor;
 
     public UserLocaleTests()
     {
@@ -39,7 +39,7 @@ public sealed class UserLocaleTests
             Substitute.For<IUserConfirmation<TrislabUser>>());
         _signInManager.RefreshSignInAsync(Arg.Any<TrislabUser>()).Returns(Task.CompletedTask);
         _storageService = Substitute.For<IStorageService>();
-        _tenantAccessor = Substitute.For<IMultiTenantContextAccessor<AppTenantInfo>>();
+        _tenantAccessor = Substitute.For<ITenantAccessor>();
     }
 
     private UserProfileService CreateSut() =>

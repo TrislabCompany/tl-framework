@@ -35,7 +35,7 @@ public sealed class IdentityGlobalEntitiesTests
         using var context = CreateContext();
 
         var global = context.Model.GetEntityTypes()
-            .Where(e => !e.IsOwned() && e.FindPrimaryKey() is not null && !e.IsMultiTenant())
+            .Where(e => !e.IsOwned() && e.FindPrimaryKey() is not null && !e.IsMultiTenant)
             .Select(e => e.ClrType.Name)
             .OrderBy(n => n, StringComparer.Ordinal)
             .ToList();
@@ -49,7 +49,7 @@ public sealed class IdentityGlobalEntitiesTests
     {
         using var context = CreateContext();
 
-        foreach (var entity in context.Model.GetEntityTypes().Where(e => !e.IsOwned() && e.FindPrimaryKey() is not null && !e.IsMultiTenant()))
+        foreach (var entity in context.Model.GetEntityTypes().Where(e => !e.IsOwned() && e.FindPrimaryKey() is not null && !e.IsMultiTenant))
         {
             var allowed = IdentityDbContext.AccountTypes.Contains(entity.ClrType)
                 || typeof(IGlobalEntity).IsAssignableFrom(entity.ClrType);
@@ -121,17 +121,19 @@ public sealed class IdentityGlobalEntitiesTests
 
     private static IdentityDbContext CreateContext()
     {
-        var accessor = new FixedTenant(new MultiTenantContext<AppTenantInfo>(new AppTenantInfo("t", "t")));
+        var accessor = new FixedTenant(new AppTenantInfo("t", "t"));
         var options = new DbContextOptionsBuilder<IdentityDbContext>()
             .UseNpgsql("Host=arch;Database=arch;Username=arch;Password=arch")
             .Options;
         return new IdentityDbContext(accessor, options);
     }
 
-    private sealed class FixedTenant(IMultiTenantContext<AppTenantInfo> context) : IMultiTenantContextAccessor<AppTenantInfo>
+    private sealed class FixedTenant(AppTenantInfo tenant) : ITenantAccessor
     {
-        public IMultiTenantContext<AppTenantInfo> MultiTenantContext => context;
+        public AppTenantInfo? TenantInfo => tenant;
 
-        IMultiTenantContext IMultiTenantContextAccessor.MultiTenantContext => context;
+        public bool IsResolved => true;
+
+        public IDisposable Use(AppTenantInfo? tenant) => throw new NotSupportedException("The model tests use one tenant.");
     }
 }

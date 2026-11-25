@@ -13,14 +13,14 @@ namespace Trislab.Modules.SubscriptionsUsage.Features.v1.Invoices.GetMyInvoices;
 
 public sealed class GetMyInvoicesQueryHandler(
     BillingDbContext dbContext,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
+    ITenantAccessor tenantAccessor)
     : IQueryHandler<GetMyInvoicesQuery, PagedResponse<InvoiceDto>>
 {
     public async ValueTask<PagedResponse<InvoiceDto>> Handle(GetMyInvoicesQuery query, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        var tenantId = tenantAccessor.MultiTenantContext?.TenantInfo?.Id
+        var tenantId = tenantAccessor.TenantInfo?.Id
             ?? throw new UnauthorizedException("Tenant context is required.").Localized("Error.TenantContextRequired");
 
         var q = dbContext.Invoices.AsNoTracking()

@@ -1,3 +1,4 @@
+using Finbuckle.MultiTenant;
 using System.Globalization;
 using Finbuckle.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.Stores;
@@ -101,19 +102,17 @@ public sealed class TenantExpiryEnforcementTests
     private async Task SetTenantValidityAsync(string tenantId, DateTime validUpto)
     {
         using var scope = _factory.Services.CreateScope();
-        var stores = scope.ServiceProvider.GetServices<IMultiTenantStore<AppTenantInfo>>().ToList();
+        var tenants = scope.ServiceProvider.GetRequiredService<TenantManager<AppTenantInfo, string>>();
 
-        var efStore = stores.First(s => s.GetType().Name.StartsWith("EFCoreStore", StringComparison.Ordinal));
-        var tenant = await efStore.GetAsync(tenantId);
+        var tenant = await tenants.Store.GetAsync(tenantId);
         tenant.ShouldNotBeNull();
         // Set directly (SetValidity forbids moving the date backward, which is exactly what we need here).
         tenant.ValidUpto = DateTime.SpecifyKind(validUpto, DateTimeKind.Utc);
-        await efStore.UpdateAsync(tenant);
+        await tenants.Store.UpdateAsync(tenant);
 
-        var cacheStore = stores.FirstOrDefault(s => s.GetType() == typeof(DistributedCacheStore<AppTenantInfo>));
-        if (cacheStore is not null)
+        foreach (var cache in tenants.Caches)
         {
-            await cacheStore.UpdateAsync(tenant);
+            await cache.SetAsync(tenant);
         }
     }
 

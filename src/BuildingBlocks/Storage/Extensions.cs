@@ -149,7 +149,7 @@ public static class Extensions
             services.AddScoped<IStorageService>(sp => new QuotaMeteredStorageService(
                 sp.GetRequiredService<TInner>(),
                 sp.GetRequiredService<IQuotaService>(),
-                sp.GetRequiredService<IMultiTenantContextAccessor<AppTenantInfo>>(),
+                sp.GetRequiredService<ITenantAccessor>(),
                 sp.GetRequiredService<ILogger<QuotaMeteredStorageService>>()));
             return;
         }

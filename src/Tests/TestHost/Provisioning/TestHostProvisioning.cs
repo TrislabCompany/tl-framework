@@ -60,7 +60,7 @@ internal static class TestHostProvisioning
             tenant = rootTenant;
         }
 
-        provider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = provider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         // Migrate every module (identity, audit, webhooks, the test module, ...), then seed them all.
         foreach (var init in provider.GetServices<IDbInitializer>())
@@ -93,7 +93,7 @@ internal static class TestHostProvisioning
             ? provider.GetRequiredService<ISingleTenantProvider>().Tenant
             : await provider.GetRequiredService<TenantDbContext>().TenantInfo.FindAsync([MultitenancyConstants.Root.Id], cancellationToken)
                 ?? throw new InvalidOperationException("Provision the host before seeding members.");
-        provider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = provider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var users = provider.GetRequiredService<UserManager<TrislabUser>>();
         var db = provider.GetRequiredService<IdentityDbContext>();

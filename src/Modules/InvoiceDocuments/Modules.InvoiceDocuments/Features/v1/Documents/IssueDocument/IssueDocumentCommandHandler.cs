@@ -22,7 +22,7 @@ public sealed class IssueDocumentCommandHandler(
     InvoiceDocumentsDbContext dbContext,
     DocumentSupport support,
     IOutboxWriter outbox,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
+    ITenantAccessor tenantAccessor)
     : ICommandHandler<IssueDocumentCommand, Guid>
 {
     private const int MaxAttempts = 5;
@@ -113,7 +113,7 @@ public sealed class IssueDocumentCommandHandler(
         await outbox.AddAsync(new InvoiceDocumentIssuedIntegrationEvent(
             Id: Guid.NewGuid(),
             OccurredOnUtc: DateTime.UtcNow,
-            TenantId: tenantAccessor.MultiTenantContext?.TenantInfo?.Id,
+            TenantId: tenantAccessor.TenantInfo?.Id,
             CorrelationId: Guid.NewGuid().ToString(),
             Source: "InvoiceDocuments",
             DocumentId: document.Id,

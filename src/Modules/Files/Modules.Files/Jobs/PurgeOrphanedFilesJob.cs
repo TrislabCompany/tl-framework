@@ -31,8 +31,8 @@ public sealed class PurgeOrphanedFilesJob(
         List<AppTenantInfo> tenants;
         using (var scope = scopeFactory.CreateScope())
         {
-            var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-            tenants = (await tenantStore.GetAllAsync().ConfigureAwait(false)).ToList();
+            var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
+            tenants = (await tenantStore.GetAllAsync(cancellationToken).ConfigureAwait(false)).ToList();
         }
 
         var now = DateTimeOffset.UtcNow;
@@ -55,8 +55,7 @@ public sealed class PurgeOrphanedFilesJob(
         try
         {
             using var scope = scopeFactory.CreateScope();
-            scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-                .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+            using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
             var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
 
             // Only the soft-delete filter is lifted; the tenant filter stays on.

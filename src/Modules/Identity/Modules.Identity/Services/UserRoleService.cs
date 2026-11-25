@@ -19,7 +19,7 @@ internal sealed class UserRoleService(
     UserManager<TrislabUser> userManager,
     RoleManager<TrislabRole> roleManager,
     IdentityDbContext db,
-    IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+    ITenantAccessor multiTenantContextAccessor,
     ICurrentUser currentUser,
     IUserPermissionService userPermissionService,
     IdentityAuditor auditor) : IUserRoleService
@@ -125,7 +125,7 @@ internal sealed class UserRoleService(
     private bool IsRootTenantAdmin(TrislabUser user)
     {
         return user.Email == MultitenancyConstants.Root.EmailAddress
-            && multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id == MultitenancyConstants.Root.Id;
+            && multiTenantContextAccessor?.TenantInfo?.Id == MultitenancyConstants.Root.Id;
     }
 
     private async Task EnsureMinimumAdminCountAsync()
@@ -178,7 +178,7 @@ internal sealed class UserRoleService(
             return;
         }
 
-        var tenantId = multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id;
+        var tenantId = multiTenantContextAccessor?.TenantInfo?.Id;
         user.RecordRolesAssigned(assignedRoles, tenantId);
         await db.SaveChangesAsync(cancellationToken);
     }

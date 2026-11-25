@@ -49,8 +49,8 @@ public sealed class AuditRetentionJob
         List<AppTenantInfo> tenants;
         using (var scope = _scopeFactory.CreateScope())
         {
-            var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-            tenants = (await tenantStore.GetAllAsync().ConfigureAwait(false)).ToList();
+            var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
+            tenants = (await tenantStore.GetAllAsync(ct).ConfigureAwait(false)).ToList();
         }
 
         var now = _timeProvider.GetUtcNow().UtcDateTime;
@@ -73,8 +73,7 @@ public sealed class AuditRetentionJob
         try
         {
             using var scope = _scopeFactory.CreateScope();
-            scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-                .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+            using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
             var db = scope.ServiceProvider.GetRequiredService<AuditDbContext>();
             long total = 0;

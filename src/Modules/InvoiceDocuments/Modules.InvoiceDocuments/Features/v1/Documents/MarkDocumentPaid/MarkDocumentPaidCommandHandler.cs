@@ -15,7 +15,7 @@ namespace Trislab.Modules.InvoiceDocuments.Features.v1.Documents.MarkDocumentPai
 public sealed class MarkDocumentPaidCommandHandler(
     InvoiceDocumentsDbContext dbContext,
     IOutboxWriter outbox,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
+    ITenantAccessor tenantAccessor)
     : ICommandHandler<MarkDocumentPaidCommand, Guid>
 {
     public async ValueTask<Guid> Handle(MarkDocumentPaidCommand command, CancellationToken cancellationToken)
@@ -46,7 +46,7 @@ public sealed class MarkDocumentPaidCommandHandler(
         await outbox.AddAsync(new InvoiceDocumentPaidIntegrationEvent(
             Id: Guid.NewGuid(),
             OccurredOnUtc: DateTime.UtcNow,
-            TenantId: tenantAccessor.MultiTenantContext?.TenantInfo?.Id,
+            TenantId: tenantAccessor.TenantInfo?.Id,
             CorrelationId: Guid.NewGuid().ToString(),
             Source: "InvoiceDocuments",
             DocumentId: document.Id,

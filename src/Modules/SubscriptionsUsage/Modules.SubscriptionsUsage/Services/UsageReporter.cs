@@ -14,14 +14,14 @@ public sealed class UsageReporter : IUsageReporter
     private readonly BillingDbContext _db;
     private readonly IQuotaService _quotas;
     private readonly QuotaPlanResolver _planResolver;
-    private readonly IMultiTenantStore<AppTenantInfo> _tenantStore;
+    private readonly IMultiTenantStore<AppTenantInfo, string> _tenantStore;
     private readonly ILogger<UsageReporter> _logger;
 
     public UsageReporter(
         BillingDbContext db,
         IQuotaService quotas,
         QuotaPlanResolver planResolver,
-        IMultiTenantStore<AppTenantInfo> tenantStore,
+        IMultiTenantStore<AppTenantInfo, string> tenantStore,
         ILogger<UsageReporter> logger)
     {
         _db = db;
@@ -39,7 +39,7 @@ public sealed class UsageReporter : IUsageReporter
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
 
-        var tenant = await _tenantStore.GetAsync(tenantId).ConfigureAwait(false);
+        var tenant = await _tenantStore.GetAsync(tenantId, cancellationToken).ConfigureAwait(false);
         var existing = await _db.UsageSnapshots
             .Where(s => s.TenantId == tenantId && s.PeriodYear == periodYear && s.PeriodMonth == periodMonth)
             .ToListAsync(cancellationToken).ConfigureAwait(false);

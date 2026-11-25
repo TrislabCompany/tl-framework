@@ -13,7 +13,7 @@ public class GroupRoleConfiguration : IEntityTypeConfiguration<GroupRole>
 
         builder
             .ToTable("GroupRoles", IdentityModuleConstants.SchemaName)
-            .IsMultiTenant();
+            .IsMultiTenant<string>();
 
         builder.HasKey(gr => new { gr.GroupId, gr.RoleId });
 

@@ -13,28 +13,28 @@ namespace Trislab.Modules.Multitenancy.Provisioning;
 public sealed class TenantProvisioningJob
 {
     private readonly ITenantProvisioningService _provisioningService;
-    private readonly IMultiTenantStore<AppTenantInfo> _tenantStore;
-    private readonly IMultiTenantContextSetter _tenantContextSetter;
+    private readonly IMultiTenantStore<AppTenantInfo, string> _tenantStore;
+    private readonly ITenantAccessor _tenants;
     private readonly ITenantService _tenantService;
     private readonly ILogger<TenantProvisioningJob> _logger;
 
     public TenantProvisioningJob(
         ITenantProvisioningService provisioningService,
-        IMultiTenantStore<AppTenantInfo> tenantStore,
-        IMultiTenantContextSetter tenantContextSetter,
+        IMultiTenantStore<AppTenantInfo, string> tenantStore,
+        ITenantAccessor tenants,
         ITenantService tenantService,
         ILogger<TenantProvisioningJob> logger)
     {
         _provisioningService = provisioningService;
         _tenantStore = tenantStore;
-        _tenantContextSetter = tenantContextSetter;
+        _tenants = tenants;
         _tenantService = tenantService;
         _logger = logger;
     }
 
     public async Task RunAsync(string tenantId, string correlationId, CancellationToken cancellationToken = default)
     {
-        var tenant = await _tenantStore.GetAsync(tenantId).ConfigureAwait(false)
+        var tenant = await _tenantStore.GetAsync(tenantId, cancellationToken).ConfigureAwait(false)
             ?? throw new NotFoundException($"Tenant {tenantId} not found during provisioning.")
                 .Localized<MultitenancyResources>("Multitenancy.TenantNotFoundDuringProvisioning", tenantId);
 
@@ -43,7 +43,7 @@ public sealed class TenantProvisioningJob
         {
             var runDatabase = await _provisioningService.MarkRunningAsync(tenantId, correlationId, currentStep, cancellationToken).ConfigureAwait(false);
 
-            _tenantContextSetter.MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+            using var tenantUse = _tenants.Use(tenant);
 
             if (runDatabase)
             {

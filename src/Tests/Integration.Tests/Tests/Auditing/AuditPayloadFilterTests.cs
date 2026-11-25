@@ -225,12 +225,11 @@ public sealed class AuditPayloadFilterTests
         using var scope = _factory.Services.CreateScope();
         var sp = scope.ServiceProvider;
 
-        var store = sp.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+        var store = sp.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
         var rootTenant = await store.GetAsync(MultitenancyConstants.Root.Id);
         rootTenant.ShouldNotBeNull();
 
-        sp.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(rootTenant);
+        using var tenantUse = sp.GetRequiredService<ITenantAccessor>().Use(rootTenant);
 
         var db = sp.GetRequiredService<AuditDbContext>();
         db.AuditRecords.Add(new AuditRecord

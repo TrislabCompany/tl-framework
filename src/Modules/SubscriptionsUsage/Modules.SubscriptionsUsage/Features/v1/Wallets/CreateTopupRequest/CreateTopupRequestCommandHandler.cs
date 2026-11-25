@@ -11,7 +11,7 @@ namespace Trislab.Modules.SubscriptionsUsage.Features.v1.Wallets.CreateTopupRequ
 
 public sealed class CreateTopupRequestCommandHandler(
     BillingDbContext db,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+    ITenantAccessor tenantAccessor,
     ICurrentUser currentUser)
     : ICommandHandler<CreateTopupRequestCommand, Guid>
 {
@@ -20,7 +20,7 @@ public sealed class CreateTopupRequestCommandHandler(
         ArgumentNullException.ThrowIfNull(command);
 
         // BillingDbContext is not tenant-filtered; resolve caller's own tenant and scope strictly to it.
-        var tenantId = tenantAccessor.MultiTenantContext?.TenantInfo?.Id
+        var tenantId = tenantAccessor.TenantInfo?.Id
             ?? throw new UnauthorizedException("Tenant context is required.").Localized("Error.TenantContextRequired");
 
         var requestedBy = currentUser.IsAuthenticated() ? currentUser.GetUserId().ToString() : null;

@@ -156,10 +156,9 @@ public sealed class RequirePermissionAllOfTests
         using var scope = _factory.Services.CreateScope();
 
         var tenant = await scope.ServiceProvider
-            .GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+            .GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
             .GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
         var user = new TrislabUser

@@ -15,14 +15,14 @@ namespace Trislab.Modules.Multitenancy.Provisioning;
 public sealed class TenantProvisioningService : ITenantProvisioningService
 {
     private readonly TenantDbContext _dbContext;
-    private readonly IMultiTenantStore<AppTenantInfo> _tenantStore;
+    private readonly IMultiTenantStore<AppTenantInfo, string> _tenantStore;
     private readonly IJobService _jobService;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<TenantProvisioningService> _logger;
 
     public TenantProvisioningService(
         TenantDbContext dbContext,
-        IMultiTenantStore<AppTenantInfo> tenantStore,
+        IMultiTenantStore<AppTenantInfo, string> tenantStore,
         IJobService jobService,
         IServiceScopeFactory scopeFactory,
         ILogger<TenantProvisioningService> logger)
@@ -36,7 +36,7 @@ public sealed class TenantProvisioningService : ITenantProvisioningService
 
     public async Task<TenantProvisioning> StartAsync(string tenantId, CancellationToken cancellationToken)
     {
-        var tenant = await _tenantStore.GetAsync(tenantId).ConfigureAwait(false)
+        var tenant = await _tenantStore.GetAsync(tenantId, cancellationToken).ConfigureAwait(false)
             ?? throw new NotFoundException($"Tenant {tenantId} not found for provisioning.")
                 .Localized<MultitenancyResources>("Multitenancy.TenantNotFoundForProvisioning", tenantId);
 

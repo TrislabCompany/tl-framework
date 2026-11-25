@@ -1,6 +1,4 @@
 using Finbuckle.MultiTenant;
-using Finbuckle.MultiTenant.Abstractions;
-using Finbuckle.MultiTenant.Stores;
 using Trislab.Framework.Eventing.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,19 +17,16 @@ namespace Trislab.Framework.Tenancy;
 /// </summary>
 public sealed class FinbuckleEventTenantScope : IEventTenantScope
 {
-    private readonly IMultiTenantContextAccessor<AppTenantInfo> _accessor;
-    private readonly IMultiTenantContextSetter _setter;
+    private readonly ITenantAccessor _tenants;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<FinbuckleEventTenantScope> _logger;
 
     public FinbuckleEventTenantScope(
-        IMultiTenantContextAccessor<AppTenantInfo> accessor,
-        IMultiTenantContextSetter setter,
+        ITenantAccessor tenants,
         IServiceScopeFactory scopeFactory,
         ILogger<FinbuckleEventTenantScope> logger)
     {
-        _accessor = accessor;
-        _setter = setter;
+        _tenants = tenants;
         _scopeFactory = scopeFactory;
         _logger = logger;
     }
@@ -44,11 +39,7 @@ public sealed class FinbuckleEventTenantScope : IEventTenantScope
             return NoopScope.Instance;
         }
 
-        var previous = _accessor.MultiTenantContext;
-        _setter.MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(new AppTenantInfo(tenantId, tenantId));
-
-        return new RestoreScope(_setter, previous);
+        return _tenants.Use(new AppTenantInfo(tenantId, tenantId));
     }
 
     public async Task ExecuteAsync(
@@ -58,72 +49,34 @@ public sealed class FinbuckleEventTenantScope : IEventTenantScope
     {
         ArgumentNullException.ThrowIfNull(action);
 
-        var previous = _accessor.MultiTenantContext;
+        var current = _tenants.TenantInfo;
         if (string.IsNullOrWhiteSpace(tenantId) ||
-            (string.Equals(previous.TenantInfo?.Id, tenantId, StringComparison.Ordinal) &&
-             !string.IsNullOrWhiteSpace(previous.TenantInfo?.ConnectionString)))
+            (string.Equals(current?.Id, tenantId, StringComparison.Ordinal) &&
+             !string.IsNullOrWhiteSpace(current?.ConnectionString)))
         {
             await action(ct).ConfigureAwait(false);
             return;
         }
 
-        try
+        var tenant = await FindTenantAsync(tenantId, ct).ConfigureAwait(false);
+        if (tenant is null || !tenant.IsActive)
         {
-            var tenant = await FindTenantAsync(tenantId, ct).ConfigureAwait(false);
-            if (tenant is null || !tenant.IsActive)
-            {
-                _logger.LogWarning("Event tenant {TenantId} is missing or inactive; dispatching with tenant identity only", tenantId);
-                tenant = new AppTenantInfo(tenantId, tenantId);
-            }
-
-            _setter.MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
-            await action(ct).ConfigureAwait(false);
+            _logger.LogWarning("Event tenant {TenantId} is missing or inactive; dispatching with tenant identity only", tenantId);
+            tenant = new AppTenantInfo(tenantId, tenantId);
         }
-        finally
+
+        using (_tenants.Use(tenant))
         {
-            _setter.MultiTenantContext = previous;
+            await action(ct).ConfigureAwait(false);
         }
     }
 
     private async Task<AppTenantInfo?> FindTenantAsync(string tenantId, CancellationToken ct)
     {
-        // A single IMultiTenantStore resolve returns only the last registration (the catalog store), so enumerate
-        // all of them in registration order: the cache first, then the catalog.
+        // The tenant manager asks the tenant cache first, then the catalog store, and fills the cache on a miss.
         await using var scope = _scopeFactory.CreateAsyncScope();
-        var stores = scope.ServiceProvider.GetServices<IMultiTenantStore<AppTenantInfo>>().ToList();
-        var cache = stores.OfType<DistributedCacheStore<AppTenantInfo>>().FirstOrDefault();
-
-        foreach (var store in stores)
-        {
-            var tenant = await store.GetAsync(tenantId).WaitAsync(ct).ConfigureAwait(false);
-            if (tenant is null)
-            {
-                continue;
-            }
-
-            if (cache is not null && !ReferenceEquals(store, cache))
-            {
-                await cache.AddAsync(tenant).ConfigureAwait(false);
-            }
-
-            return tenant;
-        }
-
-        return null;
-    }
-
-    private sealed class RestoreScope : IDisposable
-    {
-        private readonly IMultiTenantContextSetter _setter;
-        private readonly IMultiTenantContext<AppTenantInfo> _previous;
-
-        public RestoreScope(IMultiTenantContextSetter setter, IMultiTenantContext<AppTenantInfo> previous)
-        {
-            _setter = setter;
-            _previous = previous;
-        }
-
-        public void Dispose() => _setter.MultiTenantContext = _previous;
+        var tenants = scope.ServiceProvider.GetRequiredService<TenantManager<AppTenantInfo, string>>();
+        return await tenants.GetAsync(tenantId, ct).ConfigureAwait(false);
     }
 
     private sealed class NoopScope : IDisposable

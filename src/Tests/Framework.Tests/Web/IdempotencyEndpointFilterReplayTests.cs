@@ -1317,7 +1317,7 @@ public sealed class IdempotencyEndpointFilterReplayTests
     private static ServiceProvider BuildProviderWith(IDistributedCache cache) =>
         BuildProviderWith(cache, tenantAccessor: null, multiplexer: null);
 
-    private static ServiceProvider BuildProviderWith(IDistributedCache cache, IMultiTenantContextAccessor<AppTenantInfo>? tenantAccessor) =>
+    private static ServiceProvider BuildProviderWith(IDistributedCache cache, ITenantAccessor? tenantAccessor) =>
         BuildProviderWith(cache, tenantAccessor, multiplexer: null);
 
     private static ServiceProvider BuildProviderWith(IDistributedCache cache, IConnectionMultiplexer multiplexer) =>
@@ -1325,7 +1325,7 @@ public sealed class IdempotencyEndpointFilterReplayTests
 
     private static ServiceProvider BuildProviderWith(
         IDistributedCache cache,
-        IMultiTenantContextAccessor<AppTenantInfo>? tenantAccessor,
+        ITenantAccessor? tenantAccessor,
         IConnectionMultiplexer? multiplexer)
     {
         var services = new ServiceCollection();
@@ -1365,10 +1365,10 @@ public sealed class IdempotencyEndpointFilterReplayTests
 
     // What Finbuckle leaves behind for the endpoint filter: the tenant the request is scoped to,
     // which for a root operator using the tenant header is the target, not the caller's own tenant.
-    private static IMultiTenantContextAccessor<AppTenantInfo> TenantContext(string tenantId)
+    private static ITenantAccessor TenantContext(string tenantId)
     {
-        var accessor = Substitute.For<IMultiTenantContextAccessor<AppTenantInfo>>();
-        accessor.MultiTenantContext.Returns(new MultiTenantContext<AppTenantInfo>(new AppTenantInfo(tenantId, tenantId)));
+        var accessor = Substitute.For<ITenantAccessor>();
+        accessor.TenantInfo.Returns(new AppTenantInfo(tenantId, tenantId));
         return accessor;
     }
 

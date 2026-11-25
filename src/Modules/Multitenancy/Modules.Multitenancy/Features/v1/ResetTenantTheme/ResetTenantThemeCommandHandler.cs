@@ -9,12 +9,12 @@ namespace Trislab.Modules.Multitenancy.Features.v1.ResetTenantTheme;
 
 public sealed class ResetTenantThemeCommandHandler(
     ITenantThemeService themeService,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
+    ITenantAccessor tenantAccessor)
     : ICommandHandler<ResetTenantThemeCommand>
 {
     public async ValueTask<Unit> Handle(ResetTenantThemeCommand command, CancellationToken cancellationToken)
     {
-        var tenantId = tenantAccessor.MultiTenantContext?.TenantInfo?.Id
+        var tenantId = tenantAccessor.TenantInfo?.Id
             ?? throw new InvalidOperationException("No tenant context available");
 
         await themeService.ResetThemeAsync(tenantId, cancellationToken);

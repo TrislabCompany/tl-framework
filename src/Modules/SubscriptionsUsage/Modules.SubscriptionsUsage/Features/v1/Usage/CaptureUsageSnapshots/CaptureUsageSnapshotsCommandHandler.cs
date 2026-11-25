@@ -10,7 +10,7 @@ namespace Trislab.Modules.SubscriptionsUsage.Features.v1.Usage.CaptureUsageSnaps
 
 public sealed class CaptureUsageSnapshotsCommandHandler(
     IUsageReporter reporter,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
+    ITenantAccessor tenantAccessor)
     : ICommandHandler<CaptureUsageSnapshotsCommand, IReadOnlyList<UsageSnapshotDto>>
 {
     public async ValueTask<IReadOnlyList<UsageSnapshotDto>> Handle(
@@ -20,7 +20,7 @@ public sealed class CaptureUsageSnapshotsCommandHandler(
 
         // Only the root operator may capture usage for an arbitrary tenant; a tenant caller is pinned
         // to its own tenant so it can't fabricate another tenant's usage/overage snapshots.
-        var callerTenantId = tenantAccessor.MultiTenantContext?.TenantInfo?.Id
+        var callerTenantId = tenantAccessor.TenantInfo?.Id
             ?? throw new UnauthorizedException("Tenant context is required.").Localized("Error.TenantContextRequired");
         var isRoot = callerTenantId == MultitenancyConstants.Root.Id;
         var targetTenantId = isRoot ? command.TenantId : callerTenantId;

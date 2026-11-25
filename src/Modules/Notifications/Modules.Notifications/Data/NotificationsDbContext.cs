@@ -14,7 +14,7 @@ public sealed class NotificationsDbContext : BaseDbContext
     public const string Schema = "notifications";
 
     public NotificationsDbContext(
-        IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+        ITenantAccessor multiTenantContextAccessor,
         DbContextOptions<NotificationsDbContext> options,
         IOptions<DatabaseOptions> settings,
         IHostEnvironment environment) : base(multiTenantContextAccessor, options, settings, environment) { }

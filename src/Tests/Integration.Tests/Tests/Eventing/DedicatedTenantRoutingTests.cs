@@ -70,30 +70,33 @@ public sealed class DedicatedTenantRoutingTests(TrislabWebApplicationFactory fac
     public async Task ExecuteAsync_Should_RestorePreviousContext_AfterSuccessOrFailure(bool fail)
     {
         var services = new ServiceCollection();
-        services.AddMultiTenant<AppTenantInfo>().WithDistributedCacheStore(TimeSpan.FromMinutes(60));
-        services.AddDistributedMemoryCache();
+        services.AddLogging();
+        services.AddMultiTenant<AppTenantInfo, string>().WithInMemoryStore();
+        services.AddSingleton<ITenantAccessor, AmbientTenantAccessor>();
         using ServiceProvider provider = services.BuildServiceProvider();
-        var accessor = provider.GetRequiredService<IMultiTenantContextAccessor<AppTenantInfo>>();
-        var setter = provider.GetRequiredService<IMultiTenantContextSetter>();
-        var previous = new MultiTenantContext<AppTenantInfo>(new AppTenantInfo("source", "source", "source-db", "test@example.test"));
-        setter.MultiTenantContext = previous;
+        var accessor = provider.GetRequiredService<ITenantAccessor>();
+        var previous = new AppTenantInfo("source", "source", "source-db", "test@example.test");
+        using var previousUse = accessor.Use(previous);
         var tenant = new AppTenantInfo("target", "target", "target-db", "test@example.test");
-        var store = provider.GetServices<IMultiTenantStore<AppTenantInfo>>().OfType<DistributedCacheStore<AppTenantInfo>>().Single();
-        (await store.AddAsync(tenant)).ShouldBeTrue();
-        var scope = new FinbuckleEventTenantScope(accessor, setter,
+        using (var seed = provider.CreateScope())
+        {
+            (await seed.ServiceProvider.GetRequiredService<TenantManager<AppTenantInfo, string>>().AddAsync(tenant)).ShouldBeTrue();
+        }
+
+        var scope = new FinbuckleEventTenantScope(accessor,
             provider.GetRequiredService<IServiceScopeFactory>(), NullLogger<FinbuckleEventTenantScope>.Instance);
 
         async Task DispatchAsync() => await scope.ExecuteAsync("target", async _ =>
         {
             await Task.Yield();
-            accessor.MultiTenantContext.TenantInfo.ShouldNotBeNull().Id.ShouldBe(tenant.Id);
-            accessor.MultiTenantContext.TenantInfo.ConnectionString.ShouldBe(tenant.ConnectionString);
+            accessor.TenantInfo.ShouldNotBeNull().Id.ShouldBe(tenant.Id);
+            accessor.TenantInfo.ConnectionString.ShouldBe(tenant.ConnectionString);
             if (fail) throw new InvalidOperationException("handler failed");
         });
 
         if (fail) await Should.ThrowAsync<InvalidOperationException>(DispatchAsync);
         else await DispatchAsync();
-        accessor.MultiTenantContext.ShouldBeSameAs(previous);
+        accessor.TenantInfo.ShouldBeSameAs(previous);
     }
 
     private static FileFinalizedIntegrationEvent NewEvent(string tenantId)
@@ -169,7 +172,7 @@ public sealed class DedicatedTenantRoutingTests(TrislabWebApplicationFactory fac
                 }
                 using (var scope = provider.CreateScope())
                 {
-                    (await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>().AddAsync(tenant)).ShouldBeTrue();
+                    (await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>().AddAsync(tenant)).ShouldBeTrue();
                 }
                 return environment;
             }
@@ -211,7 +214,7 @@ public sealed class DedicatedTenantRoutingTests(TrislabWebApplicationFactory fac
             {
                 using (var scope = Provider.CreateScope())
                 {
-                    await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>().RemoveAsync(Tenant.Id);
+                    await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>().RemoveAsync(Tenant.Id);
                 }
                 await using var connection = new NpgsqlConnection(DefaultConnection);
                 await connection.OpenAsync();
@@ -253,9 +256,10 @@ public sealed class DedicatedTenantRoutingTests(TrislabWebApplicationFactory fac
             services.AddScoped<AmbientDbTransactionRegistry>();
             services.AddDbContext<TenantDbContext>(options => options.UseNpgsql(connection));
             services.AddDistributedMemoryCache();
-            services.AddMultiTenant<AppTenantInfo>()
-                .WithDistributedCacheStore(TimeSpan.FromMinutes(60))
-                .WithStore<EFCoreStore<TenantDbContext, AppTenantInfo>>(ServiceLifetime.Scoped);
+            services.AddMultiTenant<AppTenantInfo, string>()
+                .WithDistributedCacheStoreCache(entry => entry.SlidingExpiration = TimeSpan.FromMinutes(60))
+                .WithStore<EFCoreStore<TenantDbContext, AppTenantInfo, string>>(ServiceLifetime.Scoped);
+            services.AddSingleton<ITenantAccessor, AmbientTenantAccessor>();
             services.AddEventingCore(configuration);
             services.AddTrislabDbContext<TestDbContext>(TestDbContext.Schema);
             services.Replace(ServiceDescriptor.Singleton<IEventTenantScope, FinbuckleEventTenantScope>());

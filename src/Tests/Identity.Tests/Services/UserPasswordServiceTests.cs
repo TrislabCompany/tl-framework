@@ -19,18 +19,16 @@ public sealed class UserPasswordServiceTests
 
     private readonly UserManager<TrislabUser> _userManager;
     private readonly IBackgroundMailer _mailer;
-    private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor;
+    private readonly ITenantAccessor _tenantAccessor;
 
     public UserPasswordServiceTests()
     {
         _userManager = Substitute.For<UserManager<TrislabUser>>(
             Substitute.For<IUserStore<TrislabUser>>(), null, null, null, null, null, null, null, null);
         _mailer = Substitute.For<IBackgroundMailer>();
-        _tenantAccessor = Substitute.For<IMultiTenantContextAccessor<AppTenantInfo>>();
+        _tenantAccessor = Substitute.For<ITenantAccessor>();
 
-        var mtContext = Substitute.For<IMultiTenantContext<AppTenantInfo>>();
-        mtContext.TenantInfo.Returns(new AppTenantInfo(TenantId, TenantId, "Codefi"));
-        _tenantAccessor.MultiTenantContext.Returns(mtContext);
+        _tenantAccessor.TenantInfo.Returns(new AppTenantInfo(TenantId, TenantId, "Codefi"));
     }
 
     private UserPasswordService CreateSut() =>

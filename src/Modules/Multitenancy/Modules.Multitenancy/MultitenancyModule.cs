@@ -69,10 +69,10 @@ public sealed class MultitenancyModule : IModule
         builder.Services.AddTrislabDbContext<TenantDbContext>(TenantDbContext.Schema);
 
         // Tenant resolution, the strategy chain, the tenant cache and the event, outbox and job tenant scopes are the
-        // Tenancy building block's (AddTrislabTenancy). This module adds the catalog behind them: the store the
-        // resolver asks after the cache, and the cache refill when a tenant is found there.
-        new MultiTenantBuilder<AppTenantInfo>(builder.Services)
-            .WithEFCoreStore<TenantDbContext, AppTenantInfo>();
+        // Tenancy building block's (AddTrislabTenancy). This module adds the catalog behind them: the one store the
+        // tenant manager asks after the cache.
+        new MultiTenantBuilder<AppTenantInfo, string>(builder.Services)
+            .WithEFCoreStore<TenantDbContext, AppTenantInfo, string>();
 
         // Tenant-expiry e-mails to the tenant admin. This module owns the events, so it sends the mail
         // (through the Mailing building block); Notifications then works without a tenant catalog.
@@ -97,6 +97,7 @@ public sealed class MultitenancyModule : IModule
         // header set != root + target exists.
         app.Use(async (ctx, next) =>
         {
+            IDisposable? rootOverride = null;
             var callerTenant = ctx.User?.FindFirstValue(ClaimConstants.Tenant);
             if (string.Equals(callerTenant, MultitenancyConstants.Root.Id, StringComparison.Ordinal))
             {
@@ -104,16 +105,23 @@ public sealed class MultitenancyModule : IModule
                 if (!string.IsNullOrEmpty(headerValue) &&
                     !string.Equals(headerValue, MultitenancyConstants.Root.Id, StringComparison.Ordinal))
                 {
-                    var store = ctx.RequestServices.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+                    var store = ctx.RequestServices.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
                     var target = await store.GetAsync(headerValue).ConfigureAwait(false);
                     if (target is not null)
                     {
-                        var setter = ctx.RequestServices.GetRequiredService<IMultiTenantContextSetter>();
-                        setter.MultiTenantContext = new MultiTenantContext<AppTenantInfo>(target);
+                        // For the rest of the request; the root tenant is back once it ends.
+                        rootOverride = ctx.RequestServices.GetRequiredService<ITenantAccessor>().Use(target);
                     }
                 }
             }
-            await next(ctx).ConfigureAwait(false);
+            try
+            {
+                await next(ctx).ConfigureAwait(false);
+            }
+            finally
+            {
+                rootOverride?.Dispose();
+            }
         });
 
         // ── Deactivated-tenant guard ───────────────────────────────────
@@ -125,14 +133,14 @@ public sealed class MultitenancyModule : IModule
             var isOperator = string.Equals(callerTenant, MultitenancyConstants.Root.Id, StringComparison.Ordinal);
             if (!isOperator)
             {
-                var accessor = ctx.RequestServices.GetRequiredService<IMultiTenantContextAccessor<AppTenantInfo>>();
-                var tenant = accessor.MultiTenantContext?.TenantInfo;
+                var accessor = ctx.RequestServices.GetRequiredService<ITenantAccessor>();
+                var tenant = accessor.TenantInfo;
 
                 // An authenticated request normally resolves through the claim strategy; if nothing resolved,
                 // fall back to the caller's claim.
                 if (tenant is null && !string.IsNullOrEmpty(callerTenant))
                 {
-                    var store = ctx.RequestServices.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+                    var store = ctx.RequestServices.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
                     tenant = await store.GetAsync(callerTenant).ConfigureAwait(false);
                 }
 

@@ -34,8 +34,7 @@ public sealed class OutboxAtomicityTests
     {
         var (scope, tenant) = await NewScopeAsync();
         using var scopeHandle = scope;
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
 
         var db = scope.ServiceProvider.GetRequiredService<TestDbContext>();
@@ -50,8 +49,7 @@ public sealed class OutboxAtomicityTests
     {
         var (scope, tenant) = await NewScopeAsync();
         using var scopeHandle = scope;
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var db = scope.ServiceProvider.GetRequiredService<TestDbContext>();
         var store = scope.ServiceProvider.GetRequiredService<IOutboxStore>();
@@ -79,8 +77,7 @@ public sealed class OutboxAtomicityTests
     {
         var (scope, tenant) = await NewScopeAsync();
         using var scopeHandle = scope;
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var db = scope.ServiceProvider.GetRequiredService<TestDbContext>();
         var store = scope.ServiceProvider.GetRequiredService<IOutboxStore>();
@@ -108,8 +105,7 @@ public sealed class OutboxAtomicityTests
     {
         var (scope, tenant) = await NewScopeAsync();
         using var scopeHandle = scope;
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var store = scope.ServiceProvider.GetRequiredService<IOutboxStore>();
         var eventId = Guid.CreateVersion7();
@@ -125,8 +121,7 @@ public sealed class OutboxAtomicityTests
     {
         var (scope, tenant) = await NewScopeAsync();
         using var scopeHandle = scope;
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var db = scope.ServiceProvider.GetRequiredService<TestDbContext>();
         var store = scope.ServiceProvider.GetRequiredService<IOutboxStore>();
@@ -166,8 +161,7 @@ public sealed class OutboxAtomicityTests
         // A fresh scope: the assertion must read committed state, not the writing context's tracker.
         var (scope, tenant) = await NewScopeAsync();
         using var scopeHandle = scope;
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var eventing = scope.ServiceProvider.GetRequiredService<EventingDbContext>();
 
@@ -179,8 +173,7 @@ public sealed class OutboxAtomicityTests
     {
         var (scope, tenant) = await NewScopeAsync();
         using var scopeHandle = scope;
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var db = scope.ServiceProvider.GetRequiredService<TestDbContext>();
 
@@ -198,7 +191,7 @@ public sealed class OutboxAtomicityTests
     {
         var scope = _factory.Services.CreateScope();
         var tenant = await scope.ServiceProvider
-            .GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+            .GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
             .GetAsync(TestConstants.RootTenantId);
         return (scope, tenant!);
     }

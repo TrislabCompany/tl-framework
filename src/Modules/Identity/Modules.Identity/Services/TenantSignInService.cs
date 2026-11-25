@@ -72,7 +72,7 @@ public sealed record TenantDecision(TenantDecisionKind Kind, string? TenantId = 
 /// </remarks>
 public sealed class TenantSignInService(
     IdentityDbContext db,
-    IMultiTenantStore<AppTenantInfo> tenantStore,
+    IMultiTenantStore<AppTenantInfo, string> tenantStore,
     IEventTenantScope tenantScope,
     IServiceScopeFactory scopeFactory,
     SelectionTokenCodec selectionTokens,
@@ -569,7 +569,7 @@ public sealed class TenantSignInService(
     }
 
     private async Task<AppTenantInfo?> FindTenantAsync(string tenantId, CancellationToken ct) =>
-        await tenantStore.GetAsync(tenantId).WaitAsync(ct).ConfigureAwait(false);
+        await tenantStore.GetAsync(tenantId, ct).WaitAsync(ct).ConfigureAwait(false);
 
     private Task<List<string>> GetActiveMembershipsAsync(string userId, CancellationToken ct) =>
         db.TenantMemberships

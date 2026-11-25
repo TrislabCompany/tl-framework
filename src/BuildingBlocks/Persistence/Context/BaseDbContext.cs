@@ -1,5 +1,4 @@
-﻿using Finbuckle.MultiTenant.Abstractions;
-using Finbuckle.MultiTenant.EntityFrameworkCore;
+﻿using Finbuckle.MultiTenant.EntityFrameworkCore;
 using Trislab.Framework.Core.Domain;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Shared.Persistence;
@@ -14,17 +13,32 @@ namespace Trislab.Framework.Persistence.Context;
 /// <summary>
 /// Base database context with multi-tenancy and soft delete support.
 /// </summary>
-/// <param name="multiTenantContextAccessor">Accessor for multi-tenant context information.</param>
-/// <param name="options">Database context options.</param>
-/// <param name="settings">Database configuration settings.</param>
-/// <param name="environment">Host environment information.</param>
-public class BaseDbContext(IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
-    DbContextOptions options,
-    IOptions<DatabaseOptions> settings,
-    IHostEnvironment environment)
-    : MultiTenantDbContext(multiTenantContextAccessor, options)
+public class BaseDbContext : MultiTenantDbContext<string>
 {
-    private readonly DatabaseOptions _settings = settings.Value;
+    private readonly DatabaseOptions _settings;
+    private readonly IHostEnvironment _environment;
+
+    /// <summary>
+    /// Creates the context for the current tenant. The tenant is captured now: a context created outside any
+    /// tenant sees no tenant-scoped rows.
+    /// </summary>
+    /// <param name="tenants">The tenant of the current asynchronous flow.</param>
+    /// <param name="options">Database context options.</param>
+    /// <param name="settings">Database configuration settings.</param>
+    /// <param name="environment">Host environment information.</param>
+    public BaseDbContext(
+        ITenantAccessor tenants,
+        DbContextOptions options,
+        IOptions<DatabaseOptions> settings,
+        IHostEnvironment environment)
+        : base(options)
+    {
+        ArgumentNullException.ThrowIfNull(tenants);
+        ArgumentNullException.ThrowIfNull(settings);
+        TenantInfo = tenants.TenantInfo;
+        _settings = settings.Value;
+        _environment = environment;
+    }
 
     /// <summary>
     /// Configures the model by applying global query filters for soft delete functionality.
@@ -50,7 +64,7 @@ public class BaseDbContext(IMultiTenantContextAccessor<AppTenantInfo> multiTenan
     {
         ArgumentNullException.ThrowIfNull(optionsBuilder);
 
-        var tenantConnectionString = multiTenantContextAccessor?.MultiTenantContext.TenantInfo?.ConnectionString;
+        var tenantConnectionString = (TenantInfo as AppTenantInfo)?.ConnectionString;
         if (string.IsNullOrWhiteSpace(tenantConnectionString))
         {
             return;
@@ -71,14 +85,14 @@ public class BaseDbContext(IMultiTenantContextAccessor<AppTenantInfo> multiTenan
             optionsBuilder.ConfigureTrislabDatabase(
                 _settings.Provider,
                 tenantConnectionString,
-                environment.IsDevelopment());
+                _environment.IsDevelopment());
             return;
         }
 
         optionsBuilder.ConfigureTrislabDatabase(
             _settings.Provider,
             connectionProvider.GetConnection(_settings.Provider, tenantConnectionString),
-            environment.IsDevelopment());
+            _environment.IsDevelopment());
     }
 
     /// <summary>

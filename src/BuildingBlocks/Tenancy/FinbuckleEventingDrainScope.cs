@@ -1,5 +1,3 @@
-using Finbuckle.MultiTenant;
-using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Eventing.Abstractions;
 using Trislab.Framework.Shared.Multitenancy;
 
@@ -15,16 +13,9 @@ namespace Trislab.Framework.Tenancy;
 /// </summary>
 public sealed class FinbuckleEventingDrainScope : IEventingDrainScope
 {
-    private readonly IMultiTenantContextAccessor<AppTenantInfo> _accessor;
-    private readonly IMultiTenantContextSetter _setter;
+    private readonly ITenantAccessor _tenants;
 
-    public FinbuckleEventingDrainScope(
-        IMultiTenantContextAccessor<AppTenantInfo> accessor,
-        IMultiTenantContextSetter setter)
-    {
-        _accessor = accessor;
-        _setter = setter;
-    }
+    public FinbuckleEventingDrainScope(ITenantAccessor tenants) => _tenants = tenants;
 
     public IDisposable Begin(EventingDrainTarget target)
     {
@@ -37,8 +28,6 @@ public sealed class FinbuckleEventingDrainScope : IEventingDrainScope
             return NoopScope.Instance;
         }
 
-        var previous = _accessor.MultiTenantContext;
-
         // Built by hand rather than via the tenant-shaped constructor: only the id and the
         // connection string matter for routing, and the richer constructor also stamps validity
         // and activation state we have no business inventing here.
@@ -47,23 +36,7 @@ public sealed class FinbuckleEventingDrainScope : IEventingDrainScope
             ConnectionString = target.ConnectionString ?? string.Empty,
         };
 
-        _setter.MultiTenantContext = new MultiTenantContext<AppTenantInfo>(info);
-
-        return new RestoreScope(_setter, previous);
-    }
-
-    private sealed class RestoreScope : IDisposable
-    {
-        private readonly IMultiTenantContextSetter _setter;
-        private readonly IMultiTenantContext<AppTenantInfo> _previous;
-
-        public RestoreScope(IMultiTenantContextSetter setter, IMultiTenantContext<AppTenantInfo> previous)
-        {
-            _setter = setter;
-            _previous = previous;
-        }
-
-        public void Dispose() => _setter.MultiTenantContext = _previous;
+        return _tenants.Use(info);
     }
 
     private sealed class NoopScope : IDisposable

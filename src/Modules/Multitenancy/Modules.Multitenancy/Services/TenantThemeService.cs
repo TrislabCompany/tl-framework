@@ -29,7 +29,7 @@ public sealed class TenantThemeService : ITenantThemeService
 
     private readonly HybridCache _cache;
     private readonly TenantDbContext _dbContext;
-    private readonly IMultiTenantContextAccessor<AppTenantInfo> _tenantAccessor;
+    private readonly ITenantAccessor _tenantAccessor;
     private readonly IStorageService _storageService;
     private readonly ILogger<TenantThemeService> _logger;
     private readonly ICurrentUser _currentUser;
@@ -37,7 +37,7 @@ public sealed class TenantThemeService : ITenantThemeService
     public TenantThemeService(
         HybridCache cache,
         TenantDbContext dbContext,
-        IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor,
+        ITenantAccessor tenantAccessor,
         IStorageService storageService,
         ILogger<TenantThemeService> logger,
         ICurrentUser currentUser)
@@ -52,7 +52,7 @@ public sealed class TenantThemeService : ITenantThemeService
 
     public async Task<TenantThemeDto> GetCurrentTenantThemeAsync(CancellationToken ct = default)
     {
-        var tenantId = _tenantAccessor.MultiTenantContext?.TenantInfo?.Id
+        var tenantId = _tenantAccessor.TenantInfo?.Id
             ?? throw new InvalidOperationException("No tenant context available");
         return await GetThemeAsync(tenantId, ct).ConfigureAwait(false);
     }
@@ -257,7 +257,7 @@ public sealed class TenantThemeService : ITenantThemeService
         ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
 
         // Ensure only root tenant can set default theme
-        var currentTenantId = _tenantAccessor.MultiTenantContext?.TenantInfo?.Id;
+        var currentTenantId = _tenantAccessor.TenantInfo?.Id;
         if (currentTenantId != MultitenancyConstants.Root.Id)
         {
             throw new ForbiddenException("Only the root tenant can set the default theme")

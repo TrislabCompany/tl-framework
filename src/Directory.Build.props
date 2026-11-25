@@ -25,6 +25,10 @@
 
 		<!-- Prevent MSBuild from excluding common folders (optional) -->
 		<NoDefaultExcludes>true</NoDefaultExcludes>
+
+		<!-- Finbuckle.MultiTenant 11 and later: Trislab accepted the Open Source Maintenance Fee EULA
+		     (tl-product-ideas D-41). Without it the build warns FBMT0001, which fails it. -->
+		<AcceptFinbuckleEULA>true</AcceptFinbuckleEULA>
 	</PropertyGroup>
 
 	<ItemGroup>

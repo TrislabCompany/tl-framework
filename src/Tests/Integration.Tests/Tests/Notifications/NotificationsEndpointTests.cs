@@ -378,10 +378,9 @@ public abstract class NotificationsEndpointTestsBase
         for (int i = 0; i < count; i++)
         {
             using var scope = _factory.Services.CreateScope();
-            var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+            var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
             var tenant = await tenantStore.GetAsync(_factory.TenantId);
-            scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-                new MultiTenantContext<AppTenantInfo>(tenant);
+            using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
             var db = scope.ServiceProvider.GetRequiredService<NotificationsDbContext>();
             var notification = Notification.Create(

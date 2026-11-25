@@ -160,10 +160,9 @@ public abstract class ListOwnerFilesTestsBase
     private async Task QuarantineAsync(Guid fileId)
     {
         using var scope = _factory.Services.CreateScope();
-        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>().GetAsync(_factory.TenantId);
+        var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>().GetAsync(_factory.TenantId);
         tenant.ShouldNotBeNull();
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
         var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
         var updated = await db.FileAssets
             .Where(f => f.Id == fileId)

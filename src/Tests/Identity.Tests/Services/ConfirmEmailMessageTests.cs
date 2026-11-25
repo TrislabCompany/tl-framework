@@ -37,8 +37,8 @@ public sealed class ConfirmEmailMessageTests
         userManager.VerifyUserTokenAsync(user, Arg.Any<string>(), UserManager<TrislabUser>.ConfirmEmailTokenPurpose, "token").Returns(true);
         userManager.CheckPasswordAsync(user, "Secret@1234!").Returns(true);
 
-        var tenant = Substitute.For<IMultiTenantContextAccessor<AppTenantInfo>>();
-        tenant.MultiTenantContext.Returns(new MultiTenantContext<AppTenantInfo>(new AppTenantInfo("root", "root")));
+        var tenant = Substitute.For<ITenantAccessor>();
+        tenant.TenantInfo.Returns(new AppTenantInfo("root", "root"));
 
         var services = new ServiceCollection();
         services.AddLogging();

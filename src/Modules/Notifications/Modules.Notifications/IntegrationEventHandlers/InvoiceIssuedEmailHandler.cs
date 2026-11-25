@@ -10,7 +10,7 @@ namespace Trislab.Modules.Notifications.IntegrationEventHandlers;
 /// <summary>Emails the tenant admin when an invoice is issued. Resolves the admin email from the tenant
 /// store (the event only carries the tenant id).</summary>
 public sealed class InvoiceIssuedEmailHandler(
-    IMultiTenantStore<AppTenantInfo> tenantStore,
+    IMultiTenantStore<AppTenantInfo, string> tenantStore,
     IMailService mailService,
     ILogger<InvoiceIssuedEmailHandler> logger)
     : IIntegrationEventHandler<InvoiceIssuedIntegrationEvent>
@@ -23,7 +23,7 @@ public sealed class InvoiceIssuedEmailHandler(
             return;
         }
 
-        var tenant = await tenantStore.GetAsync(@event.TenantId).ConfigureAwait(false);
+        var tenant = await tenantStore.GetAsync(@event.TenantId, ct).ConfigureAwait(false);
         if (tenant is null)
         {
             return;

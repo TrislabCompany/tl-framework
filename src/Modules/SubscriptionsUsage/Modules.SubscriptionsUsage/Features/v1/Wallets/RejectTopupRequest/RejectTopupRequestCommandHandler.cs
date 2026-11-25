@@ -13,14 +13,14 @@ namespace Trislab.Modules.SubscriptionsUsage.Features.v1.Wallets.RejectTopupRequ
 
 public sealed class RejectTopupRequestCommandHandler(
     BillingDbContext db,
-    IMultiTenantContextAccessor<AppTenantInfo> tenantAccessor)
+    ITenantAccessor tenantAccessor)
     : ICommandHandler<RejectTopupRequestCommand, Guid>
 {
     public async ValueTask<Guid> Handle(RejectTopupRequestCommand command, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
 
-        var callerTenantId = tenantAccessor.MultiTenantContext?.TenantInfo?.Id
+        var callerTenantId = tenantAccessor.TenantInfo?.Id
             ?? throw new UnauthorizedException("Tenant context is required.").Localized("Error.TenantContextRequired");
         var isRoot = callerTenantId == MultitenancyConstants.Root.Id;
 

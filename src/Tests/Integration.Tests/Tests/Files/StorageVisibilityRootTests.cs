@@ -305,7 +305,7 @@ public sealed class StorageVisibilityRootTests
         // swallows store errors), then let the outbox deliver what was committed with the move.
         using (var scope = _factory.Services.CreateScope())
         {
-            SetTenant(scope, TestConstants.RootTenantId);
+            using var tenantUse = SetTenant(scope, TestConstants.RootTenantId);
             var flaky = new DeleteFailsOnceStorage(scope.ServiceProvider.GetRequiredService<IStorageService>());
             var relocator = ActivatorUtilities.CreateInstance<Trislab.Modules.Files.Services.FileStorageRelocator>(scope.ServiceProvider, flaky);
             await relocator.ApplyAsync(id, asset =>
@@ -352,7 +352,7 @@ public sealed class StorageVisibilityRootTests
 
         using (var scope = _factory.Services.CreateScope())
         {
-            SetTenant(scope, TestConstants.RootTenantId);
+            using var tenantUse = SetTenant(scope, TestConstants.RootTenantId);
             var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
             db.FileAssets.Add(FileAsset.CreatePending(
                 id, "MyFiles", null, "in-flight.pdf", "in-flight.pdf", "application/pdf", bytes.Length, legacyKey,
@@ -382,7 +382,7 @@ public sealed class StorageVisibilityRootTests
         FileAssetDto dto;
         using (var scope = _factory.Services.CreateScope())
         {
-            SetTenant(scope, TestConstants.RootTenantId);
+            using var tenantUse = SetTenant(scope, TestConstants.RootTenantId);
             var failing = new CopyFailsStorage(scope.ServiceProvider.GetRequiredService<IStorageService>());
             var relocator = ActivatorUtilities.CreateInstance<FileStorageRelocator>(scope.ServiceProvider, failing);
             var handler = ActivatorUtilities.CreateInstance<FinalizeUploadCommandHandler>(
@@ -421,11 +421,11 @@ public sealed class StorageVisibilityRootTests
         var outbox = new ThrowingOutboxWriter();
         using (var scope = _factory.Services.CreateScope())
         {
-            SetTenant(scope, TestConstants.RootTenantId);
+            using var tenantUse = SetTenant(scope, TestConstants.RootTenantId);
             var metered = new QuotaMeteredStorageService(
                 scope.ServiceProvider.GetRequiredService<IStorageService>(),
                 quotas,
-                scope.ServiceProvider.GetRequiredService<IMultiTenantContextAccessor<AppTenantInfo>>(),
+                scope.ServiceProvider.GetRequiredService<ITenantAccessor>(),
                 NullLogger<QuotaMeteredStorageService>.Instance);
             var relocator = ActivatorUtilities.CreateInstance<FileStorageRelocator>(scope.ServiceProvider, metered, outbox);
 
@@ -469,7 +469,7 @@ public sealed class StorageVisibilityRootTests
         }
 
         using var scope = _factory.Services.CreateScope();
-        SetTenant(scope, TestConstants.RootTenantId);
+        using var tenantUse = SetTenant(scope, TestConstants.RootTenantId);
         var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
         db.FileAssets.Add(FileAsset.CreatePending(
             id, "MyFiles", null, fileName, fileName, "application/pdf", bytes.Length, legacyKey,
@@ -582,7 +582,7 @@ public sealed class StorageVisibilityRootTests
     {
         var idList = ids.ToList();
         using var scope = _factory.Services.CreateScope();
-        SetTenant(scope, tenantId);
+        using var tenantUse = SetTenant(scope, tenantId);
         var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
         await db.FileAssets.IgnoreQueryFilters().Where(f => idList.Contains(f.Id)).ExecuteDeleteAsync();
     }
@@ -590,7 +590,7 @@ public sealed class StorageVisibilityRootTests
     private async Task<Visibility> ReadVisibilityAsync(string tenantId, Guid id)
     {
         using var scope = _factory.Services.CreateScope();
-        SetTenant(scope, tenantId);
+        using var tenantUse = SetTenant(scope, tenantId);
         var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
         return await db.FileAssets.IgnoreQueryFilters().AsNoTracking().Where(f => f.Id == id).Select(f => f.Visibility).SingleAsync();
     }
@@ -630,7 +630,7 @@ public sealed class StorageVisibilityRootTests
         }
 
         using var scope = _factory.Services.CreateScope();
-        SetTenant(scope, tenantId);
+        using var tenantUse = SetTenant(scope, tenantId);
         var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
         var asset = FileAsset.CreatePending(
             id, ownerType, ownerId, "legacy.png", "legacy.png", "image/png", bytes.Length, key, visibility,
@@ -645,7 +645,7 @@ public sealed class StorageVisibilityRootTests
     private async Task<Guid> SeedTestItemAsync(Guid fileAssetId, string url)
     {
         using var scope = _factory.Services.CreateScope();
-        SetTenant(scope, TestConstants.RootTenantId);
+        using var tenantUse = SetTenant(scope, TestConstants.RootTenantId);
         var db = scope.ServiceProvider.GetRequiredService<TestDbContext>();
 
         var item = TestItem.Create($"vis-item-{Guid.NewGuid():N}"[..20], fileAssetId, url);
@@ -657,7 +657,7 @@ public sealed class StorageVisibilityRootTests
     private async Task<string> ReadTestItemUrlAsync(Guid itemId)
     {
         using var scope = _factory.Services.CreateScope();
-        SetTenant(scope, TestConstants.RootTenantId);
+        using var tenantUse = SetTenant(scope, TestConstants.RootTenantId);
         var db = scope.ServiceProvider.GetRequiredService<TestDbContext>();
         return await db.Items.AsNoTracking().Where(i => i.Id == itemId).Select(i => i.ImageUrl!).SingleAsync();
     }
@@ -665,7 +665,7 @@ public sealed class StorageVisibilityRootTests
     private async Task<string> GetUserIdAsync(string tenantId, string email)
     {
         using var scope = _factory.Services.CreateScope();
-        SetTenant(scope, tenantId);
+        using var tenantUse = SetTenant(scope, tenantId);
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
         return await db.Users.AsNoTracking().Where(u => u.Email == email).Select(u => u.Id).SingleAsync();
     }
@@ -674,7 +674,7 @@ public sealed class StorageVisibilityRootTests
     private async Task<string?> SetAvatarUrlAsync(string userId, string? url)
     {
         using var scope = _factory.Services.CreateScope();
-        SetTenant(scope, TestConstants.RootTenantId);
+        using var tenantUse = SetTenant(scope, TestConstants.RootTenantId);
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
         var user = await db.Users.SingleAsync(u => u.Id == userId);
         var previous = user.ImageUrl?.ToString();
@@ -686,7 +686,7 @@ public sealed class StorageVisibilityRootTests
     private async Task<string?> ReadAvatarUrlAsync(string userId)
     {
         using var scope = _factory.Services.CreateScope();
-        SetTenant(scope, TestConstants.RootTenantId);
+        using var tenantUse = SetTenant(scope, TestConstants.RootTenantId);
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
         var user = await db.Users.AsNoTracking().SingleAsync(u => u.Id == userId);
         return user.ImageUrl?.ToString();
@@ -695,7 +695,7 @@ public sealed class StorageVisibilityRootTests
     private async Task<string> ReadStorageKeyAsync(string tenantId, Guid id)
     {
         using var scope = _factory.Services.CreateScope();
-        SetTenant(scope, tenantId);
+        using var tenantUse = SetTenant(scope, tenantId);
         var db = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
         var key = await db.FileAssets.IgnoreQueryFilters().AsNoTracking()
             .Where(f => f.Id == id).Select(f => f.StorageKey).FirstOrDefaultAsync();
@@ -720,13 +720,12 @@ public sealed class StorageVisibilityRootTests
 
     // Tenant context is an AsyncLocal: a value set inside an async helper does not flow back to the caller,
     // so this stays synchronous and is called in the same method that resolves the DbContext.
-    private static void SetTenant(IServiceScope scope, string tenantId)
+    private static IDisposable SetTenant(IServiceScope scope, string tenantId)
     {
-        var tenant = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
+        var tenant = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>()
             .GetAsync(tenantId).GetAwaiter().GetResult();
         tenant.ShouldNotBeNull();
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
+        return scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
     }
 
     private static async Task<byte[]> DownloadViaPresignedUrlAsync(HttpClient client, Guid id)

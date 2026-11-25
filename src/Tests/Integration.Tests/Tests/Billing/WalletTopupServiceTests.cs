@@ -41,10 +41,9 @@ public sealed class WalletTopupServiceTests
 
         // Set Finbuckle context INLINE — AsyncLocal propagates downward but NOT back up after await,
         // so the setter must be called directly in this method before any service calls.
-        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
         var tenant = await tenantStore.GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var billing = scope.ServiceProvider.GetRequiredService<IBillingService>();
         var db = scope.ServiceProvider.GetRequiredService<BillingDbContext>();
@@ -82,10 +81,9 @@ public sealed class WalletTopupServiceTests
         using var scope = _factory.Services.CreateScope();
 
         // Set context inline (AsyncLocal does not propagate back after awaited helpers).
-        var tenantStore2 = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+        var tenantStore2 = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
         var tenant2 = await tenantStore2.GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant2);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant2);
 
         var billing = scope.ServiceProvider.GetRequiredService<IBillingService>();
         var db = scope.ServiceProvider.GetRequiredService<BillingDbContext>();
@@ -118,10 +116,9 @@ public sealed class WalletTopupServiceTests
 
         using var scope = _factory.Services.CreateScope();
 
-        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
         var tenant = await tenantStore.GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
+        using var tenantUse = scope.ServiceProvider.GetRequiredService<ITenantAccessor>().Use(tenant);
 
         var billing = scope.ServiceProvider.GetRequiredService<IBillingService>();
         var db = scope.ServiceProvider.GetRequiredService<BillingDbContext>();
