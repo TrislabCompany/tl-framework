@@ -58,7 +58,9 @@ The starters `tl-product-saas` and `tl-product-webapp` are set up this way; a pr
    ```
 
 3. **The modules.** The host references the modules it registers, and registers each one in its `Program.cs` and the migrator's, as in this repository ([modules.md](modules.md)).
-4. **Upgrades.** `renovate.json` extends the preset `github>TrislabCompany/tl-framework//renovate/framework`. It puts every `Trislab.*` package into one pull request per framework version, merges a PATCH by itself once CI passes, and leaves a MINOR or MAJOR for review. Take every MINOR in order, without skipping one.
+4. **Upgrades.**
+   - **In the starters** (`tl-product-saas`, `tl-product-webapp`), `renovate.json` extends the preset `github>TrislabCompany/tl-framework//renovate/framework`. It opens one pull request per framework release `vX.Y.Z`, which raises `TrislabFrameworkVersion` and `@trislabcompany/framework-ui` together. The PR goes on auto-merge, and merges once a person approves it and `ci / ci` passes. It reads the releases from this repository's tags, so it needs no token for GitHub Packages. The release's "Breaking changes for the starters" say what else the PR has to change.
+   - **In a product repository,** the preset does nothing. The starter's template update brings the framework version it was tested with, together with the host changes it needs, one MINOR at a time (tl-product-ideas D-40).
 
 ## 4. Adding a package
 
