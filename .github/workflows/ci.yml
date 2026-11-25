@@ -1,11 +1,22 @@
 name: ci
 
-# Runs the tests on every PR and every push to main: the .NET tests
-# (unit, architecture and integration; the integration tests start their own
-# throw-away containers), then each npm package in packages/ runs its own tests
-# (npm test; framework-ui's browser tests run in Chromium). The framework
-# holds only packages and tests, so there are no images to build or scan.
-# The job's name is `ci / ci`, the required check.
+# The `ci / ci` check, the required one, on every PR and every push to main.
+#
+# On a PR it first classifies the change. A PR that changes only documentation
+# (Markdown, docs/, .claude/, .agents/, LICENSE) lints the changed Markdown and
+# passes, with nothing built or tested. Any other PR runs the tests it affects:
+# scripts/affected-tests.ps1 picks the .NET test projects through
+# ProjectReference, the integration-test areas through
+# src/Tests/affected-map.json and the changed npm packages, and runs everything
+# when a shared build file, a core building block or the test infrastructure
+# changed. It also fails a PR that adds a dependency with a known high or
+# critical vulnerability (dependency review).
+#
+# A push to main (the merge) runs every test: the .NET tests (unit,
+# architecture and integration; the integration tests start their own
+# throw-away containers), then each npm package in packages/ (framework-ui's
+# browser tests run in Chromium). The framework holds only packages and tests,
+# so there are no images to build or scan.
 
 on:
   pull_request:
@@ -13,6 +24,13 @@ on:
     branches: [main]
 
 permissions: {}
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+env:
+  MARKDOWNLINT_VERSION: 0.24.0
 
 jobs:
   ci:
@@ -24,29 +42,85 @@ jobs:
       run:
         shell: bash
     steps:
+      # Two commits: on a PR, HEAD is GitHub's merge commit and HEAD^1 the base
+      # branch, so their diff is exactly what the PR changes.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 2
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - name: Classify the change
+        id: change
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          list="$RUNNER_TEMP/changed-files.txt"
+          : > "$list"
+          if [ "$EVENT" = pull_request ]; then
+            git diff --name-only HEAD^1 HEAD > "$list"
+            if grep -qvE '(\.md$|^docs/|^\.claude/|^\.agents/|^LICENSE$|^\.markdownlint-cli2\.jsonc$)' "$list"; then
+              kind=code
+            else
+              kind=docs
+            fi
+          else
+            kind=all
+          fi
+          echo "kind=$kind" >> "$GITHUB_OUTPUT"
+          echo "list=$list" >> "$GITHUB_OUTPUT"
+          echo "Change: $kind, $(wc -l < "$list") changed paths" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$kind" = docs ]; then
+            echo "::notice::Only documentation changed, so nothing is built or tested"
+          fi
+
+      # Only the Markdown files the PR adds or changes, so an old file is fixed
+      # when it is next touched.
+      - name: Lint the changed Markdown
+        if: github.event_name == 'pull_request'
+        run: |
+          mapfile -t files < <(git diff --name-only --diff-filter=d HEAD^1 HEAD -- '*.md' | sed 's|^|./|')
+          if [ "${#files[@]}" = 0 ]; then
+            echo "No Markdown changed"
+            exit 0
+          fi
+          cat > "$RUNNER_TEMP/.markdownlint-cli2.jsonc" <<'JSON'
+          {
+            "config": {
+              "default": true,
+              "MD013": false,
+              "MD024": { "siblings_only": true },
+              "MD033": false,
+              "MD041": false,
+              "MD060": false
+            }
+          }
+          JSON
+          npx --yes "markdownlint-cli2@$MARKDOWNLINT_VERSION" --config "$RUNNER_TEMP/.markdownlint-cli2.jsonc" "${files[@]}"
+
+      - name: Review the dependencies
+        if: github.event_name == 'pull_request' && steps.change.outputs.kind == 'code'
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: never
+
+      - if: steps.change.outputs.kind != 'docs'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           package-manager-cache: false
 
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - if: steps.change.outputs.kind != 'docs'
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           global-json-file: global.json
 
       - name: Test
-        run: dotnet test src/App.slnx
-
-      - name: Test the npm packages
+        if: steps.change.outputs.kind != 'docs'
+        shell: pwsh
+        env:
+          KIND: ${{ steps.change.outputs.kind }}
+          LIST: ${{ steps.change.outputs.list }}
         run: |
-          for dir in $(find packages -mindepth 2 -maxdepth 2 -name package.json -printf '%h\n'); do
-            (
-              cd "$dir" && npm ci &&
-              # A package with browser tests (Vitest with Playwright) gets Chromium first.
-              if [ -d node_modules/@vitest/browser-playwright ]; then npx playwright install --with-deps chromium; fi &&
-              npm test
-            ) || exit 1
-          done
+          if ($env:KIND -eq 'all') { ./scripts/affected-tests.ps1 -All -Run }
+          else { ./scripts/affected-tests.ps1 -ChangedFiles $env:LIST -Run }
