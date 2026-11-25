@@ -19,5 +19,10 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Core\Core.csproj" />
 	  <ProjectReference Include="..\Shared\Shared.csproj" />
+	  <ProjectReference Include="..\Mailing\Mailing.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <InternalsVisibleTo Include="Framework.Tests" />
 	</ItemGroup>
 </Project>

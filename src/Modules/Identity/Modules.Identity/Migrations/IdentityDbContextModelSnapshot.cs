@@ -36,10 +36,6 @@ namespace Trislab.Modules.Identity.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("text");
 
-                    b.Property<string>("TenantId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -49,8 +45,6 @@ namespace Trislab.Modules.Identity.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserClaims", "identity");
-
-                    b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -64,10 +58,6 @@ namespace Trislab.Modules.Identity.Migrations
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("text");
 
-                    b.Property<string>("TenantId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -77,8 +67,6 @@ namespace Trislab.Modules.Identity.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserLogins", "identity");
-
-                    b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -113,18 +101,12 @@ namespace Trislab.Modules.Identity.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<string>("TenantId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Value")
                         .HasColumnType("text");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("UserTokens", "identity");
-
-                    b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });
 
             modelBuilder.Entity("Trislab.Modules.Identity.Domain.Group", b =>
@@ -312,6 +294,66 @@ namespace Trislab.Modules.Identity.Migrations
                     b.ToTable("ImpersonationGrants", "identity");
                 });
 
+            modelBuilder.Entity("Trislab.Modules.Identity.Domain.MembershipInvitation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("AcceptedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<DateTime>("CreatedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime>("ExpiresOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MembershipId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RevokedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<DateTime?>("RevokedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MembershipId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.ToTable("MembershipInvitations", "identity");
+
+                    b.HasAnnotation("Finbuckle:MultiTenant", true);
+                });
+
             modelBuilder.Entity("Trislab.Modules.Identity.Domain.PasswordHistory", b =>
                 {
                     b.Property<int>("Id")
@@ -329,10 +371,6 @@ namespace Trislab.Modules.Identity.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("TenantId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -345,6 +383,64 @@ namespace Trislab.Modules.Identity.Migrations
                     b.HasIndex("UserId", "CreatedAt");
 
                     b.ToTable("PasswordHistory", "identity");
+                });
+
+            modelBuilder.Entity("Trislab.Modules.Identity.Domain.SignInSelection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ExpiresOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresOnUtc");
+
+                    b.ToTable("SignInSelections", "identity");
+                });
+
+            modelBuilder.Entity("Trislab.Modules.Identity.Domain.TenantMembership", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("AcceptedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("InvitedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UserId", "TenantId")
+                        .IsUnique();
+
+                    b.ToTable("TenantMemberships", "identity");
 
                     b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });
@@ -435,6 +531,10 @@ namespace Trislab.Modules.Identity.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
+                    b.Property<string>("DefaultTenantId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -447,9 +547,6 @@ namespace Trislab.Modules.Identity.Migrations
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
                         .HasColumnType("text");
@@ -488,17 +585,7 @@ namespace Trislab.Modules.Identity.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("RefreshToken")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("RefreshTokenExpiryTime")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TenantId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -511,15 +598,14 @@ namespace Trislab.Modules.Identity.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
+                        .IsUnique()
                         .HasDatabaseName("EmailIndex");
 
-                    b.HasIndex("NormalizedUserName", "TenantId")
+                    b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("Users", "identity");
-
-                    b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });
 
             modelBuilder.Entity("Trislab.Modules.Identity.Domain.UserGroup", b =>
@@ -561,6 +647,10 @@ namespace Trislab.Modules.Identity.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("App")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("Browser")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -600,6 +690,10 @@ namespace Trislab.Modules.Identity.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("PreviousRefreshTokenHash")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
                     b.Property<string>("RefreshTokenHash")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -615,6 +709,10 @@ namespace Trislab.Modules.Identity.Migrations
                     b.Property<string>("RevokedReason")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<string>("SecurityStampHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
@@ -633,6 +731,8 @@ namespace Trislab.Modules.Identity.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("PreviousRefreshTokenHash");
 
                     b.HasIndex("RefreshTokenHash");
 
@@ -717,6 +817,17 @@ namespace Trislab.Modules.Identity.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Trislab.Modules.Identity.Domain.TenantMembership", b =>
+                {
+                    b.HasOne("Trislab.Modules.Identity.Domain.TrislabUser", "User")
+                        .WithMany("Memberships")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Trislab.Modules.Identity.Domain.TrislabRoleClaim", b =>
                 {
                     b.HasOne("Trislab.Modules.Identity.Domain.TrislabRole", null)
@@ -765,6 +876,8 @@ namespace Trislab.Modules.Identity.Migrations
 
             modelBuilder.Entity("Trislab.Modules.Identity.Domain.TrislabUser", b =>
                 {
+                    b.Navigation("Memberships");
+
                     b.Navigation("PasswordHistories");
                 });
 #pragma warning restore 612, 618

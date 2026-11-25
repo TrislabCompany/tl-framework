@@ -35,12 +35,9 @@ public sealed class InvoicePdfTests
         await CreateTenantAsync(rootClient, tenantId, adminEmail, planKey);
         await TenantProvisioningWait.WaitForProvisioningAsync(rootClient, tenantId);
 
-        // TenantSubscribed goes through the outbox now, so the invoice is issued on the next
-        // dispatch cycle rather than inside the create request.
-        await OutboxDrain.DrainAsync(_factory.Services);
-
-        // The subscription invoice was issued on create; grab its id from the operator list.
-        var invoiceId = await GetFirstInvoiceIdAsync(rootClient, tenantId);
+        // TenantSubscribed goes through the outbox, so the invoice is issued by a later dispatch cycle, not inside
+        // the create request. Under a full run's load one cycle may not reach it yet: drain until it is there.
+        var invoiceId = await WaitForFirstInvoiceIdAsync(rootClient, tenantId);
 
         using var tenantClient = await CreateTenantAdminClientWithRetryAsync(adminEmail, TestConstants.DefaultPassword, tenantId);
 
@@ -69,6 +66,24 @@ public sealed class InvoicePdfTests
         using var crossResponse = await otherClient.GetAsync($"{BillingBasePath}/invoices/{invoiceId}/pdf");
         crossResponse.StatusCode.ShouldBe(HttpStatusCode.NotFound,
             "a tenant must not be able to download another tenant's invoice PDF");
+    }
+
+    private async Task<string> WaitForFirstInvoiceIdAsync(HttpClient client, string tenantId)
+    {
+        for (var attempt = 0; attempt < 20; attempt++)
+        {
+            await OutboxDrain.DrainAsync(_factory.Services);
+            using var resp = await client.GetAsync($"{BillingBasePath}/invoices?tenantId={tenantId}&pageNumber=1&pageSize=50");
+            using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync());
+            if (resp.IsSuccessStatusCode && doc.RootElement.GetProperty("items").GetArrayLength() > 0)
+            {
+                break;
+            }
+
+            await Task.Delay(250);
+        }
+
+        return await GetFirstInvoiceIdAsync(client, tenantId);
     }
 
     private static async Task<string> GetFirstInvoiceIdAsync(HttpClient client, string tenantId)

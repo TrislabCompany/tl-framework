@@ -1,8 +1,4 @@
-using Finbuckle.MultiTenant;
-using Finbuckle.MultiTenant.Abstractions;
-using Trislab.Framework.Shared.Multitenancy;
 using Integration.Tests.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Integration.Tests.Tests.Authentication;
 
@@ -66,41 +62,8 @@ public sealed class AccountLockoutTests
 
     private async Task<(string Email, string Password)> CreateConfirmedUserAsync(HttpClient rootClient)
     {
-        var uniqueId = Guid.NewGuid().ToString("N")[..8];
-        var email = $"lockout-{uniqueId}@example.com";
-        const string password = "Test@1234!";
-
-        // Register via admin path so we have a known user.
-        var registerResponse = await rootClient.PostAsJsonAsync(
-            $"{TestConstants.IdentityBasePath}/register", new
-            {
-                firstName = "Lockout",
-                lastName = "Test",
-                email,
-                userName = $"lockoutuser-{uniqueId}",
-                password,
-                confirmPassword = password
-            });
-        registerResponse.StatusCode.ShouldBe(HttpStatusCode.Created);
-
-        // Admin-registered users aren't auto-confirmed; force-confirm via UserManager so login reaches the
-        // password/lockout check. Set tenant context first so Finbuckle's filter has a real TenantInfo.
-        using var scope = _factory.Services.CreateScope();
-        var tenant = await scope.ServiceProvider
-            .GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
-            .GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
-            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
-
-        var userManager = scope.ServiceProvider
-            .GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<Trislab.Modules.Identity.Domain.TrislabUser>>();
-        var user = await userManager.FindByEmailAsync(email);
-        user.ShouldNotBeNull();
-        var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-        var confirm = await userManager.ConfirmEmailAsync(user, token);
-        confirm.Succeeded.ShouldBeTrue();
-
-        return (email, password);
+        var user = await TestUsers.InviteAndAcceptAsync(_factory, rootClient, "lockout", "Lockout", "Test");
+        return (user.Email, user.Password);
     }
 
     private async Task<HttpResponseMessage> AttemptLoginAsync(string email, string password)

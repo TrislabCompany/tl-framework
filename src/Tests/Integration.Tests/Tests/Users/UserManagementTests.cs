@@ -52,20 +52,9 @@ public abstract class UserManagementTestsBase
     public async Task GetUserById_Should_ReturnMatchingUser_When_UserExists()
     {
         using var client = await _auth.CreateRootAdminClientAsync();
-        var uniqueId = Guid.NewGuid().ToString("N")[..8];
 
         // Create a user
-        var registerResponse = await client.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = "GetById",
-            lastName = "Test",
-            email = $"getbyid-{uniqueId}@example.com",
-            userName = $"getbyid-{uniqueId}",
-            password = "Test@1234!",
-            confirmPassword = "Test@1234!"
-        });
-        registerResponse.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var registered = await registerResponse.DeserializeAsync<RegisterResult>();
+        var registered = await TestUsers.InviteAndAcceptAsync(_factory, client, "usr", "GetById", "Test");
 
         // Retrieve the user by ID
         var response = await client.GetAsync($"{TestConstants.IdentityBasePath}/users/{registered.UserId}");
@@ -80,19 +69,8 @@ public abstract class UserManagementTestsBase
     public async Task ToggleUserStatus_Should_ReturnNoContent_When_DeactivatingUser()
     {
         using var client = await _auth.CreateRootAdminClientAsync();
-        var uniqueId = Guid.NewGuid().ToString("N")[..8];
 
-        var registerResponse = await client.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = "Toggle",
-            lastName = "Status",
-            email = $"toggle-{uniqueId}@example.com",
-            userName = $"toggle-{uniqueId}",
-            password = "Test@1234!",
-            confirmPassword = "Test@1234!"
-        });
-        registerResponse.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var registered = await registerResponse.DeserializeAsync<RegisterResult>();
+        var registered = await TestUsers.InviteAndAcceptAsync(_factory, client, "usr", "Toggle", "Status");
 
         // PATCH /users/{id} toggles status
         var request = new HttpRequestMessage(HttpMethod.Patch, $"{TestConstants.IdentityBasePath}/users/{registered.UserId}")
@@ -109,19 +87,8 @@ public abstract class UserManagementTestsBase
     public async Task DeleteUser_Should_ReturnNoContent_When_UserExists()
     {
         using var client = await _auth.CreateRootAdminClientAsync();
-        var uniqueId = Guid.NewGuid().ToString("N")[..8];
 
-        var registerResponse = await client.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = "Delete",
-            lastName = "Test",
-            email = $"delete-{uniqueId}@example.com",
-            userName = $"delete-{uniqueId}",
-            password = "Test@1234!",
-            confirmPassword = "Test@1234!"
-        });
-        registerResponse.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var registered = await registerResponse.DeserializeAsync<RegisterResult>();
+        var registered = await TestUsers.InviteAndAcceptAsync(_factory, client, "usr", "Delete", "Test");
 
         var response = await client.DeleteAsync($"{TestConstants.IdentityBasePath}/users/{registered.UserId}");
 

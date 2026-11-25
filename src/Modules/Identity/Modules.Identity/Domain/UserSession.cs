@@ -25,6 +25,15 @@ public class UserSession : IHasDomainEvents
     public string? RevokedBy { get; private set; }
     public string? RevokedReason { get; private set; }
 
+    /// <summary>Short hash of the account's security stamp at sign-in. A password, 2FA or stamp change ends the session.</summary>
+    public string? SecurityStampHash { get; private set; }
+
+    /// <summary>The refresh token this session held before the last rotation, to detect reuse of an old token.</summary>
+    public string? PreviousRefreshTokenHash { get; private set; }
+
+    /// <summary>The app (X-Trislab-App) the session signed in through, when the client named one.</summary>
+    public string? App { get; private set; }
+
     // Navigation property (init for EF Core materialization)
     public virtual TrislabUser? User { get; init; }
 
@@ -45,11 +54,12 @@ public class UserSession : IHasDomainEvents
         string? browser = null,
         string? browserVersion = null,
         string? operatingSystem = null,
-        string? osVersion = null)
+        string? osVersion = null,
+        Guid? id = null)
     {
         return new UserSession
         {
-            Id = Guid.NewGuid(),
+            Id = id ?? Guid.NewGuid(),
             UserId = userId,
             RefreshTokenHash = refreshTokenHash,
             IpAddress = ipAddress,
@@ -70,8 +80,16 @@ public class UserSession : IHasDomainEvents
         LastActivityAt = TimeProvider.System.GetUtcNow().UtcDateTime;
     }
 
+    /// <summary>Binds the session to the account's security stamp and the app it signed in through.</summary>
+    public void Bind(string? securityStampHash, string? app)
+    {
+        SecurityStampHash = securityStampHash;
+        App = string.IsNullOrWhiteSpace(app) ? null : app.Trim().ToLowerInvariant();
+    }
+
     public void UpdateRefreshToken(string refreshTokenHash, DateTime expiresAt)
     {
+        PreviousRefreshTokenHash = RefreshTokenHash;
         RefreshTokenHash = refreshTokenHash;
         ExpiresAt = expiresAt;
         LastActivityAt = TimeProvider.System.GetUtcNow().UtcDateTime;

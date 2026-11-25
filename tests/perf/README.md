@@ -18,9 +18,10 @@ Every request carries an `endpoint` tag; the thresholds are set per tag, so the 
 Identity (me, users, roles, groups, permissions), Notifications (list, unread count), Auditing (list), Webhooks
 (subscriptions list) and Multitenancy (own tenant status).
 
-**Seed data.** The host migrates and seeds itself at startup: the root tenant, its administrator and the roles.
-`setup()` in `lib.js` then adds 40 users and 60 notifications (`SEED_USERS`, `SEED_NOTIFICATIONS`), so the list
-endpoints page through real rows and audit rows from those writes.
+**Seed data.** The host migrates and seeds itself at startup: the root tenant, its administrator, the roles and
+40 Basic members (`TestHost__SeedUsers` in `compose.yaml`; users join only by invitation, which a script can't
+accept, so the host writes them). `setup()` in `lib.js` then adds 60 notifications (`SEED_NOTIFICATIONS`), so the
+list endpoints page through real rows and audit rows from those writes.
 
 ## The budgets
 

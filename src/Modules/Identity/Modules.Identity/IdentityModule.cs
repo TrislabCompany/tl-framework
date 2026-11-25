@@ -41,13 +41,19 @@ using Trislab.Modules.Identity.Features.v1.Sessions.GetUserSessions;
 using Trislab.Modules.Identity.Features.v1.Sessions.RevokeAllSessions;
 using Trislab.Modules.Identity.Features.v1.Sessions.RevokeSession;
 using Trislab.Modules.Identity.Features.v1.Tokens.RefreshToken;
+using Trislab.Modules.Identity.Features.v1.Tokens.TenantSelection;
+using Trislab.Modules.Identity.Features.v1.Tokens.TenantSwitch;
+using Trislab.Modules.Identity.Features.v1.Users.GetMyTenants;
 using Trislab.Modules.Identity.Features.v1.Tokens.TokenGeneration;
 using Trislab.Modules.Identity.Features.v1.TwoFactor.Disable;
 using Trislab.Modules.Identity.Features.v1.TwoFactor.Enroll;
 using Trislab.Modules.Identity.Features.v1.TwoFactor.VerifyEnroll;
 using Trislab.Modules.Identity.Features.v1.Users.AssignUserRoles;
 using Trislab.Modules.Identity.Features.v1.Users.ChangePassword;
-using Trislab.Modules.Identity.Features.v1.Users.AdminConfirmEmail;
+using Trislab.Modules.Identity.Features.v1.Invitations.AcceptInvitation;
+using Trislab.Modules.Identity.Features.v1.Invitations.GetInvitations;
+using Trislab.Modules.Identity.Features.v1.Invitations.InviteUser;
+using Trislab.Modules.Identity.Features.v1.Invitations.RevokeInvitation;
 using Trislab.Modules.Identity.Features.v1.Users.ConfirmEmail;
 using Trislab.Modules.Identity.Features.v1.Users.ResendConfirmationEmail;
 using Trislab.Modules.Identity.Features.v1.Users.DeleteUser;
@@ -118,6 +124,13 @@ public class IdentityModule : IModule
         services.AddTransient<IRoleService, RoleService>();
         services.AddTrislabStorage(builder.Configuration);
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<TenantSignInService>();
+        services.AddScoped<MembershipInvitationService>();
+        services.AddScoped<IdentityAuditor>();
+        services.AddSingleton<AuditSubjectHasher>();
+        services.AddScoped<SelectionTokenCodec>();
+        services.Configure<InvitationOptions>(builder.Configuration.GetSection(InvitationOptions.SectionName));
+        services.Configure<SelfRegistrationOptions>(builder.Configuration.GetSection(SelfRegistrationOptions.SectionName));
         services.AddTrislabDbContext<IdentityDbContext>(IdentityModuleConstants.SchemaName);
         // Eventing itself is bootstrapped by the host (AddEventingCore) — the outbox is framework
         // infrastructure, not Identity's. Handler registration stays per module.
@@ -171,6 +184,7 @@ public class IdentityModule : IModule
             options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
         })
            .AddEntityFrameworkStores<IdentityDbContext>()
+           .AddUserStore<TrislabUserStore>()
            .AddDefaultTokenProviders();
 
         //metrics
@@ -196,6 +210,8 @@ public class IdentityModule : IModule
         // tokens
         group.MapGenerateTokenEndpoint().AllowAnonymous().RequireRateLimiting("auth");
         group.MapRefreshTokenEndpoint().AllowAnonymous().RequireRateLimiting("auth");
+        group.MapTenantSelectionEndpoint().RequireRateLimiting("auth");
+        group.MapTenantSwitchEndpoint().RequireRateLimiting("auth");
 
         // The outbox is dispatched by the framework's OutboxDispatcherHostedService (on by default), which now claims
         // rows with FOR UPDATE SKIP LOCKED so several instances can drain safely. This module still registers no
@@ -216,18 +232,21 @@ public class IdentityModule : IModule
         // users
         group.MapAssignUserRolesEndpoint();
         group.MapChangePasswordEndpoint();
-        group.MapAdminConfirmEmailEndpoint();
         group.MapResendConfirmationEmailEndpoint().RequireRateLimiting("auth");
         group.MapConfirmEmailEndpoint().RequireRateLimiting("auth");
         group.MapDeleteUserEndpoint();
         group.MapGetUserByIdEndpoint();
         group.MapGetCurrentUserPermissionsEndpoint();
         group.MapGetMeEndpoint();
+        group.MapGetMyTenantsEndpoint();
         group.MapGetUserRolesEndpoint();
         group.MapGetUsersListEndpoint();
         group.MapSearchUsersEndpoint();
         group.MapGetUserLookupEndpoint();
-        group.MapRegisterUserEndpoint();
+        group.MapInviteUserEndpoint();
+        group.MapGetInvitationsEndpoint();
+        group.MapRevokeInvitationEndpoint();
+        group.MapAcceptInvitationEndpoint();
         group.MapForgotPasswordEndpoint().RequireRateLimiting("auth");
         group.MapResetPasswordEndpoint().RequireRateLimiting("auth");
         group.MapSelfRegisterUserEndpoint().RequireRateLimiting("auth");

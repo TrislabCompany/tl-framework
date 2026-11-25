@@ -2,11 +2,15 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Trislab.Framework.Persistence;
+using Trislab.Framework.Shared.Constants;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Tenancy;
 using Trislab.Modules.Identity.Authorization;
+using Trislab.Modules.Identity.Data;
+using Trislab.Modules.Identity.Domain;
 using Trislab.Modules.Multitenancy.Data;
 
 namespace TestHost.Provisioning;
@@ -71,6 +75,57 @@ internal static class TestHostProvisioning
 
         // The role-permission syncer, through the production code path.
         await provider.GetRequiredService<RolePermissionSyncer>().SyncAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Adds <paramref name="count"/> members with the Basic role to the tenant <see cref="ProvisionAsync"/> provisioned,
+    /// so the list endpoints of a standalone run page through real rows (<c>TestHost:SeedUsers</c>; the performance
+    /// tests). Users join a tenant only by invitation, which needs the e-mail; a seed writes the accepted memberships
+    /// directly instead. Runs again without adding anyone twice.
+    /// </summary>
+    public static async Task SeedMembersAsync(IServiceProvider services, int count, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        using var scope = services.CreateScope();
+        var provider = scope.ServiceProvider;
+        var tenant = TenancyOptions.ReadMode(provider.GetRequiredService<IConfiguration>()) == TenancyMode.SingleTenant
+            ? provider.GetRequiredService<ISingleTenantProvider>().Tenant
+            : await provider.GetRequiredService<TenantDbContext>().TenantInfo.FindAsync([MultitenancyConstants.Root.Id], cancellationToken)
+                ?? throw new InvalidOperationException("Provision the host before seeding members.");
+        provider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+
+        var users = provider.GetRequiredService<UserManager<TrislabUser>>();
+        var db = provider.GetRequiredService<IdentityDbContext>();
+        var hasher = new PasswordHasher<TrislabUser>();
+
+        for (var i = 0; i < count; i++)
+        {
+            var email = $"seed-member-{i}@example.com";
+            if (await users.FindByEmailAsync(email) is not null)
+            {
+                continue;
+            }
+
+            var user = new TrislabUser
+            {
+                Email = email,
+                UserName = $"seed-member-{i}",
+                FirstName = "Seed",
+                LastName = $"Member {i}",
+                EmailConfirmed = true,
+            };
+            user.PasswordHash = hasher.HashPassword(user, $"Seed-Member-{Guid.NewGuid():N}!");
+            var created = await users.CreateAsync(user);
+            if (!created.Succeeded)
+            {
+                throw new InvalidOperationException(string.Join("; ", created.Errors.Select(e => e.Description)));
+            }
+
+            db.TenantMemberships.Add(TenantMembership.CreateAccepted(user.Id, tenant.Id));
+            await db.SaveChangesAsync(cancellationToken);
+            await users.AddToRoleAsync(user, RoleConstants.Basic);
+        }
     }
 
     /// <summary>Creates the configured S3 bucket when it is missing. A standalone run needs it; the tests create their own.</summary>

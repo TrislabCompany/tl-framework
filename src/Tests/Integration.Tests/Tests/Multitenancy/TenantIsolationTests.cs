@@ -5,10 +5,12 @@ namespace Integration.Tests.Tests.Multitenancy;
 [Collection(TrislabCollectionDefinition.Name)]
 public sealed class TenantIsolationTests
 {
+    private readonly TrislabWebApplicationFactory _factory;
     private readonly AuthHelper _auth;
 
     public TenantIsolationTests(TrislabWebApplicationFactory factory)
     {
+        _factory = factory;
         _auth = new AuthHelper(factory);
     }
 
@@ -28,17 +30,7 @@ public sealed class TenantIsolationTests
         using var tenantClient = await CreateTenantAdminClientWithRetryAsync(
             tenantAdminEmail, TestConstants.DefaultPassword, tenantId);
 
-        var registerResponse = await tenantClient.PostAsJsonAsync(
-            $"{TestConstants.IdentityBasePath}/register", new
-            {
-                firstName = "Isolated",
-                lastName = "User",
-                email = $"isolated-{uniqueId}@example.com",
-                userName = $"isolateduser-{uniqueId}",
-                password = "Test@1234!",
-                confirmPassword = "Test@1234!"
-            });
-        registerResponse.StatusCode.ShouldBe(HttpStatusCode.Created);
+        var isolated = await TestUsers.InviteAndAcceptAsync(_factory, tenantClient, "isolated", "Isolated", "User");
 
         // Query users from root tenant — isolated user must NOT appear
         var rootUsersResponse = await rootClient.GetAsync(
@@ -46,7 +38,7 @@ public sealed class TenantIsolationTests
         rootUsersResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
 
         var rootUsersContent = await rootUsersResponse.Content.ReadAsStringAsync();
-        rootUsersContent.ShouldNotContain($"isolated-{uniqueId}@example.com");
+        rootUsersContent.ShouldNotContain(isolated.Email);
     }
 
     [Fact]
@@ -67,26 +59,15 @@ public sealed class TenantIsolationTests
         await TenantProvisioningWait.WaitForProvisioningAsync(rootClient, tenant1Id);
         await TenantProvisioningWait.WaitForProvisioningAsync(rootClient, tenant2Id);
 
-        // Register same email in tenant 1
+        // Invite the same email into tenant 1
         using var client1 = await CreateTenantAdminClientWithRetryAsync(
             t1AdminEmail, TestConstants.DefaultPassword, tenant1Id);
-        var register1 = await client1.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = "Shared", lastName = "Email", email = sharedEmail,
-            userName = $"shared1-{uniqueId}", password = "Test@1234!", confirmPassword = "Test@1234!"
-        });
-        register1.StatusCode.ShouldBe(HttpStatusCode.Created);
+        await TestUsers.InviteAsync(client1, sharedEmail, "Shared", "Email");
 
-        // Register same email in tenant 2 — should succeed
+        // Invite the same email into tenant 2 — should succeed
         using var client2 = await CreateTenantAdminClientWithRetryAsync(
             t2AdminEmail, TestConstants.DefaultPassword, tenant2Id);
-        var register2 = await client2.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = "Shared", lastName = "Email", email = sharedEmail,
-            userName = $"shared2-{uniqueId}", password = "Test@1234!", confirmPassword = "Test@1234!"
-        });
-
-        register2.StatusCode.ShouldBe(HttpStatusCode.Created);
+        await TestUsers.InviteAsync(client2, sharedEmail, "Shared", "Email");
     }
 
     private async Task<HttpClient> CreateTenantAdminClientWithRetryAsync(

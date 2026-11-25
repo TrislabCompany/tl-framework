@@ -1,8 +1,5 @@
-using Trislab.Framework.Core.Localization;
-using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Modules.Identity.Contracts.DTOs;
 using Trislab.Modules.Identity.Contracts.v1.Tokens.TokenGeneration;
-using Trislab.Modules.Identity.Localization;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -10,9 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Options;
-using System.ComponentModel;
 
 namespace Trislab.Modules.Identity.Features.v1.Tokens.TokenGeneration;
 
@@ -35,57 +29,24 @@ public static class GenerateTokenEndpoint
         ArgumentNullException.ThrowIfNull(endpoint);
 
         return endpoint.MapPost("/token/issue",
-            [AllowAnonymous] async Task<Results<Ok<TokenResponse>, UnauthorizedHttpResult, ProblemHttpResult>>
+            [AllowAnonymous] async Task<Ok<SignInResponse>>
             ([FromBody] GenerateTokenCommand command,
-            [DefaultValue("root")][FromHeader] string? tenant,
+            [FromHeader] string? tenant,
             [FromHeader(Name = AppHeader)] string? app,
             [FromServices] IMediator mediator,
-            [FromServices] IOptions<TenancyOptions> tenancy,
-            [FromServices] IStringLocalizer<SharedResources> localizer,
-            [FromServices] IStringLocalizer<IdentityResources> identityLocalizer,
             CancellationToken ct) =>
             {
-                if (tenancy.Value.Mode == TenancyMode.Multitenant && IsRootViaDashboard(tenant, app))
-                {
-                    return TypedResults.Problem(
-                        statusCode: StatusCodes.Status403Forbidden,
-                        title: localizer["Error.AppBoundary"],
-                        detail: localizer["Error.AppBoundary.Detail"]);
-                }
-
-                if (tenancy.Value.Mode == TenancyMode.Multitenant && IsTenantViaAdmin(tenant, app))
-                {
-                    return TypedResults.Problem(
-                        statusCode: StatusCodes.Status403Forbidden,
-                        title: identityLocalizer["Identity.OperatorAppBoundary"],
-                        detail: identityLocalizer["Identity.OperatorAppBoundary.Detail"]);
-                }
-
-                var token = await mediator.Send(command, ct);
-                return token is null
-                    ? TypedResults.Unauthorized()
-                    : TypedResults.Ok(token);
+                // The headers are the only source of these two: the body cannot set them.
+                var response = await mediator.Send(command with { Tenant = tenant, App = app }, ct);
+                return TypedResults.Ok(response);
             })
-            .RequireTenantHeaderWhenMultitenant()
             .WithName("IssueJwtTokens")
-            .WithSummary("Issue JWT access and refresh tokens")
-            .WithDescription("Submit credentials to receive a JWT access token and a refresh token. In multi-tenant mode provide the 'tenant' header to select the tenant context; in single-tenant mode send none, the server resolves the fixed tenant. The 'X-Trislab-App' header (admin|dashboard) enforces the app boundary: root-tenant accounts sign in only to admin, tenant accounts only to dashboard.")
-            .Produces<TokenResponse>(StatusCodes.Status200OK)
+            .WithSummary("Sign in and issue JWT access and refresh tokens")
+            .WithDescription("Submit e-mail and password. No tenant is needed: the server opens the tenant the optional 'tenant' header names when the user is a member there, else the user's default tenant, else their only tenant. A user with several tenants and no default gets tenantSelectionRequired, the tenant list and a selectionToken to send with the choice to POST /token/select. An operator (a member of root) always signs in to root. The 'X-Trislab-App' header (admin|dashboard) enforces the app boundary: root accounts sign in only to admin, tenant accounts only to dashboard.")
+            .Produces<SignInResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status500InternalServerError);
-    }
-
-    private static bool IsRootViaDashboard(string? tenant, string? app)
-    {
-        return string.Equals(tenant, MultitenancyConstants.Root.Id, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(app, AppDashboard, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsTenantViaAdmin(string? tenant, string? app)
-    {
-        return string.Equals(app, AppAdmin, StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(tenant, MultitenancyConstants.Root.Id, StringComparison.OrdinalIgnoreCase);
     }
 }

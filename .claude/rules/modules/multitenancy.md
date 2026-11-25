@@ -22,4 +22,6 @@ Tenant catalog, provisioning, activation/upgrade, per-tenant theming, and the te
 - **Provisioning** runs 4 steps (Database → Migrations → Seeding → CacheWarm) via a Hangfire `TenantProvisioningJob`, falling back to inline execution if Hangfire storage is unavailable. **Activation is gated on `Status == Completed`.**
 - `ITenantService.MigrateTenantAsync`/`SeedTenantAsync` create a fresh scope and set `IMultiTenantContext` **first**, then run the `IDbInitializer`s.
 
+**Users are not tenant data.** Identity keeps global user accounts with a membership per tenant (`modules/identity.md`), always in the main database, even for a tenant with its own connection string. A tenant's admin e-mail that already has an account joins the new tenant with its own password; an operator's e-mail can't be a tenant's admin.
+
 Tenant **isolation** mechanics (default-on filter, `IGlobalEntity` opt-out, `base.OnModelCreating` last) live in `database.md`.

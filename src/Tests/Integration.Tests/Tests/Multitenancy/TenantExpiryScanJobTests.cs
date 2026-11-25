@@ -1,4 +1,3 @@
-using Trislab.Framework.Mailing.Services;
 using Trislab.Modules.Multitenancy.Data;
 using Trislab.Modules.Multitenancy.Domain;
 using Trislab.Modules.Multitenancy.Services;
@@ -43,9 +42,6 @@ public sealed class TenantExpiryScanJobTests
             new { tenantId, validUpto = DateTime.UtcNow.AddDays(-1) });
         adjust.StatusCode.ShouldBe(HttpStatusCode.OK, await adjust.Content.ReadAsStringAsync());
 
-        var mail = (NoOpMailService)_factory.Services.GetRequiredService<IMailService>();
-        mail.Clear();
-
         await RunScanAsync();
         (await CountNoticesAsync(tenantId, TenantExpiryNoticeTypes.EnteredGrace))
             .ShouldBe(1, "the first scan must record one grace notice");
@@ -55,9 +51,8 @@ public sealed class TenantExpiryScanJobTests
         (await CountNoticesAsync(tenantId, TenantExpiryNoticeTypes.EnteredGrace))
             .ShouldBe(1, "the scan must not re-notify the same state for the same validity period");
 
-        mail.Sent.ShouldContain(
-            m => m.To.Contains(adminEmail) && m.Subject.Contains("grace", StringComparison.OrdinalIgnoreCase),
-            "the grace notice must email the tenant admin");
+        await Mailpit.WaitForMessageAsync(
+            adminEmail, m => m.Subject.Contains("grace", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -69,9 +64,6 @@ public sealed class TenantExpiryScanJobTests
         var adminEmail = $"inv-{unique}@tenant.com";
         var planKey = await CreatePlanAsync(rootClient, $"inv-m-{unique}", 19m);
 
-        var mail = (NoOpMailService)_factory.Services.GetRequiredService<IMailService>();
-        mail.Clear();
-
         // Creating a tenant on a paid plan issues the subscription invoice, which emails the admin.
         // Both hops are outbox-driven now — TenantSubscribed, then InvoiceIssued — so this takes
         // two dispatch cycles rather than happening inside the create request.
@@ -79,9 +71,8 @@ public sealed class TenantExpiryScanJobTests
         await OutboxDrain.DrainAsync(_factory.Services);
         await OutboxDrain.DrainAsync(_factory.Services);
 
-        mail.Sent.ShouldContain(
-            m => m.To.Contains(adminEmail) && m.Subject.Contains("Invoice", StringComparison.OrdinalIgnoreCase),
-            "issuing the subscription invoice must email the tenant admin");
+        await Mailpit.WaitForMessageAsync(
+            adminEmail, m => m.Subject.Contains("Invoice", StringComparison.OrdinalIgnoreCase));
     }
 
     private async Task RunScanAsync()

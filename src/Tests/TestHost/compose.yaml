@@ -49,6 +49,8 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       TestHost__Provision: "true"
+      # Members for the list endpoints to page through (tests/perf).
+      TestHost__SeedUsers: "40"
       DatabaseOptions__ConnectionString: "Host=postgres;Port=5432;Database=testhost;Username=postgres;Password=testhost_pwd"
       Storage__S3__ServiceUrl: "http://storage:9000"
     ports:

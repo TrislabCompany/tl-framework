@@ -1,13 +1,7 @@
 using System.Security.Cryptography;
-using Finbuckle.MultiTenant;
-using Finbuckle.MultiTenant.Abstractions;
-using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Modules.Files.Contracts.v1.DTOs;
-using Trislab.Modules.Identity.Domain;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Integration.Tests.Tests.Files;
 
@@ -22,7 +16,7 @@ namespace Integration.Tests.Tests.Files;
 ///   mint a download URL, and see the file in the tenant-wide <c>/shared</c> list.</item>
 ///   <item>Flipping the bit (<c>PATCH /{id}/visibility</c>) is uploader-only — a non-owner gets 403.</item>
 /// </list>
-/// Tests use two users in the SAME tenant (owner = root admin, grantee = a freshly registered user)
+/// Tests use two users in the SAME tenant (owner = root admin, grantee = a freshly invited user)
 /// plus the grantee acting as a non-owner.
 /// </summary>
 [Collection(TrislabCollectionDefinition.Name)]
@@ -238,50 +232,14 @@ public sealed class FileVisibilityAndSharingTests
     #region Helpers
 
     /// <summary>
-    /// Registers a fresh user in the root tenant (via the root-admin client), confirms their email,
-    /// and returns an authenticated client for them. A loginable user needs EmailConfirmed = true;
-    /// registration already sets IsActive = true (UserRegistrationService).
+    /// Invites a fresh user into the root tenant (via the root-admin client), accepts the invitation,
+    /// and returns an authenticated client for them.
     /// </summary>
     private async Task<HttpClient> RegisterAndLoginAsync(string prefix)
     {
         using var adminClient = await _auth.CreateRootAdminClientAsync();
-        var unique = Guid.NewGuid().ToString("N")[..8];
-        var email = $"{prefix}-{unique}@example.com";
-        var userName = $"{prefix}{unique}";
-        const string password = "Test@1234!";
-
-        using var response = await adminClient.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = prefix,
-            lastName = "Test",
-            email,
-            userName,
-            password,
-            confirmPassword = password,
-        });
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var registered = await response.DeserializeAsync<RegisterResult>();
-
-        // Bypass email confirmation so the user can sign in. The Finbuckle tenant context must be set
-        // INLINE in this method body (AsyncLocal) so the UserManager query filter resolves the tenant.
-        using (var scope = _factory.Services.CreateScope())
-        {
-            var tenant = await scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>()
-                .GetAsync(TestConstants.RootTenantId);
-            scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-                new MultiTenantContext<AppTenantInfo>(tenant);
-
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
-            var user = await userManager.FindByIdAsync(registered.UserId);
-            user.ShouldNotBeNull();
-            if (!user.EmailConfirmed)
-            {
-                user.EmailConfirmed = true;
-                (await userManager.UpdateAsync(user)).Succeeded.ShouldBeTrue();
-            }
-        }
-
-        return await _auth.CreateAuthenticatedClientAsync(email, password);
+        var user = await TestUsers.InviteAndAcceptAsync(_factory, adminClient, prefix, prefix, "Test");
+        return await _auth.CreateAuthenticatedClientAsync(user.Email, user.Password);
     }
 
     private static async Task<Guid> UploadAndFinalizeAsync(

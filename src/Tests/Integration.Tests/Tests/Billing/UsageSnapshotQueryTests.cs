@@ -179,7 +179,7 @@ public sealed class UsageSnapshotQueryTests
     [Fact]
     public async Task GetUsageSnapshots_Should_Return200_For_NonAdmin_User_With_Basic_View_Permission()
     {
-        // Billing.View is a Basic permission, so a freshly-registered (Basic-role) user can read the usage
+        // Billing.View is a Basic permission, so a freshly-invited (Basic-role) user can read the usage
         // list — proving the gate admits an authenticated non-admin, not just the seeded root admin.
         // Arrange
         using var adminClient = await _auth.CreateRootAdminClientAsync();
@@ -286,47 +286,8 @@ public sealed class UsageSnapshotQueryTests
 
     private async Task<(string Email, string Password)> RegisterBasicUserAsync(HttpClient adminClient, string prefix)
     {
-        var unique = Guid.NewGuid().ToString("N")[..8];
-        var email = $"{prefix}-{unique}@example.com";
-        const string password = "Test@1234!";
-
-        using var response = await adminClient.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = prefix,
-            lastName = "Test",
-            email,
-            userName = $"{prefix}{unique}",
-            password,
-            confirmPassword = password,
-        });
-        var body = await response.Content.ReadAsStringAsync();
-        response.StatusCode.ShouldBe(HttpStatusCode.Created, $"register failed: {body}");
-        var registered = JsonSerializer.Deserialize<RegisterResult>(body, JsonOptions)
-            ?? throw new InvalidOperationException("register returned no body");
-
-        // The user is created EmailConfirmed=false; flip it so the user can sign in (loginable user
-        // needs EmailConfirmed=true AND IsActive=true; registration already sets IsActive=true).
-        await ConfirmEmailAsync(registered.UserId);
-        return (email, password);
-    }
-
-    private async Task ConfirmEmailAsync(string userId)
-    {
-        using var scope = _factory.Services.CreateScope();
-        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-        var tenant = await tenantStore.GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
-
-        var userManager = scope.ServiceProvider
-            .GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<Trislab.Modules.Identity.Domain.TrislabUser>>();
-        var user = await userManager.FindByIdAsync(userId);
-        user.ShouldNotBeNull();
-        if (!user.EmailConfirmed)
-        {
-            user.EmailConfirmed = true;
-            (await userManager.UpdateAsync(user)).Succeeded.ShouldBeTrue();
-        }
+        var user = await TestUsers.InviteAndAcceptAsync(_factory, adminClient, prefix, prefix, "Test");
+        return (user.Email, user.Password);
     }
 
     private async Task SeedDirectAsync(Func<BillingDbContext, Task> action)

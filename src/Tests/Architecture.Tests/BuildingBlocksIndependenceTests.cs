@@ -190,8 +190,8 @@ public class BuildingBlocksIndependenceTests
         // Persistence should depend on Core, Shared
         CheckBuildingBlockDependencies("Persistence", ["Core", "Shared"], layerViolations);
 
-        // Jobs should depend on Core, Shared
-        CheckBuildingBlockDependencies("Jobs", ["Core", "Shared"], layerViolations);
+        // Jobs should depend on Core, Shared, and Mailing (IBackgroundMailer sends e-mail as an encrypted job)
+        CheckBuildingBlockDependencies("Jobs", ["Core", "Shared", "Mailing"], layerViolations);
 
         // Eventing.Abstractions should have no dependencies (lightweight interfaces)
         CheckBuildingBlockDependencies("Eventing.Abstractions", [], layerViolations);

@@ -44,7 +44,22 @@ public enum SecurityAction
     PermissionDenied = 8,
     PolicyFailed = 9,
     ImpersonationStarted = 10,
-    ImpersonationEnded = 11
+    ImpersonationEnded = 11,
+    TwoFactorEnabled = 12,
+    TwoFactorDisabled = 13,
+    InvitationSent = 14,
+    InvitationAccepted = 15,
+    InvitationRevoked = 16,
+    InvitationExpired = 17,
+    MembershipAdded = 18,
+    MembershipRemoved = 19,
+    MembershipDeactivated = 20,
+    MembershipActivated = 21,
+    TenantSwitched = 22,
+    RefreshTokenReuseDetected = 23,
+    SessionsRevoked = 24,
+    PasswordReset = 25,
+    AccountLockedOut = 26,
 }
 
 /// <summary>

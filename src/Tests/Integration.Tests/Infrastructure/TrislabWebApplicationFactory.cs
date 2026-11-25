@@ -4,8 +4,6 @@ using Amazon.S3.Model;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using Trislab.Framework.Jobs.Services;
-using Trislab.Framework.Mailing;
-using Trislab.Framework.Mailing.Services;
 using Trislab.Framework.Persistence;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Tenancy;
@@ -77,7 +75,7 @@ public class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsy
 
     public async ValueTask InitializeAsync()
     {
-        await Task.WhenAll(_postgres.StartAsync(), _minio.StartAsync());
+        await Task.WhenAll(_postgres.StartAsync(), _minio.StartAsync(), Mailpit.StartAsync());
         await CreateS3BucketAsync();
 
         // Force host creation via the Server property (no leaked HttpClient)
@@ -203,6 +201,14 @@ public class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsy
                 ["Serilog:WriteTo:0:Args:restrictedToMinimumLevel"] = "Warning",
                 ["Serilog:WriteTo:1:Name"] = "",
                 ["MailOptions:UseSendGrid"] = "false",
+                // The real SMTP sender, into the shared Mailpit catcher (see Mailpit).
+                ["MailOptions:From"] = "noreply@example.com",
+                ["MailOptions:DisplayName"] = "Trislab tests",
+                ["MailOptions:Smtp:Host"] = Mailpit.SmtpHost,
+                ["MailOptions:Smtp:Port"] = Mailpit.SmtpMappedPort.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                ["MailOptions:Smtp:UserName"] = "tests",
+                ["MailOptions:Smtp:Password"] = "tests",
+                ["MailOptions:Smtp:Security"] = "None",
                 ["HangfireOptions:Username"] = "admin",
                 ["HangfireOptions:Password"] = "integration-test-hangfire-pwd",
                 ["HangfireOptions:Route"] = "/jobs",
@@ -266,15 +272,13 @@ public class TrislabWebApplicationFactory : WebApplicationFactory<Program>, IAsy
                 options.Queues = ["default", "email"];
                 options.WorkerCount = 2;
             });
-            services.TryAddTransient<IJobService, HangfireService>();
+            // Enqueue on this host's own Hangfire storage, not the static one another test host may own (HostBoundJobService).
+            services.RemoveAll<IJobService>();
+            services.AddTransient<IJobService, HostBoundJobService>();
 
             services.PostConfigure<JwtBearerOptions>(
                 JwtBearerDefaults.AuthenticationScheme,
                 options => options.RequireHttpsMetadata = false);
-
-            // Replace real mail service with a no-op to avoid SMTP errors and Hangfire retries
-            services.RemoveAll<IMailService>();
-            services.AddSingleton<IMailService, NoOpMailService>();
 
             // The country rule pack of the InvoiceDocuments tests (made-up country ZZ).
             services.AddSingleton<Trislab.Modules.InvoiceDocuments.Contracts.RulePack.IInvoiceDocumentsRulePack, TestInvoiceRulePack>();

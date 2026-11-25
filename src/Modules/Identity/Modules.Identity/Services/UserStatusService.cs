@@ -6,6 +6,7 @@ using Trislab.Framework.Shared.Constants;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Modules.Auditing.Contracts;
 using Trislab.Modules.Identity.Contracts.Services;
+using Trislab.Modules.Identity.Data;
 using Trislab.Modules.Identity.Domain;
 using Trislab.Modules.Identity.Localization;
 using Microsoft.AspNetCore.Identity;
@@ -13,16 +14,60 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Trislab.Modules.Identity.Services;
 
+/// <summary>
+/// Activates and deactivates users in the current tenant. A user account is global, so this changes the
+/// user's membership here, never the account: the user keeps their other tenants.
+/// </summary>
 internal sealed class UserStatusService(
     UserManager<TrislabUser> userManager,
+    IdentityDbContext db,
     IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
     ICurrentUser currentUser,
+    IUserPermissionService permissions,
+    IdentityAuditor auditor,
+    TimeProvider timeProvider,
     IAuditClient auditClient) : IUserStatusService
 {
-    // Soft-delete is functionally identical to deactivation — delegate so the same admin/self/last-admin
-    // guards and audit pipeline apply uniformly to both DELETE /users/{id} and PATCH /users/{id}.
-    public Task DeleteAsync(string userId, CancellationToken cancellationToken = default)
-        => ToggleStatusAsync(activateUser: false, userId, cancellationToken);
+    /// <summary>
+    /// Removes the user from the current tenant: the membership, the user's roles and groups here and their
+    /// sessions here go; the account and its other tenants stay. The same guards as a deactivation apply.
+    /// </summary>
+    public async Task DeleteAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        EnsureValidTenant();
+        var context = await BuildToggleContextAsync(userId, activateUser: false, cancellationToken);
+        await ValidateTogglePermissionsAsync(context, cancellationToken);
+
+        var tenantId = context.TenantId!;
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+        var actor = context.ActorId.ToString();
+        var revoked = 0;
+
+        // All or nothing: a half-removed member (no roles, but still a member) must not be possible.
+        var strategy = db.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+            await db.UserRoles.Where(ur => ur.UserId == userId).ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
+            await db.UserGroups.Where(ug => ug.UserId == userId).ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
+            await db.MembershipInvitations
+                .Where(i => i.UserId == userId && i.AcceptedOnUtc == null && i.RevokedOnUtc == null)
+                .ExecuteUpdateAsync(u => u.SetProperty(i => i.RevokedOnUtc, now).SetProperty(i => i.RevokedBy, actor), cancellationToken)
+                .ConfigureAwait(false);
+            await db.TenantMemberships.Where(m => m.Id == context.Membership.Id).ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
+            revoked = await SessionRevocation.RevokeAsync(db, userId, tenantId, actor, "MembershipRemoved", now, cancellationToken).ConfigureAwait(false);
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        }).ConfigureAwait(false);
+
+        await permissions.InvalidatePermissionCacheAsync(userId, cancellationToken).ConfigureAwait(false);
+
+        await auditor.WriteAsync(
+            SecurityAction.MembershipRemoved,
+            userId,
+            "MembershipRemoved",
+            new Dictionary<string, object?> { ["actorId"] = context.ActorId.ToString(), ["tenant"] = tenantId, ["sessionsRevoked"] = revoked },
+            ct: cancellationToken).ConfigureAwait(false);
+    }
 
     public async Task ToggleStatusAsync(bool activateUser, string userId, CancellationToken cancellationToken)
     {
@@ -60,15 +105,20 @@ internal sealed class UserStatusService(
         var actor = await userManager.FindByIdAsync(actorId.ToString())
             ?? throw new UnauthorizedException("current user not found").Localized("Error.NoCurrentUser");
 
-        var targetUser = await userManager.Users
-            .Where(u => u.Id == userId)
-            .FirstOrDefaultAsync(cancellationToken)
-            ?? throw new NotFoundException("User Not Found.").Localized<IdentityResources>("Identity.UserNotFound");
+        var membership = await db.TenantMemberships
+            .Include(m => m.User)
+            .Where(m => m.UserId == userId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (membership?.User is not TrislabUser targetUser)
+        {
+            throw new NotFoundException("User Not Found.").Localized<IdentityResources>("Identity.UserNotFound");
+        }
 
         return new ToggleStatusContext(
             ActorId: actorId,
             Actor: actor,
             TargetUser: targetUser,
+            Membership: membership,
             ActivateUser: activateUser,
             TenantId: multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id);
     }
@@ -108,8 +158,11 @@ internal sealed class UserStatusService(
         ToggleStatusContext context,
         CancellationToken cancellationToken)
     {
-        var activeAdmins = await userManager.GetUsersInRoleAsync(RoleConstants.Admin);
-        if (!activeAdmins.Any(u => u.IsActive))
+        var admins = await userManager.GetUsersInRoleAsync(RoleConstants.Admin);
+        var adminIds = admins.Select(u => u.Id).ToList();
+        var hasActiveAdmin = await db.TenantMemberships
+            .AnyAsync(m => adminIds.Contains(m.UserId) && m.IsActive, cancellationToken);
+        if (!hasActiveAdmin)
         {
             await AuditPolicyFailureAsync(context, "NoActiveAdmins", cancellationToken);
             throw new CustomException("Tenant must have at least one active administrator.", Array.Empty<string>(), HttpStatusCode.BadRequest)
@@ -121,11 +174,11 @@ internal sealed class UserStatusService(
     {
         if (context.ActivateUser)
         {
-            context.TargetUser.Activate(context.ActorId.ToString(), context.TenantId);
+            context.Membership.Activate(context.ActorId.ToString());
         }
         else
         {
-            context.TargetUser.Deactivate(context.ActorId.ToString(), "Status toggled by administrator", context.TenantId);
+            context.Membership.Deactivate(context.ActorId.ToString(), "Status toggled by administrator");
         }
     }
 
@@ -133,12 +186,25 @@ internal sealed class UserStatusService(
         ToggleStatusContext context,
         CancellationToken cancellationToken)
     {
-        var result = await userManager.UpdateAsync(context.TargetUser);
-        if (!result.Succeeded)
+        await db.SaveChangesAsync(cancellationToken);
+
+        // A deactivated member has no permissions here and no sessions: end them now, not at the next refresh.
+        var revoked = 0;
+        if (!context.ActivateUser)
         {
-            throw new CustomException("Toggle status failed", result.Errors.Select(e => e.Description).ToList(), HttpStatusCode.BadRequest)
-                .Localized<IdentityResources>("Identity.ToggleStatusFailed");
+            revoked = await SessionRevocation.RevokeAsync(
+                db, context.TargetUser.Id, context.TenantId, context.ActorId.ToString(), "MembershipDeactivated",
+                timeProvider.GetUtcNow().UtcDateTime, cancellationToken).ConfigureAwait(false);
         }
+
+        await permissions.InvalidatePermissionCacheAsync(context.TargetUser.Id, cancellationToken);
+
+        await auditor.WriteAsync(
+            context.ActivateUser ? SecurityAction.MembershipActivated : SecurityAction.MembershipDeactivated,
+            context.TargetUser.Id,
+            context.ActivateUser ? "MembershipActivated" : "MembershipDeactivated",
+            new Dictionary<string, object?> { ["actorId"] = context.ActorId.ToString(), ["tenant"] = context.TenantId, ["sessionsRevoked"] = revoked },
+            ct: cancellationToken).ConfigureAwait(false);
 
         await auditClient.WriteActivityAsync(
             ActivityKind.Command,
@@ -182,6 +248,7 @@ internal sealed class UserStatusService(
         Guid ActorId,
         TrislabUser Actor,
         TrislabUser TargetUser,
+        TenantMembership Membership,
         bool ActivateUser,
         string? TenantId);
 }

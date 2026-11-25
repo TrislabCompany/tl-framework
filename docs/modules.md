@@ -10,7 +10,7 @@ The samples Catalog, Tickets and Chat show how a module is built. They are not p
 
 | Module | What it does | Keep it? |
 | --- | --- | --- |
-| Identity | Sign-in with JWTs, users, roles, permissions, groups, sessions, impersonation, two-factor sign-in | Yes: every other module relies on it |
+| Identity | Sign-in with JWTs, global users with a membership per tenant, roles, permissions, groups, sessions, impersonation, two-factor sign-in | Yes: every other module relies on it |
 | Multitenancy | The tenant catalog, sign-up and a tenant's provisioning, activation and plan, its theme, and the tenant-expiry e-mails. Multi-tenant mode only | Yes, in a multi-tenant product: it is multi-tenant through it |
 | Auditing | An append-only audit trail: entity changes, security events, exceptions and HTTP activity | Recommended |
 | Files | Uploads and downloads with presigned URLs, used by Catalog's images, Chat's attachments and the users' avatars. A module's records get attachments with no table of their own: it registers an `IFileAccessPolicy` for its owner type, lists a record's files with `GET /api/v1/files?ownerType=&ownerId=`, and shows them with `Attachments` from `framework-ui` | While a module uses files |

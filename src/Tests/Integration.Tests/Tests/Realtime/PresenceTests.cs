@@ -1,13 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
-using Finbuckle.MultiTenant;
-using Finbuckle.MultiTenant.Abstractions;
-using Trislab.Framework.Shared.Multitenancy;
-using Trislab.Modules.Identity.Domain;
 using Integration.Tests.Infrastructure;
 using Integration.Tests.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Http.Connections;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Integration.Tests.Tests.Realtime;
@@ -185,48 +180,12 @@ public sealed class PresenceTests
     private async Task<(UserCredentials user, string accessToken, string refreshToken)> RegisterUserAsync(
         HttpClient adminClient, string prefix)
     {
-        var unique = Guid.NewGuid().ToString("N")[..8];
-        var email = $"{prefix}-{unique}@example.com";
-        var userName = $"{prefix}{unique}";
-        const string password = "Test@1234!";
-
-        using var response = await adminClient.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/register", new
-        {
-            firstName = prefix,
-            lastName = "Test",
-            email,
-            userName,
-            password,
-            confirmPassword = password,
-        });
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var registered = await response.DeserializeAsync<RegisterResult>();
-
-        await ConfirmEmailAsync(registered.UserId);
-
-        var token = await _auth.GetTokenAsync(email, password);
-        return (new UserCredentials(registered.UserId, userName, email, password), token.AccessToken, token.RefreshToken);
+        var invited = await TestUsers.InviteAndAcceptAsync(_factory, adminClient, prefix, prefix, "Test");
+        var token = await _auth.GetTokenAsync(invited.Email, invited.Password);
+        return (new UserCredentials(invited.UserId, invited.Email, invited.Password), token.AccessToken, token.RefreshToken);
     }
 
-    private async Task ConfirmEmailAsync(string userId)
-    {
-        using var scope = _factory.Services.CreateScope();
-        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
-        var tenant = await tenantStore.GetAsync(TestConstants.RootTenantId);
-        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>().MultiTenantContext =
-            new MultiTenantContext<AppTenantInfo>(tenant);
-
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TrislabUser>>();
-        var user = await userManager.FindByIdAsync(userId);
-        user.ShouldNotBeNull();
-        if (!user.EmailConfirmed)
-        {
-            user.EmailConfirmed = true;
-            (await userManager.UpdateAsync(user)).Succeeded.ShouldBeTrue();
-        }
-    }
-
-    private sealed record UserCredentials(string Id, string UserName, string Email, string Password);
+    private sealed record UserCredentials(string Id, string Email, string Password);
 
     private sealed record PresenceEntry(string UserId, bool Online);
 

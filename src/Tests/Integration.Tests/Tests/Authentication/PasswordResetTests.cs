@@ -87,7 +87,7 @@ public sealed class PasswordResetTests
     }
 
     [Fact]
-    public async Task ResetPassword_Should_Return404_When_EmailIsUnknown()
+    public async Task ResetPassword_Should_Fail_Like_A_Bad_Token_When_EmailIsUnknown()
     {
         // Arrange
         var garbageToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes("token"));
@@ -100,8 +100,9 @@ public sealed class PasswordResetTests
             $"{TestConstants.IdentityBasePath}/reset-password",
             new { email = $"ghost_{Guid.NewGuid():N}@test.com", password = "Whatever123!", token = garbageToken });
 
-        // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        // Assert: the same 400 as a wrong token, so the reset can't tell which addresses have accounts.
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await response.Content.ReadAsStringAsync()).ShouldContain("Identity.ErrorResettingPassword");
     }
 
     #endregion
@@ -126,10 +127,14 @@ public sealed class PasswordResetTests
             Email = email,
             UserName = email.Split('@')[0],
             EmailConfirmed = true,
-            IsActive = true
         };
         var result = await userManager.CreateAsync(user, password);
         result.Succeeded.ShouldBeTrue(string.Join("; ", result.Errors.Select(e => e.Description)));
+
+        // Users are global: the membership is what puts the user in the tenant.
+        var identityDb = scope.ServiceProvider.GetRequiredService<Trislab.Modules.Identity.Data.IdentityDbContext>();
+        identityDb.TenantMemberships.Add(TenantMembership.CreateAccepted(user.Id, TestConstants.RootTenantId));
+        await identityDb.SaveChangesAsync();
     }
 
     private async Task<string> GenerateResetTokenAsync(string email)

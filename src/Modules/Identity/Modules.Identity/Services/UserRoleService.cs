@@ -5,6 +5,7 @@ using Trislab.Framework.Core.Exceptions;
 using Trislab.Framework.Shared.Constants;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Modules.Identity.Contracts.DTOs;
+using Trislab.Modules.Auditing.Contracts;
 using Trislab.Modules.Identity.Contracts.Services;
 using Trislab.Modules.Identity.Data;
 using Trislab.Modules.Identity.Domain;
@@ -20,7 +21,8 @@ internal sealed class UserRoleService(
     IdentityDbContext db,
     IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
     ICurrentUser currentUser,
-    IUserPermissionService userPermissionService) : IUserRoleService
+    IUserPermissionService userPermissionService,
+    IdentityAuditor auditor) : IUserRoleService
 {
     public async Task<string> AssignRolesAsync(string userId, List<UserRoleDto> userRoles, CancellationToken cancellationToken)
     {
@@ -31,7 +33,20 @@ internal sealed class UserRoleService(
 
         await ValidateAdminRoleChangeAsync(user, userRoles);
 
-        var assignedRoles = await ProcessRoleAssignmentsAsync(user, userRoles);
+        var (assignedRoles, removedRoles) = await ProcessRoleAssignmentsAsync(user, userRoles);
+
+        var actor = currentUser.GetUserId().ToString();
+        if (assignedRoles.Count > 0)
+        {
+            await auditor.WriteAsync(SecurityAction.RoleAssigned, user.Id, "RoleAssigned",
+                new Dictionary<string, object?> { ["roles"] = assignedRoles, ["actorId"] = actor }, ct: cancellationToken).ConfigureAwait(false);
+        }
+
+        if (removedRoles.Count > 0)
+        {
+            await auditor.WriteAsync(SecurityAction.RoleRevoked, user.Id, "RoleRevoked",
+                new Dictionary<string, object?> { ["roles"] = removedRoles, ["actorId"] = actor }, ct: cancellationToken).ConfigureAwait(false);
+        }
 
         await RaiseRolesAssignedEventAsync(user, assignedRoles, cancellationToken);
 
@@ -126,9 +141,10 @@ internal sealed class UserRoleService(
         }
     }
 
-    private async Task<List<string>> ProcessRoleAssignmentsAsync(TrislabUser user, List<UserRoleDto> userRoles)
+    private async Task<(List<string> Assigned, List<string> Removed)> ProcessRoleAssignmentsAsync(TrislabUser user, List<UserRoleDto> userRoles)
     {
         var assignedRoles = new List<string>();
+        var removedRoles = new List<string>();
 
         foreach (var userRole in userRoles)
         {
@@ -145,13 +161,14 @@ internal sealed class UserRoleService(
                     assignedRoles.Add(userRole.RoleName!);
                 }
             }
-            else
+            else if (await userManager.IsInRoleAsync(user, userRole.RoleName!))
             {
                 await userManager.RemoveFromRoleAsync(user, userRole.RoleName!);
+                removedRoles.Add(userRole.RoleName!);
             }
         }
 
-        return assignedRoles;
+        return (assignedRoles, removedRoles);
     }
 
     private async Task RaiseRolesAssignedEventAsync(TrislabUser user, List<string> assignedRoles, CancellationToken cancellationToken)

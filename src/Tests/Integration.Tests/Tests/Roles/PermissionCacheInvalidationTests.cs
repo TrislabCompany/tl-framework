@@ -290,12 +290,16 @@ public sealed class PermissionCacheInvalidationTests
             Email = email,
             UserName = handle,
             EmailConfirmed = true,
-            IsActive = true,
         };
 
         var result = await userManager.CreateAsync(user, password);
         result.Succeeded.ShouldBeTrue(
             $"Seeding active user failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+
+        // Users are global: the membership is what puts the user in the tenant.
+        var identityDb = scope.ServiceProvider.GetRequiredService<Trislab.Modules.Identity.Data.IdentityDbContext>();
+        identityDb.TenantMemberships.Add(TenantMembership.CreateAccepted(user.Id, TestConstants.RootTenantId));
+        await identityDb.SaveChangesAsync();
 
         return (email, password, user.Id);
     }

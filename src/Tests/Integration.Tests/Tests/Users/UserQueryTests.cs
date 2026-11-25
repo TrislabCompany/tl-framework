@@ -26,7 +26,7 @@ public sealed class UserQueryTests
     [Fact]
     public async Task GetUserRoles_Should_ReturnRolesWithEnabledFlags_When_UserExists()
     {
-        // Arrange — a freshly registered user has the Basic role enabled.
+        // Arrange — a freshly invited user has the Basic role enabled.
         using var adminClient = await _auth.CreateRootAdminClientAsync();
         var user = await IdentityUserSeeder.CreateLoginableUserAsync(_factory, adminClient, "roles-get");
 
@@ -260,21 +260,9 @@ public sealed class UserQueryTests
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
-    private static async Task SeedUserWithNamesAsync(HttpClient adminClient, string firstName, string lastName)
+    private async Task SeedUserWithNamesAsync(HttpClient adminClient, string firstName, string lastName)
     {
-        var uniqueId = Guid.NewGuid().ToString("N")[..8];
-        const string password = "Test@1234!";
-        var response = await adminClient.PostAsJsonAsync(
-            $"{TestConstants.IdentityBasePath}/register", new
-            {
-                firstName,
-                lastName,
-                email = $"{lastName}-{uniqueId}@example.com",
-                userName = $"{lastName}-{uniqueId}",
-                password,
-                confirmPassword = password
-            });
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
+        await TestUsers.InviteAndAcceptAsync(_factory, adminClient, lastName, firstName, lastName);
     }
 
     #endregion

@@ -6,7 +6,7 @@ namespace Integration.Tests.Tests.Users;
 /// <summary>
 /// Covers the POST /forgot-password REQUEST flow (ForgotPasswordCommandHandler).
 /// The endpoint is anonymous and tenant-scoped (tenant header required). Mail
-/// dispatch is a no-op in tests (NoOpMailService), so we assert the HTTP contract,
+/// dispatch goes to the Mailpit catcher in tests; we assert the HTTP contract,
 /// not the email contents.
 /// </summary>
 [Collection(TrislabCollectionDefinition.Name)]

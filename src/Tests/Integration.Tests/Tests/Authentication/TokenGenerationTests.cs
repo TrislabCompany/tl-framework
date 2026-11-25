@@ -96,7 +96,7 @@ public sealed class TokenGenerationTests
     }
 
     [Fact]
-    public async Task GenerateToken_Should_Fail_When_TenantHeaderIsMissing()
+    public async Task GenerateToken_Should_Succeed_When_TenantHeaderIsMissing()
     {
         using var client = _factory.CreateClient();
         var request = new HttpRequestMessage(HttpMethod.Post, $"{TestConstants.IdentityBasePath}/token/issue");
@@ -108,6 +108,7 @@ public sealed class TokenGenerationTests
 
         var response = await client.SendAsync(request);
 
-        response.IsSuccessStatusCode.ShouldBeFalse();
+        // Users are global: sign-in finds the user's tenant itself.
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 }

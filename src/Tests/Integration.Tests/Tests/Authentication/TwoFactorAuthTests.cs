@@ -126,29 +126,9 @@ public sealed class TwoFactorAuthTests
     private async Task<(string Email, string Password)> CreateConfirmedUserAsync()
     {
         using var rootClient = await _auth.CreateRootAdminClientAsync();
-        var uniqueId = Guid.NewGuid().ToString("N")[..8];
-        var email = $"2fa-{uniqueId}@example.com";
-        const string password = "Test@1234!";
-
-        var registerResponse = await rootClient.PostAsJsonAsync(
-            $"{TestConstants.IdentityBasePath}/register", new
-            {
-                firstName = "TwoFactor",
-                lastName = "Test",
-                email,
-                userName = $"twofa-{uniqueId}",
-                password,
-                confirmPassword = password
-            });
-        registerResponse.StatusCode.ShouldBe(HttpStatusCode.Created);
-
-        await WithRootTenantScopeAsync(async userManager =>
-        {
-            var user = await userManager.FindByEmailAsync(email);
-            user.ShouldNotBeNull();
-            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-            (await userManager.ConfirmEmailAsync(user, token)).Succeeded.ShouldBeTrue();
-        });
+        var user = await TestUsers.InviteAndAcceptAsync(_factory, rootClient, "2fa", "TwoFactor", "Test");
+        var email = user.Email;
+        var password = user.Password;
 
         return (email, password);
     }

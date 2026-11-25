@@ -1,9 +1,11 @@
 ﻿using Trislab.Framework.Core.Exceptions;
+using Trislab.Framework.Jobs.Mail;
 using Trislab.Framework.Jobs.Services;
 using Trislab.Framework.Shared.Persistence;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -62,6 +64,12 @@ public static class Extensions
         services.AddHostedService<HangfireStaleLockCleanupService>();
 
         services.AddTransient<IJobService, HangfireService>();
+
+        // Queued e-mail is encrypted before it reaches the job store (IBackgroundMailer). The key ring is the host's:
+        // Redis when caching is configured (shared by every replica), otherwise the default local one.
+        services.AddDataProtection();
+        services.AddTransient<IBackgroundMailer, ProtectedBackgroundMailer>();
+        services.AddTransient<SendQueuedMailJob>();
 
         return services;
     }

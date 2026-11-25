@@ -28,7 +28,7 @@ internal sealed class PasswordHistoryService : IPasswordHistoryService
         ArgumentNullException.ThrowIfNull(userId);
         ArgumentNullException.ThrowIfNull(newPassword);
 
-        var user = await _userManager.FindByIdAsync(userId);
+        var user = await _db.FindAccountAsync(userId, cancellationToken);
         if (user is null)
         {
             return false;
@@ -47,6 +47,13 @@ internal sealed class PasswordHistoryService : IPasswordHistoryService
             .Take(passwordHistoryCount)
             .Select(ph => ph.PasswordHash)
             .ToListAsync(cancellationToken);
+
+        // The current password counts too: the first one (set on accepting an invitation or signing up)
+        // is not in the history table.
+        if (!string.IsNullOrEmpty(user.PasswordHash))
+        {
+            recentPasswordHashes.Insert(0, user.PasswordHash);
+        }
 
         // Check if the new password matches any recent password
         foreach (var passwordHash in recentPasswordHashes)
@@ -67,7 +74,7 @@ internal sealed class PasswordHistoryService : IPasswordHistoryService
     {
         ArgumentNullException.ThrowIfNull(userId);
 
-        var user = await _userManager.FindByIdAsync(userId);
+        var user = await _db.FindAccountAsync(userId, cancellationToken);
         if (user is null || string.IsNullOrEmpty(user.PasswordHash))
         {
             return;
