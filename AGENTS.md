@@ -82,7 +82,8 @@ apps built from them (the hosts, the React apps, the samples) live in `tl-produc
 
 ```bash
 dotnet build src/App.slnx    # build the packages and the tests
-dotnet test src/App.slnx     # tests; integration tests REQUIRE Docker
+pwsh scripts/affected-tests.ps1 -Run   # the tests this branch affects; run before every PR
+dotnet test src/App.slnx     # all tests; integration tests REQUIRE Docker
 cd packages/framework-ui && npm ci && npm test   # the npm package
 ```
 

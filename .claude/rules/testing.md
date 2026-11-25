@@ -35,10 +35,13 @@ xUnit v3 (`xunit.v3.mtp-off`, runs on VSTest) · Shouldly (`result.ShouldBe(...)
 | `TestHost` | Not a test project: the host the two integration projects run on, and that runs on its own for performance and security scans (`src/Tests/TestHost/README.md`) | no (standalone run: yes) |
 
 ```bash
-dotnet test src/App.slnx                 # all (integration needs Docker)
+pwsh scripts/affected-tests.ps1 -Run     # only what this branch affects (against origin/main): run this before a PR
+dotnet test src/App.slnx                 # all (integration needs Docker): when the script says "Everything runs"
 dotnet test src/Tests/{Module}.Tests             # one project
 dotnet test --collect "XPlat Code Coverage" --settings coverage.runsettings
 ```
+
+`ci / ci` runs the same script on a PR, and everything after the merge to `main`. The script picks the test projects through `ProjectReference`, and the integration-test areas (the folders of `Integration.Tests/Tests`) through `src/Tests/affected-map.json`. A new module or building block gets an entry there with the areas it needs, and a new area is named by the projects it tests; `AffectedMapTests` fails until both are done.
 
 If Docker is down, integration tests fail fast with `DockerUnavailableException` — that is environmental, not a code regression. Run the unit projects to validate logic.
 

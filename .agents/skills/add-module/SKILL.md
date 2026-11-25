@@ -162,11 +162,14 @@ dotnet test src/Tests/Architecture.Tests           # boundary + tenant-isolation
 dotnet test src/App.slnx
 ```
 
+Add both projects to `"areas"` in `src/Tests/affected-map.json`, with the `Integration.Tests` areas that test them (a new area folder is named there too); `AffectedMapTests` fails otherwise.
+
 Then call one endpoint and confirm its handler runs: a missing Mediator marker compiles but leaves the handler undiscovered. Finish with the `architecture-guard` subagent.
 
 ## Checklist
 
 - [ ] Two projects (copied csproj), added to `.slnx`, referenced from the test host (+ Migrations)
+- [ ] Both projects in `src/Tests/affected-map.json` with their integration-test areas
 - [ ] `[assembly: TrislabModule(typeof({Name}Module), order)]` (assembly-level, positional)
 - [ ] `IModule`: `SupportedTenancyModes`, `AddTrislabDbContext<T>()`, `PermissionConstants.Register`, version-set group, eventing trio if needed
 - [ ] `{Name}DbContext : BaseDbContext`, 4-arg ctor, `base.OnModelCreating` last

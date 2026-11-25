@@ -20,7 +20,9 @@ This folder contains solution-wide architecture tests for the Trislab .NET 10 St
 
 ## Running the Tests
 
+- Run the tests a branch affects: `pwsh scripts/affected-tests.ps1 -Run`; it prints the plan without `-Run`.
 - Run all tests (including architecture tests): `dotnet test src/App.slnx`.
+- `AffectedMapTests` keeps `src/Tests/affected-map.json` complete: every building block and module project has its integration-test areas, and every area is named by a project.
 - Architecture tests are lightweight and rely only on project and file structure; they do not require any external services or databases.
 
 ## Extending the Rules
