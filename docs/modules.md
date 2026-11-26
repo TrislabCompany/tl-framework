@@ -143,4 +143,3 @@ builder.Services.AddSingleton<IUsageMeter, AiPagesMeter>();   // a gauge with sc
 | `GET /api/v1/billing/limits/me` | the tenant (`Billing.View`) | Each meter with the tenant's usage, limit and, for extra usage, the unit price |
 
 `GET /api/v1/billing/plans` returns each plan's `limits`. The test host declares three meters (`src/Tests/TestHost/Module/TestUsageMeters.cs`), and `UsageLimitsTests` covers each kind, the plan's override, concurrency and root.
-
