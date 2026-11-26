@@ -72,3 +72,12 @@ Every restore audits every NuGet package, direct and transitive, against the kno
 
 - **A finding is a warning, not an error.** The build treats every other warning as an error, but NU1901 to NU1904 stay warnings, so an advisory published today doesn't fail a PR that changes something else.
 - **It is fixed in its own PR:** raise the package, or the transitive one with a `PackageVersion` in `src/Directory.Packages.props`. Renovate opens that PR by itself for a security update.
+- **The daily audit fails on it.** `.github/workflows/audit.yml` runs every day: it audits the NuGet packages of `src/App.slnx` and the npm packages in `packages/`, and fails on an advisory of moderate severity or higher. A failure opens the issue "main is failing: audit" (label `ci-main`), and the next green run closes it.
+- **An advisory that doesn't apply** is accepted in `.audit-accepted`: its URL or GHSA id, with a line `# reason: <text>; expires: YYYY-MM-DD` above it. An entry past its date fails the audit again.
+
+## 6. What a release proves
+
+`packages.yml` adds two things to every release:
+
+- **Build provenance** for each `.nupkg` and `.tgz`: a signed record of the workflow run and the commit that built it. A product checks a package it downloaded with `gh attestation verify <file> --repo TrislabCompany/tl-framework`.
+- **SBOMs** (software bills of materials, in CycloneDX JSON): one of the NuGet packages, `trislab-framework-<version>.nuget.cdx.json`, and one of each npm package, `<name>-<version>.npm.cdx.json`. They list every dependency a product gets with the framework, and are attached to the GitHub Release of the tag. When the release doesn't exist yet as the workflow runs, they stay in the run's artifact, and a re-run of the job `sbom` attaches them.
