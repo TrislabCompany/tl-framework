@@ -65,3 +65,10 @@ The starters `tl-product-saas` and `tl-product-webapp` are set up this way; a pr
 ## 4. Adding a package
 
 A new building block or module under `src/BuildingBlocks/` or `src/Modules/` is packed by itself. Give it an `AssemblyName` in the `Trislab.Framework.*` or `Trislab.Modules.*` form, and run `dotnet pack src/App.slnx` before you push: a warning fails the pack as it fails the build.
+
+## 5. Vulnerable dependencies
+
+Every restore audits every NuGet package, direct and transitive, against the known advisories of every severity (`NuGetAuditMode` `all`, `NuGetAuditLevel` `low` in `src/Directory.Build.props`).
+
+- **A finding is a warning, not an error.** The build treats every other warning as an error, but NU1901 to NU1904 stay warnings, so an advisory published today doesn't fail a PR that changes something else.
+- **It is fixed in its own PR:** raise the package, or the transitive one with a `PackageVersion` in `src/Directory.Packages.props`. Renovate opens that PR by itself for a security update.
