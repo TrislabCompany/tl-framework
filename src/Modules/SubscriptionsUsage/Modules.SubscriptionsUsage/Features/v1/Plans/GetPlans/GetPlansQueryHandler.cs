@@ -21,7 +21,8 @@ public sealed class GetPlansQueryHandler(BillingDbContext dbContext)
 
         var plans = await plansQuery.OrderBy(p => p.Key).ToListAsync(cancellationToken).ConfigureAwait(false);
         return plans
-            .Select(p => new BillingPlanDto(p.Id, p.Key, p.Name, p.Currency, p.MonthlyBasePrice.Amount, p.OverageRates, p.IsActive, p.Interval, p.AnnualPrice?.Amount))
+            .Select(p => new BillingPlanDto(p.Id, p.Key, p.Name, p.Currency, p.MonthlyBasePrice.Amount, p.OverageRates, p.IsActive, p.Interval, p.AnnualPrice?.Amount,
+                p.Limits.Select(l => new PlanLimitDto(l.MeterKey, l.Limit, l.ExtraUnitPrice)).ToList()))
             .ToList();
     }
 }

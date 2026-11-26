@@ -106,4 +106,7 @@
   <data name="TopupRequestStatus.Cancelled" xml:space="preserve">
     <value>Preklicano</value>
   </data>
+  <data name="Billing.LimitReached" xml:space="preserve">
+    <value>Paket dovoljuje {1} za {0}, porabljenih je {2}. Nadgradite paket ali najprej odstranite nekaj.</value>
+  </data>
 </root>

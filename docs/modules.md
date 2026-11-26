@@ -14,7 +14,7 @@ The samples Catalog, Tickets and Chat show how a module is built. They are not p
 | Multitenancy | The tenant catalog, sign-up and a tenant's provisioning, activation and plan, its theme, and the tenant-expiry e-mails. Multi-tenant mode only | Yes, in a multi-tenant product: it is multi-tenant through it |
 | Auditing | An append-only audit trail: entity changes, security events, exceptions and HTTP activity | Recommended |
 | Files | Uploads and downloads with presigned URLs, used by Catalog's images, Chat's attachments and the users' avatars. A module's records get attachments with no table of their own: it registers an `IFileAccessPolicy` for its owner type, lists a record's files with `GET /api/v1/files?ownerType=&ownerId=`, and shows them with `Attachments` from `framework-ui` | While a module uses files |
-| SubscriptionsUsage | How a product charges its own tenants: plans, subscriptions, usage, wallets and the monthly usage invoice, marked paid by hand (there is no payment provider). Its routes, permissions and `billing` schema keep the old name. Multi-tenant mode only | When the product bills its tenants |
+| SubscriptionsUsage | How a product charges its own tenants: plans, subscriptions, the limits of the things a product counts ([section 8](#8-usage-limits)), usage, wallets and the monthly usage invoice, marked paid by hand (there is no payment provider). Its routes, permissions and `billing` schema keep the old name. Multi-tenant mode only | When the product bills its tenants |
 | InvoiceDocuments | The documents a tenant issues to its own customers: customers and items, quotes, pro formas, invoices, credit notes and advance invoices, numbering that never changes, a PDF, e-mail, marked paid by hand, an export for the accountant. It holds no law: each country's rules come from a rule pack the product installs ([section 6](#6-country-rule-packs)). Both tenancy modes | When the product's tenants invoice their own customers |
 | Notifications | Each user's in-app inbox, pushed live over SignalR. Any module adds to it by publishing `UserNotificationRequestedIntegrationEvent` | Optional |
 | Webhooks | A tenant's outgoing webhooks, signed and retried | Optional |
@@ -111,3 +111,35 @@ A pack is its own package (`Trislab.Modules.InvoiceDocuments.Si` for Slovenia, [
 The per-tenant settings are the tenant's business details (the country and the tax number with or without `SI`) and the tax code of each item or line; the pack has no setting of its own. The rates, their dates and the notes are data in `SiVat.cs`; they are to be reviewed with an accountant before a product goes live.
 
 Not in the pack yet: the UPN QR code on the PDF and the eSLOG export (they need a place in the core to draw a code and to add an export format), and sending through an e-route provider or Peppol (P2).
+
+## 8. Usage limits
+
+A product limits what a tenant uses by plan: members, items, storage, AI pages. The framework doesn't know these things, so a product declares each one as a **meter** in `Modules.SubscriptionsUsage.Contracts.Limits`, and root sets each plan's limit per meter.
+
+- **A counter** (`IUsageMeter`) adds up within the period, such as AI pages read this month. The product calls `IUsageLimits.ConsumeAsync("ai-pages", pages)` when the work is done. The period is the calendar month (UTC) until each tenant gets its own billing period.
+- **A gauge** (`IUsageGauge`) is what exists right now, such as members. The product counts it itself in `GetCurrentAsync`, and calls `IUsageLimits.EnsureWithinLimitAsync("members")` before adding one.
+- **Mode.** A `HardLimit` meter refuses the action at the limit with a 409 and a localized message (`Billing.LimitReached`). An `ExtraUsage` meter is never refused: the units above the limit are extra usage at the plan's unit price.
+- **Which limit applies:** the limit the tenant's plan sets for the meter, else the meter's `DefaultLimit`, with `null` meaning unlimited. The tenant's plan is its active subscription's plan, else the plan named on the tenant. The root tenant is never limited. Choose a safe `DefaultLimit`: it is what a plan without a limit gives away.
+- **Concurrency.** A counter changes only through one atomic upsert, so concurrent calls never pass a hard limit, and a refused call counts nothing. A gauge is checked before the action; two adds at the same moment can both pass a check, which a product that can't allow it guards with its own lock.
+
+Declare a meter in the product's module, in a multi-tenant product (SubscriptionsUsage is multi-tenant only):
+
+```csharp
+internal sealed class AiPagesMeter : IUsageMeter
+{
+    public string Key => "ai-pages";
+    public string Name => "AI pages";
+    public UsageLimitMode Mode => UsageLimitMode.ExtraUsage;
+    public long? DefaultLimit => 50;
+}
+
+builder.Services.AddSingleton<IUsageMeter, AiPagesMeter>();   // a gauge with scoped dependencies: AddScoped
+```
+
+| Endpoint | Who | What |
+| --- | --- | --- |
+| `GET /api/v1/billing/meters` | root (`Billing.Manage`) | The declared meters, for the plan editor |
+| `PUT /api/v1/billing/plans/{planId}/limits` | root (`Billing.Manage`) | Replaces a plan's limits; a meter left out uses its default. An undeclared meter is a 400 |
+| `GET /api/v1/billing/limits/me` | the tenant (`Billing.View`) | Each meter with the tenant's usage, limit and, for extra usage, the unit price |
+
+`GET /api/v1/billing/plans` returns each plan's `limits`. The test host declares three meters (`src/Tests/TestHost/Module/TestUsageMeters.cs`), and `UsageLimitsTests` covers each kind, the plan's override, concurrency and root.

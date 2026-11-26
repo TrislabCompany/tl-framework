@@ -15,6 +15,7 @@ namespace Trislab.Modules.SubscriptionsUsage.Domain;
 public sealed class BillingPlan : BaseEntity<Guid>, IGlobalEntity
 {
     private readonly Dictionary<QuotaResource, decimal> _overageRates = new();
+    private readonly List<PlanLimit> _limits = [];
 
     public string Key { get; private set; } = default!;
     public string Name { get; private set; } = default!;
@@ -33,6 +34,9 @@ public sealed class BillingPlan : BaseEntity<Guid>, IGlobalEntity
     public DateTime? UpdatedAtUtc { get; private set; }
 
     public IReadOnlyDictionary<QuotaResource, decimal> OverageRates => _overageRates;
+
+    /// <summary>The plan's limit per product-declared meter (<c>IUsageMeter</c>); a meter not listed uses its default limit.</summary>
+    public IReadOnlyList<PlanLimit> Limits => _limits;
 
     private BillingPlan() { }
 
@@ -113,6 +117,29 @@ public sealed class BillingPlan : BaseEntity<Guid>, IGlobalEntity
         }
         UpdatedAtUtc = DateTime.UtcNow;
     }
+
+    /// <summary>Replaces the plan's limits. Meter keys must be unique; the caller checks they are declared.</summary>
+    public void SetLimits(IEnumerable<PlanLimit> limits)
+    {
+        ArgumentNullException.ThrowIfNull(limits);
+        var list = limits.ToList();
+        if (list.Select(l => l.MeterKey).Distinct(StringComparer.Ordinal).Count() != list.Count)
+        {
+            throw new ArgumentException("A meter can have one limit per plan.", nameof(limits));
+        }
+        if (list.Any(l => l.Limit is < 0 || l.ExtraUnitPrice is < 0))
+        {
+            throw new ArgumentOutOfRangeException(nameof(limits), "Limits and prices cannot be negative.");
+        }
+
+        _limits.Clear();
+        _limits.AddRange(list);
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    /// <summary>The plan's own limit for the meter, or <c>null</c> when the plan sets none.</summary>
+    public PlanLimit? FindLimit(string meterKey) =>
+        _limits.FirstOrDefault(l => string.Equals(l.MeterKey, meterKey, StringComparison.Ordinal));
 
     public void Deactivate()
     {

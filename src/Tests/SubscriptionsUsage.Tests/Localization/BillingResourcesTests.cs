@@ -99,4 +99,28 @@ public sealed class BillingResourcesTests
             neutral.ShouldContain(key);
         }
     }
+
+    [Fact]
+    public void LimitReached_names_the_meter_its_limit_and_the_usage_in_both_languages()
+    {
+        var localizer = BuildLocalizer();
+        var previous = CultureInfo.CurrentUICulture;
+        try
+        {
+            CultureInfo.CurrentUICulture = new CultureInfo("en-US");
+            var en = localizer["Billing.LimitReached", "AI pages", 50L, 50L];
+            en.ResourceNotFound.ShouldBeFalse();
+            en.Value.ShouldBe("The plan allows 50 of AI pages, and 50 are used. Upgrade the plan or remove some first.");
+
+            CultureInfo.CurrentUICulture = new CultureInfo("sl-SI");
+            var sl = localizer["Billing.LimitReached", "AI pages", 50L, 50L];
+            sl.ResourceNotFound.ShouldBeFalse();
+            sl.Value.ShouldContain("AI pages");
+            sl.Value.ShouldNotBe(en.Value);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previous;
+        }
+    }
 }

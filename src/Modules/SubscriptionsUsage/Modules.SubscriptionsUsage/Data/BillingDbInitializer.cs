@@ -28,9 +28,10 @@ public sealed class BillingDbInitializer(
             return;
         }
 
-        dbContext.Plans.Add(BillingPlan.Create("free", "Free", "USD", 0m, interval: PlanInterval.Monthly));
-        dbContext.Plans.Add(BillingPlan.Create("pro", "Pro", "USD", 29m, interval: PlanInterval.Monthly));
-        dbContext.Plans.Add(BillingPlan.Create("pro-annual", "Pro (Annual)", "USD", 29m,
+        // Placeholder prices in euros: the public repository never holds a product's real prices; root sets them.
+        dbContext.Plans.Add(BillingPlan.Create("free", "Free", "EUR", 0m, interval: PlanInterval.Monthly));
+        dbContext.Plans.Add(BillingPlan.Create("pro", "Pro", "EUR", 29m, interval: PlanInterval.Monthly));
+        dbContext.Plans.Add(BillingPlan.Create("pro-annual", "Pro (Annual)", "EUR", 29m,
             interval: PlanInterval.Yearly, annualPrice: 290m));
         await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         logger.LogInformation("[Billing] seeded default plans (free, pro, pro-annual)");

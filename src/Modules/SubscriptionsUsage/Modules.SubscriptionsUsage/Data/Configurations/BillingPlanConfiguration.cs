@@ -50,6 +50,25 @@ public sealed class BillingPlanConfiguration : IEntityTypeConfiguration<BillingP
                 v => new Dictionary<QuotaResource, decimal>(v)));
 
         builder.Ignore(x => x.OverageRates);
+
+        // The limits per product-declared meter, one jsonb column like the overage rates.
+        builder.Property<List<PlanLimit>>("_limits")
+            .HasField("_limits")
+            .UsePropertyAccessMode(PropertyAccessMode.Field)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                v => string.IsNullOrWhiteSpace(v)
+                    ? new List<PlanLimit>()
+                    : JsonSerializer.Deserialize<List<PlanLimit>>(v, (JsonSerializerOptions?)null) ?? new List<PlanLimit>())
+            .HasColumnType("jsonb")
+            .HasColumnName("Limits")
+            .HasDefaultValueSql("'[]'::jsonb")
+            .Metadata.SetValueComparer(new ValueComparer<List<PlanLimit>>(
+                (a, b) => ReferenceEquals(a, b) || (a != null && b != null && a.SequenceEqual(b)),
+                v => v.Aggregate(0, (h, l) => HashCode.Combine(h, l.GetHashCode())),
+                v => v.ToList()));
+
+        builder.Ignore(x => x.Limits);
         builder.Ignore(x => x.DomainEvents);
     }
 }

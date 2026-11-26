@@ -12,6 +12,10 @@ using Trislab.Modules.SubscriptionsUsage.Features.v1.Invoices.GetMyInvoices;
 using Trislab.Modules.SubscriptionsUsage.Features.v1.Invoices.IssueInvoice;
 using Trislab.Modules.SubscriptionsUsage.Features.v1.Invoices.MarkInvoicePaid;
 using Trislab.Modules.SubscriptionsUsage.Features.v1.Invoices.VoidInvoice;
+using Trislab.Modules.SubscriptionsUsage.Contracts.Limits;
+using Trislab.Modules.SubscriptionsUsage.Features.v1.Limits.GetMyUsageLimits;
+using Trislab.Modules.SubscriptionsUsage.Features.v1.Limits.GetUsageMeters;
+using Trislab.Modules.SubscriptionsUsage.Features.v1.Limits.SetPlanLimits;
 using Trislab.Modules.SubscriptionsUsage.Features.v1.Plans.CreatePlan;
 using Trislab.Modules.SubscriptionsUsage.Features.v1.Plans.GetPlans;
 using Trislab.Modules.SubscriptionsUsage.Features.v1.Plans.UpdatePlan;
@@ -32,6 +36,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 
@@ -55,6 +60,8 @@ public sealed class SubscriptionsUsageModule : IModule
         builder.Services.AddScoped<IDbInitializer, BillingDbInitializer>();
         builder.Services.AddScoped<IUsageReporter, UsageReporter>();
         builder.Services.AddScoped<IBillingService, BillingService>();
+        builder.Services.AddScoped<IUsageLimits, UsageLimits>();
+        builder.Services.TryAddSingleton(TimeProvider.System);
         builder.Services.AddSingleton<IInvoicePdfRenderer, InvoicePdfRenderer>();
 
         // React to tenant create/renew events (Multitenancy.Contracts) to drive subscriptions + invoices.
@@ -89,6 +96,9 @@ public sealed class SubscriptionsUsageModule : IModule
         group.MapGetPlansEndpoint();
         group.MapCreatePlanEndpoint();
         group.MapUpdatePlanEndpoint();
+        group.MapSetPlanLimitsEndpoint();
+        group.MapGetUsageMetersEndpoint();
+        group.MapGetMyUsageLimitsEndpoint();
 
         group.MapGetSubscriptionEndpoint();
         group.MapGetMySubscriptionEndpoint();

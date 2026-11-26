@@ -23,6 +23,7 @@ public sealed class BillingDbContext : DbContext
     public DbSet<Wallet> Wallets => Set<Wallet>();
     public DbSet<WalletTransaction> WalletTransactions => Set<WalletTransaction>();
     public DbSet<TopupRequest> TopupRequests => Set<TopupRequest>();
+    public DbSet<UsageCounter> UsageCounters => Set<UsageCounter>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
