@@ -158,6 +158,50 @@ public sealed class TenantHeaderOverrideTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task RootOperator_Should_ReadATenantMembersRoles_When_HeaderProvided()
+    {
+        // The admin console's tenant page lists the tenant's users and their roles there, read only, through
+        // this override: the operator never joins the tenant and needs no impersonation to look.
+        var rootToken = await _auth.GetRootAdminTokenAsync();
+        using var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new("Bearer", rootToken.AccessToken);
+        client.DefaultRequestHeaders.Add("tenant", _tenantA);
+        var adminId = await FindUserIdAsync(client, _tenantAAdminEmail);
+
+        var response = await client.GetAsync($"{TestConstants.IdentityBasePath}/users/{adminId}/roles");
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK, await response.Content.ReadAsStringAsync());
+        var roles = await response.Content.ReadFromJsonAsync<List<UserRoleDto>>(Json);
+        roles.ShouldNotBeNull();
+        roles.ShouldContain(r => r.Enabled && r.RoleName == "Admin");
+    }
+
+    [Fact]
+    public async Task TenantAdmin_Should_NotReadAnotherTenantsMemberRoles_ThroughTheHeader()
+    {
+        // Tenant B's admin sends `tenant: A` and asks for tenant A's admin's roles: the claim wins, the request
+        // stays in tenant B, where that user doesn't exist.
+        string adminAId;
+        var rootToken = await _auth.GetRootAdminTokenAsync();
+        using (var rootClient = _factory.CreateClient())
+        {
+            rootClient.DefaultRequestHeaders.Authorization = new("Bearer", rootToken.AccessToken);
+            rootClient.DefaultRequestHeaders.Add("tenant", _tenantA);
+            adminAId = await FindUserIdAsync(rootClient, _tenantAAdminEmail);
+        }
+
+        var tenantBToken = await GetTokenWithRetryAsync(_tenantBAdminEmail, TestConstants.DefaultPassword, _tenantB);
+        using var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new("Bearer", tenantBToken.AccessToken);
+        client.DefaultRequestHeaders.Add("tenant", _tenantA);
+
+        var response = await client.GetAsync($"{TestConstants.IdentityBasePath}/users/{adminAId}/roles");
+
+        // The user isn't a member of tenant B, so B sees no such user.
+        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
     public async Task TenantAdmin_Should_AccessOwnTenant_Normally()
     {
         // Arrange — sanity check that the new strategy doesn't break the
@@ -207,6 +251,23 @@ public sealed class TenantHeaderOverrideTests : IAsyncLifetime
             issuer = $"{tenantId}.issuer",
         });
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
+    }
+
+    private static async Task<string> FindUserIdAsync(HttpClient client, string email)
+    {
+        var response = await client.GetAsync($"{TestConstants.IdentityBasePath}/users/search?PageNumber=1&PageSize=50");
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var page = await response.Content.ReadFromJsonAsync<PagedResult<SearchUserDto>>(Json);
+        var id = page?.Items.FirstOrDefault(u => u.Email == email)?.Id;
+        id.ShouldNotBeNullOrEmpty();
+        return id;
+    }
+
+    private sealed class UserRoleDto
+    {
+        public string? RoleId { get; set; }
+        public string? RoleName { get; set; }
+        public bool Enabled { get; set; }
     }
 
     private sealed class SearchUserDto
