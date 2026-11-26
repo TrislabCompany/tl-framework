@@ -58,3 +58,13 @@ public enum TopupRequestStatus
     Rejected = 3,
     Cancelled = 4
 }
+
+/// <summary>What happens when a tenant reaches a meter's limit.</summary>
+public enum UsageLimitMode
+{
+    /// <summary>The action is refused at the limit (members, items, storage).</summary>
+    HardLimit = 0,
+
+    /// <summary>The action is allowed beyond the limit; the units above it are extra usage at the plan's unit price.</summary>
+    ExtraUsage = 1
+}

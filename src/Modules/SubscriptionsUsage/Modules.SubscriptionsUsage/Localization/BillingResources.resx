@@ -106,4 +106,7 @@
   <data name="TopupRequestStatus.Cancelled" xml:space="preserve">
     <value>Cancelled</value>
   </data>
+  <data name="Billing.LimitReached" xml:space="preserve">
+    <value>The plan allows {1} of {0}, and {2} are used. Upgrade the plan or remove some first.</value>
+  </data>
 </root>

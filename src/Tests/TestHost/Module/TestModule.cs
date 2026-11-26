@@ -5,6 +5,7 @@ using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Web.Modules;
 using Trislab.Framework.Web.Realtime;
 using Trislab.Modules.Files.Contracts;
+using Trislab.Modules.SubscriptionsUsage.Contracts.Limits;
 
 [assembly: TrislabModule(typeof(TestHost.TestModule), 900)]
 
@@ -17,7 +18,8 @@ namespace TestHost;
 /// <item>a tenant-scoped entity with its own DbContext and schema (<see cref="TestItem"/>), for the eventing, outbox and storage tests;</item>
 /// <item>file access policies for two owner types (<see cref="TestItemFileAccessPolicy"/>, and <see cref="TestDocumentFileAccessPolicy"/>, whose reads are per file);</item>
 /// <item>a publisher of <c>UserNotificationRequestedIntegrationEvent</c> (<c>POST /api/v1/test/notifications</c>);</item>
-/// <item>a channel membership for the realtime hub (<see cref="TestChannelMembership"/>, <c>/api/v1/test/channels</c>).</item>
+/// <item>a channel membership for the realtime hub (<see cref="TestChannelMembership"/>, <c>/api/v1/test/channels</c>);</item>
+/// <item>three usage meters, a hard counter, an extra-usage counter and a gauge, with endpoints that use them (<see cref="TestUsageEndpoints"/>).</item>
 /// </list>
 /// </summary>
 internal sealed class TestModule : IModule
@@ -39,6 +41,10 @@ internal sealed class TestModule : IModule
         builder.Services.AddSingleton<TestChannelMembership>();
         builder.Services.AddSingleton<IChannelMembershipChecker>(sp => sp.GetRequiredService<TestChannelMembership>());
         builder.Services.AddSingleton<IUserChannelLookup>(sp => sp.GetRequiredService<TestChannelMembership>());
+
+        builder.Services.AddSingleton<IUsageMeter, TestPagesMeter>();
+        builder.Services.AddSingleton<IUsageMeter, TestExtraMeter>();
+        builder.Services.AddScoped<IUsageMeter, TestItemsMeter>();
     }
 
     public void ConfigureMiddleware(IApplicationBuilder app)
@@ -63,5 +69,6 @@ internal sealed class TestModule : IModule
 
         group.MapTestChannelEndpoints();
         group.MapTestNotificationEndpoint();
+        group.MapTestUsageEndpoints();
     }
 }
