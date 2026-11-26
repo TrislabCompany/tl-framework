@@ -17,6 +17,10 @@ name: ci
 # throw-away containers), then each npm package in packages/ (framework-ui's
 # browser tests run in Chromium). The framework holds only packages and tests,
 # so there are no images to build or scan.
+#
+# After a push to main, the job main-failure-issue keeps one issue "main is
+# failing: ci / ci" (label ci-main) open while the check fails on main, and
+# closes it on the next green run (tl-platform main-failure-issue.yml).
 
 on:
   pull_request:
@@ -124,3 +128,14 @@ jobs:
         run: |
           if ($env:KIND -eq 'all') { ./scripts/affected-tests.ps1 -All -Run }
           else { ./scripts/affected-tests.ps1 -ChangedFiles $env:LIST -Run }
+
+  main-failure-issue:
+    needs: [ci]
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      actions: read
+      issues: write
+      pull-requests: read
+    uses: TrislabCompany/tl-platform/.github/workflows/main-failure-issue.yml@428d6959f4cb95c1d1015ef5a523600a0a222dd0 # app-workflows/v0.6.0
+    with:
+      result: ${{ needs.ci.result }}

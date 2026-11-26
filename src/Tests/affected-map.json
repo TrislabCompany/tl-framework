@@ -35,6 +35,8 @@
     ".github/workflows/perf-nightly.yml",
     ".github/workflows/security-scan.yml",
     ".github/workflows/packages.yml",
+    ".github/workflows/audit.yml",
+    ".audit-accepted",
     ".github/pull_request_template.md",
     ".github/CODEOWNERS",
     "scripts/check-zap-report.ps1",

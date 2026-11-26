@@ -58,8 +58,9 @@ apps built from them (the hosts, the React apps, the samples) live in `tl-produc
 | `tests/security` | The security checks of the test host: the endpoint-authorization test (in `Integration.Tests`), the ZAP scan of the running host on every pull request, and the findings accepted with a reason (`tests/security/README.md`). |
 | `tests/perf` | The k6 performance scripts: a smoke run on every pull request, a load run every night, both against the test host as a container (`tests/perf/README.md`). |
 | `packages/framework-ui` | The npm package `@trislabcompany/framework-ui`: the Trislab theme (CSS variables, Inter, `framework-ui-check-colors`), i18n, the language switch, formatting by language, the Turnstile widget. `npm test` runs in `ci / ci`. |
-| `.github/workflows/ci.yml` | The `ci / ci` check. A PR runs the tests it affects (`scripts/affected-tests.ps1`), lints the changed Markdown and reviews new dependencies; a docs-only PR only lints. A push to `main` runs every test. |
-| `.github/workflows/packages.yml` | On a release tag, publishes the NuGet and npm packages to GitHub Packages (`docs/packages.md`). |
+| `.github/workflows/ci.yml` | The `ci / ci` check. A PR runs the tests it affects (`scripts/affected-tests.ps1`), lints the changed Markdown and reviews new dependencies; a docs-only PR only lints. A push to `main` runs every test, and a failure there opens the issue "main is failing: ci / ci" (label `ci-main`); check the open ones before starting work. |
+| `.github/workflows/packages.yml` | On a release tag, publishes the NuGet and npm packages to GitHub Packages, with build provenance and SBOMs (`docs/packages.md`). |
+| `.github/workflows/audit.yml` | Every day, audits the NuGet and npm dependencies; a failure opens the issue "main is failing: audit" (`docs/packages.md` section 5). |
 | `scripts/` | Scripts for repetitive work, listed in `scripts/README.md` (porting upstream commits). |
 | `docs/` | How the repository works: getting started, architecture, modules, packages, bot protection, the upstream log. |
 | `renovate/framework.json` | The Renovate preset the starters extend: one PR per framework release, raising `TrislabFrameworkVersion` and `framework-ui` together; it does nothing in a product repository (`docs/packages.md`). |

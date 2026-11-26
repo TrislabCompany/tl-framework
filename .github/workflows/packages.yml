@@ -5,12 +5,22 @@ name: packages
 # the NuGet packages of src/BuildingBlocks and src/Modules, and every npm
 # package in packages/. Publishing the same version twice is skipped, so a
 # re-run is safe.
+#
+# Every release also gets (docs/packages.md, section 6):
+#   - a build provenance attestation for each .nupkg and .tgz: which workflow
+#     run built it, from which commit. Check one with
+#     `gh attestation verify <file> --repo TrislabCompany/tl-framework`;
+#   - a CycloneDX SBOM of the NuGet packages and one of each npm package,
+#     attached to the GitHub Release, and kept as the run's artifact `sbom`.
 
 on:
   push:
     tags: ['v*']
 
 permissions: {}
+
+env:
+  CYCLONEDX_VERSION: 6.3.2
 
 jobs:
   nuget:
@@ -19,6 +29,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
+      attestations: write
     defaults:
       run:
         shell: bash
@@ -50,6 +62,26 @@ jobs:
           VERSION: ${{ steps.tag.outputs.version }}
         run: dotnet pack src/App.slnx -c Release -p:Version="$VERSION" -o "$RUNNER_TEMP/nupkg"
 
+      - name: SBOM of the NuGet packages
+        env:
+          VERSION: ${{ steps.tag.outputs.version }}
+        run: |
+          dotnet tool install CycloneDX --version "$CYCLONEDX_VERSION" --tool-path "$RUNNER_TEMP/tools"
+          # Every package of the solution except the test projects, at the release's version.
+          "$RUNNER_TEMP/tools/dotnet-CycloneDX" src/App.slnx --exclude-test-projects --output-format Json \
+            --output "$RUNNER_TEMP/sbom" --filename "trislab-framework-$VERSION.nuget.cdx.json" \
+            --set-name trislab-framework --set-version "$VERSION" --set-type Framework
+
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ runner.temp }}/nupkg/*.nupkg
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sbom-nuget
+          path: ${{ runner.temp }}/sbom/
+          if-no-files-found: error
+
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
@@ -67,6 +99,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
+      attestations: write
     defaults:
       run:
         shell: bash
@@ -89,7 +123,7 @@ jobs:
           registry-url: https://npm.pkg.github.com
           scope: '@trislabcompany'
 
-      - name: Build and publish
+      - name: Build, pack and publish
         if: steps.find.outputs.dirs != ''
         env:
           DIRS: ${{ steps.find.outputs.dirs }}
@@ -99,6 +133,7 @@ jobs:
           # npm refuses a prerelease without a dist-tag; -rc.<n> goes to "next", never "latest".
           dist_tag=latest
           [[ $version == *-* ]] && dist_tag=next
+          mkdir -p "$RUNNER_TEMP/tgz" "$RUNNER_TEMP/sbom"
           for dir in $DIRS; do
             (
               cd "$dir"
@@ -106,11 +141,60 @@ jobs:
               npm ci
               npm version "$version" --no-git-tag-version --allow-same-version
               npm run build --if-present
+              # The SBOM lists what a product installs with the package: its dependencies, not its dev dependencies.
+              npm sbom --sbom-format cyclonedx --omit dev > "$RUNNER_TEMP/sbom/${name#@trislabcompany/}-$version.npm.cdx.json"
+              # The file that is attested is the file that is published.
+              # npm names it <scope>-<name>-<version>.tgz.
+              npm pack --pack-destination "$RUNNER_TEMP/tgz" > /dev/null
+              tgz="$RUNNER_TEMP/tgz/$(echo "${name#@}" | tr / -)-$version.tgz"
+              test -f "$tgz"
               if npm view "$name@$version" version >/dev/null 2>&1; then
                 echo "$name@$version is already published" >> "$GITHUB_STEP_SUMMARY"
               else
-                npm publish --tag "$dist_tag"
+                npm publish "$tgz" --tag "$dist_tag"
                 echo "Published $name@$version ($dist_tag)" >> "$GITHUB_STEP_SUMMARY"
               fi
             )
           done
+
+      - if: steps.find.outputs.dirs != ''
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ runner.temp }}/tgz/*.tgz
+
+      - if: steps.find.outputs.dirs != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sbom-npm
+          path: ${{ runner.temp }}/sbom/
+          if-no-files-found: error
+
+  # The SBOMs go on the GitHub Release of the tag, which an organization owner
+  # creates with the tag (`gh release create`). Without a release yet, they
+  # stay in the run's artifacts, and a re-run of this job attaches them.
+  sbom:
+    name: sbom
+    runs-on: ubuntu-24.04
+    needs: [nuget, npm]
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: sbom-*
+          path: sbom
+          merge-multiple: true
+
+      - name: Attach the SBOMs to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" sbom/*.cdx.json --repo "$GITHUB_REPOSITORY" --clobber
+            echo "Attached $(ls sbom/*.cdx.json | wc -l) SBOMs to the release $GITHUB_REF_NAME" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::There is no GitHub Release $GITHUB_REF_NAME yet. The SBOMs are in this run's artifacts; re-run the job sbom once the release exists"
+          fi
