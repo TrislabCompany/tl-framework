@@ -3,7 +3,7 @@
   "description": "For the starters (tl-product-saas, tl-product-webapp): one PR per framework release vX.Y.Z that raises TrislabFrameworkVersion and @trislabcompany/framework-ui together, with the npm lockfile. In a product repository the template update raises them instead (tl-product-ideas D-40), so this does nothing there.",
   "hostRules": [
     {
-      "description": "GitHub Packages asks for a token even for a public package, and the app's own token can't read it. The token (classic, read:packages) is the org secret TRISLAB_PACKAGES_TOKEN in the Mend developer portal. It lets the npm manager update the lockfile too.",
+      "description": "GitHub Packages asks for a token even for a public package, and the app's own token can't read it. The token (classic, read:packages) is the org secret TRISLAB_PACKAGES_TOKEN in the Mend developer portal. Both the npm manager and the regex manager below read GitHub Packages through it, and it lets the npm manager update the lockfile.",
       "matchHost": "https://npm.pkg.github.com/",
       "hostType": "npm",
       "token": "{{ secrets.TRISLAB_PACKAGES_TOKEN }}"
@@ -12,13 +12,13 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "The one framework version every Trislab.* NuGet package uses. NuGet has no lockfile here, so a regex manager is enough.",
+      "description": "The one framework version every Trislab.* NuGet package uses. NuGet has no lockfile here, so a regex manager is enough. It reads the version from the npm package, never from the tag: .github/workflows/packages.yml publishes the npm package only after every NuGet package (job npm needs nuget), so a version there is a release whose packages all exist. Reading the tag opened the v0.6.0 PR before the packages were published, so its restore failed and it raised only the NuGet version.",
       "managerFilePatterns": ["/(^|/)Directory\\.Packages\\.props$/"],
       "matchStrings": ["<TrislabFrameworkVersion>(?<currentValue>[^<]+)</TrislabFrameworkVersion>"],
       "depNameTemplate": "Trislab framework",
-      "packageNameTemplate": "TrislabCompany/tl-framework",
-      "datasourceTemplate": "github-tags",
-      "extractVersionTemplate": "^v(?<version>.+)$"
+      "packageNameTemplate": "@trislabcompany/framework-ui",
+      "datasourceTemplate": "npm",
+      "registryUrlTemplate": "https://npm.pkg.github.com"
     }
   ],
   "packageRules": [
@@ -29,15 +29,15 @@
       "enabled": false
     },
     {
-      "description": "The framework's NuGet version and its npm package, released with the same version, in one PR. The npm manager reads the registry from the project's .npmrc and updates package-lock.json or pnpm-lock.yaml.",
-      "matchPackageNames": ["TrislabCompany/tl-framework", "@trislabcompany/framework-ui"],
+      "description": "The framework's NuGet version and its npm package, released with the same version and both read from the npm package, in one PR. The npm manager reads the registry from the project's .npmrc and updates package-lock.json or pnpm-lock.yaml.",
+      "matchPackageNames": ["@trislabcompany/framework-ui"],
       "groupName": "Trislab framework",
       "minimumReleaseAge": null,
       "schedule": ["at any time"]
     },
     {
       "description": "Product repositories take the framework with the template update, never on their own.",
-      "matchPackageNames": ["TrislabCompany/tl-framework", "@trislabcompany/**"],
+      "matchPackageNames": ["@trislabcompany/**"],
       "matchRepositories": ["!TrislabCompany/tl-product-saas", "!TrislabCompany/tl-product-webapp"],
       "enabled": false
     }
