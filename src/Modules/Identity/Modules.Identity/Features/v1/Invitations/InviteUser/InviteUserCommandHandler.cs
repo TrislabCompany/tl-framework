@@ -20,7 +20,7 @@ public sealed class InviteUserCommandHandler(MembershipInvitationService invitat
         }
 
         return await invitations
-            .InviteAsync(command.Email, command.FirstName, command.LastName, actor.ToString(), cancellationToken)
+            .InviteAsync(command.Email, command.FirstName, command.LastName, actor.ToString(), asAdmin: false, cancellationToken)
             .ConfigureAwait(false);
     }
 }

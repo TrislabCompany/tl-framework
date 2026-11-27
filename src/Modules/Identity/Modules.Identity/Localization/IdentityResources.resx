@@ -319,4 +319,25 @@
   <data name="Identity.InvitationInvalid" xml:space="preserve">
     <value>The invitation is invalid, has expired or was already used.</value>
   </data>
+  <data name="Identity.ImpersonationReadOnly" xml:space="preserve">
+    <value>Impersonation only reads. End the impersonation to make changes as yourself.</value>
+  </data>
+  <data name="Identity.ImpersonationRequestNotFound" xml:space="preserve">
+    <value>Impersonation request not found.</value>
+  </data>
+  <data name="Identity.ImpersonationRequestNotPending" xml:space="preserve">
+    <value>Only a pending request can be approved.</value>
+  </data>
+  <data name="Identity.ImpersonationNotApproved" xml:space="preserve">
+    <value>The user has not approved this request, or it has expired or was already used.</value>
+  </data>
+  <data name="Identity.RestoreAdminRootOnly" xml:space="preserve">
+    <value>Only platform operators can restore admin access.</value>
+  </data>
+  <data name="Identity.RestoreAdminTenantNotFound" xml:space="preserve">
+    <value>Tenant not found.</value>
+  </data>
+  <data name="Identity.ImpersonationRequestOpen" xml:space="preserve">
+    <value>A request for this user is already waiting for an answer or for its start.</value>
+  </data>
 </root>

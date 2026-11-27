@@ -19,7 +19,7 @@ namespace Integration.Tests.Tests.Impersonation;
 /// cross-tenant (root operator impersonating into another tenant) paths.
 /// </summary>
 [Collection(TrislabCollectionDefinition.Name)]
-public sealed class ImpersonationTests : IAsyncLifetime
+public sealed partial class ImpersonationTests : IAsyncLifetime
 {
     private const string ImpersonationBasePath = TestConstants.IdentityBasePath + "/impersonation";
 
@@ -74,13 +74,12 @@ public sealed class ImpersonationTests : IAsyncLifetime
     {
         // Arrange
         using var rootClient = await _auth.CreateRootAdminClientAsync();
+        var requestId = await ApprovedRequestAsync(rootClient, _tenantAdminUserId, _tenantId, "verifying tenant onboarding");
 
         // Act
         var response = await rootClient.PostAsJsonAsync($"{ImpersonationBasePath}/start", new
         {
-            targetUserId = _tenantAdminUserId,
-            targetTenantId = _tenantId,
-            reason = "verifying tenant onboarding",
+            requestId,
             durationMinutes = 15,
         });
 
@@ -117,14 +116,13 @@ public sealed class ImpersonationTests : IAsyncLifetime
     {
         // Arrange
         using var rootClient = await _auth.CreateRootAdminClientAsync();
+        var requestId = await ApprovedRequestAsync(rootClient, _tenantAdminUserId, _tenantId, "duration override check");
         var before = DateTime.UtcNow;
 
         // Act
         var response = await rootClient.PostAsJsonAsync($"{ImpersonationBasePath}/start", new
         {
-            targetUserId = _tenantAdminUserId,
-            targetTenantId = _tenantId,
-            reason = "duration override check",
+            requestId,
             durationMinutes = 10,
         });
 
@@ -148,12 +146,12 @@ public sealed class ImpersonationTests : IAsyncLifetime
         // Arrange
         using var rootClient = await _auth.CreateRootAdminClientAsync();
 
+        var requestId = await ApprovedRequestAsync(rootClient, _tenantAdminUserId, _tenantId, "trying to escape the cap");
+
         // Act — validator caps at 60 min; 999 should bounce with 400.
         var response = await rootClient.PostAsJsonAsync($"{ImpersonationBasePath}/start", new
         {
-            targetUserId = _tenantAdminUserId,
-            targetTenantId = _tenantId,
-            reason = "trying to escape the cap",
+            requestId,
             durationMinutes = 999,
         });
 
@@ -162,13 +160,13 @@ public sealed class ImpersonationTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Start_Should_RejectCrossTenant_When_CallerIsNotRoot()
+    public async Task Request_Should_RejectCrossTenant_When_CallerIsNotRoot()
     {
         // Arrange — tenant admin tries to impersonate into root tenant.
         using var tenantClient = await CreateTenantAdminClientAsync();
 
         // Act
-        var response = await tenantClient.PostAsJsonAsync($"{ImpersonationBasePath}/start", new
+        var response = await tenantClient.PostAsJsonAsync($"{ImpersonationBasePath}/requests", new
         {
             targetUserId = _rootAdminUserId,
             targetTenantId = TestConstants.RootTenantId,
@@ -180,13 +178,13 @@ public sealed class ImpersonationTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Start_Should_RejectSelfImpersonation()
+    public async Task Request_Should_RejectSelfImpersonation()
     {
         // Arrange — root admin tries to impersonate themselves.
         using var rootClient = await _auth.CreateRootAdminClientAsync();
 
         // Act
-        var response = await rootClient.PostAsJsonAsync($"{ImpersonationBasePath}/start", new
+        var response = await rootClient.PostAsJsonAsync($"{ImpersonationBasePath}/requests", new
         {
             targetUserId = _rootAdminUserId,
             targetTenantId = TestConstants.RootTenantId,
@@ -213,9 +211,7 @@ public sealed class ImpersonationTests : IAsyncLifetime
         // Act
         var response = await nestedClient.PostAsJsonAsync($"{ImpersonationBasePath}/start", new
         {
-            targetUserId = _tenantAdminUserId,
-            targetTenantId = _tenantId,
-            reason = "nested attempt",
+            requestId = Guid.NewGuid(),
         });
 
         // Assert
@@ -224,14 +220,14 @@ public sealed class ImpersonationTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Start_Should_Return404_When_TargetUserDoesNotExistInTenant()
+    public async Task Request_Should_Return404_When_TargetUserDoesNotExistInTenant()
     {
         // Arrange — root admin's userId is NOT in the test tenant, so passing it with
         // targetTenantId=<test tenant> must 404 (same shape as the admin-app wrong-tenant-user bug).
         using var rootClient = await _auth.CreateRootAdminClientAsync();
 
         // Act
-        var response = await rootClient.PostAsJsonAsync($"{ImpersonationBasePath}/start", new
+        var response = await rootClient.PostAsJsonAsync($"{ImpersonationBasePath}/requests", new
         {
             targetUserId = _rootAdminUserId,
             targetTenantId = _tenantId,
@@ -252,9 +248,7 @@ public sealed class ImpersonationTests : IAsyncLifetime
         // Act
         var response = await anonClient.PostAsJsonAsync($"{ImpersonationBasePath}/start", new
         {
-            targetUserId = _tenantAdminUserId,
-            targetTenantId = _tenantId,
-            reason = "anonymous",
+            requestId = Guid.NewGuid(),
         });
 
         // Assert
@@ -459,15 +453,20 @@ public sealed class ImpersonationTests : IAsyncLifetime
         using var basicClient = await _auth.CreateAuthenticatedClientAsync(basicEmail, basicPassword, _tenantId);
 
         // Act
-        var response = await basicClient.PostAsJsonAsync($"{ImpersonationBasePath}/start", new
+        var request = await basicClient.PostAsJsonAsync($"{ImpersonationBasePath}/requests", new
         {
             targetUserId = _tenantAdminUserId,
             targetTenantId = _tenantId,
             reason = "basic user trying to impersonate",
         });
+        var start = await basicClient.PostAsJsonAsync($"{ImpersonationBasePath}/start", new
+        {
+            requestId = Guid.NewGuid(),
+        });
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        request.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        start.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -550,7 +549,9 @@ public sealed class ImpersonationTests : IAsyncLifetime
         var otherToken = await GetTokenWithRetryAsync(otherAdminEmail, TestConstants.DefaultPassword, otherTenantId);
         var otherAdminUserId = ReadSubject(otherToken.AccessToken);
 
-        _ = await StartImpersonationAsync(rootClient, otherAdminUserId, otherTenantId);
+        using var otherAdminClient = await _auth.CreateAuthenticatedClientAsync(
+            otherAdminEmail, TestConstants.DefaultPassword, otherTenantId);
+        _ = await StartImpersonationAsync(rootClient, otherAdminUserId, otherTenantId, otherAdminClient);
         var active = await rootClient.GetFromJsonAsync<List<ImpersonationGrantPayload>>(
             $"{ImpersonationBasePath}/grants?Status=Active&ImpersonatedTenantId={otherTenantId}", Json);
         var grant = active!.First(g => g.ImpersonatedTenantId == otherTenantId);
@@ -578,11 +579,10 @@ public sealed class ImpersonationTests : IAsyncLifetime
         // Arrange
         const string reason = "Customer ticket #4821 — verifying ledger discrepancy";
         using var rootClient = await _auth.CreateRootAdminClientAsync();
+        var requestId = await ApprovedRequestAsync(rootClient, _tenantAdminUserId, _tenantId, reason);
         var startResponse = await rootClient.PostAsJsonAsync($"{ImpersonationBasePath}/start", new
         {
-            targetUserId = _tenantAdminUserId,
-            targetTenantId = _tenantId,
-            reason,
+            requestId,
             durationMinutes = 15,
         });
         startResponse.EnsureSuccessStatusCode();
@@ -772,17 +772,43 @@ public sealed class ImpersonationTests : IAsyncLifetime
 
     // ─── helpers ────────────────────────────────────────────────────────
 
-    private static async Task<string> StartImpersonationAsync(HttpClient asClient, string targetUserId, string targetTenantId)
+    /// <summary>
+    /// Requests, has the target approve (the test tenant's admin unless another approver is given) and starts an
+    /// impersonation; returns its token.
+    /// </summary>
+    private async Task<string> StartImpersonationAsync(
+        HttpClient asClient, string targetUserId, string targetTenantId, HttpClient? approver = null)
     {
-        var response = await asClient.PostAsJsonAsync($"{ImpersonationBasePath}/start", new
-        {
-            targetUserId,
-            targetTenantId,
-            reason = "test fixture",
-        });
+        var requestId = await ApprovedRequestAsync(asClient, targetUserId, targetTenantId, "test fixture", approver);
+        var response = await asClient.PostAsJsonAsync($"{ImpersonationBasePath}/start", new { requestId });
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadFromJsonAsync<ImpersonationResponse>(Json);
         return body!.AccessToken;
+    }
+
+    /// <summary>The operator's request, approved by its target; returns the request id.</summary>
+    private async Task<Guid> ApprovedRequestAsync(
+        HttpClient asClient, string targetUserId, string targetTenantId, string reason, HttpClient? approver = null)
+    {
+        var requestId = await RequestAsync(asClient, targetUserId, targetTenantId, reason);
+
+        using var ownApprover = approver is null ? await CreateTenantAdminClientAsync() : null;
+        var approve = await (approver ?? ownApprover!).PostAsync($"{ImpersonationBasePath}/requests/{requestId}/approve", content: null);
+        approve.StatusCode.ShouldBe(HttpStatusCode.OK, await approve.Content.ReadAsStringAsync());
+        return requestId;
+    }
+
+    private static async Task<Guid> RequestAsync(HttpClient asClient, string targetUserId, string targetTenantId, string reason)
+    {
+        var response = await asClient.PostAsJsonAsync($"{ImpersonationBasePath}/requests", new
+        {
+            targetUserId,
+            targetTenantId,
+            reason,
+        });
+        response.StatusCode.ShouldBe(HttpStatusCode.OK, await response.Content.ReadAsStringAsync());
+        var body = await response.Content.ReadFromJsonAsync<ImpersonationRequestPayload>(Json);
+        return body!.Id;
     }
 
     private HttpClient ClientWithBearer(string accessToken, string tenant)
@@ -862,6 +888,16 @@ public sealed class ImpersonationTests : IAsyncLifetime
         public string ActorTenantId { get; set; } = default!;
         public string ImpersonatedUserId { get; set; } = default!;
         public string ImpersonatedTenantId { get; set; } = default!;
+    }
+
+    private sealed class ImpersonationRequestPayload
+    {
+        public Guid Id { get; set; }
+        public string TargetUserId { get; set; } = default!;
+        public string TargetTenantId { get; set; } = default!;
+        public string Reason { get; set; } = default!;
+        public string Status { get; set; } = default!;
+        public Guid? GrantId { get; set; }
     }
 
     private sealed class ImpersonationGrantPayload

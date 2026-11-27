@@ -22,6 +22,10 @@ using Trislab.Modules.Identity.Features.v1.Groups.GetGroups;
 using Trislab.Modules.Identity.Features.v1.Groups.RemoveUserFromGroup;
 using Trislab.Modules.Identity.Features.v1.Groups.UpdateGroup;
 using Trislab.Modules.Identity.Features.v1.Impersonation.EndImpersonation;
+using Trislab.Modules.Identity.Features.v1.Impersonation.AnswerImpersonationRequest;
+using Trislab.Modules.Identity.Features.v1.Impersonation.GetImpersonationRequests;
+using Trislab.Modules.Identity.Features.v1.Impersonation.RequestImpersonation;
+using Trislab.Modules.Identity.Features.v1.Tenants.RestoreAdminAccess;
 using Trislab.Modules.Identity.Features.v1.Impersonation.GetImpersonationGrants;
 using Trislab.Modules.Identity.Features.v1.Impersonation.RevokeImpersonationGrant;
 using Trislab.Modules.Identity.Features.v1.Impersonation.StartImpersonation;
@@ -191,6 +195,29 @@ public class IdentityModule : IModule
         services.AddSingleton<IdentityMetrics>();
 
         services.ConfigureJwtAuth();
+
+        // Impersonation only reads over the realtime hub as well (D-44).
+        services.Configure<Microsoft.AspNetCore.SignalR.HubOptions>(o =>
+            Microsoft.AspNetCore.SignalR.HubOptionsExtensions.AddFilter<ImpersonationHubFilter>(o));
+    }
+
+    public void ConfigureMiddleware(IApplicationBuilder app)
+    {
+        ArgumentNullException.ThrowIfNull(app);
+
+        // ── Impersonation only reads (D-44) ─────────────────────────────
+        // A token with act_sub sees what its user sees and changes nothing: every write is refused
+        // (403 Identity.ImpersonationReadOnly), except ending the impersonation and the SSE stream token.
+        app.Use(async (ctx, next) =>
+        {
+            if (ImpersonationReadOnly.IsRefused(ctx))
+            {
+                throw new Trislab.Framework.Core.Exceptions.ForbiddenException("Impersonation only reads.")
+                    .Localized<Trislab.Modules.Identity.Localization.IdentityResources>("Identity.ImpersonationReadOnly");
+            }
+
+            await next(ctx).ConfigureAwait(false);
+        });
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
@@ -283,6 +310,14 @@ public class IdentityModule : IModule
         group.MapEndImpersonationEndpoint();
         group.MapGetImpersonationGrantsEndpoint();
         group.MapRevokeImpersonationGrantEndpoint();
+        group.MapRequestImpersonationEndpoint();
+        group.MapGetSentImpersonationRequestsEndpoint();
+        group.MapGetMyImpersonationRequestsEndpoint();
+        group.MapApproveImpersonationRequestEndpoint();
+        group.MapDenyImpersonationRequestEndpoint();
+
+        // the operator's actions on a tenant's admins (D-44)
+        group.MapRestoreAdminAccessEndpoint();
 
         // two-factor authentication (TOTP)
         group.MapEnrollTwoFactorEndpoint();

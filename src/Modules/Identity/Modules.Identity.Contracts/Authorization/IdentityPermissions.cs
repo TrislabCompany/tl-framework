@@ -26,6 +26,11 @@ public static class IdentityPermissions
         public const string ManageRoles   = $"Permissions.{Resource}.ManageRoles";
         public const string Impersonate   = $"Permissions.{Resource}.Impersonate";
         public const string ConfirmEmail  = $"Permissions.{Resource}.ConfirmEmail";
+        /// <summary>
+        /// Give a tenant with no active Admin one again (D-44): an existing member becomes Admin, or an address is
+        /// invited as Admin. Root only.
+        /// </summary>
+        public const string RestoreAdmin  = $"Permissions.{Resource}.RestoreAdmin";
     }
 
     public static class UserRoles
@@ -77,6 +82,8 @@ public static class IdentityPermissions
         public const string View   = $"Permissions.{Resource}.View";
         /// <summary>Revoke an active impersonation grant before its natural expiry.</summary>
         public const string Revoke = $"Permissions.{Resource}.Revoke";
+        /// <summary>Approve or deny the requests to impersonate yourself, or take an approval back (D-44).</summary>
+        public const string Respond = $"Permissions.{Resource}.Respond";
     }
 
     public static IReadOnlyList<TrislabPermission> All { get; } =
@@ -116,5 +123,8 @@ public static class IdentityPermissions
 
         new("View Impersonation Grants",   ActionConstants.View, Impersonation.Resource),
         new("Revoke Impersonation Grants", "Revoke",             Impersonation.Resource),
+        new("Answer Impersonation Requests", "Respond",          Impersonation.Resource, IsBasic: true),
+
+        new("Restore Tenant Admin Access", "RestoreAdmin",       Users.Resource, IsRoot: true),
     ];
 }

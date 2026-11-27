@@ -13,22 +13,27 @@ namespace Trislab.Modules.Identity.Migrations
     [DbContext(typeof(IdentityDbContext))]
     partial class IdentityDbContextModelSnapshot : ModelSnapshot
     {
+        // If you encounter a merge conflict in the line below, it means you need to
+        // discard one of the migration branches and recreate its migrations on top of
+        // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
+        public override string LastMigrationId => "20261127104529_ImpersonationApprovals";
+
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.15")
+                .HasAnnotation("ProductVersion", "11.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.Property<int>("Id")
+                    var id = b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(id);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("text");
@@ -294,6 +299,73 @@ namespace Trislab.Modules.Identity.Migrations
                     b.ToTable("ImpersonationGrants", "identity");
                 });
 
+            modelBuilder.Entity("Trislab.Modules.Identity.Domain.ImpersonationRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActorTenantId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ActorUserId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ActorUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("AnsweredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("GrantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("RequestedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("TargetTenantId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("TargetUserId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("TargetUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GrantId");
+
+                    b.HasIndex("ActorUserId", "RequestedAtUtc");
+
+                    b.HasIndex("TargetTenantId", "TargetUserId", "RequestedAtUtc");
+
+                    b.ToTable("ImpersonationRequests", "identity");
+                });
+
             modelBuilder.Entity("Trislab.Modules.Identity.Domain.MembershipInvitation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -317,6 +389,9 @@ namespace Trislab.Modules.Identity.Migrations
 
                     b.Property<DateTime>("ExpiresOnUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("GrantsAdmin")
+                        .HasColumnType("boolean");
 
                     b.Property<Guid>("MembershipId")
                         .HasColumnType("uuid");
@@ -356,11 +431,11 @@ namespace Trislab.Modules.Identity.Migrations
 
             modelBuilder.Entity("Trislab.Modules.Identity.Domain.PasswordHistory", b =>
                 {
-                    b.Property<int>("Id")
+                    var id = b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(id);
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -482,11 +557,11 @@ namespace Trislab.Modules.Identity.Migrations
 
             modelBuilder.Entity("Trislab.Modules.Identity.Domain.TrislabRoleClaim", b =>
                 {
-                    b.Property<int>("Id")
+                    var id = b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(id);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("text");

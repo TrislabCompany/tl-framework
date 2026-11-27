@@ -60,6 +60,10 @@ public enum SecurityAction
     SessionsRevoked = 24,
     PasswordReset = 25,
     AccountLockedOut = 26,
+    ImpersonationRequested = 27,
+    ImpersonationApproved = 28,
+    ImpersonationDenied = 29,
+    AdminAccessRestored = 30,
 }
 
 /// <summary>

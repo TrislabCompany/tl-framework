@@ -26,6 +26,7 @@ public sealed class IdentityGlobalEntitiesTests
         "IdentityUserToken`1",
         "PasswordHistory",
         "ImpersonationGrant",
+        "ImpersonationRequest",
         "SignInSelection",
     ];
 

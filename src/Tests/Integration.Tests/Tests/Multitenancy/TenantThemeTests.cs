@@ -229,28 +229,34 @@ public sealed class TenantThemeTests : IAsyncLifetime
     #region Cross-Tenant Isolation
 
     [Fact]
-    public async Task UpdateTheme_Should_NotLeakAcrossTenants_When_RootOperatorTargetsTenantA()
+    public async Task UpdateTheme_Should_NotLeakAcrossTenants_When_RootOperatorReadsThroughHeader()
     {
-        // Arrange — root operator scopes to tenant A via the header override and
-        // sets a distinctive primary color.
+        // Arrange — tenant A's own admin sets a distinctive primary color. The root operator only reads
+        // inside a tenant (D-44), so the write is the tenant's.
         var rootToken = await _auth.GetRootAdminTokenAsync();
         const string marker = "#9911AA";
 
-        using (var clientA = _factory.CreateClient())
+        using (var adminA = await _auth.CreateAuthenticatedClientAsync(
+            _tenantAAdminEmail, TestConstants.DefaultPassword, _tenantA))
         {
-            clientA.DefaultRequestHeaders.Authorization = new("Bearer", rootToken.AccessToken);
-            clientA.DefaultRequestHeaders.Add("tenant", _tenantA);
-            var update = await clientA.PutAsJsonAsync(ThemePath, ValidTheme(primary: marker));
+            var update = await adminA.PutAsJsonAsync(ThemePath, ValidTheme(primary: marker));
             await ShouldHaveStatusAsync(update, HttpStatusCode.NoContent);
         }
 
-        // Act — root operator now scopes to tenant B and reads its theme.
+        // Act — the root operator reads tenant A's and tenant B's themes through the header override.
+        using var clientA = _factory.CreateClient();
+        clientA.DefaultRequestHeaders.Authorization = new("Bearer", rootToken.AccessToken);
+        clientA.DefaultRequestHeaders.Add("tenant", _tenantA);
+        var responseA = await clientA.GetAsync(ThemePath);
+
         using var clientB = _factory.CreateClient();
         clientB.DefaultRequestHeaders.Authorization = new("Bearer", rootToken.AccessToken);
         clientB.DefaultRequestHeaders.Add("tenant", _tenantB);
         var responseB = await clientB.GetAsync(ThemePath);
 
-        // Assert — tenant B must NOT see tenant A's customization.
+        // Assert — A shows its customization, and tenant B must NOT see it.
+        await ShouldHaveStatusAsync(responseA, HttpStatusCode.OK);
+        (await responseA.Content.ReadFromJsonAsync<TenantThemeDto>(Json))!.LightPalette.Primary.ShouldBe(marker);
         await ShouldHaveStatusAsync(responseB, HttpStatusCode.OK);
         var themeB = await responseB.Content.ReadFromJsonAsync<TenantThemeDto>(Json);
         themeB.ShouldNotBeNull();

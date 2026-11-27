@@ -91,10 +91,11 @@ public sealed class MultitenancyModule : IModule
     {
         ArgumentNullException.ThrowIfNull(app);
 
-        // ── Root-operator header override ──────────────────────────────
+        // ── Root-operator header override (read only, D-44) ────────────
         // A "root"-claim caller scopes one request to another tenant via the `tenant` header. The claim strategy has
         // already resolved that caller to root, so the switch happens here, post-auth. Gated on claim==root +
-        // header set != root + target exists.
+        // header set != root + target exists. The operator only reads inside another tenant: any write through the
+        // override is refused (403 Multitenancy.RootReadOnly), never run in the root tenant instead.
         app.Use(async (ctx, next) =>
         {
             IDisposable? rootOverride = null;
@@ -107,6 +108,12 @@ public sealed class MultitenancyModule : IModule
                 {
                     var store = ctx.RequestServices.GetRequiredService<IMultiTenantStore<AppTenantInfo, string>>();
                     var target = await store.GetAsync(headerValue).ConfigureAwait(false);
+                    if (target is not null && !ReadOnlyRequest.IsAllowed(ctx))
+                    {
+                        throw new ForbiddenException("A platform operator only reads inside another tenant.")
+                            .Localized<MultitenancyResources>("Multitenancy.RootReadOnly");
+                    }
+
                     if (target is not null)
                     {
                         // For the rest of the request; the root tenant is back once it ends.

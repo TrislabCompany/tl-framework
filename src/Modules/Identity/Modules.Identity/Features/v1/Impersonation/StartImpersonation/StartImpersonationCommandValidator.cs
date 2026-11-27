@@ -16,12 +16,7 @@ public sealed class StartImpersonationCommandValidator : AbstractValidator<Start
 
     public StartImpersonationCommandValidator(IStringLocalizer<SharedResources> localizer)
     {
-        RuleFor(p => p.TargetUserId)
-            .Cascade(CascadeMode.Stop)
-            .NotEmpty();
-
-        RuleFor(p => p.TargetTenantId)
-            .Cascade(CascadeMode.Stop)
+        RuleFor(p => p.RequestId)
             .NotEmpty();
 
         RuleFor(p => p.DurationMinutes!.Value)

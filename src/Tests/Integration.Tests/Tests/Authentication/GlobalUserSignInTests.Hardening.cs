@@ -518,19 +518,29 @@ public sealed partial class GlobalUserSignInTests
     {
         var (_, tenantB, user) = await CreateUserInTwoTenantsAsync("swimp");
         using var root = await _auth.CreateRootAdminClientAsync();
-        using var start = await root.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/impersonation/start", new
+        using var request = await root.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/impersonation/requests", new
         {
             targetUserId = user.UserId,
             targetTenantId = tenantB,
             reason = "Support ticket for the switch test",
         });
+        request.StatusCode.ShouldBe(HttpStatusCode.OK, await request.Content.ReadAsStringAsync());
+        var requestId = (await request.Content.ReadFromJsonAsync<JsonElement>(JsonOptions)).GetProperty("id").GetGuid();
+
+        // The user approves in tenant B (D-44), then the operator starts.
+        using var target = Bearer((await SignInAsync(user.Email, user.Password, tenantB)).AccessToken!);
+        using var approve = await target.PostAsync($"{TestConstants.IdentityBasePath}/impersonation/requests/{requestId}/approve", content: null);
+        approve.StatusCode.ShouldBe(HttpStatusCode.OK, await approve.Content.ReadAsStringAsync());
+
+        using var start = await root.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/impersonation/start", new { requestId });
         start.StatusCode.ShouldBe(HttpStatusCode.OK, await start.Content.ReadAsStringAsync());
         var impersonation = await start.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
         var accessToken = impersonation.GetProperty("accessToken").GetString()!;
 
+        // Impersonation only reads, so the switch is refused before its own check (which answers 400).
         using var client = Bearer(accessToken);
         (await client.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/token/switch", new { tenant = tenantB })).StatusCode
-            .ShouldBe(HttpStatusCode.BadRequest);
+            .ShouldBe(HttpStatusCode.Forbidden);
     }
 
     // ---- Permissions per tenant --------------------------------------------------------------------------

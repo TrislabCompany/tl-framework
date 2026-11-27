@@ -319,4 +319,25 @@
   <data name="Identity.InvitationInvalid" xml:space="preserve">
     <value>Povabilo ni veljavno, je poteklo ali je že bilo uporabljeno.</value>
   </data>
+  <data name="Identity.ImpersonationReadOnly" xml:space="preserve">
+    <value>Prevzem identitete omogoča samo branje. Za spremembe končajte prevzem in jih naredite kot vi.</value>
+  </data>
+  <data name="Identity.ImpersonationRequestNotFound" xml:space="preserve">
+    <value>Zahteve za prevzem identitete ni mogoče najti.</value>
+  </data>
+  <data name="Identity.ImpersonationRequestNotPending" xml:space="preserve">
+    <value>Odobriti je mogoče samo zahtevo, ki čaka na odgovor.</value>
+  </data>
+  <data name="Identity.ImpersonationNotApproved" xml:space="preserve">
+    <value>Uporabnik te zahteve ni odobril, ali pa je potekla ali je bila že uporabljena.</value>
+  </data>
+  <data name="Identity.RestoreAdminRootOnly" xml:space="preserve">
+    <value>Skrbniški dostop lahko obnovijo samo upravljavci platforme.</value>
+  </data>
+  <data name="Identity.RestoreAdminTenantNotFound" xml:space="preserve">
+    <value>Najemnika ni mogoče najti.</value>
+  </data>
+  <data name="Identity.ImpersonationRequestOpen" xml:space="preserve">
+    <value>Zahteva za tega uporabnika že čaka na odgovor ali na začetek.</value>
+  </data>
 </root>

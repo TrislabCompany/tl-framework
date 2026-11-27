@@ -9,6 +9,7 @@ using Trislab.Framework.Core.Exceptions;
 using Trislab.Framework.Eventing.Abstractions;
 using Trislab.Framework.Mailing;
 using Trislab.Framework.Jobs.Mail;
+using Trislab.Framework.Shared.Constants;
 using Trislab.Framework.Shared.Multitenancy;
 using Trislab.Framework.Web.Frontend;
 using Trislab.Modules.Auditing.Contracts;
@@ -69,7 +70,7 @@ public sealed class MembershipInvitationService(
     /// not tell an administrator which addresses have accounts elsewhere.
     /// </summary>
     public async Task<InvitationDto> InviteAsync(
-        string email, string? firstName, string? lastName, string invitedBy, CancellationToken ct)
+        string email, string? firstName, string? lastName, string invitedBy, bool asAdmin, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
         ArgumentException.ThrowIfNullOrWhiteSpace(invitedBy);
@@ -77,7 +78,7 @@ public sealed class MembershipInvitationService(
         var started = timeProvider.GetTimestamp();
         try
         {
-            return await InviteCoreAsync(email, firstName, lastName, invitedBy, ct).ConfigureAwait(false);
+            return await InviteCoreAsync(email, firstName, lastName, invitedBy, asAdmin, ct).ConfigureAwait(false);
         }
         finally
         {
@@ -86,7 +87,7 @@ public sealed class MembershipInvitationService(
     }
 
     private async Task<InvitationDto> InviteCoreAsync(
-        string email, string? firstName, string? lastName, string invitedBy, CancellationToken ct)
+        string email, string? firstName, string? lastName, string invitedBy, bool asAdmin, CancellationToken ct)
     {
         var tenantId = CurrentTenantId();
         email = email.Trim();
@@ -126,7 +127,8 @@ public sealed class MembershipInvitationService(
 
         var token = NewToken();
         var invitation = MembershipInvitation.Create(
-            membership.Id, account.Id, email, HashToken(token), invitedBy, now, TimeSpan.FromHours(options.Value.LifetimeHours));
+            membership.Id, account.Id, email, HashToken(token), invitedBy, now, TimeSpan.FromHours(options.Value.LifetimeHours),
+            grantsAdmin: asAdmin);
         db.MembershipInvitations.Add(invitation);
         await db.SaveChangesAsync(ct).ConfigureAwait(false);
 
@@ -136,7 +138,7 @@ public sealed class MembershipInvitationService(
             SecurityAction.InvitationSent,
             account.Id,
             "InvitationSent",
-            new Dictionary<string, object?> { ["invitationId"] = invitation.Id, ["invitedBy"] = invitedBy, ["tenant"] = tenantId },
+            new Dictionary<string, object?> { ["invitationId"] = invitation.Id, ["invitedBy"] = invitedBy, ["tenant"] = tenantId, ["asAdmin"] = asAdmin },
             ct: ct).ConfigureAwait(false);
 
         return ToDto(invitation, now);
@@ -365,6 +367,10 @@ public sealed class MembershipInvitationService(
             }).ConfigureAwait(false);
 
             await MembershipRules.AssignDefaultRoleAndGroupsAsync(scopedUsers, scopedDb, account, "Invitation", scopedCt).ConfigureAwait(false);
+            if (invitation.GrantsAdmin && !await scopedUsers.IsInRoleAsync(account, RoleConstants.Admin).ConfigureAwait(false))
+            {
+                await scopedUsers.AddToRoleAsync(account, RoleConstants.Admin).ConfigureAwait(false);
+            }
             await services.GetRequiredService<IUserPermissionService>().InvalidatePermissionCacheAsync(account.Id, scopedCt).ConfigureAwait(false);
 
             var scopedAuditor = services.GetRequiredService<IdentityAuditor>();

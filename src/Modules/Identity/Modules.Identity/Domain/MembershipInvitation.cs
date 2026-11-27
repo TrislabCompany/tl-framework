@@ -27,10 +27,14 @@ public class MembershipInvitation
     public DateTime? RevokedOnUtc { get; private set; }
     public string? RevokedBy { get; private set; }
 
+    /// <summary>Accepting makes the member an Admin too: the operator's "restore admin access" (D-44).</summary>
+    public bool GrantsAdmin { get; private set; }
+
     private MembershipInvitation() { } // EF Core
 
     public static MembershipInvitation Create(
-        Guid membershipId, string userId, string email, string tokenHash, string createdBy, DateTime nowUtc, TimeSpan lifetime)
+        Guid membershipId, string userId, string email, string tokenHash, string createdBy, DateTime nowUtc, TimeSpan lifetime,
+        bool grantsAdmin = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
@@ -51,6 +55,7 @@ public class MembershipInvitation
             CreatedBy = createdBy,
             CreatedOnUtc = nowUtc,
             ExpiresOnUtc = nowUtc.Add(lifetime),
+            GrantsAdmin = grantsAdmin,
         };
     }
 
