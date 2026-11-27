@@ -1,0 +1,163 @@
+name: pr-packages
+
+# Publishes the packages of a pull request as a prerelease, so a starter can be built and tested against the
+# change before it is released (docs/packages.md, section 3, item 5). The version is the
+# next minor after the newest release, then the pull request and the run: 0.7.0-pr.54.3 after v0.6.0. It sorts
+# below the release it leads to, so no product ever takes it by accident:
+#   - the npm package goes to the dist-tag pr-<number>, never latest or next;
+#   - the starters' Renovate preset skips -pr. versions (renovate/framework.json).
+#
+# Only for branches of this repository: a pull request from a fork gets no token that may write packages. Bots'
+# pull requests (Renovate) are skipped, as are pull requests that change no package.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'src/BuildingBlocks/**'
+      - 'src/Modules/**'
+      - 'src/Directory.Build.props'
+      - 'src/Directory.Packages.props'
+      - 'packages/**'
+
+permissions: {}
+
+concurrency:
+  group: pr-packages-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  version:
+    name: version
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.type != 'Bot'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Compute the version
+        id: version
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          RUN: ${{ github.run_number }}
+        run: |
+          latest=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || true)
+          latest=${latest:-v0.0.0}
+          IFS=. read -r major minor _ <<< "${latest#v}"
+          version="$major.$((minor + 1)).0-pr.$PR.$RUN"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Prerelease $version (after $latest)" >> "$GITHUB_STEP_SUMMARY"
+
+  nuget:
+    name: nuget
+    needs: version
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Pack
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: dotnet pack src/App.slnx -c Release -p:Version="$VERSION" -o "$RUNNER_TEMP/nupkg"
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          dotnet nuget push "$RUNNER_TEMP/nupkg/*.nupkg" \
+            --source "https://nuget.pkg.github.com/${GITHUB_REPOSITORY_OWNER}/index.json" \
+            --api-key "$GH_TOKEN" \
+            --skip-duplicate
+          echo "Published $(ls "$RUNNER_TEMP"/nupkg/*.nupkg | wc -l) NuGet packages at $VERSION" >> "$GITHUB_STEP_SUMMARY"
+
+  # After the NuGet job, as in packages.yml: an npm version means every NuGet package of it is published too.
+  npm:
+    name: npm
+    needs: [version, nuget]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Find the packages
+        id: find
+        run: |
+          dirs=$(find packages -mindepth 2 -maxdepth 2 -name package.json -printf '%h\n' 2>/dev/null | sort || true)
+          echo "dirs=$(echo $dirs)" >> "$GITHUB_OUTPUT"
+
+      - if: steps.find.outputs.dirs != ''
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+          scope: '@trislabcompany'
+
+      - name: Build and publish
+        if: steps.find.outputs.dirs != ''
+        env:
+          DIRS: ${{ steps.find.outputs.dirs }}
+          NODE_AUTH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+          DIST_TAG: pr-${{ github.event.pull_request.number }}
+        run: |
+          for dir in $DIRS; do
+            (
+              cd "$dir"
+              name=$(node -p "require('./package.json').name")
+              npm ci
+              npm version "$VERSION" --no-git-tag-version --allow-same-version
+              npm run build --if-present
+              if npm view "$name@$VERSION" version >/dev/null 2>&1; then
+                echo "$name@$VERSION is already published" >> "$GITHUB_STEP_SUMMARY"
+              else
+                npm publish --tag "$DIST_TAG"
+                echo "Published $name@$VERSION ($DIST_TAG)" >> "$GITHUB_STEP_SUMMARY"
+              fi
+            )
+          done
+
+      - name: How to use it in a starter
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          {
+            echo ""
+            echo "In a starter's pull request (docs/packages.md):"
+            echo ""
+            echo '```'
+            echo "src/Directory.Packages.props:  <TrislabFrameworkVersion>$VERSION</TrislabFrameworkVersion>"
+            echo "clients/<app> or web/:         npm install @trislabcompany/framework-ui@$VERSION --save-exact"
+            echo '```'
+            echo ""
+            echo "Say \"Depends on TrislabCompany/tl-framework#$PR\", and pin the release before merging."
+          } >> "$GITHUB_STEP_SUMMARY"
