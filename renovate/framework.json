@@ -36,6 +36,11 @@
       "schedule": ["at any time"]
     },
     {
+      "description": "A pull request's prerelease (.github/workflows/pr-packages.yml, 0.7.0-pr.54.3) is only for testing that pull request in a starter by hand; Renovate never proposes one.",
+      "matchDepNames": ["Trislab framework", "@trislabcompany/framework-ui"],
+      "allowedVersions": "!/-pr\\./"
+    },
+    {
       "description": "Product repositories take the framework with the template update, never on their own.",
       "matchPackageNames": ["@trislabcompany/**"],
       "matchRepositories": ["!TrislabCompany/tl-product-saas", "!TrislabCompany/tl-product-webapp"],
