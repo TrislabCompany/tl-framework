@@ -92,6 +92,8 @@ public class IdentityDbContext : IdentityDbContext<TrislabUser,
 
     public DbSet<ImpersonationGrant> ImpersonationGrants => Set<ImpersonationGrant>();
 
+    public DbSet<ImpersonationRequest> ImpersonationRequests => Set<ImpersonationRequest>();
+
     /// <summary>The active members of the current tenant.</summary>
     public IQueryable<TrislabUser> ActiveMembers =>
         Users.Where(u => TenantMemberships.Any(m => m.UserId == u.Id && m.IsActive && m.AcceptedOnUtc != null));

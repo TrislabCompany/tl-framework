@@ -157,4 +157,7 @@
   <data name="TenantProvisioningStatus.Failed" xml:space="preserve">
     <value>Failed</value>
   </data>
+  <data name="Multitenancy.RootReadOnly" xml:space="preserve">
+    <value>A platform operator only reads inside another tenant. Changes are made by the tenant's administrators.</value>
+  </data>
 </root>

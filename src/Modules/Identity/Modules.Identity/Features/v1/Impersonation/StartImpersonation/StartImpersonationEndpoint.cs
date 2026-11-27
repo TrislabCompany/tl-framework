@@ -26,7 +26,7 @@ public static class StartImpersonationEndpoint
             })
             .WithName("StartImpersonation")
             .WithSummary("Start user impersonation")
-            .WithDescription("Issues a short-lived access token representing the target user. The token carries actor claims (act_sub, act_tenant) identifying the original caller. Platform operators (root tenant) may impersonate any user; tenant admins can only impersonate users within their own tenant. No refresh token is issued.")
+            .WithDescription("Starts the impersonation of an approved request of the caller, once. Issues a short-lived, read-only access token representing the requested user: every write but ending the impersonation returns 403. The token carries actor claims (act_sub, act_tenant) identifying the original caller. No refresh token is issued.")
             .RequirePermission(IdentityPermissions.Users.Impersonate)
             .Produces<ImpersonationResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)

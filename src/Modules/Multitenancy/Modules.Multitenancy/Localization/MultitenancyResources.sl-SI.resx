@@ -157,4 +157,7 @@
   <data name="TenantProvisioningStatus.Failed" xml:space="preserve">
     <value>Neuspelo</value>
   </data>
+  <data name="Multitenancy.RootReadOnly" xml:space="preserve">
+    <value>Upravljavec platforme v drugem najemniku samo bere. Spremembe naredijo skrbniki najemnika.</value>
+  </data>
 </root>

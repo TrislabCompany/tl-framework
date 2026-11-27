@@ -219,6 +219,86 @@ public sealed class TenantHeaderOverrideTests : IAsyncLifetime
         page.Items.ShouldContain(u => u.Email == _tenantAAdminEmail);
     }
 
+    // ─── D-44: the operator only reads inside another tenant ────────────
+
+    [Fact]
+    public async Task RootOperator_Should_BeRefused_When_WritingThroughHeader()
+    {
+        // Arrange — the root admin reads tenant A's theme through the header, then tries to write it back.
+        var rootToken = await _auth.GetRootAdminTokenAsync();
+        using var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new("Bearer", rootToken.AccessToken);
+        client.DefaultRequestHeaders.Add("tenant", _tenantA);
+        var themePath = $"{TestConstants.TenantsBasePath}/theme";
+        var before = await client.GetStringAsync(themePath);
+        var invitee = $"through-header-{Guid.NewGuid():N}@thot.com";
+
+        // Act — a PUT, a POST and a DELETE into tenant A.
+        using var themeBody = new StringContent(before, System.Text.Encoding.UTF8, "application/json");
+        var put = await client.PutAsync(themePath, themeBody);
+        var reset = await client.PostAsync($"{themePath}/reset", content: null);
+        var invite = await client.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/invitations", new { email = invitee });
+        var delete = await client.DeleteAsync($"{TestConstants.IdentityBasePath}/users/{Guid.NewGuid()}");
+
+        // Assert — each refused with the coded 403, and tenant A unchanged.
+        foreach (var response in new[] { put, reset, invite, delete })
+        {
+            response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+            var problem = await response.Content.ReadFromJsonAsync<JsonElement>(Json);
+            problem.GetProperty("code").GetString().ShouldBe("Multitenancy.RootReadOnly");
+        }
+
+        (await client.GetStringAsync(themePath)).ShouldBe(before);
+        using var tenantAAdmin = await _auth.CreateAuthenticatedClientAsync(_tenantAAdminEmail, TestConstants.DefaultPassword, _tenantA);
+        var invitations = await tenantAAdmin.GetStringAsync($"{TestConstants.IdentityBasePath}/invitations?PageNumber=1&PageSize=100");
+        invitations.ShouldNotContain(invitee);
+    }
+
+    [Fact]
+    public async Task RootOperator_Should_GetAnSseToken_Through_Header()
+    {
+        // The SSE stream token changes no tenant data, so it stays allowed while reading another tenant.
+        var rootToken = await _auth.GetRootAdminTokenAsync();
+        using var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new("Bearer", rootToken.AccessToken);
+        client.DefaultRequestHeaders.Add("tenant", _tenantA);
+
+        var response = await client.PostAsync("/api/v1/sse/token", content: null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task RootOperator_Should_StillWrite_InRoot_Without_Override()
+    {
+        // The read-only rule is about other tenants: root's own writes (here an invitation into root) still work.
+        using var rootClient = await _auth.CreateRootAdminClientAsync();
+
+        var response = await rootClient.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/invitations", new
+        {
+            email = $"root-own-{Guid.NewGuid():N}@thot.com",
+        });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Accepted);
+    }
+
+    [Fact]
+    public async Task TenantAdmin_Should_StillWrite_When_HeaderNamesAnotherTenant()
+    {
+        // A tenant admin's header is ignored (claim wins), so the read-only rule never applies to them.
+        var tenantAToken = await GetTokenWithRetryAsync(_tenantAAdminEmail, TestConstants.DefaultPassword, _tenantA);
+        using var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new("Bearer", tenantAToken.AccessToken);
+        client.DefaultRequestHeaders.Add("tenant", _tenantB);
+
+        var response = await client.PostAsJsonAsync($"{TestConstants.IdentityBasePath}/invitations", new
+        {
+            email = $"tenant-a-own-{Guid.NewGuid():N}@thot.com",
+        });
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Accepted);
+    }
+
     // ─── helpers ────────────────────────────────────────────────────────
 
     private async Task<TokenResult> GetTokenWithRetryAsync(string email, string password, string tenant, int maxRetries = 30)

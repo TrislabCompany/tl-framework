@@ -1,50 +1,26 @@
 using System.Security.Claims;
-using Trislab.Framework.Core.Context;
 using Trislab.Framework.Shared.Constants;
-using Trislab.Modules.Auditing.Contracts;
-using Trislab.Modules.Identity.Contracts.Services;
-using Trislab.Modules.Identity.Contracts.v1.Impersonation;
-using Trislab.Modules.Identity.Contracts.v1.Impersonation.StartImpersonation;
 using Trislab.Modules.Identity.Features.v1.Impersonation.StartImpersonation;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace Identity.Tests.Handlers;
 
 /// <summary>
 /// The impersonation token must NOT carry the target user's `locale` claim — language is a
-/// presentation concern, so the operator keeps reading in their own language.
+/// presentation concern, so the operator keeps reading in their own language. The start itself
+/// (the approved request, consumed once) is covered end to end by Integration.Tests ImpersonationTests.
 /// </summary>
 public sealed class StartImpersonationCommandHandlerTests
 {
     private const string TenantId = "codefi";
     private const string TargetUserId = "target-user";
 
-    private readonly IIdentityService _identityService = Substitute.For<IIdentityService>();
-    private readonly ITokenService _tokenService = Substitute.For<ITokenService>();
-    private readonly ISecurityAudit _securityAudit = Substitute.For<ISecurityAudit>();
-    private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
-    private readonly IRequestContext _requestContext = Substitute.For<IRequestContext>();
-    private readonly IImpersonationGrantService _grantService = Substitute.For<IImpersonationGrantService>();
-
-    private StartImpersonationCommandHandler CreateSut() =>
-        new(_identityService, _tokenService, _securityAudit, _currentUser, _requestContext,
-            _grantService, TimeProvider.System, Substitute.For<ILogger<StartImpersonationCommandHandler>>());
-
     [Fact]
-    public async Task Handle_strips_locale_but_preserves_identity_claims_and_injects_actor()
+    public void ImpersonationClaims_strips_locale_but_preserves_identity_claims_and_injects_actor()
     {
-        // Arrange — an authenticated operator in the same tenant as the target.
-        var actorUserId = Guid.NewGuid();
-        _currentUser.IsAuthenticated().Returns(true);
-        _currentUser.GetUserId().Returns(actorUserId);
-        _currentUser.GetTenant().Returns(TenantId);
-        _currentUser.Name.Returns("operator");
-        _currentUser.GetUserClaims().Returns(new List<Claim>());
-
-        // A realistic target claim set: the persisted `locale` must be dropped, but every other
+        // Arrange — a realistic target claim set: the persisted `locale` must be dropped, but every other
         // identity claim (name, role, subject, tenant) must survive into the impersonation token.
+        var actorUserId = Guid.NewGuid().ToString();
         var targetClaims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Jti, "orig-jti"),
@@ -54,28 +30,11 @@ public sealed class StartImpersonationCommandHandlerTests
             new(ClaimTypes.Role, "Admin"),
             new("locale", "sl-SI"),
         };
-        _identityService
-            .BuildClaimsForUserAsync(TargetUserId, TenantId, Arg.Any<CancellationToken>())
-            .Returns(((string, IEnumerable<Claim>)?)(TargetUserId, targetClaims));
-
-        IEnumerable<Claim>? issuedClaims = null;
-        _tokenService
-            .IssueAccessOnlyAsync(
-                Arg.Any<string>(),
-                Arg.Do<IEnumerable<Claim>>(c => issuedClaims = c),
-                Arg.Any<TimeSpan?>(),
-                Arg.Any<CancellationToken>())
-            .Returns(("access-token", DateTime.UtcNow.AddMinutes(15)));
-
-        var sut = CreateSut();
 
         // Act
-        await sut.Handle(new StartImpersonationCommand(TargetUserId, TenantId, "reason", 15), CancellationToken.None);
+        var issued = StartImpersonationCommandHandler.ImpersonationClaims(targetClaims, "new-jti", actorUserId, TenantId);
 
         // Assert
-        issuedClaims.ShouldNotBeNull();
-        var issued = issuedClaims.ToList();
-
         // (a) locale is stripped — the operator keeps reading in their own language.
         issued.ShouldNotContain(c => c.Type == "locale");
 
@@ -87,14 +46,11 @@ public sealed class StartImpersonationCommandHandlerTests
         issued.ShouldContain(c => c.Type == ClaimConstants.Tenant && c.Value == TenantId);
 
         // (c) RFC 8693 actor claims are injected so the token records who is acting.
-        issued.ShouldContain(c => c.Type == ClaimConstants.ActorSubject && c.Value == actorUserId.ToString());
+        issued.ShouldContain(c => c.Type == ClaimConstants.ActorSubject && c.Value == actorUserId);
         issued.ShouldContain(c => c.Type == ClaimConstants.ActorTenant && c.Value == TenantId);
 
-        // (d) the jti is swapped: the target's original jti is gone and exactly one fresh, non-empty
-        //     jti is present (so the persisted grant row and the JWT share a new identifier).
-        issued.ShouldNotContain(c => c.Type == JwtRegisteredClaimNames.Jti && c.Value == "orig-jti");
-        var jti = issued.Single(c => c.Type == JwtRegisteredClaimNames.Jti);
-        jti.Value.ShouldNotBe("orig-jti");
-        jti.Value.ShouldNotBeNullOrWhiteSpace();
+        // (d) the jti is swapped: the target's original jti is gone and exactly the new one is present
+        //     (so the persisted grant row and the JWT share one identifier).
+        issued.Single(c => c.Type == JwtRegisteredClaimNames.Jti).Value.ShouldBe("new-jti");
     }
 }
